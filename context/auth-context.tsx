@@ -1,62 +1,64 @@
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import React, {
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
   createContext,
   useCallback,
   useContext,
   useEffect,
   useMemo,
   useState,
-} from 'react';
+  type ReactNode,
+} from "react";
 
-import { api, setAuthToken, type ApiUser } from '@/lib/api';
+import { api, setUnauthorizedHandler } from "../lib/api";
 
-/** JWT stored in AsyncStorage (legacy `portal_auth_token` still read on boot). */
-const STORAGE_JWT = 'jwt';
-const STORAGE_TOKEN_LEGACY = 'portal_auth_token';
-const STORAGE_USER = 'portal_auth_user';
+const TOKEN_KEY = "ncc_auth_token";
+
+type User = {
+  id: number;
+  name: string;
+  regimentalNumber: string | null;
+  email: string | null;
+  role: string;
+  college: string;
+};
 
 type AuthContextValue = {
   token: string | null;
-  user: ApiUser | null;
+  user: User | null;
   loading: boolean;
-  /** POST /auth/login — regimental number + password */
   login: (regimentalNumber: string, password: string) => Promise<void>;
-  loginStudent: (regimentalNumber: string, password: string) => Promise<void>;
-  loginStaff: (email: string, password: string) => Promise<void>;
-  registerStudent: (input: {
-    name: string;
-    regimentalNumber: string;
-    password: string;
-    college: string;
-  }) => Promise<void>;
   logout: () => Promise<void>;
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+export function AuthProvider({ children }: { children: ReactNode }) {
   const [token, setToken] = useState<string | null>(null);
-  const [user, setUser] = useState<ApiUser | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const [jwt, legacyToken, uJson] = await Promise.all([
-          AsyncStorage.getItem(STORAGE_JWT),
-          AsyncStorage.getItem(STORAGE_TOKEN_LEGACY),
-          AsyncStorage.getItem(STORAGE_USER),
-        ]);
-        const t = jwt ?? legacyToken;
+        const stored = await AsyncStorage.getItem(TOKEN_KEY);
         if (cancelled) return;
-        if (legacyToken && !jwt) {
-          await AsyncStorage.setItem(STORAGE_JWT, legacyToken);
-        }
-        if (t && uJson) {
-          setToken(t);
-          setAuthToken(t);
-          setUser(JSON.parse(uJson) as ApiUser);
+        if (stored) {
+          api.defaults.headers.common.Authorization = `Bearer ${stored}`;
+          try {
+            const { data } = await api.get<{ user: User }>("/api/me");
+            if (cancelled) return;
+            // Logout (or another login) may have cleared storage while /api/me was in flight.
+            const still = await AsyncStorage.getItem(TOKEN_KEY);
+            if (still !== stored) return;
+            setToken(stored);
+            setUser(data.user);
+          } catch {
+            await AsyncStorage.removeItem(TOKEN_KEY);
+            delete api.defaults.headers.common.Authorization;
+            setToken(null);
+            setUser(null);
+          }
         }
       } finally {
         if (!cancelled) setLoading(false);
@@ -67,82 +69,48 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, []);
 
-  const persist = useCallback(async (t: string, u: ApiUser) => {
-    setToken(t);
-    setUser(u);
-    setAuthToken(t);
-    await Promise.all([
-      AsyncStorage.setItem(STORAGE_JWT, t),
-      AsyncStorage.removeItem(STORAGE_TOKEN_LEGACY),
-      AsyncStorage.setItem(STORAGE_USER, JSON.stringify(u)),
-    ]);
+  const login = useCallback(async (regimentalNumber: string, password: string) => {
+    const { data } = await api.post<{ token: string; user: User }>("/api/login", {
+      regimentalNumber: regimentalNumber.trim(),
+      password,
+    });
+    try {
+      await AsyncStorage.setItem(TOKEN_KEY, data.token);
+    } catch {
+      delete api.defaults.headers.common.Authorization;
+      throw new Error("Could not save session on this device.");
+    }
+    api.defaults.headers.common.Authorization = `Bearer ${data.token}`;
+    setToken(data.token);
+    setUser(data.user);
   }, []);
-
-  const login = useCallback(
-    async (regimentalNumber: string, password: string) => {
-      const { data } = await api.post<{ token: string; user: ApiUser }>('/auth/login', {
-        regimentalNumber,
-        password,
-      });
-      await persist(data.token, data.user);
-    },
-    [persist]
-  );
-
-  const loginStudent = useCallback(
-    async (regimentalNumber: string, password: string) => {
-      await login(regimentalNumber, password);
-    },
-    [login]
-  );
-
-  const loginStaff = useCallback(
-    async (email: string, password: string) => {
-      const { data } = await api.post<{ token: string; user: ApiUser }>('/auth/login/staff', {
-        email,
-        password,
-      });
-      await persist(data.token, data.user);
-    },
-    [persist]
-  );
-
-  const registerStudent = useCallback(
-    async (input: {
-      name: string;
-      regimentalNumber: string;
-      password: string;
-      college: string;
-    }) => {
-      const { data } = await api.post<{ token: string; user: ApiUser }>('/auth/register', input);
-      await persist(data.token, data.user);
-    },
-    [persist]
-  );
 
   const logout = useCallback(async () => {
-    setToken(null);
-    setUser(null);
-    setAuthToken(null);
-    await Promise.all([
-      AsyncStorage.removeItem(STORAGE_JWT),
-      AsyncStorage.removeItem(STORAGE_TOKEN_LEGACY),
-      AsyncStorage.removeItem(STORAGE_USER),
-    ]);
+    try {
+      await AsyncStorage.removeItem(TOKEN_KEY);
+    } finally {
+      delete api.defaults.headers.common.Authorization;
+      setToken(null);
+      setUser(null);
+    }
   }, []);
 
-  const value = useMemo(
+  useEffect(() => {
+    setUnauthorizedHandler(() => {
+      void logout();
+    });
+    return () => setUnauthorizedHandler(null);
+  }, [logout]);
+
+  const value = useMemo<AuthContextValue>(
     () => ({
       token,
       user,
       loading,
       login,
-      loginStudent,
-      loginStaff,
-      registerStudent,
       logout,
     }),
-    [token, user, loading, login, loginStudent, loginStaff, registerStudent, logout]
+    [token, user, loading, login, logout]
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -150,8 +118,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
 export function useAuth() {
   const ctx = useContext(AuthContext);
-  if (!ctx) {
-    throw new Error('useAuth must be used within AuthProvider');
-  }
+  if (!ctx) throw new Error("useAuth must be used within AuthProvider");
   return ctx;
 }

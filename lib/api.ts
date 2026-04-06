@@ -1,45 +1,42 @@
-import axios, { type AxiosError } from 'axios';
+import axios, { type AxiosError, isAxiosError } from "axios";
+import Constants from "expo-constants";
 
-import { getApiBaseUrl } from '@/lib/config';
+const baseURL =
+  process.env.EXPO_PUBLIC_API_URL ??
+  (Constants.expoConfig?.extra as { apiUrl?: string } | undefined)?.apiUrl ??
+  "http://127.0.0.1:3000";
 
 export const api = axios.create({
-  baseURL: getApiBaseUrl(),
+  baseURL,
   timeout: 20000,
-  headers: { 'Content-Type': 'application/json' },
+  headers: { "Content-Type": "application/json" },
 });
 
-export type ApiUser = {
-  id: number;
-  name: string;
-  regimentalNumber: string | null;
-  email: string | null;
-  role: string;
-  college: string;
-};
+/** Set from `AuthProvider` so 401s clear storage + axios header + React state without importing this file from context. */
+let onUnauthorized: (() => void) | null = null;
 
-export function setAuthToken(token: string | null) {
-  if (token) {
-    api.defaults.headers.common.Authorization = `Bearer ${token}`;
-  } else {
-    delete api.defaults.headers.common.Authorization;
+export function setUnauthorizedHandler(handler: (() => void) | null) {
+  onUnauthorized = handler;
+}
+
+api.interceptors.response.use(
+  (response) => response,
+  (error: unknown) => {
+    if (isAxiosError(error) && error.response?.status === 401) {
+      try {
+        onUnauthorized?.();
+      } catch {
+        /* avoid breaking the rejection chain */
+      }
+    }
+    return Promise.reject(error);
   }
-}
+);
 
-export function getErrorMessage(err: unknown, fallback = 'Something went wrong'): string {
+export function getErrorMessage(err: unknown, fallback: string): string {
   const ax = err as AxiosError<{ error?: string }>;
-  return ax.response?.data?.error ?? ax.message ?? fallback;
+  const msg = ax.response?.data?.error;
+  if (typeof msg === "string" && msg.trim()) return msg;
+  if (ax.message) return ax.message;
+  return fallback;
 }
-
-export type ExamListItem = {
-  id: number;
-  title: string;
-  duration: number;
-  questionCount: number;
-};
-
-export type StudentResultItem = {
-  id: number;
-  score: number;
-  examId: number;
-  examTitle: string;
-};

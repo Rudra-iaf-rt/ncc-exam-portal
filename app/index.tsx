@@ -1,36 +1,31 @@
-import { Redirect } from 'expo-router';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { Redirect } from "expo-router";
+import { ActivityIndicator, StyleSheet, View } from "react-native";
 
-import { PortalColors } from '@/constants/portal';
-import { useAuth } from '@/context/auth-context';
+import { useAuth } from "../context/auth-context";
+import { Colors } from "../constants/theme";
 
 export default function Index() {
-  const { user, loading } = useAuth();
+  const { token, loading } = useAuth();
 
   if (loading) {
     return (
       <View style={styles.center}>
-        <ActivityIndicator size="large" color={PortalColors.accent} />
+        <ActivityIndicator size="large" color={Colors.primary} />
       </View>
     );
   }
 
-  if (!user) {
-    return <Redirect href="/(auth)/login" />;
+  if (token) {
+    return <Redirect href="/dashboard" />;
   }
-
-  if (user.role === 'STUDENT') {
-    return <Redirect href="/(student)" />;
-  }
-
-  return <Redirect href="/(staff)" />;
+  return <Redirect href="/login" />;
 }
 
 const styles = StyleSheet.create({
   center: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: PortalColors.navy,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: Colors.background,
   },
 });
