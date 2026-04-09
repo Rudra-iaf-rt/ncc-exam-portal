@@ -28,6 +28,7 @@ model Exam {
   title     String
   duration  Int // minutes
   createdBy Int
+  createdAt DateTime   @default(now())
   creator   User       @relation("ExamCreator", fields: [createdBy], references: [id])
   questions Question[]
   attempts  Attempt[]
@@ -35,32 +36,34 @@ model Exam {
 }
 
 model Question {
-  id       Int    @id @default(autoincrement())
+  id       Int      @id @default(autoincrement())
   examId   Int
   question String
   options  String[]
   answer   String
-  exam     Exam   @relation(fields: [examId], references: [id], onDelete: Cascade)
+  exam     Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
 }
 
 model Attempt {
-  id        Int    @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   studentId Int
   examId    Int
   status    String // IN_PROGRESS | SUBMITTED
-  student   User   @relation(fields: [studentId], references: [id])
-  exam      Exam   @relation(fields: [examId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  student   User     @relation(fields: [studentId], references: [id])
+  exam      Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, examId])
 }
 
 model Result {
-  id        Int  @id @default(autoincrement())
+  id        Int      @id @default(autoincrement())
   studentId Int
   examId    Int
   score     Int // percentage 0–100
-  student   User @relation(fields: [studentId], references: [id])
-  exam      Exam @relation(fields: [examId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  student   User     @relation(fields: [studentId], references: [id])
+  exam      Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, examId])
 }
