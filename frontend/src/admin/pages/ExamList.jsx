@@ -23,19 +23,19 @@ export default function ExamList() {
   const CreateAction = (
     <NavLink to="/admin/exams/create" className="adm-btn adm-btn-primary">
       <Plus size={16} strokeWidth={1.5} />
-      <span>Create New Exam</span>
+      <span>Deploy New Examination</span>
     </NavLink>
   );
 
   if (loading) {
-    return <div style={{ color: 'var(--ink-4)', padding: '40px', fontFamily: 'var(--f-mono)', fontSize: '13px' }}>Loading exam registry...</div>;
+    return <div style={{ color: 'var(--ink-4)', padding: '40px', fontFamily: 'var(--f-mono)', fontSize: '13px' }}>Accessing HQ exam registry...</div>;
   }
 
   return (
     <div>
       <PageHeader 
-        title="Manage *Exams*" 
-        subtitle="Catalog of all training and certificate examinations available in the system." 
+        title="Exam *Management*" 
+        subtitle="Catalogue of all training and certificate examinations historically archived" 
         action={CreateAction}
       />
 
@@ -43,8 +43,8 @@ export default function ExamList() {
         <table className="adm-table">
           <thead>
             <tr>
-              <th style={{ width: '80px' }}>ID</th>
-              <th>Exam Title</th>
+              <th style={{ width: '80px' }}>Ref ID</th>
+              <th>Designation / Title</th>
               <th>Duration</th>
               <th>Questions</th>
               <th>Status</th>
@@ -55,7 +55,7 @@ export default function ExamList() {
             {exams.length === 0 ? (
               <tr>
                 <td colSpan="6" style={{ textAlign: 'center', padding: '48px', color: 'var(--ink-4)', fontWeight: 300 }}>
-                  No exams found. Create your first exam to get started.
+                  No active assessment protocols found in the database.
                 </td>
               </tr>
             ) : (
@@ -68,15 +68,15 @@ export default function ExamList() {
                   <td>{e.duration} Minutes</td>
                   <td>{e.questionCount} Items</td>
                   <td>
-                    <span className="adm-badge adm-badge-success">Active</span>
+                    <span className="adm-badge adm-badge-success">Operational</span>
                   </td>
                   <td style={{ textAlign: 'right' }}>
                     <div style={{ display: 'flex', gap: '8px', justifyContent: 'flex-end', alignItems: 'center' }}>
-                      <button className="adm-btn adm-btn-ghost" style={{ padding: '6px' }} title="View Detailed Results" disabled>
+                      <button className="adm-btn adm-btn-ghost" style={{ padding: '6px' }} title="View Detail" disabled>
                         <Eye size={16} strokeWidth={1.5} />
                       </button>
                       <div style={{ fontSize: '10px', color: 'var(--crimson)', opacity: 0.6, fontStyle: 'italic' }}>
-                        Details Soon
+                        API Pending
                       </div>
                     </div>
                   </td>
@@ -87,15 +87,15 @@ export default function ExamList() {
         </table>
       </div>
       
-      {/* System Policy */}
+      {/* Operational Disclaimer */}
       <div className="adm-card" style={{ marginTop: '32px', borderLeft: '4px solid var(--gold-2)', padding: '20px' }}>
         <div style={{ display: 'flex', gap: '16px' }}>
           <ShieldAlert size={20} style={{ color: 'var(--gold-3)' }} />
           <div>
-            <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--navy)' }}>System Policy</div>
+            <div style={{ fontWeight: 600, fontSize: '14px', color: 'var(--navy)' }}>Operational Protocol</div>
             <div style={{ fontSize: '13px', color: 'var(--ink-4)', marginTop: '4px', lineHeight: 1.5 }}>
-              Modification of active exams is currently restricted. New exams can be created via the 'Create New Exam' button. 
-              To delete or modify existing records, please contact the system administrator.
+              Modification of deployed exam parameters is restricted. Currently, only new exam deployment is supported via this terminal. 
+              Removal or modification of existing registries requires Command Level permission (Backend API update).
             </div>
           </div>
         </div>

@@ -42,16 +42,17 @@ export default function AdminLogin() {
       <div className="adm-card adm-login-card" style={{ padding: '40px', maxWidth: '420px', width: '90%' }}>
         <div style={{ textAlign: 'center', marginBottom: '32px' }}>
           <div style={{ 
-            width: '80px', 
-            height: '80px', 
+            width: '64px', 
+            height: '64px', 
+            background: 'var(--navy)', 
+            borderRadius: '12px', 
+            display: 'flex', 
+            alignItems: 'center', 
+            justifyContent: 'center', 
             margin: '0 auto 20px',
-            filter: 'drop-shadow(0 8px 16px rgba(11, 22, 43, 0.15))'
+            boxShadow: '0 8px 16px rgba(11, 22, 43, 0.1)'
           }}>
-            <img 
-              src="/assets/ncc-logo.png" 
-              alt="NCC Logo" 
-              style={{ width: '100%', height: '100%', objectFit: 'contain' }} 
-            />
+            <ShieldCheck size={32} color="var(--gold-2)" strokeWidth={1.5} />
           </div>
           <h1 style={{ 
             fontFamily: 'var(--f-display)', 
@@ -60,9 +61,9 @@ export default function AdminLogin() {
             margin: '0 0 8px 0',
             letterSpacing: '-0.02em'
           }}>
-            Admin Portal
+            Command Centre
           </h1>
-          <p style={{ color: 'var(--ink-4)', fontSize: '13px', fontWeight: 400 }}>Authorized Access Only</p>
+          <p style={{ color: 'var(--ink-4)', fontSize: '13px', fontWeight: 400 }}>Authentication required for Unit Registry Access</p>
         </div>
 
         {error && (
@@ -86,12 +87,12 @@ export default function AdminLogin() {
 
         <form onSubmit={handleSubmit}>
           <div className="adm-form-group">
-            <label className="adm-label">Email Address</label>
+            <label className="adm-label">Email Designation</label>
             <div style={{ position: 'relative' }}>
               <input 
                 type="email" 
                 className="adm-input" 
-                placeholder="admin@ncc.gov.in"
+                placeholder="officer@ncc.hq"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -103,7 +104,7 @@ export default function AdminLogin() {
           </div>
 
           <div className="adm-form-group" style={{ marginBottom: '32px' }}>
-            <label className="adm-label">Password</label>
+            <label className="adm-label">Access Key Code</label>
             <div style={{ position: 'relative' }}>
               <input 
                 type="password" 
@@ -125,7 +126,7 @@ export default function AdminLogin() {
             style={{ width: '100%', padding: '14px', fontSize: '15px' }}
             disabled={isSubmitting}
           >
-            <span>{isSubmitting ? 'Authenticating...' : 'Sign In'}</span>
+            <span>{isSubmitting ? 'Verifying Credentials...' : 'Sign In to HQ'}</span>
           </button>
         </form>
 

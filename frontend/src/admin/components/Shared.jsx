@@ -1,12 +1,9 @@
 import '../admin.css';
 
-export function StatCard({ label, value, subtext, icon, color = 'var(--navy)' }) {
+export function StatCard({ label, value, subtext, color = 'var(--navy)' }) {
   return (
     <div className="adm-card adm-stat-card">
-      <div className="adm-stat-header">
-        <span className="adm-stat-label">{label}</span>
-        {icon && <div className="adm-stat-icon" style={{ color }}>{icon}</div>}
-      </div>
+      <span className="adm-stat-label">{label}</span>
       <div className="adm-stat-value" style={{ color }}>{value}</div>
       {subtext && <div className="adm-stat-sub">{subtext}</div>}
     </div>
@@ -14,6 +11,7 @@ export function StatCard({ label, value, subtext, icon, color = 'var(--navy)' })
 }
 
 export function PageHeader({ title, subtitle, action }) {
+  // Title might have italicized text using <em>
   const renderTitle = () => {
     if (typeof title === 'string') {
       const parts = title.split('*');

@@ -15,6 +15,7 @@ export function AdminLayout() {
   const { user, logout } = useAdminAuth();
   const navigate = useNavigate();
 
+  // Apply admin body theme
   useEffect(() => {
     document.body.classList.add('adm-body');
     return () => document.body.classList.remove('adm-body');
@@ -35,13 +36,13 @@ export function AdminLayout() {
               <span className="adm-sb-shield-txt">NCC</span>
             </div>
             <div>
-              <div className="adm-sb-name">Admin Portal</div>
-              <div className="adm-sb-sub">Exam Portal · Unit HQ</div>
+              <div className="adm-sb-name">Command Centre</div>
+              <div className="adm-sb-sub">Tirupati Unit · v1.0</div>
             </div>
           </div>
         </div>
 
-        <div className="adm-sb-section">Examinations</div>
+        <div className="adm-sb-section">Operational</div>
         <nav style={{ flex: 1 }}>
           <NavLink to="/admin/dashboard" className={({ isActive }) => `adm-nav-link ${isActive ? 'active' : ''}`}>
             <LayoutDashboard size={18} strokeWidth={1.5} />
@@ -49,17 +50,17 @@ export function AdminLayout() {
           </NavLink>
           <NavLink to="/admin/exams" className={({ isActive }) => `adm-nav-link ${isActive ? 'active' : ''}`}>
             <FileText size={18} strokeWidth={1.5} />
-            <span>Manage Exams</span>
+            <span>Exam Management</span>
           </NavLink>
           <NavLink to="/admin/results" className={({ isActive }) => `adm-nav-link ${isActive ? 'active' : ''}`}>
             <Trophy size={18} strokeWidth={1.5} />
-            <span>Exam Results</span>
+            <span>Results Board</span>
           </NavLink>
           
-          <div className="adm-sb-section">Management</div>
+          <div className="adm-sb-section">Personnel</div>
           <NavLink to="/admin/users" className={({ isActive }) => `adm-nav-link ${isActive ? 'active' : ''}`}>
             <Users size={18} strokeWidth={1.5} />
-            <span>Cadet Registry</span>
+            <span>User Management</span>
             <span className="adm-badge adm-badge-neutral" style={{ marginLeft: 'auto', fontSize: '0.6rem', opacity: 0.6 }}>Soon</span>
           </NavLink>
         </nav>

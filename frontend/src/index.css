@@ -1,0 +1,100 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap');
+
+:root {
+  /* Design Tokens from NCC Style Guide */
+  --olive:      #3B3D2A;
+  --olive-mid:  #5A5E3E;
+  --olive-soft: #8B9063;
+  --olive-pale: #C8CC9E;
+  --olive-wash: #EEF0E0;
+  
+  --navy:       #1A2744;
+  --navy-mid:   #253660;
+  --navy-soft:  #4A6090;
+  --navy-pale:  #B8C8E0;
+  --navy-wash:  #EDF1F8;
+  
+  --gold:       #B8860B;
+  --gold-mid:   #D4A017;
+  --gold-pale:  #F0DC82;
+  --gold-wash:  #FBF5DC;
+  
+  --crimson:    #8B1A1A;
+  --crimson-soft:#C44040;
+  --crimson-wash:#FAEAEA;
+  
+  --stone:      #F4F2EC;
+  --stone-mid:  #E8E4D8;
+  --stone-deep: #CCC8BC;
+  
+  --ink:        #1C1C18;
+  --ink-2:      #3A3A34;
+  --ink-3:      #6A6A60;
+  --ink-4:      #9A9A8E;
+  
+  --white:      #FDFCF8; /* Parchment */
+  
+  --r: 6px; 
+  --rl: 10px;
+  
+  --f-display: 'Cormorant Garamond', serif;
+  --f-ui: 'Outfit', sans-serif;
+  --f-mono: 'DM Mono', monospace;
+
+  /* Legacy compatibility / Mapping */
+  --text: var(--ink-2);
+  --text-h: var(--ink);
+  --bg: var(--stone);
+  --border: var(--stone-deep);
+  --accent: var(--navy);
+  
+  font-family: var(--f-ui);
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* { 
+  box-sizing: border-box; 
+  margin: 0; 
+  padding: 0; 
+}
+
+body {
+  font-family: var(--f-ui);
+  background: var(--stone);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  color: var(--ink);
+  font-weight: 500;
+}
+
+a {
+  color: var(--navy);
+  text-decoration: none;
+  transition: opacity 0.2s;
+}
+
+a:hover {
+  opacity: 0.8;
+}
+
+#root {
+  min-height: 100svh;
+  display: flex;
+  flex-direction: column;
+}
+
+code {
+  font-family: var(--f-mono);
+  font-size: 13px;
+  background: var(--stone-mid);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--navy-mid);
+}
+

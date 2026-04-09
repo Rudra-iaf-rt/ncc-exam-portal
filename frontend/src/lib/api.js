@@ -22,6 +22,7 @@ export async function apiFetch(endpoint, options = {}) {
 
     if (!response.ok) {
       if (response.status === 401 && !endpoint.includes('/auth/login')) {
+        // Handle unauthorized (expired token)
         localStorage.removeItem('ncc_token');
         localStorage.removeItem('ncc_user');
         window.dispatchEvent(new Event('ncc_logout'));
