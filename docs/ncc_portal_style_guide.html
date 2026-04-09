@@ -1,0 +1,1222 @@
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap');
+
+:root {
+  --olive:      #3B3D2A;
+  --olive-mid:  #5A5E3E;
+  --olive-soft: #8B9063;
+  --olive-pale: #C8CC9E;
+  --olive-wash: #EEF0E0;
+  --navy:       #1A2744;
+  --navy-mid:   #253660;
+  --navy-soft:  #4A6090;
+  --navy-pale:  #B8C8E0;
+  --navy-wash:  #EDF1F8;
+  --gold:       #B8860B;
+  --gold-mid:   #D4A017;
+  --gold-pale:  #F0DC82;
+  --gold-wash:  #FBF5DC;
+  --crimson:    #8B1A1A;
+  --crimson-soft:#C44040;
+  --crimson-wash:#FAEAEA;
+  --stone:      #F4F2EC;
+  --stone-mid:  #E8E4D8;
+  --stone-deep: #CCC8BC;
+  --ink:        #1C1C18;
+  --ink-2:      #3A3A34;
+  --ink-3:      #6A6A60;
+  --ink-4:      #9A9A8E;
+  --white:      #FDFCF8;
+  --r:6px; --rl:10px;
+  --f-display:'Cormorant Garamond',serif;
+  --f-ui:'Outfit',sans-serif;
+  --f-mono:'DM Mono',monospace;
+}
+
+* { box-sizing:border-box; margin:0; padding:0; }
+
+body {
+  font-family:var(--f-ui);
+  background:var(--stone);
+  color:var(--ink);
+  font-size:15px;
+  line-height:1.6;
+}
+
+.sg { display:flex; min-height:100vh; }
+
+.sidebar {
+  width:220px;
+  flex-shrink:0;
+  background:var(--navy);
+  display:flex;
+  flex-direction:column;
+  padding:0 0 32px;
+  position:sticky;
+  top:0;
+  height:100vh;
+  overflow-y:auto;
+}
+
+.sb-brand {
+  padding:28px 20px 20px;
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  margin-bottom:8px;
+}
+.sb-emblem {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:12px;
+}
+.sb-shield {
+  width:32px;
+  height:36px;
+  background:var(--gold);
+  clip-path:polygon(0 0,100% 0,100% 70%,50% 100%,0 70%);
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  flex-shrink:0;
+}
+.sb-shield-txt {
+  font-family:var(--f-mono);
+  font-size:10px;
+  font-weight:500;
+  color:var(--navy);
+  margin-top:-4px;
+}
+.sb-name {
+  font-family:var(--f-display);
+  font-size:17px;
+  color:#E8E4D4;
+  line-height:1.2;
+  font-style:italic;
+}
+.sb-sub {
+  font-family:var(--f-mono);
+  font-size:9px;
+  color:rgba(255,255,255,0.3);
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  margin-top:2px;
+}
+
+.sb-section {
+  font-family:var(--f-mono);
+  font-size:9px;
+  letter-spacing:0.14em;
+  text-transform:uppercase;
+  color:rgba(255,255,255,0.22);
+  padding:16px 20px 4px;
+}
+
+.sidebar a {
+  display:block;
+  padding:7px 20px;
+  font-size:13px;
+  color:rgba(255,255,255,0.45);
+  text-decoration:none;
+  border-left:2px solid transparent;
+  font-weight:400;
+  transition:all 0.15s;
+}
+.sidebar a:hover { color:rgba(255,255,255,0.82); background:rgba(255,255,255,0.04); }
+.sidebar a.active { color:#E8E4D4; border-left-color:var(--gold); background:rgba(255,255,255,0.06); }
+
+.main { flex:1; overflow-x:hidden; }
+
+.hero {
+  background:var(--navy);
+  padding:56px 64px 48px;
+  position:relative;
+  overflow:hidden;
+}
+.hero-stripe {
+  position:absolute;
+  top:0; left:0; right:0;
+  height:3px;
+  background:linear-gradient(90deg,var(--gold) 0%,var(--gold-mid) 40%,var(--olive-pale) 100%);
+}
+.hero-kicker {
+  font-family:var(--f-mono);
+  font-size:10px;
+  letter-spacing:0.16em;
+  text-transform:uppercase;
+  color:var(--gold);
+  margin-bottom:14px;
+}
+.hero-title {
+  font-family:var(--f-display);
+  font-size:52px;
+  color:#F4F0E4;
+  line-height:1.05;
+  font-weight:500;
+  margin-bottom:8px;
+}
+.hero-title em { font-style:italic; color:var(--gold-pale); }
+.hero-tagline {
+  font-size:15px;
+  color:rgba(255,255,255,0.45);
+  font-weight:300;
+  margin-bottom:32px;
+  max-width:480px;
+}
+.hero-pills {
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+}
+.hero-pill {
+  font-family:var(--f-mono);
+  font-size:10px;
+  letter-spacing:0.1em;
+  padding:4px 12px;
+  border:1px solid rgba(255,255,255,0.12);
+  border-radius:20px;
+  color:rgba(255,255,255,0.4);
+}
+
+.content { padding:56px 64px 120px; max-width:900px; }
+
+.section { margin-bottom:72px; }
+
+.sec-label {
+  font-family:var(--f-mono);
+  font-size:9px;
+  letter-spacing:0.18em;
+  text-transform:uppercase;
+  color:var(--olive-soft);
+  margin-bottom:6px;
+}
+.sec-title {
+  font-family:var(--f-display);
+  font-size:32px;
+  color:var(--ink);
+  line-height:1.1;
+  margin-bottom:6px;
+  font-weight:500;
+}
+.sec-title em { font-style:italic; color:var(--navy-soft); }
+.sec-desc {
+  font-size:14px;
+  color:var(--ink-3);
+  margin-bottom:28px;
+  max-width:580px;
+  font-weight:300;
+  line-height:1.7;
+}
+
+.divider { height:1px; background:var(--stone-mid); margin:0 0 28px; }
+
+.sub-head {
+  font-family:var(--f-mono);
+  font-size:10px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--ink-4);
+  margin:28px 0 14px;
+  padding-bottom:8px;
+  border-bottom:1px solid var(--stone-mid);
+}
+
+.note {
+  font-size:13px;
+  color:var(--ink-3);
+  background:var(--navy-wash);
+  border-left:3px solid var(--navy-soft);
+  padding:10px 14px;
+  border-radius:0 var(--r) var(--r) 0;
+  margin:14px 0;
+  font-weight:400;
+}
+.note strong { color:var(--navy); font-weight:500; }
+
+.warn {
+  font-size:13px;
+  color:var(--ink-3);
+  background:var(--gold-wash);
+  border-left:3px solid var(--gold);
+  padding:10px 14px;
+  border-radius:0 var(--r) var(--r) 0;
+  margin:14px 0;
+}
+
+.mono { font-family:var(--f-mono); font-size:12px; background:var(--stone-mid); padding:2px 7px; border-radius:4px; color:var(--navy-mid); }
+
+/* ── COLOR SECTION ── */
+.color-palette { display:grid; grid-template-columns:repeat(auto-fill,minmax(160px,1fr)); gap:12px; margin:16px 0; }
+.cp-card { border-radius:var(--rl); overflow:hidden; border:1px solid var(--stone-deep); }
+.cp-swatch { height:80px; }
+.cp-info { padding:10px 12px; background:var(--white); }
+.cp-name { font-weight:500; font-size:13px; color:var(--ink); }
+.cp-role { font-size:11px; color:var(--ink-3); margin-top:1px; font-weight:300; }
+.cp-hex { font-family:var(--f-mono); font-size:10px; color:var(--ink-4); margin-top:4px; }
+
+.color-scale { display:flex; gap:4px; margin:12px 0 20px; }
+.cs-stop { flex:1; height:36px; border-radius:4px; position:relative; }
+.cs-label { font-family:var(--f-mono); font-size:9px; color:var(--ink-4); margin-top:4px; text-align:center; }
+
+/* ── TYPOGRAPHY SECTION ── */
+.type-row {
+  display:flex;
+  align-items:baseline;
+  gap:24px;
+  padding:18px 0;
+  border-bottom:1px solid var(--stone-mid);
+}
+.type-row:last-child { border-bottom:none; }
+.type-meta { width:160px; flex-shrink:0; }
+.type-meta-name { font-family:var(--f-mono); font-size:10px; color:var(--ink-4); letter-spacing:0.08em; }
+.type-meta-spec { font-family:var(--f-mono); font-size:9px; color:var(--ink-4); margin-top:3px; line-height:1.5; }
+.type-sample { flex:1; }
+
+/* ── SPACING SECTION ── */
+.spacing-grid { display:flex; flex-direction:column; gap:10px; margin:16px 0; }
+.sp-row { display:flex; align-items:center; gap:16px; }
+.sp-bar-wrap { flex:1; display:flex; align-items:center; gap:10px; }
+.sp-bar { background:var(--navy-pale); border-radius:2px; height:20px; }
+.sp-name { font-family:var(--f-mono); font-size:11px; color:var(--ink-3); width:60px; }
+.sp-val { font-family:var(--f-mono); font-size:11px; color:var(--ink-4); width:80px; }
+.sp-use { font-size:12px; color:var(--ink-3); font-weight:300; }
+
+/* ── COMPONENT SECTION ── */
+.comp-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0; }
+
+.comp-card {
+  background:var(--white);
+  border:1px solid var(--stone-deep);
+  border-radius:var(--rl);
+  padding:20px;
+}
+.comp-card-label {
+  font-family:var(--f-mono);
+  font-size:9px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--ink-4);
+  margin-bottom:16px;
+  padding-bottom:10px;
+  border-bottom:1px solid var(--stone-mid);
+}
+
+/* Buttons */
+.btn-row { display:flex; flex-wrap:wrap; gap:8px; }
+.btn {
+  height:36px;
+  padding:0 18px;
+  border-radius:var(--r);
+  font-family:var(--f-ui);
+  font-size:13px;
+  font-weight:500;
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  cursor:pointer;
+  border:none;
+  letter-spacing:0.01em;
+}
+.btn-primary { background:var(--navy); color:#F4F0E4; }
+.btn-secondary { background:var(--olive-wash); color:var(--olive); border:1px solid var(--olive-pale); }
+.btn-ghost { background:transparent; color:var(--ink-2); border:1px solid var(--stone-deep); }
+.btn-danger { background:var(--crimson-wash); color:var(--crimson); border:1px solid rgba(139,26,26,0.2); }
+.btn-gold { background:var(--gold-wash); color:var(--gold); border:1px solid var(--gold-pale); }
+.btn-sm { height:30px; padding:0 12px; font-size:12px; }
+.btn-lg { height:42px; padding:0 24px; font-size:14px; }
+
+/* Badges */
+.badge-row { display:flex; flex-wrap:wrap; gap:6px; align-items:center; }
+.badge {
+  font-family:var(--f-mono);
+  font-size:10px;
+  letter-spacing:0.06em;
+  padding:3px 9px;
+  border-radius:20px;
+  font-weight:500;
+}
+.badge-pub { background:var(--navy-wash); color:var(--navy-mid); }
+.badge-draft { background:var(--stone-mid); color:var(--ink-3); }
+.badge-active { background:#EAF3DE; color:#3B6D11; }
+.badge-closed { background:var(--crimson-wash); color:var(--crimson); }
+.badge-gold { background:var(--gold-wash); color:var(--gold); }
+.badge-olive { background:var(--olive-wash); color:var(--olive-mid); }
+
+/* Input */
+.field { margin-bottom:14px; }
+.field-label {
+  font-family:var(--f-mono);
+  font-size:10px;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  color:var(--ink-3);
+  display:block;
+  margin-bottom:5px;
+}
+.field-input {
+  width:100%;
+  height:38px;
+  border:1px solid var(--stone-deep);
+  border-radius:var(--r);
+  padding:0 12px;
+  font-family:var(--f-ui);
+  font-size:13.5px;
+  color:var(--ink);
+  background:var(--white);
+  outline:none;
+}
+.field-input.focus { border-color:var(--navy-soft); box-shadow:0 0 0 3px var(--navy-wash); }
+.field-input.error { border-color:var(--crimson-soft); box-shadow:0 0 0 3px var(--crimson-wash); }
+.field-hint { font-size:11.5px; color:var(--ink-4); margin-top:4px; }
+.field-err { font-size:11.5px; color:var(--crimson); margin-top:4px; }
+
+/* Table */
+.sg-table { width:100%; border-collapse:collapse; font-size:13px; }
+.sg-table thead th {
+  text-align:left;
+  font-family:var(--f-mono);
+  font-size:9px;
+  letter-spacing:0.12em;
+  text-transform:uppercase;
+  color:var(--ink-4);
+  padding:10px 14px;
+  border-bottom:1px solid var(--stone-deep);
+  background:var(--stone);
+  font-weight:400;
+}
+.sg-table tbody tr { border-bottom:1px solid var(--stone-mid); }
+.sg-table tbody tr:last-child { border-bottom:none; }
+.sg-table tbody td { padding:11px 14px; color:var(--ink-2); vertical-align:middle; }
+.sg-table tbody tr:hover td { background:var(--stone); }
+.sg-table-wrap { border:1px solid var(--stone-deep); border-radius:var(--rl); overflow:hidden; }
+
+/* Stat card */
+.stat-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:12px; }
+.stat-card {
+  background:var(--white);
+  border:1px solid var(--stone-deep);
+  border-radius:var(--rl);
+  padding:20px 20px 16px;
+}
+.stat-label { font-family:var(--f-mono); font-size:9px; letter-spacing:0.12em; text-transform:uppercase; color:var(--ink-4); margin-bottom:10px; }
+.stat-val { font-family:var(--f-display); font-size:38px; color:var(--ink); font-weight:500; line-height:1; }
+.stat-sub { font-size:12px; color:var(--ink-4); margin-top:6px; font-weight:300; }
+
+/* Toast */
+.toast-stack { display:flex; flex-direction:column; gap:8px; }
+.toast {
+  display:flex;
+  align-items:center;
+  gap:12px;
+  padding:12px 14px;
+  border-radius:var(--r);
+  font-size:13px;
+  border:1px solid;
+}
+.toast-dot { width:8px; height:8px; border-radius:50%; flex-shrink:0; }
+.toast-msg { flex:1; color:var(--ink-2); }
+.toast-success { background:var(--white); border-color:#C0DD97; }
+.toast-success .toast-dot { background:#639922; }
+.toast-err { background:var(--white); border-color:#F09595; }
+.toast-err .toast-dot { background:var(--crimson-soft); }
+.toast-info { background:var(--white); border-color:var(--navy-pale); }
+.toast-info .toast-dot { background:var(--navy-soft); }
+.toast-warn { background:var(--white); border-color:var(--gold-pale); }
+.toast-warn .toast-dot { background:var(--gold); }
+
+/* ── VOICE & TONE SECTION ── */
+.vt-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:16px 0; }
+.vt-card { border-radius:var(--rl); padding:20px; border:1px solid; }
+.vt-good { background:#EDF6F1; border-color:#C0DD97; }
+.vt-bad { background:var(--crimson-wash); border-color:#F09595; }
+.vt-head { font-family:var(--f-mono); font-size:9px; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:12px; }
+.vt-good .vt-head { color:#3B6D11; }
+.vt-bad .vt-head { color:var(--crimson); }
+.vt-item { font-size:13px; margin-bottom:8px; padding:8px 10px; border-radius:5px; line-height:1.4; }
+.vt-good .vt-item { background:rgba(255,255,255,0.7); color:var(--olive); }
+.vt-bad .vt-item { background:rgba(255,255,255,0.7); color:var(--ink-2); text-decoration:line-through; text-decoration-color:var(--crimson-soft); }
+
+/* ── ELEVATION SECTION ── */
+.elevation-row { display:flex; gap:16px; margin:16px 0; align-items:flex-start; }
+.el-card { flex:1; background:var(--white); border-radius:var(--rl); padding:20px; }
+.el-0 { border:1px solid var(--stone-mid); }
+.el-1 { border:1px solid var(--stone-deep); }
+.el-2 { border:1px solid var(--stone-deep); box-shadow:0 2px 8px rgba(26,39,68,0.06); }
+.el-3 { border:1px solid var(--navy-pale); box-shadow:0 4px 16px rgba(26,39,68,0.10); }
+.el-label { font-family:var(--f-mono); font-size:9px; color:var(--ink-4); margin-top:12px; text-align:center; letter-spacing:0.08em; }
+
+/* ── TERMINOLOGY ── */
+.term-table { width:100%; border-collapse:collapse; font-size:13px; }
+.term-table tr { border-bottom:1px solid var(--stone-mid); }
+.term-table tr:last-child { border-bottom:none; }
+.term-table td { padding:11px 14px; vertical-align:top; }
+.term-table td:first-child { font-family:var(--f-mono); font-size:11px; color:var(--crimson); width:140px; }
+.term-table td:nth-child(2) { font-weight:500; color:var(--ink); width:140px; }
+.term-table td:nth-child(3) { color:var(--ink-3); font-weight:300; }
+
+/* ── ICON GRID ── */
+.icon-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(80px,1fr)); gap:8px; margin:16px 0; }
+.icon-cell {
+  background:var(--white);
+  border:1px solid var(--stone-deep);
+  border-radius:var(--r);
+  padding:14px 8px 10px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:8px;
+}
+.icon-sym { font-size:20px; line-height:1; }
+.icon-name { font-family:var(--f-mono); font-size:9px; color:var(--ink-4); text-align:center; }
+
+/* ── GRID DEMO ── */
+.grid-demo { background:var(--white); border:1px solid var(--stone-deep); border-radius:var(--rl); padding:24px; margin:16px 0; }
+.grid-8 { display:grid; grid-template-columns:repeat(8,1fr); gap:8px; margin-bottom:12px; }
+.grid-col { height:28px; background:var(--navy-wash); border-radius:3px; border:1px solid var(--navy-pale); }
+.grid-col.span2 { grid-column:span 2; background:var(--olive-wash); border-color:var(--olive-pale); }
+.grid-col.span3 { grid-column:span 3; background:var(--gold-wash); border-color:var(--gold-pale); }
+.grid-col.span8 { grid-column:span 8; background:var(--stone-mid); border-color:var(--stone-deep); }
+.grid-legend { display:flex; gap:16px; flex-wrap:wrap; }
+.gl-item { display:flex; align-items:center; gap:6px; font-size:12px; color:var(--ink-3); }
+.gl-dot { width:12px; height:12px; border-radius:2px; }
+
+</style>
+
+<h2 class="sr-only">NCC Exam Portal — complete style guide covering color, typography, spacing, components, voice and tone, and design principles.</h2>
+
+<div class="sg">
+
+<nav class="sidebar">
+  <div class="sb-brand">
+    <div class="sb-emblem">
+      <div class="sb-shield"><span class="sb-shield-txt">NCC</span></div>
+      <div>
+        <div class="sb-name">Style Guide</div>
+        <div class="sb-sub">Tirupati Unit · v1.0</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sb-section">Foundation</div>
+  <a href="#s-color" class="active">Colour</a>
+  <a href="#s-type">Typography</a>
+  <a href="#s-space">Spacing</a>
+  <a href="#s-grid">Grid</a>
+  <a href="#s-elev">Elevation</a>
+
+  <div class="sb-section">Components</div>
+  <a href="#s-buttons">Buttons</a>
+  <a href="#s-badges">Badges & status</a>
+  <a href="#s-forms">Form fields</a>
+  <a href="#s-table">Tables</a>
+  <a href="#s-stats">Stat cards</a>
+  <a href="#s-toast">Feedback</a>
+
+  <div class="sb-section">Identity</div>
+  <a href="#s-voice">Voice & tone</a>
+  <a href="#s-terms">Terminology</a>
+  <a href="#s-icons">Iconography</a>
+</nav>
+
+<div class="main">
+
+  <div class="hero">
+    <div class="hero-stripe"></div>
+    <div class="hero-kicker">NCC Tirupati Unit · Examination Portal</div>
+    <div class="hero-title">Design <em>Standard</em><br>& Style Guide</div>
+    <div class="hero-tagline">A disciplined, premium design language drawn from military precision — commanding clarity, dignified restraint, and earned trust.</div>
+    <div class="hero-pills">
+      <span class="hero-pill">React + Vite</span>
+      <span class="hero-pill">TailwindCSS v4</span>
+      <span class="hero-pill">Outfit · Cormorant Garamond · DM Mono</span>
+      <span class="hero-pill">WCAG AA</span>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ════════════ COLOUR ════════════ -->
+    <div class="section" id="s-color">
+      <div class="sec-label">01 — Foundation</div>
+      <div class="sec-title">Colour <em>System</em></div>
+      <div class="sec-desc">Rooted in the NCC's olive drab field uniform, parade-ground navy, and ceremonial gold. Every colour earns its place through military heritage and functional purpose.</div>
+      <div class="divider"></div>
+
+      <div class="sub-head">Primary palette</div>
+      <div class="color-palette">
+        <div class="cp-card">
+          <div class="cp-swatch" style="background:var(--navy)"></div>
+          <div class="cp-info">
+            <div class="cp-name">Corps Navy</div>
+            <div class="cp-role">Primary action, sidebar, headings</div>
+            <div class="cp-hex">#1A2744</div>
+          </div>
+        </div>
+        <div class="cp-card">
+          <div class="cp-swatch" style="background:var(--olive)"></div>
+          <div class="cp-info">
+            <div class="cp-name">Field Olive</div>
+            <div class="cp-role">Secondary action, success states</div>
+            <div class="cp-hex">#3B3D2A</div>
+          </div>
+        </div>
+        <div class="cp-card">
+          <div class="cp-swatch" style="background:var(--gold)"></div>
+          <div class="cp-info">
+            <div class="cp-name">Ceremonial Gold</div>
+            <div class="cp-role">Accent, rank indicators, highlights</div>
+            <div class="cp-hex">#B8860B</div>
+          </div>
+        </div>
+        <div class="cp-card">
+          <div class="cp-swatch" style="background:var(--crimson)"></div>
+          <div class="cp-info">
+            <div class="cp-name">Parade Crimson</div>
+            <div class="cp-role">Danger, destructive, failed states</div>
+            <div class="cp-hex">#8B1A1A</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub-head">Neutral scale</div>
+      <div class="color-palette">
+        <div class="cp-card">
+          <div class="cp-swatch" style="background:var(--ink)"></div>
+          <div class="cp-info"><div class="cp-name">Ink</div><div class="cp-role">Primary text</div><div class="cp-hex">#1C1C18</div></div>
+        </div>
+        <div class="cp-card">
+          <div class="cp-swatch" style="background:var(--ink-2)"></div>
+          <div class="cp-info"><div class="cp-name">Ink-2</div><div class="cp-role">Body text, descriptions</div><div class="cp-hex">#3A3A34</div></div>
+        </div>
+        <div class="cp-card">
+          <div class="cp-swatch" style="background:var(--ink-3)"></div>
+          <div class="cp-info"><div class="cp-name">Ink-3</div><div class="cp-role">Secondary text, labels</div><div class="cp-hex">#6A6A60</div></div>
+        </div>
+        <div class="cp-card">
+          <div class="cp-swatch" style="background:var(--stone)"></div>
+          <div class="cp-info"><div class="cp-name">Parade Stone</div><div class="cp-role">Page background</div><div class="cp-hex">#F4F2EC</div></div>
+        </div>
+        <div class="cp-card">
+          <div class="cp-swatch" style="background:var(--white); border:1px solid var(--stone-deep);"></div>
+          <div class="cp-info"><div class="cp-name">Parchment</div><div class="cp-role">Card surfaces, inputs</div><div class="cp-hex">#FDFCF8</div></div>
+        </div>
+      </div>
+
+      <div class="sub-head">Navy scale</div>
+      <div class="color-scale">
+        <div><div class="cs-stop" style="background:var(--navy-wash)"></div><div class="cs-label">wash</div></div>
+        <div><div class="cs-stop" style="background:var(--navy-pale)"></div><div class="cs-label">pale</div></div>
+        <div><div class="cs-stop" style="background:var(--navy-soft)"></div><div class="cs-label">soft</div></div>
+        <div><div class="cs-stop" style="background:var(--navy-mid)"></div><div class="cs-label">mid</div></div>
+        <div><div class="cs-stop" style="background:var(--navy)"></div><div class="cs-label">base</div></div>
+      </div>
+
+      <div class="sub-head">Olive scale</div>
+      <div class="color-scale">
+        <div><div class="cs-stop" style="background:var(--olive-wash)"></div><div class="cs-label">wash</div></div>
+        <div><div class="cs-stop" style="background:var(--olive-pale)"></div><div class="cs-label">pale</div></div>
+        <div><div class="cs-stop" style="background:var(--olive-soft)"></div><div class="cs-label">soft</div></div>
+        <div><div class="cs-stop" style="background:var(--olive-mid)"></div><div class="cs-label">mid</div></div>
+        <div><div class="cs-stop" style="background:var(--olive)"></div><div class="cs-label">base</div></div>
+      </div>
+
+      <div class="note"><strong>Rule:</strong> Use wash-level fills behind text of the base colour. Navy wash (#EDF1F8) behind navy-mid (#253660) text. Never mix ramps — e.g., navy fill with olive text. Gold only on accent elements — never as a background for body text.</div>
+    </div>
+
+    <!-- ════════════ TYPOGRAPHY ════════════ -->
+    <div class="section" id="s-type">
+      <div class="sec-label">02 — Foundation</div>
+      <div class="sec-title">Typog<em>raphy</em></div>
+      <div class="sec-desc">Three fonts, each with a distinct rank. Cormorant Garamond for command-level presence. Outfit for all operational UI text. DM Mono for precision data — codes, timestamps, registration numbers.</div>
+      <div class="divider"></div>
+
+      <div class="type-row">
+        <div class="type-meta">
+          <div class="type-meta-name">DISPLAY</div>
+          <div class="type-meta-spec">Cormorant Garamond<br>52–40px · wt 500<br>Page titles, hero text</div>
+        </div>
+        <div class="type-sample">
+          <span style="font-family:var(--f-display);font-size:44px;font-weight:500;color:var(--ink);line-height:1.05;">Examination<br><em style="color:var(--navy-soft);">Portal</em></span>
+        </div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">
+          <div class="type-meta-name">HEADING 1</div>
+          <div class="type-meta-spec">Cormorant Garamond<br>32px · wt 500<br>Section titles</div>
+        </div>
+        <div class="type-sample">
+          <span style="font-family:var(--f-display);font-size:32px;font-weight:500;color:var(--ink);">User Management</span>
+        </div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">
+          <div class="type-meta-name">HEADING 2</div>
+          <div class="type-meta-spec">Outfit<br>20px · wt 600<br>Card titles, panels</div>
+        </div>
+        <div class="type-sample">
+          <span style="font-family:var(--f-ui);font-size:20px;font-weight:600;color:var(--ink);">B-Cert Theory Examination</span>
+        </div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">
+          <div class="type-meta-name">BODY</div>
+          <div class="type-meta-spec">Outfit<br>15px · wt 400<br>Paragraphs, descriptions</div>
+        </div>
+        <div class="type-sample">
+          <span style="font-family:var(--f-ui);font-size:15px;font-weight:400;color:var(--ink-2);line-height:1.7;">Cadets must complete the examination within the allotted time window. Answers are saved automatically every 30 seconds. The server clock governs all timing decisions.</span>
+        </div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">
+          <div class="type-meta-name">SMALL / HELP</div>
+          <div class="type-meta-spec">Outfit<br>12–13px · wt 300<br>Hints, captions, metadata</div>
+        </div>
+        <div class="type-sample">
+          <span style="font-family:var(--f-ui);font-size:12.5px;font-weight:300;color:var(--ink-3);">Last updated 14 Apr 2026 at 09:42 — by Col. R. Sharma (ANO)</span>
+        </div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">
+          <div class="type-meta-name">LABEL</div>
+          <div class="type-meta-spec">DM Mono<br>10px · uppercase<br>Form labels, table headers</div>
+        </div>
+        <div class="type-sample">
+          <span style="font-family:var(--f-mono);font-size:10px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink-3);">Regimental number</span>
+        </div>
+      </div>
+      <div class="type-row">
+        <div class="type-meta">
+          <div class="type-meta-name">DATA / CODE</div>
+          <div class="type-meta-spec">DM Mono<br>12–13px · wt 400<br>Reg. nos, timestamps, IDs</div>
+        </div>
+        <div class="type-sample">
+          <span style="font-family:var(--f-mono);font-size:13px;color:var(--ink-2);">AP/TRP/01234</span>
+          <span style="font-family:var(--f-mono);font-size:13px;color:var(--ink-4); margin-left:24px;">12 Apr 2026 · 09:47:23</span>
+        </div>
+      </div>
+
+      <div class="warn">Use Cormorant Garamond only for page-level headings and the dashboard greeting. All UI text — buttons, labels, table cells, nav items — uses Outfit. DM Mono is reserved for structured data only, never for flowing prose.</div>
+    </div>
+
+    <!-- ════════════ SPACING ════════════ -->
+    <div class="section" id="s-space">
+      <div class="sec-label">03 — Foundation</div>
+      <div class="sec-title"><em>Spacing</em> Scale</div>
+      <div class="sec-desc">Built on a strict 4px base unit. Every margin, padding, and gap is a multiple of 4. Generous spacing signals discipline and gives the interface room to breathe — a well-drilled parade ground, not a cluttered barracks.</div>
+      <div class="divider"></div>
+
+      <div class="spacing-grid">
+        <div class="sp-row"><span class="sp-name">4px</span><div class="sp-bar-wrap"><div class="sp-bar" style="width:4px"></div></div><span class="sp-val">sp-1</span><span class="sp-use">Icon-to-label gap, badge internal</span></div>
+        <div class="sp-row"><span class="sp-name">8px</span><div class="sp-bar-wrap"><div class="sp-bar" style="width:8px"></div></div><span class="sp-val">sp-2</span><span class="sp-use">Row gaps, tag spacing</span></div>
+        <div class="sp-row"><span class="sp-name">12px</span><div class="sp-bar-wrap"><div class="sp-bar" style="width:12px"></div></div><span class="sp-val">sp-3</span><span class="sp-use">Card internal gap, list item spacing</span></div>
+        <div class="sp-row"><span class="sp-name">16px</span><div class="sp-bar-wrap"><div class="sp-bar" style="width:16px"></div></div><span class="sp-val">sp-4</span><span class="sp-use">Card padding, form field gap</span></div>
+        <div class="sp-row"><span class="sp-name">24px</span><div class="sp-bar-wrap"><div class="sp-bar" style="width:24px"></div></div><span class="sp-val">sp-6</span><span class="sp-use">Section internal spacing</span></div>
+        <div class="sp-row"><span class="sp-name">32px</span><div class="sp-bar-wrap"><div class="sp-bar" style="width:32px"></div></div><span class="sp-val">sp-8</span><span class="sp-use">Component-to-component gap</span></div>
+        <div class="sp-row"><span class="sp-name">48px</span><div class="sp-bar-wrap"><div class="sp-bar" style="width:48px"></div></div><span class="sp-val">sp-12</span><span class="sp-use">Section margin, page rhythm</span></div>
+        <div class="sp-row"><span class="sp-name">64px</span><div class="sp-bar-wrap"><div class="sp-bar" style="width:64px"></div></div><span class="sp-val">sp-16</span><span class="sp-use">Page-level padding (desktop)</span></div>
+      </div>
+
+      <div class="sub-head">Touch targets</div>
+      <div class="note"><strong>Minimum 36px height</strong> for all interactive elements on desktop. 44px for primary actions. This is non-negotiable — do not shrink buttons, inputs, or table row heights below these values.</div>
+    </div>
+
+    <!-- ════════════ GRID ════════════ -->
+    <div class="section" id="s-grid">
+      <div class="sec-label">04 — Foundation</div>
+      <div class="sec-title">Layout <em>Grid</em></div>
+      <div class="sec-desc">8-column grid within the main content area. The sidebar occupies a fixed 220px lane — the grid applies to everything right of it.</div>
+      <div class="divider"></div>
+
+      <div class="grid-demo">
+        <div class="grid-8">
+          <div class="grid-col span8"></div>
+        </div>
+        <div class="grid-8">
+          <div class="grid-col span2"></div>
+          <div class="grid-col span2"></div>
+          <div class="grid-col span2"></div>
+          <div class="grid-col span2"></div>
+        </div>
+        <div class="grid-8">
+          <div class="grid-col span3"></div>
+          <div class="grid-col span3"></div>
+          <div class="grid-col span2"></div>
+        </div>
+        <div class="grid-8">
+          <div class="grid-col span3"></div>
+          <div class="grid-col" style="grid-column:span 5; background:var(--stone-mid); border-color:var(--stone-deep);"></div>
+        </div>
+        <div class="grid-legend">
+          <div class="gl-item"><div class="gl-dot" style="background:var(--stone-mid); border:1px solid var(--stone-deep);"></div> Full width (8 col)</div>
+          <div class="gl-item"><div class="gl-dot" style="background:var(--navy-wash); border:1px solid var(--navy-pale);"></div> Quarters (2 col each)</div>
+          <div class="gl-item"><div class="gl-dot" style="background:var(--gold-wash); border:1px solid var(--gold-pale);"></div> Thirds (3 col)</div>
+        </div>
+      </div>
+
+      <div class="sub-head">Max widths</div>
+      <div class="sg-table-wrap">
+        <table class="sg-table">
+          <thead><tr><th>Context</th><th>Max width</th><th>Notes</th></tr></thead>
+          <tbody>
+            <tr><td>Page content area</td><td>960px</td><td>Content never spans full browser width</td></tr>
+            <tr><td>Form panels (create / edit)</td><td>520px</td><td>Wide forms are cognitively harder</td></tr>
+            <tr><td>Slide-over drawer</td><td>440px</td><td>Right edge, overlays content</td></tr>
+            <tr><td>Confirm dialog</td><td>400px</td><td>Centred, with overlay backdrop</td></tr>
+            <tr><td>Toast notifications</td><td>360px</td><td>Bottom-right, stacked</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ════════════ ELEVATION ════════════ -->
+    <div class="section" id="s-elev">
+      <div class="sec-label">05 — Foundation</div>
+      <div class="sec-title">Elevation & <em>Depth</em></div>
+      <div class="sec-desc">Four levels of surface elevation. Achieved through border weight and subtle shadow — never through background darkening. The hierarchy communicates rank, not decoration.</div>
+      <div class="divider"></div>
+
+      <div class="elevation-row">
+        <div>
+          <div class="el-card el-0" style="padding:16px;">
+            <div style="font-size:13px; font-weight:500; color:var(--ink); margin-bottom:4px;">Level 0 — Page</div>
+            <div style="font-size:12px; color:var(--ink-3); font-weight:300;">Background surface. Stone wash. For page bg only.</div>
+          </div>
+          <div class="el-label">border: stone-mid · no shadow</div>
+        </div>
+        <div>
+          <div class="el-card el-1" style="padding:16px;">
+            <div style="font-size:13px; font-weight:500; color:var(--ink); margin-bottom:4px;">Level 1 — Card</div>
+            <div style="font-size:12px; color:var(--ink-3); font-weight:300;">Standard content cards, table containers.</div>
+          </div>
+          <div class="el-label">border: stone-deep · no shadow</div>
+        </div>
+        <div>
+          <div class="el-card el-2" style="padding:16px;">
+            <div style="font-size:13px; font-weight:500; color:var(--ink); margin-bottom:4px;">Level 2 — Raised</div>
+            <div style="font-size:12px; color:var(--ink-3); font-weight:300;">Stat cards, active panels, selected states.</div>
+          </div>
+          <div class="el-label">border: stone-deep · shadow sm</div>
+        </div>
+        <div>
+          <div class="el-card el-3" style="padding:16px;">
+            <div style="font-size:13px; font-weight:500; color:var(--ink); margin-bottom:4px;">Level 3 — Floating</div>
+            <div style="font-size:12px; color:var(--ink-3); font-weight:300;">Drawers, dropdowns, dialogs.</div>
+          </div>
+          <div class="el-label">border: navy-pale · shadow md</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════ BUTTONS ════════════ -->
+    <div class="section" id="s-buttons">
+      <div class="sec-label">06 — Components</div>
+      <div class="sec-title"><em>Buttons</em> & Actions</div>
+      <div class="sec-desc">Every button communicates the weight and consequence of its action. Primary actions are navy — they carry authority. Destructive actions are crimson-tinted, never navy. Gold is reserved for promotion and rank actions only.</div>
+      <div class="divider"></div>
+
+      <div class="comp-card" style="margin-bottom:16px;">
+        <div class="comp-card-label">Variants</div>
+        <div class="btn-row">
+          <button class="btn btn-primary">Publish examination</button>
+          <button class="btn btn-secondary">Save draft</button>
+          <button class="btn btn-ghost">Cancel</button>
+          <button class="btn btn-danger">Disable cadet</button>
+          <button class="btn btn-gold">Promote to ANO</button>
+        </div>
+      </div>
+
+      <div class="comp-card" style="margin-bottom:16px;">
+        <div class="comp-card-label">Sizes</div>
+        <div class="btn-row" style="align-items:center;">
+          <button class="btn btn-primary btn-sm">Small</button>
+          <button class="btn btn-primary">Default — 36px</button>
+          <button class="btn btn-primary btn-lg">Large — 42px</button>
+        </div>
+      </div>
+
+      <div class="note"><strong>Button hierarchy rule:</strong> Only one Primary button per screen section. If two actions appear side-by-side, the lesser action is Ghost. Destructive buttons must never be Primary — they are always Danger variant with a confirmation step before any API call fires.</div>
+
+      <div class="sub-head">Usage naming guide</div>
+      <div class="sg-table-wrap">
+        <table class="sg-table">
+          <thead><tr><th>Action</th><th>Label</th><th>Variant</th></tr></thead>
+          <tbody>
+            <tr><td>Create exam</td><td>Create examination</td><td>Primary</td></tr>
+            <tr><td>Save without publishing</td><td>Save as draft</td><td>Secondary</td></tr>
+            <tr><td>Make exam live</td><td>Publish to cadets</td><td>Primary</td></tr>
+            <tr><td>Lock exam from new attempts</td><td>Close examination</td><td>Ghost</td></tr>
+            <tr><td>Remove a question</td><td>Remove question</td><td>Danger</td></tr>
+            <tr><td>Block a cadet account</td><td>Suspend cadet</td><td>Danger</td></tr>
+            <tr><td>Dismiss / cancel</td><td>Dismiss</td><td>Ghost</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ════════════ BADGES ════════════ -->
+    <div class="section" id="s-badges">
+      <div class="sec-label">07 — Components</div>
+      <div class="sec-title">Badges & <em>Status</em></div>
+      <div class="sec-desc">Status badges carry tactical meaning at a glance. They are always monospaced, always pill-shaped, always using the wash-to-base colour pairing. No icons inside badges — the colour and label alone must communicate the state.</div>
+      <div class="divider"></div>
+
+      <div class="comp-card" style="margin-bottom:16px;">
+        <div class="comp-card-label">Exam status</div>
+        <div class="badge-row">
+          <span class="badge badge-draft">Draft</span>
+          <span class="badge badge-pub">Published</span>
+          <span class="badge badge-active">In progress</span>
+          <span class="badge badge-closed">Closed</span>
+        </div>
+      </div>
+
+      <div class="comp-card" style="margin-bottom:16px;">
+        <div class="comp-card-label">Cadet / attempt status</div>
+        <div class="badge-row">
+          <span class="badge badge-active">Active</span>
+          <span class="badge badge-draft">Inactive</span>
+          <span class="badge" style="background:var(--crimson-wash); color:var(--crimson);">Suspended</span>
+          <span class="badge badge-pub">Passed</span>
+          <span class="badge badge-closed">Failed</span>
+          <span class="badge badge-draft">No attempt</span>
+          <span class="badge" style="background:var(--olive-wash); color:var(--olive-mid);">Submitted</span>
+          <span class="badge" style="background:var(--gold-wash); color:var(--gold);">Timed out</span>
+        </div>
+      </div>
+
+      <div class="comp-card">
+        <div class="comp-card-label">Wing / corps identifier</div>
+        <div class="badge-row">
+          <span class="badge badge-olive">Army</span>
+          <span class="badge badge-pub">Navy</span>
+          <span class="badge" style="background:var(--stone-mid); color:var(--ink-2);">Air Force</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════ FORMS ════════════ -->
+    <div class="section" id="s-forms">
+      <div class="sec-label">08 — Components</div>
+      <div class="sec-title">Form <em>Fields</em></div>
+      <div class="sec-desc">Form labels are always DM Mono, uppercase, tracked — a direct reference to the precision of military documentation. Fields are generous at 38px minimum height. States are unambiguous.</div>
+      <div class="divider"></div>
+
+      <div class="comp-grid">
+        <div class="comp-card">
+          <div class="comp-card-label">Default state</div>
+          <div class="field">
+            <label class="field-label">Regimental number</label>
+            <input class="field-input" type="text" placeholder="AP/TRP/00000" readonly>
+            <div class="field-hint">Format: State / Unit / Serial (e.g. AP/TRP/01234)</div>
+          </div>
+          <div class="field">
+            <label class="field-label">Assigned college</label>
+            <select class="field-input" style="height:38px; cursor:pointer;">
+              <option>SV College, Tirupati</option>
+              <option>SSBN Degree College</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="comp-card">
+          <div class="comp-card-label">Focus & error states</div>
+          <div class="field">
+            <label class="field-label">Email address</label>
+            <input class="field-input focus" type="email" value="arjun.k@svcollege.edu" readonly>
+            <div class="field-hint">Used for officer login only — not required for cadets</div>
+          </div>
+          <div class="field">
+            <label class="field-label">Exam duration (minutes)</label>
+            <input class="field-input error" type="number" value="0" readonly>
+            <div class="field-err">Duration must be at least 10 minutes</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="sub-head">Textarea</div>
+      <div class="comp-card">
+        <div class="comp-card-label">Question text field</div>
+        <div class="field">
+          <label class="field-label">Question</label>
+          <textarea class="field-input" style="height:80px; padding-top:10px; resize:vertical; width:100%;" readonly>Which of the following is the highest gallantry award in India?</textarea>
+        </div>
+      </div>
+
+      <div class="note"><strong>Label convention:</strong> All form labels use sentence case, not title case. Write "Regimental number" not "Regimental Number". Write "Exam duration" not "Exam Duration". The monospaced rendering makes them feel structured without needing title casing.</div>
+    </div>
+
+    <!-- ════════════ TABLE ════════════ -->
+    <div class="section" id="s-table">
+      <div class="sec-label">09 — Components</div>
+      <div class="sec-title"><em>Tables</em> & Data</div>
+      <div class="sec-desc">Tables carry the most critical data in the system. Headers are DM Mono — precision labels. Row height is generous at 44px. Hover states are subtle. The action column is always rightmost and right-aligned.</div>
+      <div class="divider"></div>
+
+      <div class="sg-table-wrap">
+        <table class="sg-table">
+          <thead>
+            <tr>
+              <th style="width:36px;"><input type="checkbox" style="width:13px;height:13px;cursor:pointer;"></th>
+              <th>Cadet</th>
+              <th>Reg. number</th>
+              <th>Wing</th>
+              <th>Score</th>
+              <th>Status</th>
+              <th style="text-align:right;">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td><input type="checkbox" style="width:13px;height:13px;cursor:pointer;"></td>
+              <td>
+                <div style="font-weight:500; color:var(--ink); font-size:13.5px;">Arjun Kumar</div>
+                <div style="font-size:11.5px; color:var(--ink-4); font-weight:300;">SV College, Tirupati</div>
+              </td>
+              <td><span style="font-family:var(--f-mono); font-size:12px; color:var(--ink-2);">AP/TRP/01234</span></td>
+              <td><span class="badge badge-olive">Army</span></td>
+              <td><span style="font-family:var(--f-mono); font-size:13px; font-weight:500; color:#3B6D11;">29 / 30</span></td>
+              <td><span class="badge badge-pub">Passed</span></td>
+              <td style="text-align:right;">
+                <div style="display:flex; gap:10px; justify-content:flex-end;">
+                  <span style="font-size:12.5px; color:var(--navy-mid); cursor:pointer; font-weight:500;">View</span>
+                  <span style="font-size:12.5px; color:var(--ink-3); cursor:pointer;">Edit</span>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" style="width:13px;height:13px;cursor:pointer;"></td>
+              <td>
+                <div style="font-weight:500; color:var(--ink); font-size:13.5px;">Priya Menon</div>
+                <div style="font-size:11.5px; color:var(--ink-4); font-weight:300;">SSBN Degree College</div>
+              </td>
+              <td><span style="font-family:var(--f-mono); font-size:12px; color:var(--ink-2);">AP/TRP/01235</span></td>
+              <td><span class="badge badge-pub">Navy</span></td>
+              <td><span style="font-family:var(--f-mono); font-size:13px; font-weight:500; color:var(--crimson);">12 / 30</span></td>
+              <td><span class="badge badge-closed">Failed</span></td>
+              <td style="text-align:right;">
+                <div style="display:flex; gap:10px; justify-content:flex-end;">
+                  <span style="font-size:12.5px; color:var(--navy-mid); cursor:pointer; font-weight:500;">View</span>
+                  <span style="font-size:12.5px; color:var(--ink-3); cursor:pointer;">Edit</span>
+                </div>
+              </td>
+            </tr>
+            <tr>
+              <td><input type="checkbox" style="width:13px;height:13px;cursor:pointer;"></td>
+              <td>
+                <div style="font-weight:500; color:var(--ink-3); font-size:13.5px; font-style:italic;">Ravi Srinivas</div>
+                <div style="font-size:11.5px; color:var(--ink-4); font-weight:300;">SV Engineering College</div>
+              </td>
+              <td><span style="font-family:var(--f-mono); font-size:12px; color:var(--ink-3);">AP/TRP/01236</span></td>
+              <td><span class="badge" style="background:var(--stone-mid); color:var(--ink-2);">Air Force</span></td>
+              <td><span style="font-family:var(--f-mono); font-size:13px; color:var(--ink-4);">—</span></td>
+              <td><span class="badge badge-draft">No attempt</span></td>
+              <td style="text-align:right;">
+                <div style="display:flex; gap:10px; justify-content:flex-end;">
+                  <span style="font-size:12.5px; color:var(--navy-mid); cursor:pointer; font-weight:500;">View</span>
+                  <span style="font-size:12.5px; color:var(--ink-3); cursor:pointer;">Edit</span>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="sub-head" style="margin-top:24px;">Pagination</div>
+      <div style="display:flex; align-items:center; justify-content:space-between; padding:12px 14px; background:var(--white); border:1px solid var(--stone-deep); border-radius:var(--r); margin-top:8px; font-size:13px;">
+        <span style="color:var(--ink-3); font-weight:300;">Showing <strong style="font-weight:500; color:var(--ink);">1–20</strong> of <strong style="font-weight:500; color:var(--ink);">1,284</strong> cadets</span>
+        <div style="display:flex; align-items:center; gap:4px;">
+          <button class="btn btn-ghost btn-sm">Previous</button>
+          <button class="btn btn-sm" style="background:var(--navy); color:#fff; min-width:32px; padding:0 10px; justify-content:center; height:30px; border-radius:5px; font-size:12px;">1</button>
+          <button class="btn btn-ghost btn-sm" style="min-width:32px; padding:0 10px; justify-content:center;">2</button>
+          <button class="btn btn-ghost btn-sm" style="min-width:32px; padding:0 10px; justify-content:center;">3</button>
+          <span style="color:var(--ink-4); padding:0 4px;">…</span>
+          <button class="btn btn-ghost btn-sm" style="min-width:32px; padding:0 10px; justify-content:center;">65</button>
+          <button class="btn btn-ghost btn-sm">Next</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ════════════ STAT CARDS ════════════ -->
+    <div class="section" id="s-stats">
+      <div class="sec-label">10 — Components</div>
+      <div class="sec-title">Stat <em>Cards</em></div>
+      <div class="sec-desc">Command-level summary numbers. The value is always set in Cormorant Garamond — the display font lends numerical data a sense of authority. Labels are DM Mono. Context text is Outfit Light.</div>
+      <div class="divider"></div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Total cadets enrolled</div>
+          <div class="stat-val" style="color:var(--navy);">1,284</div>
+          <div class="stat-sub">Across 6 affiliated colleges</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Live examinations</div>
+          <div class="stat-val" style="color:var(--olive-mid);">3</div>
+          <div class="stat-sub">247 cadets currently attempting</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Unit pass rate</div>
+          <div class="stat-val" style="color:var(--gold);">68%</div>
+          <div class="stat-sub">Last 30 days · all examinations</div>
+        </div>
+      </div>
+
+      <div class="note" style="margin-top:16px;"><strong>Stat card rule:</strong> The value on a stat card never shows decimal precision unless it is a percentage (then max 1 decimal). Always use <span class="mono">toLocaleString()</span> for numbers above 999. The subtext must provide context — a number without context is noise.</div>
+    </div>
+
+    <!-- ════════════ FEEDBACK / TOAST ════════════ -->
+    <div class="section" id="s-toast">
+      <div class="sec-label">11 — Components</div>
+      <div class="sec-title">Feedback & <em>Toasts</em></div>
+      <div class="sec-desc">System feedback messages are minimal and direct. A coloured dot encodes the category — no icons, no heavy colours, no emoji. Every message uses active voice and tells the cadet or officer exactly what happened.</div>
+      <div class="divider"></div>
+
+      <div class="toast-stack">
+        <div class="toast toast-success">
+          <div class="toast-dot" style="background:#639922;"></div>
+          <div class="toast-msg">Examination published. Cadets can now attempt from 12 Apr 09:00 onwards.</div>
+        </div>
+        <div class="toast toast-err">
+          <div class="toast-dot" style="background:var(--crimson-soft);"></div>
+          <div class="toast-msg">Attempt blocked — Cadet AP/TRP/01236 has already submitted this examination.</div>
+        </div>
+        <div class="toast toast-info">
+          <div class="toast-dot" style="background:var(--navy-soft);"></div>
+          <div class="toast-msg">Auto-saving answers. Last saved at 10:34:22.</div>
+        </div>
+        <div class="toast toast-warn">
+          <div class="toast-dot" style="background:var(--gold);"></div>
+          <div class="toast-msg">12 minutes remaining. Answers are being saved automatically.</div>
+        </div>
+      </div>
+
+      <div class="warn" style="margin-top:16px;">Toast messages appear bottom-right, stack upward, and auto-dismiss after 5 seconds. Errors do not auto-dismiss — the cadet must acknowledge them. Toasts that confirm background saves (auto-save) use Info, not Success — success is reserved for cadet-initiated actions.</div>
+    </div>
+
+    <!-- ════════════ VOICE & TONE ════════════ -->
+    <div class="section" id="s-voice">
+      <div class="sec-label">12 — Identity</div>
+      <div class="sec-title">Voice & <em>Tone</em></div>
+      <div class="sec-desc">The portal speaks with the measured authority of the NCC. Precise, respectful, never casual. It never over-explains; it assumes the cadet knows their duty. Error messages are direct without being harsh.</div>
+      <div class="divider"></div>
+
+      <div class="vt-grid">
+        <div class="vt-card vt-good">
+          <div class="vt-head">Use — clear & precise</div>
+          <div class="vt-item">Examination submitted. Your score will be available shortly.</div>
+          <div class="vt-item">You do not have permission to access this examination.</div>
+          <div class="vt-item">Session expired. Sign in again to continue.</div>
+          <div class="vt-item">12 questions answered. 8 questions remaining.</div>
+          <div class="vt-item">Cadet AP/TRP/01234 has been suspended.</div>
+        </div>
+        <div class="vt-card vt-bad">
+          <div class="vt-head">Avoid — vague or casual</div>
+          <div class="vt-item">Oops! Something went wrong. Please try again!</div>
+          <div class="vt-item">You can't do this right now.</div>
+          <div class="vt-item">Uh oh — your session timed out.</div>
+          <div class="vt-item">Almost done! Just a few more questions to go!</div>
+          <div class="vt-item">User has been disabled successfully!</div>
+        </div>
+      </div>
+
+      <div class="sub-head">Tone by context</div>
+      <div class="sg-table-wrap">
+        <table class="sg-table">
+          <thead><tr><th>Context</th><th>Tone</th><th>Example</th></tr></thead>
+          <tbody>
+            <tr><td>System success</td><td>Calm confirmation</td><td>"Examination published successfully."</td></tr>
+            <tr><td>Validation error</td><td>Specific, not accusatory</td><td>"Examination must have at least one question before publishing."</td></tr>
+            <tr><td>Destructive action</td><td>Clear consequence, no drama</td><td>"This will suspend the cadet's access. This cannot be undone without admin intervention."</td></tr>
+            <tr><td>Empty states</td><td>Directive, not apologetic</td><td>"No examinations scheduled. Create the first examination for this batch."</td></tr>
+            <tr><td>Timer warning</td><td>Factual, calm urgency</td><td>"15 minutes remaining. Your answers are saved."</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ════════════ TERMINOLOGY ════════════ -->
+    <div class="section" id="s-terms">
+      <div class="sec-label">13 — Identity</div>
+      <div class="sec-title"><em>Terminology</em> Guide</div>
+      <div class="sec-desc">Consistent language throughout the interface. The NCC has its own precise vocabulary — use it. Never mix civilian equivalents with NCC terms in the same interface context.</div>
+      <div class="divider"></div>
+
+      <div class="sg-table-wrap">
+        <table class="term-table">
+          <thead>
+            <tr>
+              <th style="font-family:var(--f-mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-4);padding:10px 14px;border-bottom:1px solid var(--stone-deep);">Never use</th>
+              <th style="font-family:var(--f-mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-4);padding:10px 14px;border-bottom:1px solid var(--stone-deep);">Always use</th>
+              <th style="font-family:var(--f-mono);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink-4);padding:10px 14px;border-bottom:1px solid var(--stone-deep);">Reason</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Student</td><td>Cadet</td><td>NCC members are cadets, not students</td></tr>
+            <tr><td>Teacher / Admin</td><td>ANO / Officer</td><td>Associate NCC Officer is the correct title</td></tr>
+            <tr><td>Test / Quiz</td><td>Examination</td><td>Formal context — the word carries weight</td></tr>
+            <tr><td>Roll number</td><td>Regimental number</td><td>NCC-specific identifier format</td></tr>
+            <tr><td>School / Institute</td><td>College</td><td>NCC units are affiliated with colleges</td></tr>
+            <tr><td>Group</td><td>Battalion / Unit</td><td>Use the correct organisational term</td></tr>
+            <tr><td>Delete</td><td>Remove / Suspend</td><td>Hard deletes are disallowed; use soft actions</td></tr>
+            <tr><td>Pass / Fail (verb)</td><td>Clear / Not clear</td><td>Less harsh phrasing for cadet-facing text</td></tr>
+            <tr><td>Dashboard</td><td>Command centre</td><td>NCC vocabulary — use in display headings only</td></tr>
+            <tr><td>Sign up</td><td>Enrol</td><td>Cadets enrol, they do not sign up</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ════════════ ICONOGRAPHY ════════════ -->
+    <div class="section" id="s-icons">
+      <div class="sec-label">14 — Identity</div>
+      <div class="sec-title"><em>Iconography</em></div>
+      <div class="sec-desc">Use Lucide React exclusively. Icons at 16px for inline/label use, 20px for navigation, 24px max for empty state illustrations. Never use filled icons — outline-only maintains the minimal, precise aesthetic. Never use icons as the sole indicator of meaning — always pair with a text label.</div>
+      <div class="divider"></div>
+
+      <div class="icon-grid">
+        <div class="icon-cell"><div class="icon-sym">☰</div><div class="icon-name">Menu</div></div>
+        <div class="icon-cell"><div class="icon-sym">⊞</div><div class="icon-name">Dashboard</div></div>
+        <div class="icon-cell"><div class="icon-sym">◎</div><div class="icon-name">User</div></div>
+        <div class="icon-cell"><div class="icon-sym">◫</div><div class="icon-name">Exam</div></div>
+        <div class="icon-cell"><div class="icon-sym">⌂</div><div class="icon-name">College</div></div>
+        <div class="icon-cell"><div class="icon-sym">↯</div><div class="icon-name">Results</div></div>
+        <div class="icon-cell"><div class="icon-sym">◷</div><div class="icon-name">Timer</div></div>
+        <div class="icon-cell"><div class="icon-sym">✓</div><div class="icon-name">Correct</div></div>
+        <div class="icon-cell"><div class="icon-sym">✕</div><div class="icon-name">Wrong</div></div>
+        <div class="icon-cell"><div class="icon-sym">⤓</div><div class="icon-name">Export</div></div>
+        <div class="icon-cell"><div class="icon-sym">⊘</div><div class="icon-name">Suspend</div></div>
+        <div class="icon-cell"><div class="icon-sym">⋯</div><div class="icon-name">More</div></div>
+      </div>
+
+      <div class="note"><strong>Lucide package:</strong> <span class="mono">npm install lucide-react</span>. Import by name — e.g. <span class="mono">import {"{"} Users, FileText, Clock {"}"} from 'lucide-react'</span>. Set <span class="mono">size={16}</span> for inline use and <span class="mono">strokeWidth={1.5}</span> throughout — the thinner stroke matches the 0.5px border system.</div>
+
+      <div style="height:40px;"></div>
+      <div style="border-top:1px solid var(--stone-mid); padding-top:20px; display:flex; align-items:center; justify-content:space-between;">
+        <span style="font-family:var(--f-mono); font-size:9px; color:var(--ink-4); letter-spacing:0.1em; text-transform:uppercase;">NCC Tirupati Unit · Examination Portal · Style Guide v1.0</span>
+        <span style="font-family:var(--f-mono); font-size:9px; color:var(--ink-4);">Unity &amp; Discipline</span>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<script>
+const links = document.querySelectorAll('.sidebar a');
+const sections = document.querySelectorAll('.section[id]');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('active'));
+      const a = document.querySelector(`.sidebar a[href="#${e.target.id}"]`);
+      if (a) a.classList.add('active');
+    }
+  });
+}, { rootMargin: '-20% 0px -60% 0px' });
+sections.forEach(s => obs.observe(s));
+links.forEach(l => l.addEventListener('click', e => {
+  e.preventDefault();
+  const id = l.getAttribute('href').slice(1);
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}));
+</script>
