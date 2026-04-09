@@ -54,17 +54,17 @@ export default function ExamCreate() {
   };
 
   const validateStep1 = () => {
-    if (!basicInfo.title.trim()) return 'Examination title is required for deployment.';
-    if (basicInfo.duration < 1) return 'Duration must be at least 1 minute for valid assessment.';
+    if (!basicInfo.title.trim()) return 'Exam title is required.';
+    if (basicInfo.duration < 1) return 'Duration must be at least 1 minute.';
     return null;
   };
 
   const validateQuestions = () => {
     for (let i = 0; i < questions.length; i++) {
       const q = questions[i];
-      if (!q.question.trim()) return `Intelligence block #${i + 1} is empty.`;
-      if (q.options.some(o => !o.trim())) return `Intelligence block #${i + 1} has incomplete options.`;
-      if (!q.answer) return `Intelligence block #${i + 1} requires a designated correct answer.`;
+      if (!q.question.trim()) return `Question #${i + 1} is empty.`;
+      if (q.options.some(o => !o.trim())) return `Question #${i + 1} has incomplete options.`;
+      if (!q.answer) return `Question #${i + 1} requires a correct answer to be selected.`;
     }
     return null;
   };
@@ -90,7 +90,7 @@ export default function ExamCreate() {
     if (data) {
       navigate('/admin/exams');
     } else {
-      setError(apiError || 'Operational failure: Unable to deploy examination protocol.');
+      setError(apiError || 'Failed to create exam. Please try again.');
       setIsSubmitting(false);
     }
   };
@@ -98,8 +98,8 @@ export default function ExamCreate() {
   return (
     <div style={{ maxWidth: '900px', margin: '0 auto' }}>
       <PageHeader 
-        title="Deploy New *Examination*" 
-        subtitle={step === 1 ? 'Phase I: Mission Parameters & Configuration' : `Phase II: Intelligence Assessment Architecture (${questions.length} Blocks)`}
+        title="Create New *Exam*" 
+        subtitle={step === 1 ? 'Step 1: General Exam Settings' : `Step 2: Question Editor (${questions.length} total)`}
       />
 
       {/* Step Indicator */}
@@ -119,22 +119,22 @@ export default function ExamCreate() {
         <div className="adm-card" style={{ padding: '32px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
             <div className="adm-form-group">
-              <label className="adm-label">Examination Title / Designation</label>
+              <label className="adm-label">Exam Title</label>
               <div style={{ position: 'relative' }}>
                 <input 
                   className="adm-input" 
-                  placeholder="e.g. B-Certificate Common Proficiency Test (2025)" 
+                  placeholder="e.g. B-Certificate Common Exam (2025)" 
                   value={basicInfo.title}
                   onChange={(e) => setBasicInfo({ ...basicInfo, title: e.target.value })}
                   style={{ paddingLeft: '40px' }}
                 />
                 <ShieldCheck size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-4)' }} />
               </div>
-              <p style={{ fontSize: '11px', color: 'var(--ink-4)', marginTop: '8px' }}>Official designation as it will appear on cadet certificates.</p>
+              <p style={{ fontSize: '11px', color: 'var(--ink-4)', marginTop: '8px' }}>Official title as it will appear on cadet certificates.</p>
             </div>
             
             <div className="adm-form-group">
-              <label className="adm-label">Assignment Duration</label>
+              <label className="adm-label">Duration (Minutes)</label>
               <div style={{ position: 'relative' }}>
                 <input 
                   type="number"
@@ -145,7 +145,7 @@ export default function ExamCreate() {
                 />
                 <Clock size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-4)' }} />
               </div>
-              <p style={{ fontSize: '11px', color: 'var(--ink-4)', marginTop: '8px' }}>Duration in standard minutes.</p>
+              <p style={{ fontSize: '11px', color: 'var(--ink-4)', marginTop: '8px' }}>Total time allowed for the exam.</p>
             </div>
           </div>
           
@@ -157,7 +157,7 @@ export default function ExamCreate() {
                 if (err) setError(err); else { setError(''); setStep(2); }
               }}
             >
-              <span>Initialize Intelligence Phase</span>
+              <span>Next: Add Questions</span>
               <ArrowRight size={16} strokeWidth={1.5} />
             </button>
           </div>
@@ -171,7 +171,7 @@ export default function ExamCreate() {
                   <div style={{ width: '28px', height: '28px', borderRadius: '4px', background: 'var(--navy)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 600 }}>
                     {qIndex + 1}
                   </div>
-                  <span style={{ fontWeight: 600, color: 'var(--navy)', fontSize: '13px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Intelligence Block</span>
+                  <span style={{ fontWeight: 600, color: 'var(--navy)', fontSize: '13px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Question Details</span>
                 </div>
                 {questions.length > 1 && (
                   <button onClick={() => removeQuestion(qIndex)} className="adm-btn adm-btn-ghost" style={{ padding: '6px', color: 'var(--crimson)' }}>
@@ -181,11 +181,11 @@ export default function ExamCreate() {
               </div>
 
               <div className="adm-form-group">
-                <label className="adm-label">Question Content</label>
+                <label className="adm-label">Question Text</label>
                 <textarea 
                   className="adm-input" 
                   style={{ minHeight: '100px', resize: 'vertical' }}
-                  placeholder="Formulate the assessment question here..."
+                  placeholder="Enter the question here..."
                   value={q.question}
                   onChange={(e) => updateQuestion(qIndex, 'question', e.target.value)}
                 />
@@ -204,7 +204,7 @@ export default function ExamCreate() {
                           onChange={() => updateQuestion(qIndex, 'answer', opt)}
                           style={{ accentColor: 'var(--olive)' }}
                         />
-                        {q.answer === opt && opt !== '' ? 'Correct Answer' : 'Mark Correct'}
+                        {q.answer === opt && opt !== '' ? 'Correct' : 'Mark Correct'}
                       </label>
                     </div>
                     <input 
@@ -226,16 +226,16 @@ export default function ExamCreate() {
           <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '32px', paddingBottom: '60px' }}>
             <button className="adm-btn adm-btn-ghost" onClick={() => setStep(1)}>
               <ArrowLeft size={16} strokeWidth={1.5} />
-              <span>Back to Parameters</span>
+              <span>Back to Settings</span>
             </button>
             <div style={{ display: 'flex', gap: '16px' }}>
               <button className="adm-btn adm-btn-ghost" onClick={addQuestion}>
                 <Plus size={16} strokeWidth={1.5} />
-                <span>Add Intelligence Block</span>
+                <span>Add Question</span>
               </button>
               <button className="adm-btn adm-btn-primary" onClick={handleSubmit} disabled={isSubmitting}>
                 <ShieldCheck size={16} strokeWidth={1.5} />
-                <span>{isSubmitting ? 'Deploying Protocol...' : 'Finalize & Deploy'}</span>
+                <span>{isSubmitting ? 'Creating Exam...' : 'Create Exam'}</span>
               </button>
             </div>
           </div>

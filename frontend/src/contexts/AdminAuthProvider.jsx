@@ -1,8 +1,8 @@
-import { createContext, useContext, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { apiFetch } from '../lib/api';
 import { getSavedUser, saveUser, clearAuth, setToken, getToken } from '../lib/auth';
 
-const AdminAuthContext = createContext();
+import { AdminAuthContext } from './AdminAuthContext';
 
 export function AdminAuthProvider({ children }) {
   const [user, setUser] = useState(getSavedUser());
@@ -29,7 +29,6 @@ export function AdminAuthProvider({ children }) {
 
     rehydrate();
 
-    // Listen for global logout events from api.js 401 handler
     const handleLogout = () => {
       setUser(null);
       clearAuth();
@@ -69,4 +68,3 @@ export function AdminAuthProvider({ children }) {
   );
 }
 
-export const useAdminAuth = () => useContext(AdminAuthContext);
