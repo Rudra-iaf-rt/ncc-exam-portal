@@ -15,12 +15,28 @@ model User {
   name             String
   regimentalNumber String?   @unique
   email            String?   @unique
+  mobile           String?
+  batch            String?
+  yearOfStudy      String?
   password         String
   role             String // STUDENT | ADMIN | INSTRUCTOR
   college          String
   examsCreated     Exam[]    @relation("ExamCreator")
   attempts         Attempt[]
   results          Result[]
+  materialsUploaded Material[]
+}
+
+model Material {
+  id             Int      @id @default(autoincrement())
+  title          String?
+  originalName   String
+  storedName     String   @unique
+  mimeType       String
+  sizeBytes      Int
+  uploadedById   Int
+  uploadedBy     User     @relation(fields: [uploadedById], references: [id])
+  createdAt      DateTime @default(now())
 }
 
 model Exam {

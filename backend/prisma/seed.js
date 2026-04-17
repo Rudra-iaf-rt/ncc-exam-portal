@@ -1,5 +1,6 @@
 require("dotenv/config");
 const bcrypt = require("bcrypt");
+
 const { PrismaClient } = require("@prisma/client");
 const { PrismaPg } = require("@prisma/adapter-pg");
 const { Pool } = require("pg");
@@ -8,11 +9,33 @@ const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
 const prisma = new PrismaClient({ adapter });
 
+const { prisma } = require("../src/lib/prisma");
+
+
 const SALT_ROUNDS = 10;
 
 async function main() {
   const studentPass = await bcrypt.hash("student123", SALT_ROUNDS);
   const staffPass = await bcrypt.hash("admin123", SALT_ROUNDS);
+  const sampleCadetPass = await bcrypt.hash("Sree@1234", SALT_ROUNDS);
+
+  await prisma.user.upsert({
+    where: { regimentalNumber: "AP2025SDAF0490515" },
+    update: {
+      password: sampleCadetPass,
+      name: "Sample Cadet",
+      college: "Demo College",
+      role: "STUDENT",
+    },
+    create: {
+      name: "Sample Cadet",
+      regimentalNumber: "AP2025SDAF0490515",
+      email: null,
+      password: sampleCadetPass,
+      role: "STUDENT",
+      college: "Demo College",
+    },
+  });
 
   await prisma.user.upsert({
     where: { regimentalNumber: "STU001" },
@@ -53,7 +76,9 @@ async function main() {
     },
   });
 
-  console.log("Seed OK: STU001 / student123, admin@example.com & instructor@example.com / admin123");
+  console.log(
+    "Seed OK: AP2025SDAF0490515 / Sree@1234, STU001 / student123, admin@example.com & instructor@example.com / admin123"
+  );
 }
 
 main()

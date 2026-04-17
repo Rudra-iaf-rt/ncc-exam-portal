@@ -3,7 +3,6 @@ const { allowRole } = require("./roles");
 
 /**
  * Verifies Bearer JWT and attaches `req.user` with `id` and `role`.
- * Only tokens whose `role` is STUDENT, ADMIN, or INSTRUCTOR are accepted.
  */
 function authenticate(req, res, next) {
   const authHeader = req.headers.authorization;

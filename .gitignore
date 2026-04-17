@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # Learn more https://docs.github.com/en/get-started/getting-started-with-git/ignoring-files
 
 # dependencies
@@ -44,3 +45,6 @@ app-example
 .vscode
 .ai-session
 .env
+=======
+node_modules/
+>>>>>>> b25fd685eef0acff4cdef89c966c99f7dfb4c7e5
