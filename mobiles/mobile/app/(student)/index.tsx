@@ -34,7 +34,7 @@ export default function StudentDashboardScreen() {
       api.get<{ exams: ExamListItem[] }>('/exams'),
       api.get<{ results: StudentResultItem[] }>('/results/student'),
     ]);
-    setExams(examsRes.data.exams);
+    setExams(examsRes.data.exams.filter((e) => e.published));
     const r = resultsRes.data.results;
     setLatest(r.length ? r[0] : null);
   }, []);

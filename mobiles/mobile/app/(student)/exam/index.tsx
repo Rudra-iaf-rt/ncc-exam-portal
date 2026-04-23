@@ -24,7 +24,7 @@ export default function ExamListScreen() {
 
   const load = useCallback(async () => {
     const { data } = await api.get<{ exams: ExamListItem[] }>('/exams');
-    setExams(data.exams);
+    setExams(data.exams.filter((e) => e.published));
   }, []);
 
   useEffect(() => {

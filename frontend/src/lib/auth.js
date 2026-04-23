@@ -23,8 +23,21 @@ export function setToken(token) {
   localStorage.setItem('ncc_token', token);
 }
 
+export function getRefreshToken() {
+  return localStorage.getItem('ncc_refresh_token');
+}
+
+export function setRefreshToken(token) {
+  if (token && String(token).trim() !== '') {
+    localStorage.setItem('ncc_refresh_token', token);
+  } else {
+    localStorage.removeItem('ncc_refresh_token');
+  }
+}
+
 export function clearAuth() {
   localStorage.removeItem('ncc_token');
+  localStorage.removeItem('ncc_refresh_token');
   localStorage.removeItem('ncc_user');
 }
 

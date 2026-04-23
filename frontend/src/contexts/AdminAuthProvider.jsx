@@ -1,6 +1,14 @@
 import { useState, useEffect } from 'react';
 import { apiFetch } from '../lib/api';
-import { getSavedUser, saveUser, clearAuth, setToken, getToken } from '../lib/auth';
+import {
+  getSavedUser,
+  saveUser,
+  clearAuth,
+  setToken,
+  getToken,
+  setRefreshToken,
+  getRefreshToken,
+} from '../lib/auth';
 
 import { AdminAuthContext } from './AdminAuthContext';
 
@@ -45,6 +53,7 @@ export function AdminAuthProvider({ children }) {
 
     if (data && data.token && (data.user.role === 'ADMIN' || data.user.role === 'INSTRUCTOR')) {
       setToken(data.token);
+      setRefreshToken(data.refreshToken || null);
       saveUser(data.user);
       setUser(data.user);
       return { success: true };
@@ -56,7 +65,14 @@ export function AdminAuthProvider({ children }) {
     };
   }
 
-  function logout() {
+  async function logout() {
+    const refreshToken = getRefreshToken();
+    if (refreshToken) {
+      await apiFetch('/auth/logout', {
+        method: 'POST',
+        body: JSON.stringify({ refreshToken }),
+      });
+    }
     clearAuth();
     setUser(null);
   }

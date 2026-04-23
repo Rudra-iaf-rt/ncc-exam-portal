@@ -1,6 +1,7 @@
 import axios, { type AxiosError } from 'axios';
 
 import { getApiBaseUrl } from '@/lib/config';
+import { ReactNode } from 'react';
 
 export const api = axios.create({
   baseURL: getApiBaseUrl(),
@@ -35,9 +36,12 @@ export type ExamListItem = {
   title: string;
   duration: number;
   questionCount: number;
+  published?: boolean;
+  publishedAt?: string | null;
 };
 
 export type StudentResultItem = {
+  studentName: ReactNode;
   id: number;
   score: number;
   examId: number;
