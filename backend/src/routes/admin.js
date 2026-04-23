@@ -2,6 +2,7 @@ const express = require("express");
 const { prisma } = require("../lib/prisma");
 const { authenticate } = require("../middleware/auth");
 const { requireAdmin } = require("../middleware/roles");
+const auditLogService = require("../services/audit-log.service");
 
 const router = express.Router();
 
@@ -101,10 +102,8 @@ router.get("/health", authenticate, requireAdmin, async (_req, res) => {
 });
 
 router.get("/logs", authenticate, requireAdmin, async (_req, res) => {
-  res.json({
-    logs: [],
-    note: "Log streaming is not configured yet; this endpoint is reserved.",
-  });
+  const logs = await auditLogService.listAuditLogs(_req.query ?? {});
+  res.json({ logs });
 });
 
 module.exports = router;

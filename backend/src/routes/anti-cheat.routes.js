@@ -2,6 +2,7 @@ const express = require("express");
 const antiCheatController = require("../controllers/anti-cheat.controller");
 const { authenticate } = require("../middleware/auth");
 const { requireStudent } = require("../middleware/roles");
+const { antiCheatRateLimiter } = require("../middleware/security");
 const { asyncHandler } = require("../middleware/error-handler");
 
 const router = express.Router();
@@ -10,6 +11,7 @@ router.post(
   "/exam/violation",
   authenticate,
   requireStudent,
+  antiCheatRateLimiter,
   asyncHandler(antiCheatController.violation)
 );
 
@@ -17,6 +19,7 @@ router.post(
   "/exam/heartbeat",
   authenticate,
   requireStudent,
+  antiCheatRateLimiter,
   asyncHandler(antiCheatController.heartbeat)
 );
 

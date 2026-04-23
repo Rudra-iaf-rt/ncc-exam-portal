@@ -1,7 +1,14 @@
 const examService = require("../services/exam.service");
+const auditLogService = require("../services/audit-log.service");
 
 async function create(req, res) {
   const exam = await examService.createExam(req.user.id, req.body ?? {});
+  await auditLogService.recordAudit(req, {
+    action: "EXAM_CREATE",
+    entityType: "Exam",
+    entityId: exam.id,
+    statusCode: 201,
+  });
   res.status(201).json({ exam });
 }
 
@@ -17,6 +24,12 @@ async function createFromPdf(req, res) {
     duration,
     pdfBuffer: file.buffer,
   });
+  await auditLogService.recordAudit(req, {
+    action: "EXAM_CREATE_FROM_PDF",
+    entityType: "Exam",
+    entityId: exam.id,
+    statusCode: 201,
+  });
   res.status(201).json({ exam });
 }
 
@@ -31,6 +44,12 @@ async function createFromExcel(req, res) {
     title,
     duration,
     excelBuffer: file.buffer,
+  });
+  await auditLogService.recordAudit(req, {
+    action: "EXAM_CREATE_FROM_EXCEL",
+    entityType: "Exam",
+    entityId: exam.id,
+    statusCode: 201,
   });
   res.status(201).json({ exam });
 }
@@ -64,6 +83,12 @@ async function saveAnswer(req, res) {
 
 async function submit(req, res) {
   const payload = await examService.submitExam(req.user.id, req.body ?? {});
+  await auditLogService.recordAudit(req, {
+    action: "ATTEMPT_SUBMIT",
+    entityType: "Exam",
+    entityId: req.body?.examId ?? null,
+    statusCode: 200,
+  });
   res.json(payload);
 }
 
@@ -79,6 +104,12 @@ async function attemptDetails(req, res) {
 
 async function updateMeta(req, res) {
   const exam = await examService.updateExamMetaByCreator(req.user.id, req.params.id, req.body ?? {});
+  await auditLogService.recordAudit(req, {
+    action: "EXAM_UPDATE_META",
+    entityType: "Exam",
+    entityId: exam.id,
+    statusCode: 200,
+  });
   res.json({ exam });
 }
 
@@ -88,16 +119,34 @@ async function replaceQuestions(req, res) {
     req.params.id,
     req.body ?? {}
   );
+  await auditLogService.recordAudit(req, {
+    action: "EXAM_REPLACE_QUESTIONS",
+    entityType: "Exam",
+    entityId: exam.id,
+    statusCode: 200,
+  });
   res.json({ exam });
 }
 
 async function publish(req, res) {
   const exam = await examService.publishExamByCreator(req.user.id, req.params.id);
+  await auditLogService.recordAudit(req, {
+    action: "EXAM_PUBLISH",
+    entityType: "Exam",
+    entityId: exam.id,
+    statusCode: 200,
+  });
   res.json({ exam });
 }
 
 async function remove(req, res) {
   const payload = await examService.deleteExamByCreator(req.user.id, req.params.id);
+  await auditLogService.recordAudit(req, {
+    action: "EXAM_DELETE",
+    entityType: "Exam",
+    entityId: payload.id,
+    statusCode: 200,
+  });
   res.json(payload);
 }
 

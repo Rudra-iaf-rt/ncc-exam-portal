@@ -30,6 +30,8 @@ model User {
   receivedNotifications Notification[] @relation("NotificationRecipient")
   examViolations     ExamViolation[]
   examHeartbeats     ExamHeartbeat[]
+  auditLogs          AuditLog[]
+  refreshTokens      RefreshToken[]
 }
 
 model PasswordResetToken {
@@ -152,4 +154,40 @@ model Notification {
 
   @@index([userId, createdAt])
   @@index([sentById, createdAt])
+}
+
+model AuditLog {
+  id         Int      @id @default(autoincrement())
+  userId     Int?
+  action     String
+  entityType String?
+  entityId   String?
+  method     String
+  path       String
+  statusCode Int
+  ip         String?
+  userAgent  String?
+  requestId  String?
+  metadata   Json?
+  createdAt  DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([createdAt])
+  @@index([action, createdAt])
+  @@index([userId, createdAt])
+}
+
+model RefreshToken {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  tokenHash  String   @unique
+  expiresAt  DateTime
+  revokedAt  DateTime?
+  createdAt  DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
+  @@index([expiresAt])
 }

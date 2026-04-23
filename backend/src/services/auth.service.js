@@ -11,6 +11,8 @@ const SALT_ROUNDS = 10;
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const RESET_TOKEN_BYTES = 32;
 const RESET_TOKEN_TTL_MINUTES = Number(process.env.PASSWORD_RESET_TTL_MINUTES || 30);
+const REFRESH_TOKEN_BYTES = 48;
+const REFRESH_TOKEN_TTL_DAYS = Number(process.env.REFRESH_TOKEN_TTL_DAYS || 30);
 
 function sha256(input) {
   return crypto.createHash("sha256").update(input).digest("hex");
@@ -41,6 +43,39 @@ function sanitizeUser(user) {
     yearOfStudy: user.yearOfStudy,
     role: user.role,
     college: user.college,
+  };
+}
+
+async function issueSessionTokens(user, options = {}) {
+  const oldTokenHash = options.oldTokenHash ? String(options.oldTokenHash) : null;
+  const accessToken = signToken({ sub: user.id, role: user.role });
+  const refreshToken = crypto.randomBytes(REFRESH_TOKEN_BYTES).toString("hex");
+  const tokenHash = sha256(refreshToken);
+  const expiresAt = new Date(Date.now() + REFRESH_TOKEN_TTL_DAYS * 24 * 60 * 60 * 1000);
+
+  await prisma.$transaction(async (tx) => {
+    if (oldTokenHash) {
+      await tx.refreshToken.updateMany({
+        where: {
+          tokenHash: oldTokenHash,
+          revokedAt: null,
+        },
+        data: { revokedAt: new Date() },
+      });
+    }
+    await tx.refreshToken.create({
+      data: {
+        userId: user.id,
+        tokenHash,
+        expiresAt,
+      },
+    });
+  });
+
+  return {
+    token: accessToken,
+    refreshToken,
+    user: sanitizeUser(user),
   };
 }
 
@@ -127,8 +162,7 @@ async function registerStudent(body) {
       },
     });
 
-    const token = signToken({ sub: user.id, role: user.role });
-    return { token, user: sanitizeUser(user) };
+    return issueSessionTokens(user);
   } catch (e) {
     if (e && typeof e === "object" && e.code === "P2002") {
       throw new HttpError(409, "Email or regimental number already registered");
@@ -158,12 +192,10 @@ async function loginStudent({ regimentalNumber, password }) {
     throw new HttpError(401, "Invalid credentials");
   }
 
-  const token = signToken({ sub: user.id, role: user.role });
-  return { token, user: sanitizeUser(user) };
+  return issueSessionTokens(user);
 }
 
 async function loginStaff({ email, password }) {
-  console.log("Body",email,password)
   if (!email || !password) {
     throw new HttpError(400, "email and password are required");
   }
@@ -186,8 +218,7 @@ async function loginStaff({ email, password }) {
     throw new HttpError(401, "Invalid credentials");
   }
 
-  const token = signToken({ sub: user.id, role: user.role });
-  return { token, user: sanitizeUser(user) };
+  return issueSessionTokens(user);
 }
 
 async function getMe(userId) {
@@ -207,8 +238,48 @@ async function refreshSession(userId) {
   if (!user) {
     throw new HttpError(404, "User not found");
   }
-  const token = signToken({ sub: user.id, role: user.role });
-  return { token, user: sanitizeUser(user) };
+  return issueSessionTokens(user);
+}
+
+async function refreshSessionWithToken(rawRefreshToken) {
+  const refreshToken = String(rawRefreshToken || "").trim();
+  if (!refreshToken) {
+    throw new HttpError(400, "refreshToken is required");
+  }
+
+  const tokenHash = sha256(refreshToken);
+  const record = await prisma.refreshToken.findUnique({
+    where: { tokenHash },
+    include: { user: true },
+  });
+
+  if (!record || !record.user) {
+    throw new HttpError(401, "Invalid refresh token");
+  }
+  if (record.revokedAt) {
+    throw new HttpError(401, "Refresh token revoked");
+  }
+  if (record.expiresAt.getTime() < Date.now()) {
+    throw new HttpError(401, "Refresh token expired");
+  }
+
+  return issueSessionTokens(record.user, { oldTokenHash: tokenHash });
+}
+
+async function logoutWithRefreshToken(rawRefreshToken) {
+  const refreshToken = String(rawRefreshToken || "").trim();
+  if (!refreshToken) {
+    throw new HttpError(400, "refreshToken is required");
+  }
+  const tokenHash = sha256(refreshToken);
+  await prisma.refreshToken.updateMany({
+    where: {
+      tokenHash,
+      revokedAt: null,
+    },
+    data: { revokedAt: new Date() },
+  });
+  return { ok: true };
 }
 
 async function requestPasswordReset({ email }) {
@@ -313,6 +384,8 @@ module.exports = {
   loginStaff,
   getMe,
   refreshSession,
+  refreshSessionWithToken,
+  logoutWithRefreshToken,
   requestPasswordReset,
   resetPassword,
 };

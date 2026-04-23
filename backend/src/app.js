@@ -9,11 +9,14 @@ const usersRoutes = require("./routes/users.routes");
 const adminRoutes = require("./routes/admin");
 const notificationsRoutes = require("./routes/notifications.routes");
 const antiCheatRoutes = require("./routes/anti-cheat.routes");
+const { requestContext, securityHeaders } = require("./middleware/security");
 const { notFoundHandler, errorHandler } = require("./middleware/error-handler");
 
 const app = express();
 
 app.use(cors());
+app.use(requestContext);
+app.use(securityHeaders);
 app.use(express.json());
 
 app.get("/health", (_req, res) => {
