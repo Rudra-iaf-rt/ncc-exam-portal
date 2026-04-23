@@ -2,20 +2,23 @@ import { Platform } from 'react-native';
 
 /** Brand palette — disciplined, institutional */
 export const PortalColors = {
-  navy: '#0f2744',
-  navyLight: '#1a3a5c',
-  slate: '#334155',
-  muted: '#64748b',
-  border: '#e2e8f0',
+  navy: '#0B162B',
+  navyMid: '#1A2B4A',
+  navySoft: '#2C446E',
+  slate: '#374151',
+  muted: '#6B7280',
+  border: '#D6CEC2',
   borderDark: '#334155',
-  accent: '#2563eb',
-  accentMuted: '#dbeafe',
-  gold: '#b8860b',
-  success: '#059669',
-  danger: '#dc2626',
-  cardLight: '#ffffff',
+  accent: '#2C446E',
+  accentMuted: '#E8EDF5',
+  gold: '#C9982A',
+  success: '#3B6D11',
+  danger: '#8B1A1A',
+  cardLight: '#FFFEFA',
   cardDark: '#1e293b',
-  overlay: 'rgba(15, 39, 68, 0.92)',
+  stone: '#F4F2EC',
+  parchment: '#FAF8F2',
+  overlay: 'rgba(11, 22, 43, 0.92)',
 };
 
 export const Spacing = {
@@ -28,8 +31,8 @@ export const Spacing = {
 
 export const Radius = {
   sm: 8,
-  md: 12,
-  lg: 16,
+  md: 10,
+  lg: 14,
   full: 999,
 };
 

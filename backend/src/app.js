@@ -16,7 +16,6 @@ app.get("/health", (_req, res) => {
   res.json({ ok: true });
 });
 
-app.use("/api", authRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api", materialsRoutes);
 app.use("/api", examRoutes);

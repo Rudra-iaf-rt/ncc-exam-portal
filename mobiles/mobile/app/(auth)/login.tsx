@@ -15,6 +15,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Field } from '@/components/portal/field';
+import { PageHeader } from '@/components/portal/page-header';
 import { PrimaryButton } from '@/components/portal/primary-button';
 import { PortalColors, Spacing } from '@/constants/portal';
 import { useAuth } from '@/context/auth-context';
@@ -72,11 +73,13 @@ export default function LoginScreen() {
           contentContainerStyle={styles.scroll}
           keyboardShouldPersistTaps="handled"
           showsVerticalScrollIndicator={false}>
-          <View style={styles.header}>
-            <Text style={styles.badge}>AIR WING</Text>
-            <Text style={styles.title}>Sign in</Text>
-            <Text style={styles.subtitle}>Regimental number and password</Text>
-          </View>
+          <PageHeader
+            badge="Air Wing"
+            title="Sign in"
+            subtitle="Regimental number and password"
+            tone="light"
+            style={styles.header}
+          />
 
           <Field
             label="Regimental number"
@@ -102,6 +105,10 @@ export default function LoginScreen() {
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
           <PrimaryButton title="Sign in" onPress={onSubmit} loading={submitting} />
+
+          <Pressable onPress={() => router.push('/(auth)/forgot-password')} style={styles.linkWrap}>
+            <Text style={styles.link}>Forgot password?</Text>
+          </Pressable>
 
           <Pressable onPress={() => router.push('/(auth)/register')} style={styles.linkWrap}>
             <Text style={styles.link}>New cadet? Create an account</Text>
@@ -129,24 +136,6 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: Spacing.xl,
-  },
-  badge: {
-    color: PortalColors.accentMuted,
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 3,
-    marginBottom: Spacing.sm,
-  },
-  title: {
-    color: '#fff',
-    fontSize: 28,
-    fontWeight: '700',
-    letterSpacing: -0.5,
-  },
-  subtitle: {
-    color: '#94a3b8',
-    fontSize: 15,
-    marginTop: Spacing.xs,
   },
   error: {
     color: '#fca5a5',

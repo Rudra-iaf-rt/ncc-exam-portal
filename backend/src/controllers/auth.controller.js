@@ -20,9 +20,21 @@ async function me(req, res) {
   res.json({ user });
 }
 
+async function forgotPassword(req, res) {
+  await authService.requestPasswordReset(req.body ?? {});
+  res.json({ ok: true });
+}
+
+async function resetPassword(req, res) {
+  await authService.resetPassword(req.body ?? {});
+  res.json({ ok: true });
+}
+
 module.exports = {
   register,
   loginStudent,
   loginStaff,
   me,
+  forgotPassword,
+  resetPassword,
 };

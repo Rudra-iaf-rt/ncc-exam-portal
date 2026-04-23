@@ -5,20 +5,25 @@ import { PageHeader } from '../components/Shared';
 import { 
   ArrowLeft, 
   ArrowRight, 
+  Download,
   Plus, 
   Trash2, 
   ShieldCheck, 
   AlertCircle,
   Clock,
-  Layout
+  FileUp,
+  ListChecks
 } from 'lucide-react';
 import '../admin.css';
 
 export default function ExamCreate() {
   const navigate = useNavigate();
+  /** excel = upload a question sheet; manual = step-by-step questions */
+  const [creationMode, setCreationMode] = useState('excel');
   const [step, setStep] = useState(1); // 1: Details, 2: Questions
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState('');
+  const [excelFile, setExcelFile] = useState(null);
 
   // Step 1: Basic Info
   const [basicInfo, setBasicInfo] = useState({
@@ -69,6 +74,38 @@ export default function ExamCreate() {
     return null;
   };
 
+  const handleExcelCreate = async () => {
+    const err = validateStep1();
+    if (err) {
+      setError(err);
+      return;
+    }
+    if (!excelFile) {
+      setError('Select an Excel file that contains questions and answers.');
+      return;
+    }
+
+    setIsSubmitting(true);
+    setError('');
+
+    const fd = new FormData();
+    fd.append('title', basicInfo.title.trim());
+    fd.append('duration', String(basicInfo.duration));
+    fd.append('file', excelFile);
+
+    const { data, error: apiError } = await apiFetch('/exams/create-from-excel', {
+      method: 'POST',
+      body: fd,
+    });
+
+    if (data) {
+      navigate('/admin/exams');
+    } else {
+      setError(apiError || 'Could not create the exam from this Excel file.');
+      setIsSubmitting(false);
+    }
+  };
+
   const handleSubmit = async () => {
     const vError = validateQuestions();
     if (vError) {
@@ -99,13 +136,34 @@ export default function ExamCreate() {
     <div style={{ maxWidth: '900px', margin: '0 auto' }}>
       <PageHeader 
         title="Deploy New *Examination*" 
-        subtitle={step === 1 ? 'Phase I: Mission Parameters & Configuration' : `Phase II: Intelligence Assessment Architecture (${questions.length} Blocks)`}
+        subtitle={
+          creationMode === 'excel'
+            ? 'Upload an Excel sheet with questions + options + answers to create an exam instantly.'
+            : step === 1
+              ? 'Phase I: Mission Parameters & Configuration'
+              : `Phase II: Intelligence Assessment Architecture (${questions.length} Blocks)`
+        }
       />
 
-      {/* Step Indicator */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '32px' }}>
-        <div style={{ height: '4px', flex: 1, background: 'var(--navy)', borderRadius: '2px' }} />
-        <div style={{ height: '4px', flex: 1, background: step === 2 ? 'var(--navy)' : 'var(--stone-3)', borderRadius: '2px', transition: 'all 0.3s' }} />
+      <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
+        <button
+          type="button"
+          className={`adm-btn ${creationMode === 'excel' ? 'adm-btn-primary' : 'adm-btn-ghost'}`}
+          onClick={() => { setCreationMode('excel'); setError(''); }}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+        >
+          <FileUp size={16} strokeWidth={1.5} />
+          From Excel
+        </button>
+        <button
+          type="button"
+          className={`adm-btn ${creationMode === 'manual' ? 'adm-btn-primary' : 'adm-btn-ghost'}`}
+          onClick={() => { setCreationMode('manual'); setError(''); }}
+          style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }}
+        >
+          <ListChecks size={16} strokeWidth={1.5} />
+          Manual entry
+        </button>
       </div>
 
       {error && (
@@ -114,6 +172,91 @@ export default function ExamCreate() {
           <span style={{ fontSize: '13px', color: 'var(--crimson)', fontWeight: 500 }}>{error}</span>
         </div>
       )}
+
+      {creationMode === 'excel' ? (
+        <div className="adm-card" style={{ padding: '32px' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+            <div className="adm-form-group">
+              <label className="adm-label">Examination Title / Designation</label>
+              <input
+                className="adm-input"
+                placeholder="e.g. Unit drill assessment (March 2026)"
+                value={basicInfo.title}
+                onChange={(e) => setBasicInfo({ ...basicInfo, title: e.target.value })}
+              />
+            </div>
+            <div className="adm-form-group">
+              <label className="adm-label">Duration (minutes)</label>
+              <input
+                type="number"
+                className="adm-input"
+                value={basicInfo.duration}
+                min={1}
+                onChange={(e) => setBasicInfo({ ...basicInfo, duration: parseInt(e.target.value, 10) || 0 })}
+              />
+            </div>
+          </div>
+
+          <div className="adm-form-group" style={{ marginTop: '20px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+              <label className="adm-label" style={{ marginBottom: 0 }}>Question sheet (Excel / CSV)</label>
+              <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <a
+                  href="/exam-template.xlsx"
+                  download="exam-template.xlsx"
+                  className="adm-btn adm-btn-ghost"
+                  style={{ height: '30px', fontSize: '11px', padding: '0 10px' }}
+                >
+                  <Download size={13} strokeWidth={1.5} />
+                  <span>XLSX</span>
+                </a>
+                <a
+                  href="/exam-template.csv"
+                  download="exam-template.csv"
+                  className="adm-btn adm-btn-ghost"
+                  style={{ height: '30px', fontSize: '11px', padding: '0 10px' }}
+                >
+                  <Download size={13} strokeWidth={1.5} />
+                  <span>CSV</span>
+                </a>
+              </div>
+            </div>
+            <input
+              type="file"
+              accept=".xlsx,.xls,.csv,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,text/csv"
+              className="adm-input"
+              style={{ padding: '12px' }}
+              onChange={(e) => setExcelFile(e.target.files?.[0] ?? null)}
+            />
+            <p style={{ fontSize: '12px', color: 'var(--ink-4)', marginTop: '10px', lineHeight: 1.5 }}>
+              Required columns: <code style={{ fontSize: '11px' }}>question</code>,{' '}
+              <code style={{ fontSize: '11px' }}>optionA</code>,{' '}
+              <code style={{ fontSize: '11px' }}>optionB</code>,{' '}
+              <code style={{ fontSize: '11px' }}>optionC</code>,{' '}
+              <code style={{ fontSize: '11px' }}>optionD</code>,{' '}
+              <code style={{ fontSize: '11px' }}>answer</code>. Answer can be A/B/C/D or exact option text.
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '28px', paddingTop: '24px', borderTop: '1px solid var(--stone-3)' }}>
+            <button
+              type="button"
+              className="adm-btn adm-btn-primary"
+              onClick={handleExcelCreate}
+              disabled={isSubmitting}
+            >
+              <ShieldCheck size={16} strokeWidth={1.5} />
+              <span>{isSubmitting ? 'Importing…' : 'Create exam from Excel'}</span>
+            </button>
+          </div>
+        </div>
+      ) : (
+        <>
+      {/* Step Indicator */}
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '32px' }}>
+        <div style={{ height: '4px', flex: 1, background: 'var(--navy)', borderRadius: '2px' }} />
+        <div style={{ height: '4px', flex: 1, background: step === 2 ? 'var(--navy)' : 'var(--stone-3)', borderRadius: '2px', transition: 'all 0.3s' }} />
+      </div>
 
       {step === 1 ? (
         <div className="adm-card" style={{ padding: '32px' }}>
@@ -240,6 +383,8 @@ export default function ExamCreate() {
             </div>
           </div>
         </div>
+      )}
+        </>
       )}
     </div>
   );

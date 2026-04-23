@@ -1,34 +1,29 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { apiFetch } from '../../lib/api';
 import { StatCard, PageHeader } from '../components/Shared';
+import { Users, Clock, TrendingUp, Trophy, ArrowRight, AlertCircle } from 'lucide-react';
 import '../admin.css';
 
 export default function Dashboard() {
   const [stats, setStats] = useState({
+    totalStudents: 0,
+    activeExams: 0,
     totalExams: 0,
     totalAttempts: 0,
     avgScore: 0,
-    collegeBreakdown: []
+    collegeBreakdown: [],
+    recentActivity: [],
   });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    async function fetchData() {
-      const [examsRes, resultsRes] = await Promise.all([
-        apiFetch('/exams'),
-        apiFetch('/results/admin')
-      ]);
-
-      if (examsRes.data && resultsRes.data) {
-        const results = resultsRes.data.results;
-        const totalAttempts = results.length;
-        const avgScore = totalAttempts > 0 
-          ? Math.round(results.reduce((acc, r) => acc + r.score, 0) / totalAttempts) 
     async function fetchStats() {
       const { data } = await apiFetch('/admin/dashboard-stats');
       if (data) setStats(data);
       setLoading(false);
     }
+
     fetchStats();
   }, []);
 

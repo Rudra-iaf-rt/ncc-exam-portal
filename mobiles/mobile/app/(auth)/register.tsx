@@ -13,6 +13,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Field } from '@/components/portal/field';
+import { PageHeader } from '@/components/portal/page-header';
 import { PrimaryButton } from '@/components/portal/primary-button';
 import { PortalColors, Spacing } from '@/constants/portal';
 import { useAuth } from '@/context/auth-context';
@@ -34,7 +35,11 @@ export default function RegisterScreen() {
   }
   const [name, setName] = useState('');
   const [regimentalNumber, setRegimentalNumber] = useState('');
+  const [email, setEmail] = useState('');
+  const [mobile, setMobile] = useState('');
   const [college, setCollege] = useState('');
+  const [batch, setBatch] = useState('');
+  const [year, setYear] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -46,7 +51,11 @@ export default function RegisterScreen() {
       await registerStudent({
         name: name.trim(),
         regimentalNumber: regimentalNumber.trim(),
+        email: email.trim(),
+        mobile: mobile.trim(),
         college: college.trim(),
+        batch: batch.trim(),
+        year: year.trim(),
         password,
       });
       router.replace('/(student)');
@@ -70,11 +79,13 @@ export default function RegisterScreen() {
             <Text style={styles.back}>← Back to sign in</Text>
           </Pressable>
 
-          <View style={styles.header}>
-            <Text style={styles.badge}>ENROLMENT</Text>
-            <Text style={styles.title}>Create account</Text>
-            <Text style={styles.subtitle}>For cadets — use your official regimental number</Text>
-          </View>
+          <PageHeader
+            badge="Enrolment"
+            title="Create account"
+            subtitle="For cadets — use your official regimental number"
+            tone="light"
+            style={styles.header}
+          />
 
           <Field label="Full name" value={name} onChangeText={setName} autoCapitalize="words" />
           <Field
@@ -84,7 +95,37 @@ export default function RegisterScreen() {
             autoCapitalize="characters"
             autoCorrect={false}
           />
+          <Field
+            label="Email"
+            value={email}
+            onChangeText={setEmail}
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="email-address"
+          />
+          <Field
+            label="Mobile (10 digits)"
+            value={mobile}
+            onChangeText={setMobile}
+            autoCapitalize="none"
+            autoCorrect={false}
+            keyboardType="phone-pad"
+          />
           <Field label="College / unit" value={college} onChangeText={setCollege} />
+          <Field
+            label="Batch (e.g. 2025-2028)"
+            value={batch}
+            onChangeText={setBatch}
+            autoCapitalize="characters"
+            autoCorrect={false}
+          />
+          <Field
+            label="Year of study (e.g. 1st)"
+            value={year}
+            onChangeText={setYear}
+            autoCapitalize="characters"
+            autoCorrect={false}
+          />
           <Field
             label="Password (min. 6 characters)"
             value={password}
@@ -128,24 +169,6 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: Spacing.lg,
-  },
-  badge: {
-    color: PortalColors.accentMuted,
-    fontSize: 11,
-    fontWeight: '700',
-    letterSpacing: 3,
-    marginBottom: Spacing.sm,
-  },
-  title: {
-    color: '#fff',
-    fontSize: 26,
-    fontWeight: '700',
-  },
-  subtitle: {
-    color: '#94a3b8',
-    fontSize: 14,
-    marginTop: Spacing.sm,
-    lineHeight: 20,
   },
   error: {
     color: '#fca5a5',

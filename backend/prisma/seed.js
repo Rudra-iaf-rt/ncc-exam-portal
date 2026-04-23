@@ -7,9 +7,9 @@ const { Pool } = require("pg");
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
-const prisma = new PrismaClient({ adapter });
+const Prisma = new PrismaClient({ adapter });
 
-const { prisma } = require("../src/lib/prisma");
+const  { prisma }  = require("../src/lib/prisma");
 
 
 const SALT_ROUNDS = 10;
@@ -19,7 +19,7 @@ async function main() {
   const staffPass = await bcrypt.hash("admin123", SALT_ROUNDS);
   const sampleCadetPass = await bcrypt.hash("Sree@1234", SALT_ROUNDS);
 
-  await prisma.user.upsert({
+  await Prisma.user.upsert({
     where: { regimentalNumber: "AP2025SDAF0490515" },
     update: {
       password: sampleCadetPass,
@@ -37,7 +37,7 @@ async function main() {
     },
   });
 
-  await prisma.user.upsert({
+  await Prisma.user.upsert({
     where: { regimentalNumber: "STU001" },
     update: {},
     create: {
@@ -50,7 +50,7 @@ async function main() {
     },
   });
 
-  await prisma.user.upsert({
+  await Prisma.user.upsert({
     where: { email: "admin@example.com" },
     update: {},
     create: {
@@ -63,7 +63,7 @@ async function main() {
     },
   });
 
-  await prisma.user.upsert({
+  await Prisma.user.upsert({
     where: { email: "instructor@example.com" },
     update: {},
     create: {

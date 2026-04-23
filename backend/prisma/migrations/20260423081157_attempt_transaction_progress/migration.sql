@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "Attempt" ADD COLUMN     "answersJson" JSONB,
+ADD COLUMN     "currentQuestionIndex" INTEGER NOT NULL DEFAULT 0,
+ADD COLUMN     "updatedAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP;

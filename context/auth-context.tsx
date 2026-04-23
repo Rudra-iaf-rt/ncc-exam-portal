@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         if (stored) {
           api.defaults.headers.common.Authorization = `Bearer ${stored}`;
           try {
-            const { data } = await api.get<{ user: User }>("/api/me");
+            const { data } = await api.get<{ user: User }>("/api/auth/me");
             if (cancelled) return;
             // Logout (or another login) may have cleared storage while /api/me was in flight.
             const still = await AsyncStorage.getItem(TOKEN_KEY);
@@ -70,7 +70,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback(async (regimentalNumber: string, password: string) => {
-    const { data } = await api.post<{ token: string; user: User }>("/api/login", {
+    const { data } = await api.post<{ token: string; user: User }>("/api/auth/login", {
       regimentalNumber: regimentalNumber.trim(),
       password,
     });

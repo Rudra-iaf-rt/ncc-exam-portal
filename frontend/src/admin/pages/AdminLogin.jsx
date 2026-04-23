@@ -15,7 +15,7 @@ export default function AdminLogin() {
 
   useEffect(() => {
     document.body.classList.add('adm-body');
-    if (!isLoading && user && user.role === 'ADMIN') {
+    if (!isLoading && user && (user.role === 'ADMIN' || user.role === 'INSTRUCTOR')) {
       navigate('/admin/dashboard');
     }
     return () => document.body.classList.remove('adm-body');
@@ -52,7 +52,8 @@ export default function AdminLogin() {
             margin: '0 auto 20px',
             boxShadow: '0 8px 16px rgba(11, 22, 43, 0.1)'
           }}>
-            <ShieldCheck size={32} color="var(--gold-2)" strokeWidth={1.5} />
+           <img src="./ncc-logo.png" alt="ncc-logo" /> {/* <ShieldCheck size={32} color="var(--gold-2)" strokeWidth={1.5} /> */}
+
           </div>
           <h1 style={{ 
             fontFamily: 'var(--f-display)', 

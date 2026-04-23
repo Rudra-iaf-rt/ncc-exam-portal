@@ -11,6 +11,8 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Card } from '@/components/portal/card';
+import { PageHeader } from '@/components/portal/page-header';
+import { SectionHeader } from '@/components/portal/section-header';
 import { PortalColors, Spacing } from '@/constants/portal';
 import { useAuth } from '@/context/auth-context';
 import { api, type ExamListItem, type StudentResultItem } from '@/lib/api';
@@ -57,8 +59,7 @@ export default function StudentDashboardScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
         <View style={styles.topRow}>
           <View>
-            <Text style={styles.greeting}>Welcome back</Text>
-            <Text style={styles.name}>{user?.name ?? 'Cadet'}</Text>
+            <PageHeader badge="Cadet Portal" title={user?.name ?? 'Cadet'} />
             <Text style={styles.meta}>
               {user?.regimentalNumber ?? '—'} · {user?.college ?? ''}
             </Text>
@@ -83,7 +84,7 @@ export default function StudentDashboardScreen() {
           </View>
         </Card>
 
-        <Text style={styles.section}>Shortcuts</Text>
+        <SectionHeader title="Shortcuts" />
         <View style={styles.grid}>
           <Pressable
             style={({ pressed }) => [styles.tile, pressed && styles.tilePressed]}
@@ -112,7 +113,7 @@ export default function StudentDashboardScreen() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
-    backgroundColor: '#f8fafc',
+    backgroundColor: PortalColors.stone,
   },
   scroll: {
     padding: Spacing.lg,
@@ -124,17 +125,6 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
     marginBottom: Spacing.lg,
   },
-  greeting: {
-    color: PortalColors.muted,
-    fontSize: 14,
-    fontWeight: '500',
-  },
-  name: {
-    color: PortalColors.navy,
-    fontSize: 24,
-    fontWeight: '700',
-    marginTop: 2,
-  },
   meta: {
     color: PortalColors.slate,
     fontSize: 13,
@@ -145,7 +135,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 12,
   },
   signOutText: {
-    color: PortalColors.accent,
+    color: PortalColors.navy,
     fontWeight: '600',
     fontSize: 14,
   },
@@ -154,10 +144,10 @@ const styles = StyleSheet.create({
   },
   heroLabel: {
     color: PortalColors.muted,
-    fontSize: 12,
+    fontSize: 10,
     fontWeight: '600',
     textTransform: 'uppercase',
-    letterSpacing: 1,
+    letterSpacing: 1.4,
     marginBottom: Spacing.md,
   },
   heroRow: {
@@ -180,18 +170,11 @@ const styles = StyleSheet.create({
     color: PortalColors.muted,
     marginTop: 2,
   },
-  section: {
-    fontSize: 13,
-    fontWeight: '700',
-    color: PortalColors.muted,
-    letterSpacing: 0.5,
-    marginBottom: Spacing.sm,
-  },
   grid: {
     gap: Spacing.sm,
   },
   tile: {
-    backgroundColor: '#fff',
+    backgroundColor: PortalColors.cardLight,
     borderRadius: 12,
     padding: Spacing.md,
     borderWidth: 1,

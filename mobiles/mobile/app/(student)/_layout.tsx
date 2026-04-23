@@ -5,18 +5,15 @@ import { ActivityIndicator, View } from 'react-native';
 import { HapticTab } from '@/components/haptic-tab';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import { PortalColors } from '@/constants/portal';
-import { Colors } from '@/constants/theme';
 import { useAuth } from '@/context/auth-context';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function StudentTabLayout() {
-  const colorScheme = useColorScheme();
   const { user, loading } = useAuth();
 
   if (loading) {
     return (
       <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#f8fafc' }}>
-        <ActivityIndicator color={PortalColors.accent} size="large" />
+        <ActivityIndicator color={PortalColors.navy} size="large" />
       </View>
     );
   }
@@ -28,12 +25,14 @@ export default function StudentTabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: Colors[colorScheme ?? 'light'].tint,
-        tabBarInactiveTintColor: colorScheme === 'dark' ? '#64748b' : '#94a3b8',
+        tabBarActiveTintColor: PortalColors.gold,
+        tabBarInactiveTintColor: 'rgba(255,255,255,0.5)',
         headerShown: false,
         tabBarStyle: {
-          backgroundColor: colorScheme === 'dark' ? '#0f172a' : '#fff',
-          borderTopColor: colorScheme === 'dark' ? '#1e293b' : '#e2e8f0',
+          backgroundColor: PortalColors.navy,
+          borderTopColor: 'rgba(255,255,255,0.1)',
+          height: 66,
+          paddingTop: 8,
         },
         tabBarButton: HapticTab,
       }}>

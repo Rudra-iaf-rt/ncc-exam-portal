@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useRouter } from "expo-router";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -15,42 +15,32 @@ import {
 import { PrimaryButton } from "../components/ui/PrimaryButton";
 import { Screen } from "../components/ui/Screen";
 import { Colors, Radius, Spacing } from "../constants/theme";
-import { useAuth } from "../context/auth-context";
-import { getErrorMessage } from "../lib/api";
+import { api, getErrorMessage } from "../lib/api";
 
-/** Pre-filled only when `__DEV__` is true (not in production builds). Matches `backend/prisma/seed.js`. */
-const SAMPLE_REGIMENTAL = "AP2025SDAF0490515";
-const SAMPLE_PASSWORD = "Sree@1234";
-
-export default function LoginScreen() {
+export default function ForgotPasswordScreen() {
   const router = useRouter();
-  const { login } = useAuth();
-  const passwordRef = useRef<TextInput>(null);
-
-  const [regimentalNumber, setRegimentalNumber] = useState(
-    __DEV__ ? SAMPLE_REGIMENTAL : ""
-  );
-  const [password, setPassword] = useState(__DEV__ ? SAMPLE_PASSWORD : "");
+  const [email, setEmail] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function onSubmit() {
     setError(null);
-    const reg = regimentalNumber.trim();
-    if (!reg || !password) {
-      setError("Enter your regimental number and password.");
+    const e = email.trim();
+    if (!e) {
+      setError("Enter your email address.");
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
       return;
     }
 
     setSubmitting(true);
     try {
-      await login(reg, password);
+      await api.post("/api/auth/password/forgot", { email: e });
+      setDone(true);
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      router.replace("/dashboard");
-    } catch (e) {
+    } catch (err) {
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
-      setError(getErrorMessage(e, "Login failed"));
+      setError(getErrorMessage(err, "Request failed"));
     } finally {
       setSubmitting(false);
     }
@@ -62,75 +52,57 @@ export default function LoginScreen() {
         behavior={Platform.OS === "ios" ? "padding" : undefined}
         style={styles.flex}
       >
+        <Pressable onPress={() => router.back()} hitSlop={12} style={styles.backRow}>
+          <Ionicons name="chevron-back" size={22} color={Colors.primary} />
+          <Text style={styles.backText}>Back</Text>
+        </Pressable>
+
         <View style={styles.hero}>
           <View style={styles.logoWrap}>
-            <Ionicons name="shield-checkmark" size={40} color={Colors.primary} />
+            <Ionicons name="mail-outline" size={36} color={Colors.primary} />
           </View>
-          <Text style={styles.badge}>NCC · AIR WING</Text>
-          <Text style={styles.title}>Exam Portal</Text>
+          <Text style={styles.badge}>ACCOUNT</Text>
+          <Text style={styles.title}>Reset password</Text>
           <Text style={styles.subtitle}>
-            Sign in with your regimental number to access materials and exams.
+            Enter the email on your cadet profile. If an account exists, you will receive a reset link.
           </Text>
         </View>
 
         <View style={styles.form}>
-          <Text style={styles.label}>Regimental number</Text>
+          <Text style={styles.label}>Email</Text>
           <TextInput
             style={styles.input}
-            placeholder="e.g. NCC/2024/001"
+            placeholder="you@example.com"
             placeholderTextColor={Colors.textMuted}
-            autoCapitalize="characters"
+            autoCapitalize="none"
             autoCorrect={false}
-            value={regimentalNumber}
-            onChangeText={setRegimentalNumber}
-            returnKeyType="next"
-            onSubmitEditing={() => passwordRef.current?.focus()}
-          />
-
-          <Text style={styles.label}>Password</Text>
-          <TextInput
-            ref={passwordRef}
-            style={styles.input}
-            placeholder="••••••••"
-            placeholderTextColor={Colors.textMuted}
-            secureTextEntry
-            value={password}
-            onChangeText={setPassword}
+            keyboardType="email-address"
+            value={email}
+            onChangeText={setEmail}
             onSubmitEditing={onSubmit}
-            returnKeyType="done"
+            returnKeyType="send"
           />
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
           <PrimaryButton
-            label="Sign in"
+            label={done ? "Email sent" : "Send reset link"}
             onPress={onSubmit}
             loading={submitting}
+            disabled={done}
             style={styles.submit}
           />
 
-          <Text style={styles.hint}>
-            Use credentials issued by your unit. Contact staff if you need access.
-          </Text>
-
-          <View style={styles.footerRow}>
-            <Pressable onPress={() => router.push("/forgot-password")} hitSlop={8}>
-              <Text style={styles.footerLink}>Forgot password?</Text>
-            </Pressable>
-          </View>
-
-          {__DEV__ ? (
-            <Text style={styles.devHint}>
-              Dev: sample cadet is pre-filled. Run{" "}
-              <Text style={styles.devMono}>npm run db:seed</Text> in{" "}
-              <Text style={styles.devMono}>backend/</Text> once so this account exists.
+          {done ? (
+            <Text style={styles.hint}>
+              Check your inbox (and spam). Open the link on this device to set a new password.
             </Text>
           ) : null}
 
           <View style={styles.footerRow}>
-            <Text style={styles.footerMuted}>New cadet?</Text>
-            <Pressable onPress={() => router.push("/signup")} hitSlop={8}>
-              <Text style={styles.footerLink}>Create account</Text>
+            <Text style={styles.footerMuted}>Have a token?</Text>
+            <Pressable onPress={() => router.push("/reset-password")} hitSlop={8}>
+              <Text style={styles.footerLink}>Enter it here</Text>
             </Pressable>
           </View>
         </View>
@@ -143,7 +115,18 @@ const styles = StyleSheet.create({
   flex: { flex: 1 },
   screenPad: {
     paddingHorizontal: Spacing.md,
-    paddingTop: Spacing.xl,
+    paddingTop: Spacing.lg,
+  },
+  backRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 4,
+    marginBottom: Spacing.md,
+  },
+  backText: {
+    fontSize: 16,
+    fontWeight: "600",
+    color: Colors.primary,
   },
   hero: {
     marginBottom: Spacing.xl,
@@ -175,7 +158,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     lineHeight: 22,
     color: Colors.textMuted,
-    maxWidth: 320,
+    maxWidth: 340,
   },
   form: {
     gap: Spacing.sm,
@@ -208,21 +191,8 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: Colors.textMuted,
     textAlign: "center",
-    marginTop: Spacing.lg,
+    marginTop: Spacing.md,
     lineHeight: 18,
-  },
-  devHint: {
-    fontSize: 12,
-    color: Colors.primary,
-    textAlign: "center",
-    marginTop: Spacing.sm,
-    lineHeight: 17,
-    paddingHorizontal: Spacing.sm,
-  },
-  devMono: {
-    fontFamily: Platform.select({ ios: "Menlo", android: "monospace", default: "monospace" }),
-    fontSize: 11,
-    fontWeight: "600",
   },
   footerRow: {
     flexDirection: "row",

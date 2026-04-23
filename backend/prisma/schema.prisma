@@ -11,32 +11,47 @@ datasource db {
 
 // STUDENT: regimentalNumber required; ADMIN/INSTRUCTOR: email required (login paths differ)
 model User {
-  id               Int       @id @default(autoincrement())
-  name             String
-  regimentalNumber String?   @unique
-  email            String?   @unique
-  mobile           String?
-  batch            String?
-  yearOfStudy      String?
-  password         String
-  role             String // STUDENT | ADMIN | INSTRUCTOR
-  college          String
-  examsCreated     Exam[]    @relation("ExamCreator")
-  attempts         Attempt[]
-  results          Result[]
-  materialsUploaded Material[]
+  id                 Int       @id @default(autoincrement())
+  name               String
+  regimentalNumber   String?   @unique
+  email              String?   @unique
+  mobile             String?
+  batch              String?
+  yearOfStudy        String?
+  password           String
+  role               String // STUDENT | ADMIN | INSTRUCTOR
+  college            String
+  examsCreated       Exam[]    @relation("ExamCreator")
+  attempts           Attempt[]
+  results            Result[]
+  materialsUploaded  Material[]
+  passwordResetTokens PasswordResetToken[]
+}
+
+model PasswordResetToken {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  tokenHash String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([expiresAt])
 }
 
 model Material {
-  id             Int      @id @default(autoincrement())
-  title          String?
-  originalName   String
-  storedName     String   @unique
-  mimeType       String
-  sizeBytes      Int
-  uploadedById   Int
-  uploadedBy     User     @relation(fields: [uploadedById], references: [id])
-  createdAt      DateTime @default(now())
+  id           Int      @id @default(autoincrement())
+  title        String?
+  originalName String
+  storedName   String   @unique
+  mimeType     String
+  sizeBytes    Int
+  uploadedById Int
+  uploadedBy   User     @relation(fields: [uploadedById], references: [id])
+  createdAt    DateTime @default(now())
 }
 
 model Exam {
@@ -61,11 +76,14 @@ model Question {
 }
 
 model Attempt {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   studentId Int
   examId    Int
   status    String // IN_PROGRESS | SUBMITTED
+  answersJson Json?
+  currentQuestionIndex Int @default(0)
   createdAt DateTime @default(now())
+  updatedAt DateTime @default(now()) @updatedAt
   student   User     @relation(fields: [studentId], references: [id])
   exam      Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
 

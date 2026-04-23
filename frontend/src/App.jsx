@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { RequireAdmin } from './admin/guards/RequireAdmin'
+import { RequireStaff } from './admin/guards/RequireStaff'
 import { AdminLayout } from './admin/AdminLayout'
 import AdminLogin from './admin/pages/AdminLogin'
 import Dashboard from './admin/pages/Dashboard'
@@ -22,14 +23,16 @@ function App() {
       {/* Admin Portal */}
       <Route path="/admin/login" element={<AdminLogin />} />
       
-      <Route element={<RequireAdmin />}>
+      <Route element={<RequireStaff />}>
         <Route path="/admin" element={<AdminLayout />}>
           <Route index element={<Navigate to="/admin/dashboard" replace />} />
           <Route path="dashboard" element={<Dashboard />} />
           <Route path="exams" element={<ExamList />} />
           <Route path="exams/create" element={<ExamCreate />} />
           <Route path="results" element={<ResultsBoard />} />
-          <Route path="users" element={<UserManagement />} />
+          <Route element={<RequireAdmin />}>
+            <Route path="users" element={<UserManagement />} />
+          </Route>
         </Route>
       </Route>
 

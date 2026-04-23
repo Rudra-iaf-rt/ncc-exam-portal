@@ -131,7 +131,7 @@ export default function ExamScreen() {
       alive = false;
       clearInterval(timer);
     };
-  }, [exam?.id]);
+  }, [exam]);
 
   if (!authLoading && !token) {
     return <Redirect href="/login" />;

@@ -51,12 +51,12 @@ const styles = StyleSheet.create({
     minHeight: 50,
   },
   primary: {
-    backgroundColor: PortalColors.accent,
+    backgroundColor: PortalColors.navy,
   },
   outline: {
     backgroundColor: 'transparent',
     borderWidth: 1.5,
-    borderColor: PortalColors.accent,
+    borderColor: PortalColors.border,
   },
   disabled: {
     opacity: 0.55,
@@ -70,6 +70,6 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
   labelOutline: {
-    color: PortalColors.accent,
+    color: PortalColors.navy,
   },
 });

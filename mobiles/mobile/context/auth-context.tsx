@@ -26,8 +26,12 @@ type AuthContextValue = {
   registerStudent: (input: {
     name: string;
     regimentalNumber: string;
+    email: string;
+    mobile: string;
     password: string;
     college: string;
+    batch: string;
+    year: string;
   }) => Promise<void>;
   logout: () => Promise<void>;
 };
@@ -111,8 +115,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async (input: {
       name: string;
       regimentalNumber: string;
+      email: string;
+      mobile: string;
       password: string;
       college: string;
+      batch: string;
+      year: string;
     }) => {
       const { data } = await api.post<{ token: string; user: ApiUser }>('/auth/register', input);
       await persist(data.token, data.user);

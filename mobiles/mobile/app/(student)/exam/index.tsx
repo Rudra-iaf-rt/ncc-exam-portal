@@ -12,14 +12,12 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Card } from '@/components/portal/card';
+import { PageHeader } from '@/components/portal/page-header';
 import { PortalColors, Spacing } from '@/constants/portal';
 import { api, type ExamListItem } from '@/lib/api';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function ExamListScreen() {
   const router = useRouter();
-  const scheme = useColorScheme();
-  const bg = scheme === 'dark' ? '#0f172a' : '#f8fafc';
   const [exams, setExams] = useState<ExamListItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -49,14 +47,15 @@ export default function ExamListScreen() {
   }, [load]);
 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: bg }]} edges={['top']}>
+    <SafeAreaView style={styles.safe} edges={['top']}>
       <ScrollView
         contentContainerStyle={styles.scroll}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
-        <Text style={[styles.headline, { color: scheme === 'dark' ? '#f1f5f9' : PortalColors.navy }]}>
-          Exams
-        </Text>
-        <Text style={styles.lead}>Select an exam to begin. You get one attempt per paper.</Text>
+        <PageHeader
+          badge="Assessment"
+          title="Exams"
+          subtitle="Select an exam to begin. You get one attempt per paper."
+        />
 
         {loading ? (
           <ActivityIndicator style={styles.loader} color={PortalColors.accent} />
@@ -86,21 +85,10 @@ export default function ExamListScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1 },
+  safe: { flex: 1, backgroundColor: PortalColors.stone },
   scroll: {
     padding: Spacing.lg,
     paddingBottom: Spacing.xl,
-  },
-  headline: {
-    fontSize: 26,
-    fontWeight: '700',
-    marginBottom: Spacing.sm,
-  },
-  lead: {
-    fontSize: 15,
-    color: PortalColors.muted,
-    marginBottom: Spacing.lg,
-    lineHeight: 22,
   },
   loader: { marginVertical: Spacing.xl },
   empty: {
@@ -129,6 +117,6 @@ const styles = StyleSheet.create({
     marginTop: Spacing.sm,
     fontSize: 14,
     fontWeight: '600',
-    color: PortalColors.accent,
+    color: PortalColors.navy,
   },
 });

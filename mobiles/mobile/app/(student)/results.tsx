@@ -10,13 +10,11 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Card } from '@/components/portal/card';
+import { PageHeader } from '@/components/portal/page-header';
 import { PortalColors, Spacing } from '@/constants/portal';
 import { api, type StudentResultItem } from '@/lib/api';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function ResultsScreen() {
-  const scheme = useColorScheme();
-  const bg = scheme === 'dark' ? '#0f172a' : '#f8fafc';
   const [results, setResults] = useState<StudentResultItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -46,14 +44,15 @@ export default function ResultsScreen() {
   }, [load]);
 
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: bg }]} edges={['top']}>
+    <SafeAreaView style={styles.safe} edges={['top']}>
       <ScrollView
         contentContainerStyle={styles.scroll}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}>
-        <Text style={[styles.headline, { color: scheme === 'dark' ? '#f1f5f9' : PortalColors.navy }]}>
-          Results
-        </Text>
-        <Text style={styles.lead}>Official scores for completed exams.</Text>
+        <PageHeader
+          badge="Performance"
+          title="Results"
+          subtitle="Official scores for completed exams."
+        />
 
         {loading ? (
           <ActivityIndicator style={styles.loader} color={PortalColors.accent} />
@@ -82,21 +81,10 @@ export default function ResultsScreen() {
 }
 
 const styles = StyleSheet.create({
-  safe: { flex: 1 },
+  safe: { flex: 1, backgroundColor: PortalColors.stone },
   scroll: {
     padding: Spacing.lg,
     paddingBottom: Spacing.xl,
-  },
-  headline: {
-    fontSize: 26,
-    fontWeight: '700',
-    marginBottom: Spacing.sm,
-  },
-  lead: {
-    fontSize: 15,
-    color: PortalColors.muted,
-    marginBottom: Spacing.lg,
-    lineHeight: 22,
   },
   loader: { marginVertical: Spacing.xl },
   empty: {
@@ -122,7 +110,7 @@ const styles = StyleSheet.create({
     color: PortalColors.navy,
   },
   pill: {
-    backgroundColor: 'rgba(37, 99, 235, 0.12)',
+    backgroundColor: 'rgba(59, 109, 17, 0.12)',
     paddingHorizontal: 12,
     paddingVertical: 6,
     borderRadius: 20,
@@ -130,7 +118,7 @@ const styles = StyleSheet.create({
   pillText: {
     fontWeight: '800',
     fontSize: 15,
-    color: PortalColors.accent,
+    color: PortalColors.success,
   },
   sub: {
     marginTop: Spacing.sm,

@@ -2,8 +2,9 @@ import { ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { Card } from '@/components/portal/card';
+import { PageHeader } from '@/components/portal/page-header';
+import { SectionHeader } from '@/components/portal/section-header';
 import { PortalColors, Spacing } from '@/constants/portal';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 
 const SECTIONS = [
   {
@@ -21,32 +22,23 @@ const SECTIONS = [
 ];
 
 export default function MaterialsScreen() {
-  const scheme = useColorScheme();
-  const bg = scheme === 'dark' ? '#0f172a' : '#f8fafc';
-
   return (
-    <SafeAreaView style={[styles.safe, { backgroundColor: bg }]} edges={['top']}>
+    <SafeAreaView style={styles.safe} edges={['top']}>
       <ScrollView contentContainerStyle={styles.scroll} showsVerticalScrollIndicator={false}>
-        <Text style={[styles.headline, { color: scheme === 'dark' ? '#f1f5f9' : PortalColors.navy }]}>
-          Materials
-        </Text>
-        <Text style={styles.lead}>
-          Central place for syllabi, notices, and unit resources. Connect your CMS later to load live
-          documents.
-        </Text>
+        <PageHeader
+          badge="Academics"
+          title="Materials"
+          subtitle="Central place for syllabi, notices, and unit resources. Connect your CMS later to load live documents."
+        />
 
         {SECTIONS.map((section) => (
           <View key={section.title} style={styles.block}>
-            <Text style={[styles.sectionTitle, { color: PortalColors.muted }]}>{section.title}</Text>
+            <SectionHeader title={section.title} />
             <Card>
               {section.items.map((line) => (
                 <View key={line} style={styles.row}>
                   <View style={styles.dot} />
-                  <Text
-                    style={[
-                      styles.line,
-                      { color: scheme === 'dark' ? '#e2e8f0' : PortalColors.slate },
-                    ]}>
+                  <Text style={styles.line}>
                     {line}
                   </Text>
                 </View>
@@ -62,31 +54,14 @@ export default function MaterialsScreen() {
 const styles = StyleSheet.create({
   safe: {
     flex: 1,
+    backgroundColor: PortalColors.stone,
   },
   scroll: {
     padding: Spacing.lg,
     paddingBottom: Spacing.xl,
   },
-  headline: {
-    fontSize: 26,
-    fontWeight: '700',
-    marginBottom: Spacing.sm,
-  },
-  lead: {
-    fontSize: 15,
-    lineHeight: 22,
-    color: PortalColors.muted,
-    marginBottom: Spacing.xl,
-  },
   block: {
     marginBottom: Spacing.lg,
-  },
-  sectionTitle: {
-    fontSize: 12,
-    fontWeight: '700',
-    letterSpacing: 1,
-    textTransform: 'uppercase',
-    marginBottom: Spacing.sm,
   },
   row: {
     flexDirection: 'row',
@@ -105,5 +80,6 @@ const styles = StyleSheet.create({
     flex: 1,
     fontSize: 15,
     lineHeight: 22,
+    color: PortalColors.slate,
   },
 });

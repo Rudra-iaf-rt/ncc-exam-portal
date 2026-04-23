@@ -19,6 +19,8 @@ export type ExamDetail = {
 export type StartAttemptResponse = {
   attemptId: number;
   exam: ExamDetail;
+  answers?: Record<string, string>;
+  currentQuestionIndex?: number;
 };
 
 export type AnswerEntry = {
@@ -30,6 +32,13 @@ export type SubmitExamResponse = {
   score: number;
   correct: number;
   total: number;
+};
+
+export type SaveAnswerResponse = {
+  answers: Record<string, string>;
+  currentQuestionIndex: number;
+  answeredCount: number;
+  totalQuestions: number;
 };
 
 export async function fetchExamById(examId: number): Promise<ExamDetail> {
@@ -44,11 +53,19 @@ export async function startExamAttempt(examId: number): Promise<StartAttemptResp
 
 export async function submitExam(
   examId: number,
-  answers: AnswerEntry[]
+  answers?: AnswerEntry[]
 ): Promise<SubmitExamResponse> {
-  const { data } = await api.post<SubmitExamResponse>('/exams/submit', {
-    examId,
-    answers,
-  });
+  const body = answers ? { examId, answers } : { examId };
+  const { data } = await api.post<SubmitExamResponse>('/exams/submit', body);
+  return data;
+}
+
+export async function saveAttemptAnswer(payload: {
+  examId: number;
+  questionId: number;
+  selectedAnswer: string;
+  nextQuestionIndex: number;
+}): Promise<SaveAnswerResponse> {
+  const { data } = await api.post<SaveAnswerResponse>('/attempt/answer', payload);
   return data;
 }

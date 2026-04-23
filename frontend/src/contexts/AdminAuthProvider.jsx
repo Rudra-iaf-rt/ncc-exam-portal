@@ -16,12 +16,12 @@ export function AdminAuthProvider({ children }) {
         return;
       }
 
-      const { data, error } = await apiFetch('/auth/me');
-      if (data && data.user && data.user.role === 'ADMIN') {
+      const { data } = await apiFetch('/auth/me');
+      if (data && data.user && (data.user.role === 'ADMIN' || data.user.role === 'INSTRUCTOR')) {
         setUser(data.user);
         saveUser(data.user);
       } else {
-        // Not an admin or token invalid
+        // Not staff or token invalid
         logout();
       }
       setIsLoading(false);
@@ -43,7 +43,7 @@ export function AdminAuthProvider({ children }) {
       body: JSON.stringify({ email, password }),
     });
 
-    if (data && data.token && data.user.role === 'ADMIN') {
+    if (data && data.token && (data.user.role === 'ADMIN' || data.user.role === 'INSTRUCTOR')) {
       setToken(data.token);
       saveUser(data.user);
       setUser(data.user);
@@ -52,7 +52,7 @@ export function AdminAuthProvider({ children }) {
 
     return { 
       success: false, 
-      error: error || (data?.user?.role !== 'ADMIN' ? 'Access denied: Admins only.' : 'Login failed')
+      error: error || (!data?.user?.role ? 'Login failed' : 'Access denied: Staff only.')
     };
   }
 

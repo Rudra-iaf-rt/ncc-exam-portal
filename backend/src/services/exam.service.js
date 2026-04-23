@@ -5,6 +5,8 @@ const {
   stripAnswersFromExam,
   scoreSubmission,
 } = require("./exam-scoring.service");
+const { extractPdfText, buildQuestionsFromPdfText } = require("./exam-pdf.service");
+const { extractQuestionsFromExcelBuffer } = require("./exam-excel.service");
 
 async function createExam(creatorUserId, body) {
   const { title, duration, questions } = body ?? {};
@@ -63,6 +65,23 @@ async function createExam(creatorUserId, body) {
       answer: q.answer,
     })),
   };
+}
+
+/**
+ * Create exam from an instructor PDF: extract text, parse MCQs (OpenAI optional), then persist.
+ */
+async function createExamFromPdf(creatorUserId, { title, duration, pdfBuffer }) {
+  const text = await extractPdfText(pdfBuffer);
+  const questions = await buildQuestionsFromPdfText(text);
+  return createExam(creatorUserId, { title, duration, questions });
+}
+
+/**
+ * Create exam from instructor Excel template.
+ */
+async function createExamFromExcel(creatorUserId, { title, duration, excelBuffer }) {
+  const questions = await extractQuestionsFromExcelBuffer(excelBuffer);
+  return createExam(creatorUserId, { title, duration, questions });
 }
 
 async function listExamsCatalog() {
@@ -139,11 +158,16 @@ async function startAttempt(studentId, examIdRaw) {
   }
 
   if (existing?.status === "IN_PROGRESS") {
+    const answers = existing.answersJson && typeof existing.answersJson === "object"
+      ? existing.answersJson
+      : {};
     return {
       status: 200,
       body: {
         attemptId: existing.id,
         exam: stripAnswersFromExam(exam),
+        answers,
+        currentQuestionIndex: existing.currentQuestionIndex ?? 0,
       },
     };
   }
@@ -153,6 +177,8 @@ async function startAttempt(studentId, examIdRaw) {
       studentId,
       examId,
       status: "IN_PROGRESS",
+      answersJson: {},
+      currentQuestionIndex: 0,
     },
   });
 
@@ -161,8 +187,83 @@ async function startAttempt(studentId, examIdRaw) {
     body: {
       attemptId: attempt.id,
       exam: stripAnswersFromExam(exam),
+      answers: {},
+      currentQuestionIndex: 0,
     },
   };
+}
+
+async function saveAttemptAnswer(studentId, body) {
+  const examId = Number(body?.examId);
+  const questionId = Number(body?.questionId);
+  const selectedAnswer = body?.selectedAnswer;
+  const nextQuestionIndex = Number(body?.nextQuestionIndex);
+
+  if (!Number.isFinite(examId)) {
+    throw new HttpError(400, "examId is required");
+  }
+  if (!Number.isFinite(questionId)) {
+    throw new HttpError(400, "questionId is required");
+  }
+  if (selectedAnswer == null || String(selectedAnswer).trim() === "") {
+    throw new HttpError(400, "selectedAnswer is required");
+  }
+  if (!Number.isFinite(nextQuestionIndex) || nextQuestionIndex < 0) {
+    throw new HttpError(400, "nextQuestionIndex must be a non-negative number");
+  }
+
+  const result = await prisma.$transaction(async (tx) => {
+    const attempt = await tx.attempt.findUnique({
+      where: { studentId_examId: { studentId, examId } },
+    });
+    if (!attempt) {
+      throw new HttpError(400, "Start the exam before saving answers");
+    }
+    if (attempt.status !== "IN_PROGRESS") {
+      throw new HttpError(409, "This attempt is already submitted");
+    }
+
+    const exam = await tx.exam.findUnique({
+      where: { id: examId },
+      include: { questions: { orderBy: { id: "asc" } } },
+    });
+    if (!exam) {
+      throw new HttpError(404, "Exam not found");
+    }
+
+    const q = exam.questions.find((x) => x.id === questionId);
+    if (!q) {
+      throw new HttpError(400, "questionId does not belong to this exam");
+    }
+
+    const answers = attempt.answersJson && typeof attempt.answersJson === "object"
+      ? { ...attempt.answersJson }
+      : {};
+
+    answers[String(questionId)] = normalizeAnswer(selectedAnswer);
+
+    const boundedNext = Math.min(
+      Math.max(0, Math.floor(nextQuestionIndex)),
+      Math.max(0, exam.questions.length - 1)
+    );
+
+    const updated = await tx.attempt.update({
+      where: { id: attempt.id },
+      data: {
+        answersJson: answers,
+        currentQuestionIndex: boundedNext,
+      },
+    });
+
+    return {
+      answers: updated.answersJson ?? {},
+      currentQuestionIndex: updated.currentQuestionIndex ?? 0,
+      answeredCount: Object.keys(updated.answersJson ?? {}).length,
+      totalQuestions: exam.questions.length,
+    };
+  });
+
+  return result;
 }
 
 async function submitExam(studentId, body) {
@@ -172,10 +273,6 @@ async function submitExam(studentId, body) {
   if (!Number.isFinite(examId)) {
     throw new HttpError(400, "examId is required");
   }
-  if (!Array.isArray(answers)) {
-    throw new HttpError(400, "answers must be an array");
-  }
-
   const attempt = await prisma.attempt.findUnique({
     where: {
       studentId_examId: { studentId, examId },
@@ -198,7 +295,19 @@ async function submitExam(studentId, body) {
     throw new HttpError(404, "Exam not found");
   }
 
-  const { score, correct, total } = scoreSubmission(exam.questions, answers);
+  let answersInput = [];
+  if (Array.isArray(answers)) {
+    answersInput = answers;
+  } else if (attempt.answersJson && typeof attempt.answersJson === "object") {
+    answersInput = Object.entries(attempt.answersJson).map(([qid, selectedAnswer]) => ({
+      questionId: Number(qid),
+      selectedAnswer: String(selectedAnswer ?? ""),
+    }));
+  } else {
+    throw new HttpError(400, "answers must be an array");
+  }
+
+  const { score, correct, total } = scoreSubmission(exam.questions, answersInput);
 
   await prisma.$transaction([
     prisma.attempt.update({
@@ -219,8 +328,11 @@ async function submitExam(studentId, body) {
 
 module.exports = {
   createExam,
+  createExamFromPdf,
+  createExamFromExcel,
   listExamsCatalog,
   getExamForStudent,
   startAttempt,
+  saveAttemptAnswer,
   submitExam,
 };

@@ -1,10 +1,26 @@
-const BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+const API_ORIGIN = import.meta.env.VITE_API_URL || '';
+const API_PREFIX = import.meta.env.VITE_API_PREFIX || '/api';
+
+function joinUrl(...parts) {
+  return parts
+    .filter(Boolean)
+    .map((p, idx) => {
+      const s = String(p);
+      if (idx === 0) return s.replace(/\/+$/, '');
+      return s.replace(/^\/+/, '').replace(/\/+$/, '');
+    })
+    .join('/')
+    .replace(/\/+$/, '');
+}
 
 export async function apiFetch(endpoint, options = {}) {
   const token = localStorage.getItem('ncc_token');
-  
+
+  const isFormData =
+    typeof FormData !== 'undefined' && options.body instanceof FormData;
+
   const headers = {
-    'Content-Type': 'application/json',
+    ...(!isFormData ? { 'Content-Type': 'application/json' } : {}),
     ...options.headers,
   };
 
@@ -13,7 +29,8 @@ export async function apiFetch(endpoint, options = {}) {
   }
 
   try {
-    const response = await fetch(`${BASE_URL}${endpoint}`, {
+    const url = joinUrl(API_ORIGIN, API_PREFIX, endpoint);
+    const response = await fetch(url, {
       ...options,
       headers,
     });
@@ -22,7 +39,6 @@ export async function apiFetch(endpoint, options = {}) {
 
     if (!response.ok) {
       if (response.status === 401 && !endpoint.includes('/auth/login')) {
-        // Handle unauthorized (expired token)
         localStorage.removeItem('ncc_token');
         localStorage.removeItem('ncc_user');
         window.dispatchEvent(new Event('ncc_logout'));
