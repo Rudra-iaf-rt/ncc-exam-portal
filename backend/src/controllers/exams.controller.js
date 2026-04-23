@@ -46,6 +46,12 @@ async function getOne(req, res) {
   res.json(exam);
 }
 
+async function getOneStaff(req, res) {
+  const examId = Number(req.params.id);
+  const exam = await examService.getExamForStaff(examId);
+  res.json({ exam });
+}
+
 async function startAttempt(req, res) {
   const result = await examService.startAttempt(req.user.id, req.body?.examId);
   res.status(result.status).json(result.body);
@@ -71,15 +77,44 @@ async function attemptDetails(req, res) {
   res.json(payload);
 }
 
+async function updateMeta(req, res) {
+  const exam = await examService.updateExamMetaByCreator(req.user.id, req.params.id, req.body ?? {});
+  res.json({ exam });
+}
+
+async function replaceQuestions(req, res) {
+  const exam = await examService.replaceExamQuestionsByCreator(
+    req.user.id,
+    req.params.id,
+    req.body ?? {}
+  );
+  res.json({ exam });
+}
+
+async function publish(req, res) {
+  const exam = await examService.publishExamByCreator(req.user.id, req.params.id);
+  res.json({ exam });
+}
+
+async function remove(req, res) {
+  const payload = await examService.deleteExamByCreator(req.user.id, req.params.id);
+  res.json(payload);
+}
+
 module.exports = {
   create,
   createFromPdf,
   createFromExcel,
   listCatalog,
   getOne,
+  getOneStaff,
   startAttempt,
   saveAnswer,
   submit,
   attemptStatus,
   attemptDetails,
+  updateMeta,
+  replaceQuestions,
+  publish,
+  remove,
 };

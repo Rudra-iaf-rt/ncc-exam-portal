@@ -104,9 +104,79 @@ async function listForAdmin(query) {
   return rows.map(mapResultRow);
 }
 
+async function examSummary(examIdRaw) {
+  const examId = Number(examIdRaw);
+  if (!Number.isFinite(examId)) {
+    throw new HttpError(400, "Invalid examId");
+  }
+  const exam = await prisma.exam.findUnique({
+    where: { id: examId },
+    include: { results: true },
+  });
+  if (!exam) {
+    throw new HttpError(404, "Exam not found");
+  }
+  const scores = exam.results.map((r) => r.score);
+  const attempts = scores.length;
+  const averageScore =
+    attempts > 0
+      ? Number((scores.reduce((sum, s) => sum + s, 0) / attempts).toFixed(2))
+      : 0;
+  const highestScore = attempts > 0 ? Math.max(...scores) : 0;
+  const lowestScore = attempts > 0 ? Math.min(...scores) : 0;
+  return {
+    examId: exam.id,
+    title: exam.title,
+    attempts,
+    averageScore,
+    highestScore,
+    lowestScore,
+  };
+}
+
+async function exportExamResultsCsv(examIdRaw) {
+  const examId = Number(examIdRaw);
+  if (!Number.isFinite(examId)) {
+    throw new HttpError(400, "Invalid examId");
+  }
+  const rows = await prisma.result.findMany({
+    where: { examId },
+    include: resultInclude,
+    orderBy: { id: "asc" },
+  });
+  const header = [
+    "resultId",
+    "examId",
+    "examTitle",
+    "studentId",
+    "studentName",
+    "regimentalNumber",
+    "college",
+    "score",
+  ];
+  const dataRows = rows.map((r) => {
+    const mapped = mapResultRow(r);
+    return [
+      mapped.id,
+      mapped.examId,
+      mapped.examTitle ?? "",
+      mapped.studentId,
+      mapped.studentName ?? "",
+      mapped.regimentalNumber ?? "",
+      mapped.college ?? "",
+      mapped.score,
+    ]
+      .map((v) => `"${String(v).replace(/"/g, '""')}"`)
+      .join(",");
+  });
+  return [header.join(","), ...dataRows].join("\n");
+}
+
 module.exports = {
   mapResultRow,
   listForStudent,
   listForInstructor,
   listForAdmin,
+  examSummary,
+  exportExamResultsCsv,
 };

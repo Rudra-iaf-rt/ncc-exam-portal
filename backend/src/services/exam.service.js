@@ -97,6 +97,8 @@ async function listExamsCatalog() {
     id: e.id,
     title: e.title,
     duration: e.duration,
+    published: Boolean(e.published),
+    publishedAt: e.publishedAt,
     questionCount: e._count.questions,
     createdBy: e.createdBy,
     creator: e.creator
@@ -122,11 +124,145 @@ async function getExamForStudent(examId) {
   if (!exam) {
     throw new HttpError(404, "Exam not found");
   }
+  if (!exam.published) {
+    throw new HttpError(403, "Exam is not published yet");
+  }
   if (exam.questions.length === 0) {
     throw new HttpError(400, "Exam has no questions");
   }
 
   return stripAnswersFromExam(exam);
+}
+
+async function getExamForStaff(examId) {
+  if (!Number.isFinite(examId)) {
+    throw new HttpError(400, "Invalid exam id");
+  }
+  const exam = await prisma.exam.findUnique({
+    where: { id: examId },
+    include: { questions: { orderBy: { id: "asc" } } },
+  });
+  if (!exam) {
+    throw new HttpError(404, "Exam not found");
+  }
+  return exam;
+}
+
+async function updateExamMetaByCreator(userId, examIdRaw, body) {
+  const examId = Number(examIdRaw);
+  if (!Number.isFinite(examId)) {
+    throw new HttpError(400, "Invalid exam id");
+  }
+  const exam = await prisma.exam.findUnique({ where: { id: examId } });
+  if (!exam) {
+    throw new HttpError(404, "Exam not found");
+  }
+  if (exam.createdBy !== userId) {
+    throw new HttpError(403, "Only exam creator can update this exam");
+  }
+  const payload = {};
+  if (body?.title != null) {
+    const title = String(body.title).trim();
+    if (!title) throw new HttpError(400, "title cannot be empty");
+    payload.title = title;
+  }
+  if (body?.duration != null) {
+    const duration = Number(body.duration);
+    if (!Number.isFinite(duration) || duration < 1) {
+      throw new HttpError(400, "duration must be a positive number");
+    }
+    payload.duration = Math.floor(duration);
+  }
+  if (Object.keys(payload).length === 0) {
+    throw new HttpError(400, "Nothing to update");
+  }
+  return prisma.exam.update({
+    where: { id: examId },
+    data: payload,
+    include: { questions: { orderBy: { id: "asc" } } },
+  });
+}
+
+async function replaceExamQuestionsByCreator(userId, examIdRaw, body) {
+  const examId = Number(examIdRaw);
+  if (!Number.isFinite(examId)) {
+    throw new HttpError(400, "Invalid exam id");
+  }
+  const exam = await prisma.exam.findUnique({ where: { id: examId } });
+  if (!exam) {
+    throw new HttpError(404, "Exam not found");
+  }
+  if (exam.createdBy !== userId) {
+    throw new HttpError(403, "Only exam creator can update questions");
+  }
+  const questions = body?.questions;
+  if (!Array.isArray(questions) || questions.length === 0) {
+    throw new HttpError(400, "questions must be a non-empty array");
+  }
+  for (let i = 0; i < questions.length; i++) {
+    const q = questions[i];
+    if (!q?.question || !Array.isArray(q.options) || q.options.length < 2 || q.answer == null) {
+      throw new HttpError(400, `Invalid question at index ${i}`);
+    }
+  }
+  await prisma.$transaction([
+    prisma.question.deleteMany({ where: { examId } }),
+    prisma.question.createMany({
+      data: questions.map((q) => ({
+        examId,
+        question: String(q.question).trim(),
+        options: q.options.map((o) => String(o)),
+        answer: normalizeAnswer(q.answer),
+      })),
+    }),
+  ]);
+  return prisma.exam.findUnique({
+    where: { id: examId },
+    include: { questions: { orderBy: { id: "asc" } } },
+  });
+}
+
+async function publishExamByCreator(userId, examIdRaw) {
+  const examId = Number(examIdRaw);
+  if (!Number.isFinite(examId)) {
+    throw new HttpError(400, "Invalid exam id");
+  }
+  const exam = await prisma.exam.findUnique({
+    where: { id: examId },
+    include: { _count: { select: { questions: true } } },
+  });
+  if (!exam) {
+    throw new HttpError(404, "Exam not found");
+  }
+  if (exam.createdBy !== userId) {
+    throw new HttpError(403, "Only exam creator can publish this exam");
+  }
+  if (exam._count.questions === 0) {
+    throw new HttpError(400, "Cannot publish exam with no questions");
+  }
+  return prisma.exam.update({
+    where: { id: examId },
+    data: {
+      published: true,
+      publishedAt: new Date(),
+    },
+  });
+}
+
+async function deleteExamByCreator(userId, examIdRaw) {
+  const examId = Number(examIdRaw);
+  if (!Number.isFinite(examId)) {
+    throw new HttpError(400, "Invalid exam id");
+  }
+  const exam = await prisma.exam.findUnique({ where: { id: examId } });
+  if (!exam) {
+    throw new HttpError(404, "Exam not found");
+  }
+  if (exam.createdBy !== userId) {
+    throw new HttpError(403, "Only exam creator can delete this exam");
+  }
+  await prisma.exam.delete({ where: { id: examId } });
+  return { id: examId };
 }
 
 async function startAttempt(studentId, examIdRaw) {
@@ -389,6 +525,11 @@ module.exports = {
   createExamFromExcel,
   listExamsCatalog,
   getExamForStudent,
+  getExamForStaff,
+  updateExamMetaByCreator,
+  replaceExamQuestionsByCreator,
+  publishExamByCreator,
+  deleteExamByCreator,
   startAttempt,
   saveAttemptAnswer,
   submitExam,

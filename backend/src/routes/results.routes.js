@@ -5,6 +5,7 @@ const {
   requireStudent,
   requireAdmin,
   requireInstructor,
+  requireStaff,
 } = require("../middleware/roles");
 const { asyncHandler } = require("../middleware/error-handler");
 
@@ -29,6 +30,20 @@ router.get(
   authenticate,
   requireAdmin,
   asyncHandler(resultsController.listAdmin)
+);
+
+router.get(
+  "/results/summary/:examId",
+  authenticate,
+  requireStaff,
+  asyncHandler(resultsController.summary)
+);
+
+router.get(
+  "/results/export/:examId",
+  authenticate,
+  requireStaff,
+  asyncHandler(resultsController.exportCsv)
 );
 
 module.exports = router;

@@ -96,6 +96,41 @@ router.get(
   asyncHandler(examsController.getOne)
 );
 
+router.get(
+  "/staff/exams/:id",
+  authenticate,
+  requireExamCreator,
+  asyncHandler(examsController.getOneStaff)
+);
+
+router.put(
+  "/exams/:id",
+  authenticate,
+  requireExamCreator,
+  asyncHandler(examsController.updateMeta)
+);
+
+router.put(
+  "/exams/:id/questions",
+  authenticate,
+  requireExamCreator,
+  asyncHandler(examsController.replaceQuestions)
+);
+
+router.patch(
+  "/exams/:id/publish",
+  authenticate,
+  requireExamCreator,
+  asyncHandler(examsController.publish)
+);
+
+router.delete(
+  "/exams/:id",
+  authenticate,
+  requireExamCreator,
+  asyncHandler(examsController.remove)
+);
+
 router.post(
   "/attempt/start",
   authenticate,
@@ -105,6 +140,13 @@ router.post(
 
 router.post(
   "/attempt/answer",
+  authenticate,
+  requireStudent,
+  asyncHandler(examsController.saveAnswer)
+);
+
+router.post(
+  "/attempt/save-progress",
   authenticate,
   requireStudent,
   asyncHandler(examsController.saveAnswer)

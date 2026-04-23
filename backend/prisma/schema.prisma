@@ -26,6 +26,10 @@ model User {
   results            Result[]
   materialsUploaded  Material[]
   passwordResetTokens PasswordResetToken[]
+  sentNotifications  Notification[] @relation("NotificationSender")
+  receivedNotifications Notification[] @relation("NotificationRecipient")
+  examViolations     ExamViolation[]
+  examHeartbeats     ExamHeartbeat[]
 }
 
 model PasswordResetToken {
@@ -58,12 +62,16 @@ model Exam {
   id        Int        @id @default(autoincrement())
   title     String
   duration  Int // minutes
+  published Boolean    @default(false)
+  publishedAt DateTime?
   createdBy Int
   createdAt DateTime   @default(now())
   creator   User       @relation("ExamCreator", fields: [createdBy], references: [id])
   questions Question[]
   attempts  Attempt[]
   results   Result[]
+  violations ExamViolation[]
+  heartbeats ExamHeartbeat[]
 }
 
 model Question {
@@ -100,4 +108,48 @@ model Result {
   exam      Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, examId])
+}
+
+model ExamViolation {
+  id        Int      @id @default(autoincrement())
+  studentId Int
+  examId    Int
+  type      String
+  message   String?
+  createdAt DateTime @default(now())
+
+  student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  exam    Exam @relation(fields: [examId], references: [id], onDelete: Cascade)
+
+  @@index([studentId, examId])
+  @@index([examId, createdAt])
+}
+
+model ExamHeartbeat {
+  id                  Int      @id @default(autoincrement())
+  studentId           Int
+  examId              Int
+  activeQuestionIndex Int?
+  lastSeenAt          DateTime @updatedAt
+  createdAt           DateTime @default(now())
+
+  student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  exam    Exam @relation(fields: [examId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, examId])
+  @@index([examId, lastSeenAt])
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  message   String
+  userId    Int?
+  sentById  Int
+  createdAt DateTime @default(now())
+
+  recipient User? @relation("NotificationRecipient", fields: [userId], references: [id], onDelete: SetNull)
+  sender    User  @relation("NotificationSender", fields: [sentById], references: [id], onDelete: Cascade)
+
+  @@index([userId, createdAt])
+  @@index([sentById, createdAt])
 }
