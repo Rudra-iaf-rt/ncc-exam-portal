@@ -86,6 +86,40 @@ async function getMaterialForDownload(id) {
   return { material, filePath };
 }
 
+async function getMaterialById(id) {
+  const parsed = parseInt(String(id), 10);
+  if (!Number.isFinite(parsed)) {
+    throw new HttpError(400, "Invalid id");
+  }
+  const row = await prisma.material.findUnique({
+    where: { id: parsed },
+    include: {
+      uploadedBy: { select: { id: true, name: true, role: true } },
+    },
+  });
+  if (!row) {
+    throw new HttpError(404, "Not found");
+  }
+  return mapMaterialRow(row);
+}
+
+async function deleteMaterialById(id) {
+  const parsed = parseInt(String(id), 10);
+  if (!Number.isFinite(parsed)) {
+    throw new HttpError(400, "Invalid id");
+  }
+  const material = await prisma.material.findUnique({ where: { id: parsed } });
+  if (!material) {
+    throw new HttpError(404, "Not found");
+  }
+  await prisma.material.delete({ where: { id: parsed } });
+  const filePath = path.join(UPLOAD_ROOT, material.storedName);
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+  }
+  return { id: parsed };
+}
+
 module.exports = {
   UPLOAD_ROOT,
   ensureUploadDir,
@@ -93,4 +127,6 @@ module.exports = {
   createMaterial,
   listMaterials,
   getMaterialForDownload,
+  getMaterialById,
+  deleteMaterialById,
 };

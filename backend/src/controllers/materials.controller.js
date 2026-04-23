@@ -32,8 +32,20 @@ async function download(req, res) {
   stream.pipe(res);
 }
 
+async function getOne(req, res) {
+  const material = await materialsService.getMaterialById(req.params.id);
+  res.json({ material });
+}
+
+async function remove(req, res) {
+  const payload = await materialsService.deleteMaterialById(req.params.id);
+  res.json(payload);
+}
+
 module.exports = {
   upload,
   list,
   download,
+  getOne,
+  remove,
 };

@@ -117,6 +117,20 @@ router.post(
   asyncHandler(examsController.submit)
 );
 
+router.get(
+  "/attempt/status/:examId",
+  authenticate,
+  requireStudent,
+  asyncHandler(examsController.attemptStatus)
+);
+
+router.get(
+  "/attempt/details/:attemptId",
+  authenticate,
+  requireStudent,
+  asyncHandler(examsController.attemptDetails)
+);
+
 router.post(
   "/exams/submit",
   authenticate,

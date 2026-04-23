@@ -20,6 +20,11 @@ async function me(req, res) {
   res.json({ user });
 }
 
+async function refresh(req, res) {
+  const payload = await authService.refreshSession(req.user.id);
+  res.json(payload);
+}
+
 async function forgotPassword(req, res) {
   await authService.requestPasswordReset(req.body ?? {});
   res.json({ ok: true });
@@ -35,6 +40,7 @@ module.exports = {
   loginStudent,
   loginStaff,
   me,
+  refresh,
   forgotPassword,
   resetPassword,
 };

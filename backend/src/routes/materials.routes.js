@@ -53,9 +53,22 @@ router.post(
 router.get("/materials", authenticate, asyncHandler(materialsController.list));
 
 router.get(
+  "/materials/:id",
+  authenticate,
+  asyncHandler(materialsController.getOne)
+);
+
+router.get(
   "/materials/:id/download",
   authenticate,
   asyncHandler(materialsController.download)
+);
+
+router.delete(
+  "/materials/:id",
+  authenticate,
+  requireStaff,
+  asyncHandler(materialsController.remove)
 );
 
 module.exports = router;

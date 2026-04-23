@@ -326,6 +326,63 @@ async function submitExam(studentId, body) {
   return { score, correct, total };
 }
 
+async function getAttemptStatus(studentId, examIdRaw) {
+  const examId = Number(examIdRaw);
+  if (!Number.isFinite(examId)) {
+    throw new HttpError(400, "Invalid exam id");
+  }
+  const attempt = await prisma.attempt.findUnique({
+    where: { studentId_examId: { studentId, examId } },
+    include: {
+      exam: { include: { _count: { select: { questions: true } } } },
+    },
+  });
+  if (!attempt) {
+    throw new HttpError(404, "Attempt not found");
+  }
+  const answers = attempt.answersJson && typeof attempt.answersJson === "object" ? attempt.answersJson : {};
+  return {
+    attemptId: attempt.id,
+    examId: attempt.examId,
+    status: attempt.status,
+    currentQuestionIndex: attempt.currentQuestionIndex ?? 0,
+    answeredCount: Object.keys(answers).length,
+    totalQuestions: attempt.exam?._count?.questions ?? 0,
+    updatedAt: attempt.updatedAt,
+  };
+}
+
+async function getAttemptDetails(studentId, attemptIdRaw) {
+  const attemptId = Number(attemptIdRaw);
+  if (!Number.isFinite(attemptId)) {
+    throw new HttpError(400, "Invalid attempt id");
+  }
+  const attempt = await prisma.attempt.findUnique({
+    where: { id: attemptId },
+    include: {
+      exam: {
+        include: {
+          questions: { orderBy: { id: "asc" } },
+        },
+      },
+    },
+  });
+  if (!attempt || attempt.studentId !== studentId) {
+    throw new HttpError(404, "Attempt not found");
+  }
+  const answers = attempt.answersJson && typeof attempt.answersJson === "object" ? attempt.answersJson : {};
+  return {
+    id: attempt.id,
+    examId: attempt.examId,
+    status: attempt.status,
+    currentQuestionIndex: attempt.currentQuestionIndex ?? 0,
+    answers,
+    exam: stripAnswersFromExam(attempt.exam),
+    createdAt: attempt.createdAt,
+    updatedAt: attempt.updatedAt,
+  };
+}
+
 module.exports = {
   createExam,
   createExamFromPdf,
@@ -335,4 +392,6 @@ module.exports = {
   startAttempt,
   saveAttemptAnswer,
   submitExam,
+  getAttemptStatus,
+  getAttemptDetails,
 };

@@ -5,60 +5,69 @@ const { requireAdmin } = require("../middleware/roles");
 
 const router = express.Router();
 
-/** 
- * GET /api/admin/stats 
- * Aggregated statistics for the admin dashboard
- */
-router.get("/stats", authenticate, requireAdmin, async (req, res) => {
+async function buildAdminDashboard() {
+  const totalStudents = await prisma.user.count({
+    where: { role: "STUDENT" },
+  });
+
+  const totalExams = await prisma.exam.count();
+
+  const activeAttempts = await prisma.attempt.count({
+    where: { status: "IN_PROGRESS" },
+  });
+
+  const resultAgg = await prisma.result.aggregate({
+    _avg: {
+      score: true,
+    },
+  });
+
+  const recentActivity = await prisma.result.findMany({
+    take: 5,
+    orderBy: { id: "desc" },
+    include: {
+      student: {
+        select: { name: true },
+      },
+      exam: {
+        select: { title: true },
+      },
+    },
+  });
+
+  const formattedActivity = recentActivity.map((r) => ({
+    studentName: r.student.name,
+    examTitle: r.exam.title,
+    score: r.score,
+    date: r.createdAt.toISOString(),
+  }));
+
+  return {
+    totalStudents,
+    totalExams,
+    activeExams: activeAttempts,
+    averageScore: resultAgg._avg.score ? `${resultAgg._avg.score.toFixed(1)}%` : "0%",
+    recentActivity: formattedActivity,
+  };
+}
+
+router.get("/stats", authenticate, requireAdmin, async (_req, res) => {
   try {
-    const totalStudents = await prisma.user.count({
-      where: { role: "STUDENT" }
-    });
-
-    const totalExams = await prisma.exam.count();
-
-    const activeAttempts = await prisma.attempt.count({
-      where: { status: "IN_PROGRESS" }
-    });
-
-    // Calculate Average Score
-    const resultAgg = await prisma.result.aggregate({
-      _avg: {
-        score: true
-      }
-    });
-
-    // Fetch 5 most recent activities
-    const recentActivity = await prisma.result.findMany({
-      take: 5,
-      orderBy: { id: 'desc' },
-      include: {
-        student: {
-          select: { name: true }
-        },
-        exam: {
-          select: { title: true }
-        }
-      }
-    });
-
-    const formattedActivity = recentActivity.map(r => ({
-      studentName: r.student.name,
-      examTitle: r.exam.title,
-      score: r.score,
-      date: r.createdAt.toISOString()
-    }));
-
-    res.json({
-      totalStudents,
-      totalExams,
-      activeExams: activeAttempts,
-      averageScore: resultAgg._avg.score ? `${resultAgg._avg.score.toFixed(1)}%` : "0%",
-      recentActivity: formattedActivity
-    });
+    const dashboard = await buildAdminDashboard();
+    res.json(dashboard);
   } catch (error) {
     console.error("Admin Stats Error:", error);
     res.status(500).json({ error: "Failed to fetch admin statistics" });
+  }
+});
+
+router.get("/dashboard", authenticate, requireAdmin, async (_req, res) => {
+  try {
+    const dashboard = await buildAdminDashboard();
+    res.json(dashboard);
+  } catch (error) {
+    console.error("Admin Dashboard Error:", error);
+    res.status(500).json({ error: "Failed to fetch dashboard" });
   }
 });
 
@@ -85,6 +94,17 @@ router.get("/users", authenticate, requireAdmin, async (req, res) => {
     console.error("Admin Users Error:", error);
     res.status(500).json({ error: "Failed to fetch user registry" });
   }
+});
+
+router.get("/health", authenticate, requireAdmin, async (_req, res) => {
+  res.json({ ok: true, service: "admin" });
+});
+
+router.get("/logs", authenticate, requireAdmin, async (_req, res) => {
+  res.json({
+    logs: [],
+    note: "Log streaming is not configured yet; this endpoint is reserved.",
+  });
 });
 
 module.exports = router;

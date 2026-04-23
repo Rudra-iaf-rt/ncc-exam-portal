@@ -61,6 +61,16 @@ async function submit(req, res) {
   res.json(payload);
 }
 
+async function attemptStatus(req, res) {
+  const payload = await examService.getAttemptStatus(req.user.id, req.params.examId);
+  res.json(payload);
+}
+
+async function attemptDetails(req, res) {
+  const payload = await examService.getAttemptDetails(req.user.id, req.params.attemptId);
+  res.json(payload);
+}
+
 module.exports = {
   create,
   createFromPdf,
@@ -70,4 +80,6 @@ module.exports = {
   startAttempt,
   saveAnswer,
   submit,
+  attemptStatus,
+  attemptDetails,
 };

@@ -200,6 +200,17 @@ async function getMe(userId) {
   return sanitizeUser(user);
 }
 
+async function refreshSession(userId) {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+  if (!user) {
+    throw new HttpError(404, "User not found");
+  }
+  const token = signToken({ sub: user.id, role: user.role });
+  return { token, user: sanitizeUser(user) };
+}
+
 async function requestPasswordReset({ email }) {
   const emailNorm = String(email || "").trim().toLowerCase();
   if (!emailNorm || !EMAIL_RE.test(emailNorm)) {
@@ -301,6 +312,7 @@ module.exports = {
   loginStudent,
   loginStaff,
   getMe,
+  refreshSession,
   requestPasswordReset,
   resetPassword,
 };

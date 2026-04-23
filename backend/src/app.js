@@ -5,6 +5,10 @@ const authRoutes = require("./routes/auth.routes");
 const examRoutes = require("./routes/exams.routes");
 const resultsRoutes = require("./routes/results.routes");
 const materialsRoutes = require("./routes/materials.routes");
+const usersRoutes = require("./routes/users.routes");
+const adminRoutes = require("./routes/admin");
+const notificationsRoutes = require("./routes/notifications.routes");
+const antiCheatRoutes = require("./routes/anti-cheat.routes");
 const { notFoundHandler, errorHandler } = require("./middleware/error-handler");
 
 const app = express();
@@ -20,6 +24,10 @@ app.use("/api/auth", authRoutes);
 app.use("/api", materialsRoutes);
 app.use("/api", examRoutes);
 app.use("/api", resultsRoutes);
+app.use("/api", usersRoutes);
+app.use("/api/admin", adminRoutes);
+app.use("/api", notificationsRoutes);
+app.use("/api", antiCheatRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);
