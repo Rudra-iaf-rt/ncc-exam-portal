@@ -12,9 +12,11 @@ export default function ExamList() {
   useEffect(() => {
     async function fetchExams() {
       const { data, error } = await apiFetch('/exams');
-      if (data) {
-        setExams(data.exams);
+      if (!data) {
+        console.error(error);
+        return;
       }
+      setExams(data.exams); 
       setLoading(false);
     }
     fetchExams();

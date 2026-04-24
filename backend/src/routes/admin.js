@@ -5,10 +5,6 @@ const { requireAdmin } = require("../middleware/roles");
 
 const router = express.Router();
 
-/** 
- * GET /api/admin/stats 
- * Aggregated statistics for the admin dashboard
- */
 router.get("/stats", authenticate, requireAdmin, async (req, res) => {
   try {
     const totalStudents = await prisma.user.count({
@@ -21,14 +17,12 @@ router.get("/stats", authenticate, requireAdmin, async (req, res) => {
       where: { status: "IN_PROGRESS" }
     });
 
-    // Calculate Average Score
     const resultAgg = await prisma.result.aggregate({
       _avg: {
         score: true
       }
     });
 
-    // Fetch 5 most recent activities
     const recentActivity = await prisma.result.findMany({
       take: 5,
       orderBy: { id: 'desc' },
@@ -62,10 +56,7 @@ router.get("/stats", authenticate, requireAdmin, async (req, res) => {
   }
 });
 
-/**
- * GET /api/admin/users
- * List of all users in the system
- */
+
 router.get("/users", authenticate, requireAdmin, async (req, res) => {
   try {
     const users = await prisma.user.findMany({
