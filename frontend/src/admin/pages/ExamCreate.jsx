@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiFetch } from '../../lib/api';
+import { examApi } from '../../api';
+import { toast } from 'sonner';
 import { PageHeader } from '../components/Shared';
 import { 
   ArrowLeft, 
@@ -12,13 +13,11 @@ import {
   Clock,
   Layout
 } from 'lucide-react';
-import '../admin.css';
 
 export default function ExamCreate() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1); // 1: Details, 2: Questions
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [error, setError] = useState('');
 
   // Step 1: Basic Info
   const [basicInfo, setBasicInfo] = useState({
@@ -72,89 +71,78 @@ export default function ExamCreate() {
   const handleSubmit = async () => {
     const vError = validateQuestions();
     if (vError) {
-      setError(vError);
+      toast.error(vError);
       return;
     }
 
     setIsSubmitting(true);
-    setError('');
 
-    const { data, error: apiError } = await apiFetch('/exams/create', {
-      method: 'POST',
-      body: JSON.stringify({
+    try {
+      await examApi.createExam({
         ...basicInfo,
         questions
-      })
-    });
-
-    if (data) {
+      });
+      toast.success('Exam created successfully.');
       navigate('/admin/exams');
-    } else {
-      setError(apiError || 'Failed to create exam. Please try again.');
+    } catch (error) {
+      toast.error(error.message || 'Failed to create exam. Please try again.');
+    } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <div style={{ maxWidth: '900px', margin: '0 auto' }}>
+    <div className="max-w-[900px] mx-auto">
       <PageHeader 
         title="Create New *Exam*" 
         subtitle={step === 1 ? 'Step 1: General Exam Settings' : `Step 2: Question Editor (${questions.length} total)`}
       />
 
       {/* Step Indicator */}
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '32px' }}>
-        <div style={{ height: '4px', flex: 1, background: 'var(--navy)', borderRadius: '2px' }} />
-        <div style={{ height: '4px', flex: 1, background: step === 2 ? 'var(--navy)' : 'var(--stone-3)', borderRadius: '2px', transition: 'all 0.3s' }} />
+      <div className="flex gap-2 mb-8">
+        <div className="h-1 flex-1 bg-navy rounded-full" />
+        <div className={`h-1 flex-1 rounded-full transition-all duration-300 ${step === 2 ? 'bg-navy' : 'bg-stone-deep'}`} />
       </div>
 
-      {error && (
-        <div className="adm-card" style={{ padding: '16px', borderLeft: '4px solid var(--crimson)', background: '#FFF5F5', marginBottom: '24px', display: 'flex', gap: '12px', alignItems: 'center' }}>
-          <AlertCircle size={18} style={{ color: 'var(--crimson)' }} />
-          <span style={{ fontSize: '13px', color: 'var(--crimson)', fontWeight: 500 }}>{error}</span>
-        </div>
-      )}
 
       {step === 1 ? (
-        <div className="adm-card" style={{ padding: '32px' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
-            <div className="adm-form-group">
-              <label className="adm-label">Exam Title</label>
-              <div style={{ position: 'relative' }}>
+        <div className="bg-white border border-stone-deep p-8 rounded-md shadow-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div>
+              <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Exam Title</label>
+              <div className="relative">
                 <input 
-                  className="adm-input" 
+                  className="w-full h-[38px] pl-10 pr-3 border border-stone-deep rounded-md font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all placeholder:text-ink-4" 
                   placeholder="e.g. B-Certificate Common Exam (2025)" 
                   value={basicInfo.title}
                   onChange={(e) => setBasicInfo({ ...basicInfo, title: e.target.value })}
-                  style={{ paddingLeft: '40px' }}
                 />
-                <ShieldCheck size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-4)' }} />
+                <ShieldCheck size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-4" />
               </div>
-              <p style={{ fontSize: '11px', color: 'var(--ink-4)', marginTop: '8px' }}>Official title as it will appear on cadet certificates.</p>
+              <p className="text-[11px] text-ink-4 mt-2 font-ui">Official title as it will appear on cadet certificates.</p>
             </div>
             
-            <div className="adm-form-group">
-              <label className="adm-label">Duration (Minutes)</label>
-              <div style={{ position: 'relative' }}>
+            <div>
+              <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Duration (Minutes)</label>
+              <div className="relative">
                 <input 
                   type="number"
-                  className="adm-input" 
+                  className="w-full h-[38px] pl-10 pr-3 border border-stone-deep rounded-md font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all placeholder:text-ink-4" 
                   value={basicInfo.duration}
                   onChange={(e) => setBasicInfo({ ...basicInfo, duration: parseInt(e.target.value) || 0 })}
-                  style={{ paddingLeft: '40px' }}
                 />
-                <Clock size={18} style={{ position: 'absolute', left: '12px', top: '50%', transform: 'translateY(-50%)', color: 'var(--ink-4)' }} />
+                <Clock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-4" />
               </div>
-              <p style={{ fontSize: '11px', color: 'var(--ink-4)', marginTop: '8px' }}>Total time allowed for the exam.</p>
+              <p className="text-[11px] text-ink-4 mt-2 font-ui">Total time allowed for the exam.</p>
             </div>
           </div>
           
-          <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '32px', paddingTop: '24px', borderTop: '1px solid var(--stone-3)' }}>
+          <div className="flex justify-end mt-8 pt-6 border-t border-stone-deep">
             <button 
-              className="adm-btn adm-btn-primary" 
+              className="h-[36px] px-[18px] rounded-md font-ui text-[13px] font-medium flex items-center justify-center gap-2 bg-navy text-[#F4F0E4] hover:bg-navy-mid transition-all" 
               onClick={() => {
                 const err = validateStep1();
-                if (err) setError(err); else { setError(''); setStep(2); }
+                if (err) toast.error(err); else { setStep(2); }
               }}
             >
               <span>Next: Add Questions</span>
@@ -165,57 +153,52 @@ export default function ExamCreate() {
       ) : (
         <div>
           {questions.map((q, qIndex) => (
-            <div key={qIndex} className="adm-card" style={{ padding: '24px', marginBottom: '24px' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', paddingBottom: '16px', borderBottom: '1px solid var(--stone-3)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                  <div style={{ width: '28px', height: '28px', borderRadius: '4px', background: 'var(--navy)', color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '12px', fontWeight: 600 }}>
+            <div key={qIndex} className="bg-white border border-stone-deep p-6 rounded-md shadow-sm mb-6">
+              <div className="flex justify-between items-center mb-5 pb-4 border-b border-stone-deep">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-7 h-7 rounded-md bg-navy text-white flex items-center justify-center text-[12px] font-semibold">
                     {qIndex + 1}
                   </div>
-                  <span style={{ fontWeight: 600, color: 'var(--navy)', fontSize: '13px', letterSpacing: '0.05em', textTransform: 'uppercase' }}>Question Details</span>
+                  <span className="font-semibold text-navy text-[13px] tracking-[0.05em] uppercase">Question Details</span>
                 </div>
                 {questions.length > 1 && (
-                  <button onClick={() => removeQuestion(qIndex)} className="adm-btn adm-btn-ghost" style={{ padding: '6px', color: 'var(--crimson)' }}>
+                  <button onClick={() => removeQuestion(qIndex)} className="p-1.5 text-crimson hover:bg-crimson-wash rounded-md transition-colors">
                     <Trash2 size={16} strokeWidth={1.5} />
                   </button>
                 )}
               </div>
 
-              <div className="adm-form-group">
-                <label className="adm-label">Question Text</label>
+              <div className="mb-5">
+                <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Question Text</label>
                 <textarea 
-                  className="adm-input" 
-                  style={{ minHeight: '100px', resize: 'vertical' }}
+                  className="w-full p-3 border border-stone-deep rounded-md font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all min-h-[100px] resize-y" 
                   placeholder="Enter the question here..."
                   value={q.question}
                   onChange={(e) => updateQuestion(qIndex, 'question', e.target.value)}
                 />
               </div>
 
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 {q.options.map((opt, oIndex) => (
-                  <div key={oIndex} className="adm-form-group" style={{ marginBottom: 0 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
-                      <label className="adm-label" style={{ marginBottom: 0 }}>Option {String.fromCharCode(65 + oIndex)}</label>
-                      <label style={{ display: 'flex', alignItems: 'center', gap: '6px', cursor: 'pointer', fontSize: '11px', fontWeight: 500, color: q.answer === opt && opt !== '' ? 'var(--olive)' : 'var(--ink-4)' }}>
+                  <div key={oIndex}>
+                    <div className="flex justify-between items-center mb-2">
+                      <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3">Option {String.fromCharCode(65 + oIndex)}</label>
+                      <label className={`flex items-center gap-1.5 cursor-pointer text-[11px] font-medium ${q.answer === opt && opt !== '' ? 'text-[#3B6D11]' : 'text-ink-4'}`}>
                         <input 
                           type="radio" 
                           name={`q-${qIndex}-ans`}
                           checked={q.answer === opt && opt !== ''}
                           onChange={() => updateQuestion(qIndex, 'answer', opt)}
-                          style={{ accentColor: 'var(--olive)' }}
+                          className="accent-[#3B6D11]"
                         />
                         {q.answer === opt && opt !== '' ? 'Correct' : 'Mark Correct'}
                       </label>
                     </div>
                     <input 
-                      className="adm-input" 
+                      className={`w-full h-[38px] px-3 border rounded-md font-ui text-[14px] text-ink outline-none transition-all ${q.answer === opt && opt !== '' ? 'border-[#3B6D11] bg-[#556B2F08] focus:ring-[#556B2F30]' : 'border-stone-deep bg-white focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash'}`} 
                       placeholder={`Choice ${oIndex + 1}`}
                       value={opt}
                       onChange={(e) => updateOption(qIndex, oIndex, e.target.value)}
-                      style={{ 
-                        borderColor: q.answer === opt && opt !== '' ? 'var(--olive)' : 'var(--stone-3)',
-                        background: q.answer === opt && opt !== '' ? 'rgba(85, 107, 47, 0.03)' : 'var(--parchment)'
-                      }}
                     />
                   </div>
                 ))}
@@ -223,17 +206,17 @@ export default function ExamCreate() {
             </div>
           ))}
 
-          <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '32px', paddingBottom: '60px' }}>
-            <button className="adm-btn adm-btn-ghost" onClick={() => setStep(1)}>
+          <div className="flex justify-between mt-8 pb-16">
+            <button className="h-[36px] px-[18px] rounded-md font-ui text-[13px] font-medium flex items-center justify-center gap-2 bg-transparent text-ink-2 hover:bg-stone hover:text-navy transition-all" onClick={() => setStep(1)}>
               <ArrowLeft size={16} strokeWidth={1.5} />
               <span>Back to Settings</span>
             </button>
-            <div style={{ display: 'flex', gap: '16px' }}>
-              <button className="adm-btn adm-btn-ghost" onClick={addQuestion}>
+            <div className="flex gap-4">
+              <button className="h-[36px] px-[18px] rounded-md font-ui text-[13px] font-medium flex items-center justify-center gap-2 bg-transparent text-navy border border-navy hover:bg-navy-wash transition-all" onClick={addQuestion}>
                 <Plus size={16} strokeWidth={1.5} />
                 <span>Add Question</span>
               </button>
-              <button className="adm-btn adm-btn-primary" onClick={handleSubmit} disabled={isSubmitting}>
+              <button className="h-[36px] px-[18px] rounded-md font-ui text-[13px] font-medium flex items-center justify-center gap-2 bg-navy text-[#F4F0E4] hover:bg-navy-mid transition-all disabled:opacity-50 disabled:cursor-not-allowed" onClick={handleSubmit} disabled={isSubmitting}>
                 <ShieldCheck size={16} strokeWidth={1.5} />
                 <span>{isSubmitting ? 'Creating Exam...' : 'Create Exam'}</span>
               </button>

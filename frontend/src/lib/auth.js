@@ -28,6 +28,11 @@ export function clearAuth() {
   localStorage.removeItem('ncc_user');
 }
 
+export function logout() {
+  clearAuth();
+  window.dispatchEvent(new Event('ncc_logout'));
+}
+
 export function getSavedUser() {
   const user = localStorage.getItem('ncc_user');
   return user ? JSON.parse(user) : null;

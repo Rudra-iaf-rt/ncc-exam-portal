@@ -2,7 +2,13 @@
 
 This document lists all active API endpoints available in the backend.
 
-**Base URL**: `http://localhost:3000/api`
+**Base URL**: `http://localhost:5000/api`
+
+> [!IMPORTANT]
+> **Default Seed Credentials (Development)**
+> - **Student**: `STU001` / `student123`
+> - **Admin**: `admin@example.com` / `admin123`
+> - **Instructor**: `instructor@example.com` / `admin123`
 
 ---
 
@@ -53,209 +59,76 @@ curl -X POST http://localhost:3000/api/auth/login \
   }'
 ```
 
-**Response (200):**
-```json
-{
-  "token": "eyJhbG...",
-  "user": { ... }
-}
-```
-
 ---
 
 ### POST /auth/login/staff
 Login for Admins and Instructors using email.
 
-**Request:**
-```bash
-curl -X POST http://localhost:3000/api/auth/login/staff \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "admin@ncc.in",
-    "password": "adminpassword"
-  }'
-```
+---
+
+### POST /auth/refresh
+Refresh the access token using a refresh token stored in an httpOnly cookie.
 
 **Response (200):**
 ```json
 {
-  "token": "eyJhbG...",
-  "user": { ... }
+  "token": "eyJhbG..."
 }
 ```
 
 ---
 
-### GET /auth/me
-Get current authenticated user profile.
-
-**Request:**
-```bash
-curl -X GET http://localhost:3000/api/auth/me \
-  -H "Authorization: Bearer <token>"
-```
-
-**Response (200):**
-```json
-{
-  "user": { ... }
-}
-```
+### POST /auth/logout
+Clear session and revoke refresh token.
 
 ---
 
-## 2. Exams
+## 2. Portal Operations
 
 ### GET /exams
-List all exams with question counts. Correct answers are stripped.
-
-**Request:**
-```bash
-curl -X GET http://localhost:3000/api/exams \
-  -H "Authorization: Bearer <token>"
-```
-
-**Response (200):**
-```json
-{
-  "exams": [
-    {
-      "id": 1,
-      "title": "B Certificate Exam",
-      "duration": 60,
-      "questionCount": 50
-    }
-  ]
-}
-```
-
----
-
-### POST /exams/create
-Create a new exam (Admin/Instructor only).
-
-**Request:**
-```bash
-curl -X POST http://localhost:3000/api/exams/create \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "title": "C Certificate Exam 2024",
-    "duration": 120,
-    "questions": [
-      {
-        "question": "What is the motto of NCC?",
-        "options": ["Unity and Discipline", "Service Before Self", "Duty and Honor", "Valour"],
-        "answer": "Unity and Discipline"
-      }
-    ]
-  }'
-```
-
-**Response (201):**
-```json
-{
-  "exam": {
-    "id": 2,
-    "title": "C Certificate Exam 2024",
-    "duration": 120,
-    "createdBy": 1,
-    "questions": [ ... ]
-  }
-}
-```
+List available exams. 
+- **Students**: Only see exams assigned to them.
+- **Staff**: See all exams.
 
 ---
 
 ### GET /exams/:id
-Get single exam with questions (Student only).
-
-**Request:**
-```bash
-curl -X GET http://localhost:3000/api/exams/1 \
-  -H "Authorization: Bearer <token>"
-```
+Get single exam with questions. Correct answers are stripped for students.
 
 ---
 
 ### POST /attempt/start
-Start an exam attempt (Student only).
+Start an exam attempt. Returns an existing one if already in progress.
 
-**Request:**
-```bash
-curl -X POST http://localhost:3000/api/attempt/start \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{ "examId": 1 }'
-```
+---
+
+### POST /attempt/:id/answer
+Autosave a single answer.
+**Request Body:** `{ "questionId": 1, "selectedAnswer": "Option A" }`
 
 ---
 
 ### POST /attempt/submit
-Submit an exam attempt (Student only).
-
-**Request:**
-```bash
-curl -X POST http://localhost:3000/api/attempt/submit \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "examId": 1,
-    "answers": [
-      { "questionId": 1, "selectedAnswer": "Unity and Discipline" }
-    ]
-  }'
-```
+Submit final exam answers and compute score.
 
 ---
 
-## 3. Results
-
-### GET /results/admin
-Fetch all results across all colleges (Admin only).
-
-**Request:**
-```bash
-curl -X GET http://localhost:3000/api/results/admin \
-  -H "Authorization: Bearer <admin_token>"
-```
-
-**Response (200):**
-```json
-{
-  "results": [
-    {
-      "id": 1,
-      "score": 85,
-      "examId": 1,
-      "examTitle": "B Certificate",
-      "studentId": 4,
-      "studentName": "Rahul Kumar",
-      "regimentalNumber": "NCC/24/004",
-      "college": "A-College"
-    }
-  ]
-}
-```
+### GET /results
+Fetch examination history.
+- **Students**: Returns their own scores.
+- **Staff**: Returns all results.
 
 ---
 
-### GET /results/instructor
-Fetch results for students in the instructor's college.
-
-**Request:**
-```bash
-curl -X GET http://localhost:3000/api/results/instructor \
-  -H "Authorization: Bearer <instructor_token>"
-```
+### GET /materials
+Fetch study resources and field manuals.
 
 ---
 
-### GET /results/student
-Fetch own results.
-
-**Request:**
-```bash
-curl -X GET http://localhost:3000/api/results/student \
-  -H "Authorization: Bearer <student_token>"
-```
+## Error Codes
+- `400`: Bad Request (Validation failed)
+- `401`: Unauthorized (Invalid or expired token)
+- `403`: Forbidden (Insufficient permissions or not assigned)
+- `404`: Not Found
+- `409`: Conflict (Already submitted)
+- `500`: Internal Server Error

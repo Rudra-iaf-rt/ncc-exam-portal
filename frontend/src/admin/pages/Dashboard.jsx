@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { apiFetch } from '../../lib/api';
+import { adminApi } from '../../api';
 import { PageHeader, StatCard } from '../components/Shared';
 import { 
   Users, 
@@ -10,7 +10,6 @@ import {
   AlertCircle 
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import '../admin.css';
 
 export default function Dashboard() {
   const [stats, setStats] = useState({
@@ -23,14 +22,19 @@ export default function Dashboard() {
 
   useEffect(() => {
     async function fetchStats() {
-      const { data } = await apiFetch('/admin/stats');
-      if (data) setStats(data);
-      setLoading(false);
+      try {
+        const { data } = await adminApi.getStats();
+        if (data) setStats(data);
+      } catch (error) {
+        console.error('Failed to fetch stats:', error);
+      } finally {
+        setLoading(false);
+      }
     }
     fetchStats();
   }, []);
 
-  if (loading) return <div style={{ color: 'var(--ink-4)', padding: '40px', fontFamily: 'var(--f-mono)', fontSize: '13px' }}>Loading...</div>;
+  if (loading) return <div className="text-ink-4 p-10 font-mono text-[13px]">Loading...</div>;
 
   return (
     <div>
@@ -38,9 +42,9 @@ export default function Dashboard() {
         title="Admin *Dashboard*" 
         subtitle="Snapshot of exam performance and cadet enrollment statistics."
         action={
-          <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-            <span className="adm-badge adm-badge-success" style={{ padding: '8px 12px' }}>
-              <div style={{ width: '6px', height: '6px', borderRadius: '50%', background: 'currentColor', marginRight: '8px', display: 'inline-block' }} />
+          <div className="flex gap-3 items-center">
+            <span className="font-mono text-[10px] tracking-[0.06em] py-1.5 px-3 rounded-full font-medium inline-flex bg-[#EAF3DE] text-[#3B6D11]">
+              <div className="w-1.5 h-1.5 rounded-full bg-current mr-2 inline-block self-center" />
               System Online
             </span>
           </div>
@@ -48,84 +52,69 @@ export default function Dashboard() {
       />
 
       {/* Primary Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '24px' }}>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <StatCard 
           label="Total Cadets" 
           value={stats.totalStudents || 0} 
-          subtext="Registered Students"
+          subtext="Unit-wide Enrollment"
           icon={<Users size={18} strokeWidth={1.5} />}
-          color="var(--navy)"
+          colorClass="text-navy"
         />
         <StatCard 
-          label="Ongoing Exams" 
+          label="Live Exams" 
           value={stats.activeExams || 0} 
-          subtext="Currently Live"
+          subtext="Currently Active"
           icon={<Clock size={18} strokeWidth={1.5} />}
-          color="var(--olive)"
+          colorClass="text-olive"
         />
         <StatCard 
-          label="Average Score" 
+          label="Unit Pass Rate" 
           value={stats.averageScore || "0%"} 
-          subtext="Unit Performance"
+          subtext="Average Performance"
           icon={<TrendingUp size={18} strokeWidth={1.5} />}
-          color="var(--gold-3)"
+          colorClass="text-gold-3"
         />
         <StatCard 
-          label="Exams Created" 
+          label="Total Exams" 
           value={stats.totalExams || 0} 
-          subtext="In System"
+          subtext="Exam Database"
           icon={<Trophy size={18} strokeWidth={1.5} />}
-          color="var(--navy)"
+          colorClass="text-navy"
         />
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '24px' }}>
+      <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-6">
         {/* Recent Activity */}
-        <div className="adm-card" style={{ padding: '24px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' }}>
-            <h3 style={{ margin: 0, fontSize: '18px', fontWeight: 600, color: 'var(--navy)' }}>Recent Results</h3>
-            <Link to="/admin/results" className="adm-btn adm-btn-ghost" style={{ fontSize: '11px', padding: '6px 12px' }}>
-              View All Results <ArrowRight size={12} style={{ marginLeft: '6px' }} />
+        <div className="bg-white border border-stone-deep rounded-md p-6 shadow-sm">
+          <div className="flex justify-between items-center mb-6">
+            <h3 className="m-0 font-ui text-[18px] font-semibold text-navy">Recent Results</h3>
+            <Link to="/admin/results" className="h-9 px-3 rounded-md font-ui text-[12px] font-medium flex items-center bg-transparent text-ink-2 border border-stone-deep transition-all hover:bg-stone">
+              View All Results <ArrowRight size={12} className="ml-1.5" />
             </Link>
           </div>
           
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '1px', background: 'var(--stone-3)' }}>
+          <div className="flex flex-col gap-px bg-stone-mid">
             {stats.recentActivity && stats.recentActivity.length > 0 ? (
               stats.recentActivity.map((activity, idx) => (
-                <div key={idx} style={{ 
-                  background: 'var(--parchment)', 
-                  padding: '16px 0', 
-                  display: 'flex', 
-                  alignItems: 'center', 
-                  gap: '16px' 
-                }}>
-                  <div style={{ 
-                    width: '40px', 
-                    height: '40px', 
-                    borderRadius: '50%', 
-                    background: 'var(--stone-2)', 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    justifyContent: 'center',
-                    color: 'var(--navy)'
-                  }}>
+                <div key={idx} className="bg-stone-wash py-4 px-2 flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-full bg-stone-mid flex items-center justify-center text-navy shrink-0">
                     <Trophy size={18} strokeWidth={1.5} />
                   </div>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontSize: '14px', fontWeight: 500 }}>{activity.studentName} completed {activity.examTitle}</div>
-                    <div style={{ fontSize: '12px', color: 'var(--ink-4)', marginTop: '2px' }}>
+                  <div className="flex-1">
+                    <div className="font-ui text-[14px] font-medium text-ink">{activity.studentName} completed {activity.examTitle}</div>
+                    <div className="font-ui text-[12px] text-ink-4 mt-0.5">
                       {new Date(activity.date).toLocaleDateString()} · Score: {activity.score}%
                     </div>
                   </div>
-                  <div className={`adm-badge ${activity.score >= 40 ? 'adm-badge-success' : 'adm-badge-danger'}`} style={{ fontSize: '10px' }}>
+                  <div className={`font-mono text-[10px] tracking-[0.06em] py-1 px-2.5 rounded-full font-medium inline-flex ${activity.score >= 40 ? 'bg-[#EAF3DE] text-[#3B6D11]' : 'bg-crimson-wash text-crimson'}`}>
                     {activity.score >= 40 ? 'Qualified' : 'Failed'}
                   </div>
                 </div>
               ))
             ) : (
-              <div style={{ padding: '40px', textAlign: 'center', color: 'var(--ink-4)', background: 'var(--parchment)' }}>
-                <div style={{ fontSize: '14px', marginBottom: '16px' }}>No recent activity records found.</div>
-                <Link to="/admin/exams/create" className="adm-btn adm-btn-primary">
+              <div className="p-10 text-center text-ink-4 bg-stone-wash">
+                <div className="font-ui text-[14px] mb-4">No recent activity records found.</div>
+                <Link to="/admin/exams/create" className="h-[36px] px-[18px] rounded-md font-ui text-[13px] font-medium inline-flex items-center justify-center gap-2 transition-all bg-navy text-[#F4F0E4] hover:bg-navy-mid">
                   Create First Exam
                 </Link>
               </div>
@@ -134,27 +123,27 @@ export default function Dashboard() {
         </div>
 
         {/* System Alerts / Quick Actions */}
-        <div style={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <div className="adm-card" style={{ padding: '24px', background: 'var(--navy)', color: 'white' }}>
-            <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', letterSpacing: '0.05em', textTransform: 'uppercase', opacity: 0.7 }}>Quick Actions</h4>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              <Link to="/admin/exams/create" className="adm-btn" style={{ background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid rgba(255,255,255,0.2)', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+        <div className="flex flex-col gap-6">
+          <div className="bg-navy border border-navy-pale rounded-md p-6 text-white shadow-sm">
+            <h4 className="m-0 mb-3 font-mono text-[11px] tracking-[0.05em] uppercase opacity-70">Quick Actions</h4>
+            <div className="flex flex-col gap-3">
+              <Link to="/admin/exams/create" className="h-[36px] rounded-md font-ui text-[13px] font-medium flex items-center justify-center gap-2 transition-all bg-white/10 text-white border border-white/20 hover:bg-white/20">
                 Create New Exam
               </Link>
-              <Link to="/admin/results" className="adm-btn" style={{ background: 'var(--gold-2)', color: 'var(--navy)', border: 'none', textDecoration: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Link to="/admin/results" className="h-[36px] rounded-md font-ui text-[13px] font-medium flex items-center justify-center gap-2 transition-all bg-gold-2 text-navy border-none hover:bg-gold-3">
                 View Result Reports
               </Link>
             </div>
           </div>
 
-          <div className="adm-card" style={{ padding: '24px', borderLeft: '4px solid var(--gold-2)', opacity: stats.totalStudents === 0 ? 1 : 0.5 }}>
-            <div style={{ display: 'flex', gap: '12px' }}>
-              <AlertCircle size={20} style={{ color: 'var(--gold-3)' }} />
+          <div className={`bg-white border border-stone-deep border-l-[4px] border-l-gold-2 rounded-md p-6 shadow-sm ${stats.totalStudents === 0 ? 'opacity-100' : 'opacity-50'}`}>
+            <div className="flex gap-3">
+              <AlertCircle size={20} className="text-gold-3 shrink-0" />
               <div>
-                <div style={{ fontSize: '14px', fontWeight: 600, color: 'var(--navy)' }}>System Status</div>
-                <p style={{ fontSize: '13px', color: 'var(--ink-4)', margin: '4px 0 0 0', lineHeight: 1.5 }}>
+                <div className="font-ui text-[14px] font-semibold text-navy">System Status</div>
+                <p className="font-ui text-[13px] text-ink-4 m-0 mt-1 leading-[1.5]">
                   {stats.totalStudents === 0 
-                    ? "Initial setup required. register cadets or create an exam to begin."
+                    ? "Initial setup required. Register cadets or create an exam to begin."
                     : "System fully operational. All modules reporting status normal."}
                 </p>
               </div>

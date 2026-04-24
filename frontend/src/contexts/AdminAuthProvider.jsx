@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { apiFetch } from '../lib/api';
+import { authApi } from '../api';
 import { getSavedUser, saveUser, clearAuth, setToken, getToken } from '../lib/auth';
 
 import { AdminAuthContext } from './AdminAuthContext';
@@ -16,12 +16,17 @@ export function AdminAuthProvider({ children }) {
         return;
       }
 
-      const { data, error } = await apiFetch('/auth/me');
-      if (data && data.user && data.user.role === 'ADMIN') {
-        setUser(data.user);
-        saveUser(data.user);
-      } else {
-        // Not an admin or token invalid
+      try {
+        const { data } = await authApi.getMe();
+        const isStaff = data?.user?.role === 'ADMIN' || data?.user?.role === 'INSTRUCTOR';
+        
+        if (data && data.user && isStaff) {
+          setUser(data.user);
+          saveUser(data.user);
+        } else {
+          logout();
+        }
+      } catch (error) {
         logout();
       }
       setIsLoading(false);
@@ -38,22 +43,28 @@ export function AdminAuthProvider({ children }) {
   }, []);
 
   async function login(email, password) {
-    const { data, error } = await apiFetch('/auth/login/staff', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const { data } = await authApi.loginStaff({ email, password });
 
-    if (data && data.token && data.user.role === 'ADMIN') {
-      setToken(data.token);
-      saveUser(data.user);
-      setUser(data.user);
-      return { success: true };
+      const isStaff = data?.user?.role === 'ADMIN' || data?.user?.role === 'INSTRUCTOR';
+
+      if (data && data.token && isStaff) {
+        setToken(data.token);
+        saveUser(data.user);
+        setUser(data.user);
+        return { success: true };
+      }
+
+      return { 
+        success: false, 
+        error: !isStaff ? 'Access denied: Staff only.' : 'Login failed'
+      };
+    } catch (error) {
+      return { 
+        success: false, 
+        error: error.message || 'Login failed'
+      };
     }
-
-    return { 
-      success: false, 
-      error: error || (data?.user?.role !== 'ADMIN' ? 'Access denied: Admins only.' : 'Login failed')
-    };
   }
 
   function logout() {

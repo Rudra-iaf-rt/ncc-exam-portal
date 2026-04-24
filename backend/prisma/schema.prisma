@@ -11,31 +11,61 @@ datasource db {
 
 // STUDENT: regimentalNumber required; ADMIN/INSTRUCTOR: email required (login paths differ)
 model User {
-  id               Int       @id @default(autoincrement())
+  id               Int              @id @default(autoincrement())
   name             String
-  regimentalNumber String?   @unique
-  email            String?   @unique
+  regimentalNumber String?          @unique
+  email            String?          @unique
   password         String
   role             String // STUDENT | ADMIN | INSTRUCTOR
   college          String
-  examsCreated     Exam[]    @relation("ExamCreator")
+  wing             String? // ARMY | NAVY | AIR
+  batch            String? // e.g., 2024-25
+  isActive         Boolean          @default(true)
+  refreshToken     String?
+  examsCreated     Exam[]           @relation("ExamCreator")
   attempts         Attempt[]
   results          Result[]
+  assignments      ExamAssignment[]
 }
 
 model Exam {
-  id        Int        @id @default(autoincrement())
+  id          Int              @id @default(autoincrement())
+  title       String
+  duration    Int // minutes
+  status      String           @default("DRAFT") // DRAFT | LIVE | ARCHIVED
+  createdBy   Int
+  createdAt   DateTime         @default(now())
+  creator     User             @relation("ExamCreator", fields: [createdBy], references: [id])
+  questions   Question[]
+  attempts    Attempt[]
+  results     Result[]
+  assignments ExamAssignment[]
+  materials   Material[]
+}
+
+model ExamAssignment {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  examId    Int
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+  exam      Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, examId])
+}
+
+model Material {
+  id        Int      @id @default(autoincrement())
   title     String
-  duration  Int // minutes
-  createdBy Int
-  createdAt DateTime   @default(now())
-  creator   User       @relation("ExamCreator", fields: [createdBy], references: [id])
-  questions Question[]
-  attempts  Attempt[]
-  results   Result[]
+  category  String 
+  fileUrl   String
+  examId    Int?
+  exam      Exam?    @relation(fields: [examId], references: [id])
+  createdAt DateTime @default(now())
 }
 
 model Question {
+// ... existing questions
   id       Int      @id @default(autoincrement())
   examId   Int
   question String
@@ -45,13 +75,16 @@ model Question {
 }
 
 model Attempt {
-  id        Int      @id @default(autoincrement())
-  studentId Int
-  examId    Int
-  status    String // IN_PROGRESS | SUBMITTED
-  createdAt DateTime @default(now())
-  student   User     @relation(fields: [studentId], references: [id])
-  exam      Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  id           Int      @id @default(autoincrement())
+  studentId    Int
+  examId       Int
+  status       String   // IN_PROGRESS | SUBMITTED
+  answers      Json?    @default("[]")
+  startedAt    DateTime @default(now()) // When the attempt was first created
+  warningCount Int      @default(0)     // Server-side proctoring violation counter
+  createdAt    DateTime @default(now())
+  student      User     @relation(fields: [studentId], references: [id])
+  exam         Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, examId])
 }

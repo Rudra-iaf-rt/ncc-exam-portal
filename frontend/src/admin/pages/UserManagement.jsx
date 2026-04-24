@@ -1,48 +1,160 @@
 import { useState, useEffect } from 'react';
-import { apiFetch } from '../../lib/api';
+import { adminApi } from '../../api';
+import { toast } from 'sonner';
 import { PageHeader } from '../components/Shared';
 import { 
   Database, 
   Terminal, 
   ShieldAlert,
   FileCode,
-  UserPlus
+  UserPlus,
+  FileUp,
+  Pencil,
+  Trash2,
+  Search
 } from 'lucide-react';
-import '../admin.css';
+import BulkImport from '../components/BulkImport';
+import AddUserModal from '../components/AddUserModal';
+import EditUserModal from '../components/EditUserModal';
 
 export default function UserManagement() {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [refreshKey, setRefreshKey] = useState(0);
+  const [isImportOpen, setIsImportOpen] = useState(false);
+  const [isAddOpen, setIsAddOpen] = useState(false);
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [wingFilter, setWingFilter] = useState('ALL');
+
+  const handleRefresh = () => setRefreshKey(prev => prev + 1);
+
+  const handleDelete = async (id, name) => {
+    if (!window.confirm(`Are you sure you want to permanently delete ${name}? All their exam attempts, results, and assignments will be purged.`)) {
+      return;
+    }
+
+    try {
+      await adminApi.deleteUser(id);
+      toast.success(`${name} has been permanently removed.`);
+      handleRefresh();
+    } catch (error) {
+      toast.error(error.message);
+    }
+  };
+
+  const openEdit = (user) => {
+    setSelectedUser(user);
+    setIsEditOpen(true);
+  };
+
+  const filteredUsers = users.filter(u => {
+    const matchesSearch = u.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      (u.regimentalNumber && u.regimentalNumber.toLowerCase().includes(searchTerm.toLowerCase())) ||
+      (u.email && u.email.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    const matchesWing = wingFilter === 'ALL' || u.wing === wingFilter;
+    
+    return matchesSearch && matchesWing;
+  });
 
   useEffect(() => {
-    async function fetchUsers() {
-      const { data } = await apiFetch('/admin/users');
-      if (data) setUsers(data);
-      setLoading(false);
-    }
+    const fetchUsers = async () => {
+      try {
+        const { data } = await adminApi.getUsers();
+        if (data) setUsers(data);
+      } catch (error) {
+        console.error('Failed to fetch users:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
     fetchUsers();
-  }, []);
+  }, [refreshKey]);
 
   return (
-    <div style={{ maxWidth: '1000px' }}>
+    <div className="max-w-[1000px]">
       <PageHeader 
         title="Cadet *Registry*" 
         subtitle="Manage cadet enrollment and administrative access control." 
         action={
-          <button className="adm-btn adm-btn-primary">
-            <UserPlus size={16} strokeWidth={1.5} />
-            <span>Add Cadet</span>
-          </button>
+          <div className="flex gap-3">
+            <button 
+              className="h-[36px] px-[18px] rounded-md font-ui text-[13px] font-medium flex items-center gap-2 transition-all bg-transparent border border-stone-deep text-ink-2 hover:bg-stone hover:text-navy"
+              onClick={() => setIsImportOpen(true)}
+            >
+              <FileUp size={16} strokeWidth={1.5} />
+              <span>Bulk Import</span>
+            </button>
+            <button 
+              className="h-[36px] px-[18px] rounded-md font-ui text-[13px] font-medium flex items-center gap-2 transition-all bg-navy text-[#F4F0E4] hover:bg-navy-mid"
+              onClick={() => setIsAddOpen(true)}
+            >
+              <UserPlus size={16} strokeWidth={1.5} />
+              <span>Add Cadet</span>
+            </button>
+          </div>
         }
       />
 
+      <AddUserModal 
+        isOpen={isAddOpen} 
+        onClose={() => setIsAddOpen(false)} 
+        onRefresh={handleRefresh}
+      />
+
+      {isEditOpen && (
+        <EditUserModal 
+          key={selectedUser?.id || 'new'}
+          isOpen={isEditOpen} 
+          user={selectedUser}
+          onRefresh={() => {
+            handleRefresh();
+          }}
+          onClose={() => {
+            setIsEditOpen(false);
+            setSelectedUser(null);
+          }} 
+        />
+      )}
+
+      <BulkImport 
+        isOpen={isImportOpen} 
+        onClose={() => setIsImportOpen(false)} 
+        onRefresh={handleRefresh}
+      />
+
+      <div className="mb-5 flex gap-3 flex-wrap">
+        <div className="flex-auto min-w-[300px] relative">
+          <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-4" />
+          <input 
+            type="text" 
+            placeholder="Search by name, regimental number, or email..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full py-3 pr-3 pl-10 rounded-xl border border-stone-3 bg-white font-ui text-[14px] outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all text-ink placeholder:text-ink-4"
+          />
+        </div>
+        <select 
+          value={wingFilter}
+          onChange={(e) => setWingFilter(e.target.value)}
+          className="px-4 rounded-xl border border-stone-3 bg-white font-ui text-[14px] min-w-[140px] h-[46px] flex-none outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all text-ink"
+        >
+          <option value="ALL">All Wings</option>
+          <option value="ARMY">Army Wing</option>
+          <option value="NAVY">Navy Wing</option>
+          <option value="AIR">Air Wing</option>
+        </select>
+      </div>
+
       {users.length === 0 && !loading && (
-        <div className="adm-card" style={{ padding: '24px', borderLeft: '4px solid var(--gold-2)', background: 'rgba(201, 152, 42, 0.05)', marginBottom: '40px' }}>
-          <div style={{ display: 'flex', gap: '16px' }}>
-            <ShieldAlert size={24} style={{ color: 'var(--gold-3)' }} />
+        <div className="p-6 border-l-4 border-gold bg-[#c9982a]/5 mb-10 rounded-md shadow-sm">
+          <div className="flex gap-4">
+            <ShieldAlert size={24} className="text-gold" />
             <div>
-              <h2 style={{ color: 'var(--navy)', margin: '0 0 8px 0', fontSize: '18px', fontWeight: 600 }}>Empty Registry</h2>
-              <p style={{ fontSize: '14px', color: 'var(--ink-4)', margin: 0, lineHeight: 1.6 }}>
+              <h2 className="text-navy m-0 mb-2 text-[18px] font-semibold font-ui">Empty Registry</h2>
+              <p className="text-[14px] text-ink-4 m-0 leading-[1.6] font-ui">
                 No registered cadets or administrators found in the database. New users must register via the student portal or be added manually.
               </p>
             </div>
@@ -50,50 +162,85 @@ export default function UserManagement() {
         </div>
       )}
 
-      <div className="adm-table-wrap" style={{ opacity: loading ? 0.5 : 1 }}>
-        <table className="adm-table">
-          <thead>
-            <tr>
-              <th>Name</th>
-              <th>Regimental / ID</th>
-              <th>Role</th>
-              <th>College</th>
-              <th style={{ textAlign: 'right' }}>Status</th>
-            </tr>
-          </thead>
-          <tbody>
-            {!loading ? (
-              users.map((user) => (
-                <tr key={user.id}>
-                  <td style={{ fontWeight: 500 }}>{user.name}</td>
-                  <td><code style={{ background: 'transparent', padding: 0 }}>{user.regimentalNumber || user.email || 'N/A'}</code></td>
-                  <td>
-                    <span className={`adm-badge ${user.role === 'ADMIN' ? 'adm-badge-info' : 'adm-badge-neutral'}`} style={{ fontSize: '9px' }}>
-                      {user.role}
-                    </span>
-                  </td>
-                  <td style={{ fontSize: '13px' }}>{user.college}</td>
-                  <td style={{ textAlign: 'right' }}>
-                    <span className="adm-badge adm-badge-success">Active</span>
+      <div className={`bg-white border border-stone-deep rounded-md shadow-sm overflow-hidden mb-10 transition-opacity ${loading ? 'opacity-50' : 'opacity-100'}`}>
+        <div className="overflow-x-auto">
+          <table className="w-full text-left border-collapse">
+            <thead>
+              <tr className="bg-stone border-b border-stone-deep font-mono text-[11px] tracking-[0.1em] uppercase text-ink-4">
+                <th className="font-normal px-4 py-3">Name</th>
+                <th className="font-normal px-4 py-3">Regimental / ID</th>
+                <th className="font-normal px-4 py-3">Wing</th>
+                <th className="font-normal px-4 py-3">Status</th>
+                <th className="font-normal px-4 py-3">College</th>
+                <th className="font-normal px-4 py-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody className="font-ui text-[13.5px] text-ink-2">
+              {!loading ? (
+                filteredUsers.map((user) => (
+                  <tr key={user.id} className="border-b border-stone-mid hover:bg-stone-wash transition-colors last:border-b-0">
+                    <td className="px-4 py-3 font-medium text-navy">{user.name}</td>
+                    <td className="px-4 py-3"><code className="font-mono text-[12px] bg-transparent p-0 text-ink-3">{user.regimentalNumber || user.email || 'N/A'}</code></td>
+                    <td className="px-4 py-3">
+                      {user.wing ? (
+                        <span className={`font-mono text-[10px] tracking-[0.06em] py-1 px-2.5 rounded-full font-medium inline-flex ${
+                          user.wing.toUpperCase() === 'ARMY' ? 'bg-[#ef444420] text-[#b91c1c] border border-[#b91c1c30]' :
+                          user.wing.toUpperCase() === 'NAVY' ? 'bg-[#3b82f620] text-[#1d4ed8] border border-[#1d4ed830]' :
+                          user.wing.toUpperCase() === 'AIR' ? 'bg-[#06b6d420] text-[#0891b2] border border-[#0891b230]' :
+                          'bg-stone-mid text-ink-3'
+                        }`}>
+                          {user.wing}
+                        </span>
+                      ) : (
+                        <span className="font-mono text-[10px] tracking-[0.06em] py-1 px-2.5 rounded-full font-medium inline-flex bg-stone-mid text-ink-3">N/A</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-1.5">
+                        <div className={`w-2 h-2 rounded-full ${user.isActive ? 'bg-olive' : 'bg-stone-3'}`} />
+                        <span className={`text-[12px] ${user.isActive ? 'text-navy font-medium' : 'text-ink-4'}`}>
+                          {user.isActive ? 'Active' : 'Disabled'}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-[13px]">{user.college}</td>
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex gap-2 justify-end">
+                        <button 
+                          onClick={() => openEdit(user)}
+                          className="w-8 h-8 rounded-md flex items-center justify-center bg-stone-2 text-navy hover:bg-stone-3 transition-colors" 
+                          title="Edit User"
+                        >
+                          <Pencil size={14} />
+                        </button>
+                        <button 
+                          onClick={() => handleDelete(user.id, user.name)}
+                          className="w-8 h-8 rounded-md flex items-center justify-center bg-[#ef444410] text-[#ef4444] hover:bg-[#ef444420] transition-colors" 
+                          title="Delete User"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="6" className="text-center p-10 text-ink-4 font-mono text-[12px]">
+                    Accessing Secure Database...
                   </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan="5" style={{ textAlign: 'center', padding: '40px', color: 'var(--ink-4)', fontFamily: 'var(--f-mono)' }}>
-                  Accessing Secure Database...
-                </td>
-              </tr>
-            )}
-            {!loading && users.length === 0 && (
-              <tr>
-                <td colSpan="5" style={{ textAlign: 'center', padding: '40px', color: 'var(--ink-4)' }}>
-                  No records matching search criteria.
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+              )}
+              {!loading && filteredUsers.length === 0 && users.length > 0 && (
+                <tr>
+                  <td colSpan="6" className="text-center p-10 text-ink-4 font-ui">
+                    No records matching search criteria.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );

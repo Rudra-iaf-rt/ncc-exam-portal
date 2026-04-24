@@ -1,4 +1,56 @@
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap');
+@import "tailwindcss";
+
+@theme {
+  /* System Scale Overrides */
+  --spacing-12: 3rem;
+  
+  /* Breakpoints */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
+
+  --color-olive: var(--olive);
+  --color-olive-mid: var(--olive-mid);
+  --color-olive-soft: var(--olive-soft);
+  --color-olive-pale: var(--olive-pale);
+  --color-olive-wash: var(--olive-wash);
+
+  --color-navy: var(--navy);
+  --color-navy-mid: var(--navy-mid);
+  --color-navy-soft: var(--navy-soft);
+  --color-navy-pale: var(--navy-pale);
+  --color-navy-wash: var(--navy-wash);
+
+  --color-gold: var(--gold);
+  --color-gold-mid: var(--gold-mid);
+  --color-gold-deep: var(--gold-deep);
+  --color-gold-pale: var(--gold-pale);
+  --color-gold-wash: var(--gold-wash);
+
+  --color-crimson: var(--crimson);
+  --color-crimson-deep: var(--crimson-deep);
+  --color-crimson-soft: var(--crimson-soft);
+  --color-crimson-wash: var(--crimson-wash);
+
+  --color-stone: var(--stone);
+  --color-stone-mid: var(--stone-mid);
+  --color-stone-deep: var(--stone-deep);
+  --color-stone-wash: var(--stone-wash);
+
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-ink-4: var(--ink-4);
+
+  --font-display: var(--f-display);
+  --font-ui: var(--f-ui);
+  --font-mono: var(--f-mono);
+
+  --radius-r: var(--r);
+  --radius-rl: var(--rl);
+}
 
 :root {
   /* Design Tokens from NCC Style Guide */
@@ -16,23 +68,26 @@
   
   --gold:       #B8860B;
   --gold-mid:   #D4A017;
+  --gold-deep:  #8E6806;
   --gold-pale:  #F0DC82;
   --gold-wash:  #FBF5DC;
   
   --crimson:    #8B1A1A;
+  --crimson-deep:#631212;
   --crimson-soft:#C44040;
   --crimson-wash:#FAEAEA;
   
   --stone:      #F4F2EC;
   --stone-mid:  #E8E4D8;
   --stone-deep: #CCC8BC;
+  --stone-wash: #F9F8F4;
   
   --ink:        #1C1C18;
   --ink-2:      #3A3A34;
   --ink-3:      #6A6A60;
   --ink-4:      #9A9A8E;
   
-  --white:      #FDFCF8; /* Parchment */
+  --white:      #FDFCF8; 
   
   --r: 6px; 
   --rl: 10px;
@@ -41,23 +96,11 @@
   --f-ui: 'Outfit', sans-serif;
   --f-mono: 'DM Mono', monospace;
 
-  /* Legacy compatibility / Mapping */
   --text: var(--ink-2);
   --text-h: var(--ink);
   --bg: var(--stone);
   --border: var(--stone-deep);
   --accent: var(--navy);
-  
-  font-family: var(--f-ui);
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-* { 
-  box-sizing: border-box; 
-  margin: 0; 
-  padding: 0; 
 }
 
 body {
@@ -66,35 +109,13 @@ body {
   color: var(--ink);
   font-size: 15px;
   line-height: 1.6;
-}
-
-h1, h2, h3, h4, h5, h6 {
-  color: var(--ink);
-  font-weight: 500;
-}
-
-a {
-  color: var(--navy);
-  text-decoration: none;
-  transition: opacity 0.2s;
-}
-
-a:hover {
-  opacity: 0.8;
+  margin: 0;
 }
 
 #root {
   min-height: 100svh;
-  display: flex;
-  flex-direction: column;
 }
 
-code {
-  font-family: var(--f-mono);
-  font-size: 13px;
-  background: var(--stone-mid);
-  padding: 2px 6px;
-  border-radius: 4px;
-  color: var(--navy-mid);
+[data-sonner-toaster] {
+  font-family: var(--f-ui) !important;
 }
-
