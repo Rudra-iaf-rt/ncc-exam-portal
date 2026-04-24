@@ -7,6 +7,7 @@ const resultsRoutes = require("./routes/results.routes");
 const materialsRoutes = require("./routes/materials.routes");
 const usersRoutes = require("./routes/users.routes");
 const adminRoutes = require("./routes/admin");
+const allowedStudentsRoutes = require("./routes/allowed-students.routes");
 const notificationsRoutes = require("./routes/notifications.routes");
 const antiCheatRoutes = require("./routes/anti-cheat.routes");
 const { requestContext, securityHeaders } = require("./middleware/security");
@@ -29,6 +30,7 @@ app.use("/api", examRoutes);
 app.use("/api", resultsRoutes);
 app.use("/api", usersRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/admin/allowed-students", allowedStudentsRoutes);
 app.use("/api", notificationsRoutes);
 app.use("/api", antiCheatRoutes);
 

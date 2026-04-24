@@ -6,7 +6,8 @@ import {
   Trophy, 
   Users, 
   LogOut,
-  ShieldCheck
+  ShieldCheck,
+  UserCheck
 } from 'lucide-react';
 import './admin.css';
 import { useEffect } from 'react';
@@ -63,6 +64,16 @@ export function AdminLayout() {
             <span>User Management</span>
             <span className="adm-badge adm-badge-neutral" style={{ marginLeft: 'auto', fontSize: '0.6rem', opacity: 0.6 }}>Soon</span>
           </NavLink>
+
+          {user?.role === 'ADMIN' ? (
+            <NavLink
+              to="/admin/allowed-students"
+              className={({ isActive }) => `adm-nav-link ${isActive ? 'active' : ''}`}
+            >
+              <UserCheck size={18} strokeWidth={1.5} />
+              <span>Allowed Students</span>
+            </NavLink>
+          ) : null}
         </nav>
 
         <div style={{ padding: '20px', borderTop: '1px solid rgba(255,255,255,0.06)' }}>

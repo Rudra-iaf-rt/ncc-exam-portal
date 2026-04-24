@@ -8,6 +8,7 @@ import ExamList from './admin/pages/ExamList'
 import ExamCreate from './admin/pages/ExamCreate'
 import ResultsBoard from './admin/pages/ResultsBoard'
 import UserManagement from './admin/pages/UserManagement'
+import AllowedStudents from './admin/pages/AllowedStudents'
 import './App.css'
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
           <Route path="results" element={<ResultsBoard />} />
           <Route element={<RequireAdmin />}>
             <Route path="users" element={<UserManagement />} />
+            <Route path="allowed-students" element={<AllowedStudents />} />
           </Route>
         </Route>
       </Route>

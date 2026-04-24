@@ -97,24 +97,34 @@ async function registerStudent(body) {
   } = body ?? {};
 
   if (
-    !name ||
     !regimentalNumber ||
     !email ||
     !mobile ||
-    !college ||
-    !batch ||
     !year ||
     !password
   ) {
     throw new HttpError(
       400,
-      "name, regimentalNumber, email, mobile, college, batch, year, and password are required"
+      "regimentalNumber, email, mobile, year, and password are required"
     );
   }
 
   const reg = String(regimentalNumber).trim();
   if (reg.length < 2) {
     throw new HttpError(400, "Invalid regimental number");
+  }
+
+  const allowed = await prisma.allowedStudent.findUnique({
+    where: { regimentalNumber: reg },
+  });
+  if (!allowed) {
+    throw new HttpError(
+      403,
+      "You are not authorized to register. Contact Admin."
+    );
+  }
+  if (allowed.isRegistered) {
+    throw new HttpError(409, "This regimental number is already registered");
   }
 
   const emailNorm = String(email).trim().toLowerCase();
@@ -131,11 +141,17 @@ async function registerStudent(body) {
     throw new HttpError(400, "Password must be at least 6 characters");
   }
 
-  const existingReg = await prisma.user.findFirst({
-    where: { regimentalNumber: reg },
-  });
-  if (existingReg) {
-    throw new HttpError(409, "Regimental number already registered");
+  const resolvedName = String(name || allowed.name || "").trim();
+  if (!resolvedName) {
+    throw new HttpError(400, "name is required");
+  }
+  const resolvedCollege = String(college || allowed.college || "").trim();
+  if (!resolvedCollege) {
+    throw new HttpError(400, "college is required");
+  }
+  const resolvedBatch = String(batch || allowed.batch || "").trim();
+  if (!resolvedBatch) {
+    throw new HttpError(400, "batch is required");
   }
 
   const existingEmail = await prisma.user.findFirst({
@@ -148,18 +164,28 @@ async function registerStudent(body) {
   const hashed = await bcrypt.hash(String(password), SALT_ROUNDS);
 
   try {
-    const user = await prisma.user.create({
-      data: {
-        name: String(name).trim(),
-        regimentalNumber: reg,
-        email: emailNorm,
-        mobile: mobileDigits,
-        batch: String(batch).trim(),
-        yearOfStudy: String(year).trim(),
-        password: hashed,
-        role: ROLES.STUDENT,
-        college: String(college).trim(),
-      },
+    const user = await prisma.$transaction(async (tx) => {
+      const updated = await tx.allowedStudent.updateMany({
+        where: { regimentalNumber: reg, isRegistered: false },
+        data: { isRegistered: true },
+      });
+      if (updated.count !== 1) {
+        throw new HttpError(409, "This regimental number is already registered");
+      }
+
+      return tx.user.create({
+        data: {
+          name: resolvedName,
+          regimentalNumber: reg,
+          email: emailNorm,
+          mobile: mobileDigits,
+          batch: resolvedBatch,
+          yearOfStudy: String(year).trim(),
+          password: hashed,
+          role: ROLES.STUDENT,
+          college: resolvedCollege,
+        },
+      });
     });
 
     return issueSessionTokens(user);
