@@ -5,7 +5,8 @@ const { ROLES } = require("../middleware/roles");
 const { sanitizeUser } = require("./auth.service");
 
 const SALT_ROUNDS = 10;
-const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+
 
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
@@ -22,40 +23,88 @@ function safeUserSelect() {
     yearOfStudy: true,
     role: true,
     college: true,
+    wing: true,
+    isActive: true,
   };
 }
 
-async function createInstructor(body) {
-  const { name, email, password, college } = body ?? {};
-  if (!name || !email || !password || !college) {
-    throw new HttpError(400, "name, email, password and college are required");
-  }
-  const emailNorm = normalizeEmail(email);
-  if (!EMAIL_RE.test(emailNorm)) {
-    throw new HttpError(400, "Invalid email address");
-  }
-  if (String(password).length < 6) {
-    throw new HttpError(400, "Password must be at least 6 characters");
+async function createUser(body) {
+  const { name, regimentalNumber, college, password, role, email, wing, batch, isActive } = body;
+  
+  const existing = await prisma.user.findFirst({
+    where: { 
+      OR: [
+        regimentalNumber ? { regimentalNumber } : undefined,
+        email ? { email: normalizeEmail(email) } : undefined
+      ].filter(Boolean)
+    }
+  });
+
+  if (existing) {
+    throw new HttpError(409, "User with this Regimental Number or Email already exists");
   }
 
-  const hashed = await bcrypt.hash(String(password), SALT_ROUNDS);
-  try {
-    const user = await prisma.user.create({
-      data: {
-        name: String(name).trim(),
-        email: emailNorm,
-        password: hashed,
-        role: ROLES.INSTRUCTOR,
-        college: String(college).trim(),
+  const hashedPassword = await bcrypt.hash(password || "cadet123", SALT_ROUNDS);
+
+  const user = await prisma.user.create({
+    data: {
+      name,
+      regimentalNumber,
+      college,
+      password: hashedPassword,
+      role: role || ROLES.STUDENT,
+      email: email ? normalizeEmail(email) : null,
+      wing,
+      batch,
+      isActive: isActive ?? true
+    }
+  });
+
+  return sanitizeUser(user);
+}
+
+async function updateUser(idRaw, body) {
+  const id = Number(idRaw);
+  if (!Number.isFinite(id)) throw new HttpError(400, "Invalid user ID");
+
+  const { name, regimentalNumber, college, password, email, role, wing, batch, isActive } = body;
+
+  if (regimentalNumber || email) {
+    const existing = await prisma.user.findFirst({
+      where: {
+        id: { not: id },
+        OR: [
+          regimentalNumber ? { regimentalNumber } : undefined,
+          email ? { email: normalizeEmail(email) } : undefined,
+        ].filter(Boolean),
       },
     });
-    return sanitizeUser(user);
-  } catch (e) {
-    if (e && typeof e === "object" && e.code === "P2002") {
-      throw new HttpError(409, "Email already exists");
+    if (existing) {
+      throw new HttpError(409, "Regimental Number or Email already in use");
     }
-    throw e;
   }
+
+  const updateData = {
+    name,
+    regimentalNumber,
+    college,
+    email: email ? normalizeEmail(email) : undefined,
+    role,
+    wing,
+    batch,
+    isActive
+  };
+
+  if (password) {
+    updateData.password = await bcrypt.hash(password, SALT_ROUNDS);
+  }
+
+  const user = await prisma.user.update({
+    where: { id },
+    data: updateData,
+  });
+
+  return sanitizeUser(user);
 }
 
 async function listUsers(query = {}) {
@@ -63,10 +112,48 @@ async function listUsers(query = {}) {
   const where = role ? { role } : {};
   const rows = await prisma.user.findMany({
     where,
-    orderBy: { id: "desc" },
+    orderBy: { name: "asc" },
     select: safeUserSelect(),
   });
   return rows.map(sanitizeUser);
+}
+
+async function searchUsers(filters = {}) {
+  const { wing, college, batch, query } = filters;
+  
+  return prisma.user.findMany({
+    where: {
+      role: ROLES.STUDENT,
+      isActive: true,
+      AND: [
+        wing ? { wing } : {},
+        college ? { college: { contains: college, mode: 'insensitive' } } : {},
+        batch ? { batch: { contains: batch, mode: 'insensitive' } } : {},
+        query ? {
+          OR: [
+            { name: { contains: query, mode: 'insensitive' } },
+            { regimentalNumber: { contains: query, mode: 'insensitive' } }
+          ]
+        } : {}
+      ]
+    },
+    select: safeUserSelect(),
+    take: 50
+  });
+}
+
+async function getFilters() {
+  const [wings, colleges, batches] = await Promise.all([
+    prisma.user.findMany({ where: { role: ROLES.STUDENT }, select: { wing: true }, distinct: ['wing'] }),
+    prisma.user.findMany({ where: { role: ROLES.STUDENT }, select: { college: true }, distinct: ['college'] }),
+    prisma.user.findMany({ where: { role: ROLES.STUDENT }, select: { batch: true }, distinct: ['batch'] }),
+  ]);
+
+  return {
+    wings: wings.map(w => w.wing).filter(Boolean),
+    colleges: colleges.map(c => c.college).filter(Boolean).sort(),
+    batches: batches.map(b => b.batch).filter(Boolean).sort((a, b) => b.localeCompare(a))
+  };
 }
 
 async function getUserById(idRaw) {
@@ -89,11 +176,20 @@ async function deleteUserById(idRaw) {
   if (!Number.isFinite(id)) {
     throw new HttpError(400, "Invalid user id");
   }
+
   const user = await prisma.user.findUnique({ where: { id } });
   if (!user) {
     throw new HttpError(404, "User not found");
   }
-  await prisma.user.delete({ where: { id } });
+
+  // Atomic deletion of all user data
+  await prisma.$transaction(async (tx) => {
+    await tx.result.deleteMany({ where: { studentId: id } });
+    await tx.attempt.deleteMany({ where: { studentId: id } });
+    await tx.examAssignment.deleteMany({ where: { userId: id } });
+    await tx.user.delete({ where: { id } });
+  });
+
   return { id };
 }
 
@@ -115,8 +211,11 @@ async function adminResetUserPassword(idRaw, newPassword) {
 }
 
 module.exports = {
-  createInstructor,
+  createUser,
+  updateUser,
   listUsers,
+  searchUsers,
+  getFilters,
   getUserById,
   deleteUserById,
   adminResetUserPassword,

@@ -84,23 +84,47 @@ async function createExamFromExcel(creatorUserId, { title, duration, excelBuffer
   return createExam(creatorUserId, { title, duration, questions });
 }
 
-async function listExamsCatalog() {
-  const exams = await prisma.exam.findMany({
-    orderBy: { id: "desc" },
-    include: {
-      _count: { select: { questions: true } },
-      creator: { select: { id: true, name: true, role: true } },
-    },
-  });
+async function listExamsCatalog(userId, role) {
+  const isStudent = role === "STUDENT";
+
+  const where = isStudent
+    ? {
+        status: "LIVE",
+        assignments: {
+          some: { userId: userId },
+        },
+      }
+    : {};
+
+  const [exams, completedResults] = await Promise.all([
+    prisma.exam.findMany({
+      where,
+      orderBy: { id: "desc" },
+      include: {
+        _count: { select: { questions: true } },
+        creator: { select: { id: true, name: true, role: true } },
+      },
+    }),
+    isStudent
+      ? prisma.result.findMany({
+          where: { studentId: userId },
+          select: { examId: true, score: true },
+        })
+      : Promise.resolve([]),
+  ]);
+
+  const completedMap = new Map(completedResults.map((r) => [r.examId, r.score]));
 
   return exams.map((e) => ({
     id: e.id,
     title: e.title,
     duration: e.duration,
-    published: Boolean(e.published),
+    published: e.status === "LIVE",
     publishedAt: e.publishedAt,
     questionCount: e._count.questions,
     createdBy: e.createdBy,
+    completed: completedMap.has(e.id),
+    score: completedMap.get(e.id) ?? null,
     creator: e.creator
       ? {
           id: e.creator.id,
@@ -124,7 +148,7 @@ async function getExamForStudent(examId) {
   if (!exam) {
     throw new HttpError(404, "Exam not found");
   }
-  if (!exam.published) {
+  if (exam.status !== "LIVE") {
     throw new HttpError(403, "Exam is not published yet");
   }
   if (exam.questions.length === 0) {
@@ -173,14 +197,31 @@ async function updateExamMetaByCreator(userId, examIdRaw, body) {
     }
     payload.duration = Math.floor(duration);
   }
+  if (body?.status != null) {
+    const status = String(body.status).toUpperCase();
+    if (!["DRAFT", "LIVE", "ARCHIVED"].includes(status)) {
+      throw new HttpError(400, "Invalid status. Must be DRAFT, LIVE, or ARCHIVED");
+    }
+    payload.status = status;
+    if (status === "LIVE") {
+      payload.publishedAt = new Date();
+    }
+  }
+
   if (Object.keys(payload).length === 0) {
     throw new HttpError(400, "Nothing to update");
   }
-  return prisma.exam.update({
-    where: { id: examId },
-    data: payload,
-    include: { questions: { orderBy: { id: "asc" } } },
-  });
+  try {
+    const updated = await prisma.exam.update({
+      where: { id: examId },
+      data: payload,
+      include: { questions: { orderBy: { id: "asc" } } },
+    });
+    return updated;
+  } catch (err) {
+    console.error("Prisma update error in updateExamMetaByCreator:", err);
+    throw err;
+  }
 }
 
 async function replaceExamQuestionsByCreator(userId, examIdRaw, body) {
@@ -243,7 +284,7 @@ async function publishExamByCreator(userId, examIdRaw) {
   return prisma.exam.update({
     where: { id: examId },
     data: {
-      published: true,
+      status: "LIVE",
       publishedAt: new Date(),
     },
   });
@@ -294,8 +335,8 @@ async function startAttempt(studentId, examIdRaw) {
   }
 
   if (existing?.status === "IN_PROGRESS") {
-    const answers = existing.answersJson && typeof existing.answersJson === "object"
-      ? existing.answersJson
+    const answers = existing.answers && typeof existing.answers === "object"
+      ? existing.answers
       : {};
     return {
       status: 200,
@@ -308,25 +349,30 @@ async function startAttempt(studentId, examIdRaw) {
     };
   }
 
-  const attempt = await prisma.attempt.create({
-    data: {
-      studentId,
-      examId,
-      status: "IN_PROGRESS",
-      answersJson: {},
-      currentQuestionIndex: 0,
-    },
-  });
+  try {
+    const attempt = await prisma.attempt.create({
+      data: {
+        studentId,
+        examId,
+        status: "IN_PROGRESS",
+        answers: {},
+        currentQuestionIndex: 0,
+      },
+    });
 
-  return {
-    status: 201,
-    body: {
-      attemptId: attempt.id,
-      exam: stripAnswersFromExam(exam),
-      answers: {},
-      currentQuestionIndex: 0,
-    },
-  };
+    return {
+      status: 201,
+      body: {
+        attemptId: attempt.id,
+        exam: stripAnswersFromExam(exam),
+        answers: {},
+        currentQuestionIndex: 0,
+      },
+    };
+  } catch (err) {
+    console.error("startAttempt error:", err);
+    throw err;
+  }
 }
 
 async function saveAttemptAnswer(studentId, body) {
@@ -338,12 +384,8 @@ async function saveAttemptAnswer(studentId, body) {
   if (!Number.isFinite(examId)) {
     throw new HttpError(400, "examId is required");
   }
-  if (!Number.isFinite(questionId)) {
-    throw new HttpError(400, "questionId is required");
-  }
-  if (selectedAnswer == null || String(selectedAnswer).trim() === "") {
-    throw new HttpError(400, "selectedAnswer is required");
-  }
+  // questionId and selectedAnswer are optional if we just want to update nextQuestionIndex
+  
   if (!Number.isFinite(nextQuestionIndex) || nextQuestionIndex < 0) {
     throw new HttpError(400, "nextQuestionIndex must be a non-negative number");
   }
@@ -367,16 +409,19 @@ async function saveAttemptAnswer(studentId, body) {
       throw new HttpError(404, "Exam not found");
     }
 
-    const q = exam.questions.find((x) => x.id === questionId);
-    if (!q) {
-      throw new HttpError(400, "questionId does not belong to this exam");
-    }
-
-    const answers = attempt.answersJson && typeof attempt.answersJson === "object"
-      ? { ...attempt.answersJson }
+    const answers = attempt.answers && typeof attempt.answers === "object"
+      ? { ...attempt.answers }
       : {};
 
-    answers[String(questionId)] = normalizeAnswer(selectedAnswer);
+    if (Number.isFinite(questionId)) {
+      const q = exam.questions.find((x) => x.id === questionId);
+      if (!q) {
+        throw new HttpError(400, "questionId does not belong to this exam");
+      }
+      if (selectedAnswer != null && String(selectedAnswer).trim() !== "") {
+        answers[String(questionId)] = normalizeAnswer(selectedAnswer);
+      }
+    }
 
     const boundedNext = Math.min(
       Math.max(0, Math.floor(nextQuestionIndex)),
@@ -386,15 +431,15 @@ async function saveAttemptAnswer(studentId, body) {
     const updated = await tx.attempt.update({
       where: { id: attempt.id },
       data: {
-        answersJson: answers,
+        answers: answers,
         currentQuestionIndex: boundedNext,
       },
     });
 
     return {
-      answers: updated.answersJson ?? {},
+      answers: updated.answers ?? {},
       currentQuestionIndex: updated.currentQuestionIndex ?? 0,
-      answeredCount: Object.keys(updated.answersJson ?? {}).length,
+      answeredCount: Object.keys(updated.answers ?? {}).length,
       totalQuestions: exam.questions.length,
     };
   });
@@ -434,8 +479,8 @@ async function submitExam(studentId, body) {
   let answersInput = [];
   if (Array.isArray(answers)) {
     answersInput = answers;
-  } else if (attempt.answersJson && typeof attempt.answersJson === "object") {
-    answersInput = Object.entries(attempt.answersJson).map(([qid, selectedAnswer]) => ({
+  } else if (attempt.answers && typeof attempt.answers === "object") {
+    answersInput = Object.entries(attempt.answers).map(([qid, selectedAnswer]) => ({
       questionId: Number(qid),
       selectedAnswer: String(selectedAnswer ?? ""),
     }));
@@ -476,7 +521,7 @@ async function getAttemptStatus(studentId, examIdRaw) {
   if (!attempt) {
     throw new HttpError(404, "Attempt not found");
   }
-  const answers = attempt.answersJson && typeof attempt.answersJson === "object" ? attempt.answersJson : {};
+  const answers = attempt.answers && typeof attempt.answers === "object" ? attempt.answers : {};
   return {
     attemptId: attempt.id,
     examId: attempt.examId,
@@ -506,7 +551,7 @@ async function getAttemptDetails(studentId, attemptIdRaw) {
   if (!attempt || attempt.studentId !== studentId) {
     throw new HttpError(404, "Attempt not found");
   }
-  const answers = attempt.answersJson && typeof attempt.answersJson === "object" ? attempt.answersJson : {};
+  const answers = attempt.answers && typeof attempt.answers === "object" ? attempt.answers : {};
   return {
     id: attempt.id,
     examId: attempt.examId,

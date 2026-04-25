@@ -54,8 +54,8 @@ async function createFromExcel(req, res) {
   res.status(201).json({ exam });
 }
 
-async function listCatalog(_req, res) {
-  const exams = await examService.listExamsCatalog();
+async function listCatalog(req, res) {
+  const exams = await examService.listExamsCatalog(req.user.id, req.user.role);
   res.json({ exams });
 }
 
@@ -103,14 +103,21 @@ async function attemptDetails(req, res) {
 }
 
 async function updateMeta(req, res) {
-  const exam = await examService.updateExamMetaByCreator(req.user.id, req.params.id, req.body ?? {});
-  await auditLogService.recordAudit(req, {
-    action: "EXAM_UPDATE_META",
-    entityType: "Exam",
-    entityId: exam.id,
-    statusCode: 200,
-  });
-  res.json({ exam });
+  try {
+    console.log("Updating exam meta:", req.params.id, req.body);
+    const exam = await examService.updateExamMetaByCreator(req.user.id, req.params.id, req.body ?? {});
+    console.log("Exam updated in DB, recording audit...");
+    await auditLogService.recordAudit(req, {
+      action: "EXAM_UPDATE_META",
+      entityType: "Exam",
+      entityId: exam.id,
+      statusCode: 200,
+    });
+    res.json({ exam });
+  } catch (err) {
+    console.error("updateMeta error:", err);
+    throw err;
+  }
 }
 
 async function replaceQuestions(req, res) {

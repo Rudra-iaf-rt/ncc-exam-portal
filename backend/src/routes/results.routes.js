@@ -12,6 +12,12 @@ const { asyncHandler } = require("../middleware/error-handler");
 const router = express.Router();
 
 router.get(
+  "/results",
+  authenticate,
+  asyncHandler(resultsController.listAll)
+);
+
+router.get(
   "/results/student",
   authenticate,
   requireStudent,

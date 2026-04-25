@@ -104,7 +104,7 @@ router.get(
   asyncHandler(examsController.getOneStaff)
 );
 
-router.put(
+router.patch(
   "/exams/:id",
   authenticate,
   requireExamCreator,

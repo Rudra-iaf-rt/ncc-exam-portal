@@ -1,100 +1,98 @@
+@import "tailwindcss";
+
 @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap');
 
-:root {
-  /* Design Tokens from NCC Style Guide */
-  --olive:      #3B3D2A;
-  --olive-mid:  #5A5E3E;
-  --olive-soft: #8B9063;
-  --olive-pale: #C8CC9E;
-  --olive-wash: #EEF0E0;
-  
-  --navy:       #1A2744;
-  --navy-mid:   #253660;
-  --navy-soft:  #4A6090;
-  --navy-pale:  #B8C8E0;
-  --navy-wash:  #EDF1F8;
-  
-  --gold:       #B8860B;
-  --gold-mid:   #D4A017;
-  --gold-pale:  #F0DC82;
-  --gold-wash:  #FBF5DC;
-  
-  --crimson:    #8B1A1A;
-  --crimson-soft:#C44040;
-  --crimson-wash:#FAEAEA;
-  
-  --stone:      #F4F2EC;
-  --stone-mid:  #E8E4D8;
-  --stone-deep: #CCC8BC;
-  
-  --ink:        #1C1C18;
-  --ink-2:      #3A3A34;
-  --ink-3:      #6A6A60;
-  --ink-4:      #9A9A8E;
-  
-  --white:      #FDFCF8; /* Parchment */
-  
-  --r: 6px; 
-  --rl: 10px;
-  
-  --f-display: 'Cormorant Garamond', serif;
-  --f-ui: 'Outfit', sans-serif;
-  --f-mono: 'DM Mono', monospace;
+@theme {
+  --font-display: "Cormorant Garamond", serif;
+  --font-ui: "Outfit", sans-serif;
+  --font-mono: "DM Mono", monospace;
 
-  /* Legacy compatibility / Mapping */
-  --text: var(--ink-2);
-  --text-h: var(--ink);
-  --bg: var(--stone);
-  --border: var(--stone-deep);
-  --accent: var(--navy);
-  
-  font-family: var(--f-ui);
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+  --color-navy: #1A2744;
+  --color-navy-mid: #253660;
+  --color-navy-soft: #4A6090;
+  --color-navy-pale: #B8C8E0;
+  --color-navy-wash: #EDF1F8;
+
+  --color-gold: #B8860B;
+  --color-gold-mid: #D4A017;
+  --color-gold-deep: #8E6806;
+  --color-gold-pale: #F0DC82;
+  --color-gold-wash: #FBF5DC;
+
+  --color-crimson: #8B1A1A;
+  --color-crimson-deep: #631212;
+  --color-crimson-soft: #C44040;
+  --color-crimson-wash: #FAEAEA;
+
+  --color-stone: #F4F2EC;
+  --color-stone-mid: #E8E4D8;
+  --color-stone-deep: #CCC8BC;
+  --color-stone-wash: #F9F8F4;
+
+  --color-ink: #1C1C18;
+  --color-ink-2: #3A3A34;
+  --color-ink-3: #6A6A60;
+  --color-ink-4: #9A9A8E;
+
+  --color-white: #FDFCF8;
 }
 
-* { 
-  box-sizing: border-box; 
-  margin: 0; 
-  padding: 0; 
+@layer base {
+  * {
+    @apply border-stone-deep;
+  }
+  
+  html, body {
+    @apply bg-stone text-ink font-ui min-h-screen;
+    margin: 0;
+    padding: 0;
+  }
+
+  #root {
+    @apply min-h-screen flex flex-col;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display text-ink font-semibold;
+  }
+
+  input, button, textarea, select {
+    font-family: inherit;
+  }
+
+  /* Custom Scrollbar Styles */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-stone-deep);
+    border-radius: 10px;
+    border: 2px solid transparent;
+    background-clip: content-box;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-navy-soft);
+  }
+
+  /* Firefox Support */
+  * {
+    scrollbar-width: thin;
+    scrollbar-color: var(--color-stone-deep) transparent;
+  }
 }
 
-body {
-  font-family: var(--f-ui);
-  background: var(--stone);
-  color: var(--ink);
-  font-size: 15px;
-  line-height: 1.6;
-}
+/* Custom utility for the login card specifically if needed, 
+   but let's keep it to standard utilities in the JSX */
 
-h1, h2, h3, h4, h5, h6 {
-  color: var(--ink);
-  font-weight: 500;
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
 }
-
-a {
-  color: var(--navy);
-  text-decoration: none;
-  transition: opacity 0.2s;
-}
-
-a:hover {
-  opacity: 0.8;
-}
-
-#root {
-  min-height: 100svh;
-  display: flex;
-  flex-direction: column;
-}
-
-code {
-  font-family: var(--f-mono);
-  font-size: 13px;
-  background: var(--stone-mid);
-  padding: 2px 6px;
-  border-radius: 4px;
-  color: var(--navy-mid);
-}
-

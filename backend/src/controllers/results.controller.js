@@ -30,10 +30,23 @@ async function exportCsv(req, res) {
   res.send(csv);
 }
 
+async function listAll(req, res) {
+  const role = req.user.role;
+  if (role === "STUDENT") {
+    return listStudent(req, res);
+  } else if (role === "INSTRUCTOR") {
+    return listInstructor(req, res);
+  } else if (role === "ADMIN") {
+    return listAdmin(req, res);
+  }
+  res.status(403).json({ error: "Unauthorized role" });
+}
+
 module.exports = {
   listStudent,
   listInstructor,
   listAdmin,
   summary,
   exportCsv,
+  listAll,
 };

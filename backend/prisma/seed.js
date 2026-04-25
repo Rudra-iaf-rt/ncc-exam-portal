@@ -1,16 +1,12 @@
 require("dotenv/config");
 const bcrypt = require("bcrypt");
-
 const { PrismaClient } = require("@prisma/client");
 const { PrismaPg } = require("@prisma/adapter-pg");
 const { Pool } = require("pg");
 
 const pool = new Pool({ connectionString: process.env.DATABASE_URL });
 const adapter = new PrismaPg(pool);
-const Prisma = new PrismaClient({ adapter });
-
-const  { prisma }  = require("../src/lib/prisma");
-
+const prisma = new PrismaClient({ adapter });
 
 const SALT_ROUNDS = 10;
 
@@ -19,38 +15,8 @@ async function main() {
   const staffPass = await bcrypt.hash("admin123", SALT_ROUNDS);
   const sampleCadetPass = await bcrypt.hash("Sree@1234", SALT_ROUNDS);
 
-  await Prisma.user.upsert({
-    where: { regimentalNumber: "AP2025SDAF0490515" },
-    update: {
-      password: sampleCadetPass,
-      name: "Sample Cadet",
-      college: "Demo College",
-      role: "STUDENT",
-    },
-    create: {
-      name: "Sample Cadet",
-      regimentalNumber: "AP2025SDAF0490515",
-      email: null,
-      password: sampleCadetPass,
-      role: "STUDENT",
-      college: "Demo College",
-    },
-  });
-
-  await Prisma.user.upsert({
-    where: { regimentalNumber: "STU001" },
-    update: {},
-    create: {
-      name: "Demo Student",
-      regimentalNumber: "STU001",
-      email: null,
-      password: studentPass,
-      role: "STUDENT",
-      college: "Demo College",
-    },
-  });
-
-  await Prisma.user.upsert({
+  // Admin user
+  await prisma.user.upsert({
     where: { email: "admin@example.com" },
     update: {},
     create: {
@@ -59,11 +25,13 @@ async function main() {
       email: "admin@example.com",
       password: staffPass,
       role: "ADMIN",
-      college: "Demo College",
+      college: "Unit HQ",
+      isActive: true
     },
   });
 
-  await Prisma.user.upsert({
+  // Instructor user
+  await prisma.user.upsert({
     where: { email: "instructor@example.com" },
     update: {},
     create: {
@@ -73,6 +41,42 @@ async function main() {
       password: staffPass,
       role: "INSTRUCTOR",
       college: "Demo College",
+      isActive: true
+    },
+  });
+
+  // Sample Cadets
+  await prisma.user.upsert({
+    where: { regimentalNumber: "AP2025SDAF0490515" },
+    update: {
+      password: sampleCadetPass,
+      name: "Sample Cadet",
+      college: "Demo College",
+      role: "STUDENT",
+      isActive: true
+    },
+    create: {
+      name: "Sample Cadet",
+      regimentalNumber: "AP2025SDAF0490515",
+      email: null,
+      password: sampleCadetPass,
+      role: "STUDENT",
+      college: "Demo College",
+      isActive: true
+    },
+  });
+
+  await prisma.user.upsert({
+    where: { regimentalNumber: "STU001" },
+    update: {},
+    create: {
+      name: "Demo Student",
+      regimentalNumber: "STU001",
+      email: null,
+      password: studentPass,
+      role: "STUDENT",
+      college: "Demo College",
+      isActive: true
     },
   });
 
@@ -86,4 +90,7 @@ main()
     console.error(e);
     process.exit(1);
   })
-  .finally(() => prisma.$disconnect());
+  .finally(async () => {
+    await prisma.$disconnect();
+    await pool.end();
+  });

@@ -1,12 +1,32 @@
-import { createContext, useContext, useState, useEffect } from 'react';
-import { apiFetch } from '../lib/api';
-import { getSavedUser, saveUser, clearAuth, setToken, getToken } from '../lib/auth';
-
-const AdminAuthContext = createContext();
+import { useState, useEffect } from 'react';
+import { authApi } from '../api';
+import { 
+  getSavedUser, 
+  saveUser, 
+  clearAuth, 
+  setToken, 
+  getToken, 
+  setRefreshToken, 
+  getRefreshToken 
+} from '../lib/auth';
+import { AdminAuthContext } from './AdminAuth';
 
 export function AdminAuthProvider({ children }) {
   const [user, setUser] = useState(getSavedUser());
   const [isLoading, setIsLoading] = useState(true);
+
+  async function logout() {
+    const refreshToken = getRefreshToken();
+    if (refreshToken) {
+      try {
+        await authApi.logout({ refreshToken });
+      } catch {
+        // Ignore logout errors
+      }
+    }
+    clearAuth();
+    setUser(null);
+  }
 
   useEffect(() => {
     async function rehydrate() {
@@ -16,12 +36,17 @@ export function AdminAuthProvider({ children }) {
         return;
       }
 
-      const { data, error } = await apiFetch('/auth/me');
-      if (data && data.user && data.user.role === 'ADMIN') {
-        setUser(data.user);
-        saveUser(data.user);
-      } else {
-        // Not an admin or token invalid
+      try {
+        const { data } = await authApi.getMe();
+        const isStaff = data?.user?.role === 'ADMIN' || data?.user?.role === 'INSTRUCTOR';
+        
+        if (data && data.user && isStaff) {
+          setUser(data.user);
+          saveUser(data.user);
+        } else {
+          logout();
+        }
+      } catch {
         logout();
       }
       setIsLoading(false);
@@ -29,7 +54,7 @@ export function AdminAuthProvider({ children }) {
 
     rehydrate();
 
-    // Listen for global logout events from api.js 401 handler
+    // Listen for global logout events from api client 401 handler
     const handleLogout = () => {
       setUser(null);
       clearAuth();
@@ -39,27 +64,28 @@ export function AdminAuthProvider({ children }) {
   }, []);
 
   async function login(email, password) {
-    const { data, error } = await apiFetch('/auth/login/staff', {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    });
+    try {
+      const { data } = await authApi.loginStaff({ email, password });
+      const isStaff = data?.user?.role === 'ADMIN' || data?.user?.role === 'INSTRUCTOR';
 
-    if (data && data.token && data.user.role === 'ADMIN') {
-      setToken(data.token);
-      saveUser(data.user);
-      setUser(data.user);
-      return { success: true };
+      if (data && data.token && isStaff) {
+        setToken(data.token);
+        if (data.refreshToken) setRefreshToken(data.refreshToken);
+        saveUser(data.user);
+        setUser(data.user);
+        return { success: true };
+      }
+
+      return { 
+        success: false, 
+        error: data?.user && !isStaff ? 'Access denied: Staff only.' : 'Authentication failed. Please verify credentials.'
+      };
+    } catch (err) {
+      return { 
+        success: false, 
+        error: err.message || 'Login failed. Connection to HQ could not be established.'
+      };
     }
-
-    return { 
-      success: false, 
-      error: error || (data?.user?.role !== 'ADMIN' ? 'Access denied: Admins only.' : 'Login failed')
-    };
-  }
-
-  function logout() {
-    clearAuth();
-    setUser(null);
   }
 
   return (
@@ -68,5 +94,3 @@ export function AdminAuthProvider({ children }) {
     </AdminAuthContext.Provider>
   );
 }
-
-export const useAdminAuth = () => useContext(AdminAuthContext);

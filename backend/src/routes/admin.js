@@ -1,109 +1,92 @@
 const express = require("express");
-const { prisma } = require("../lib/prisma");
+const multer = require("multer");
 const { authenticate } = require("../middleware/auth");
 const { requireAdmin } = require("../middleware/roles");
+const adminController = require("../controllers/admin.controller");
+const usersController = require("../controllers/users.controller");
+const { prisma } = require("../lib/prisma");
 const auditLogService = require("../services/audit-log.service");
 
 const router = express.Router();
+const upload = multer({ storage: multer.memoryStorage() });
 
-async function buildAdminDashboard() {
-  const totalStudents = await prisma.user.count({
-    where: { role: "STUDENT" },
-  });
+// --- Dashboard & Stats ---
+router.get("/stats", authenticate, requireAdmin, adminController.getStats);
+router.get("/dashboard", authenticate, requireAdmin, adminController.getStats); // Alias for backward compatibility
 
-  const totalExams = await prisma.exam.count();
+// --- User Management ---
+router.get("/users", authenticate, requireAdmin, usersController.listAll);
+router.post("/users", authenticate, requireAdmin, usersController.createUser);
+router.get("/users/search", authenticate, requireAdmin, usersController.searchUsers);
+router.get("/users/filters", authenticate, requireAdmin, usersController.getFilters);
+router.post("/users/import", authenticate, requireAdmin, upload.single("file"), adminController.importUsers);
+router.patch("/users/:id", authenticate, requireAdmin, usersController.updateUser);
+router.delete("/users/:id", authenticate, requireAdmin, usersController.removeById);
 
-  const activeAttempts = await prisma.attempt.count({
-    where: { status: "IN_PROGRESS" },
-  });
+// --- Exam Assignments ---
+router.get("/assignments", authenticate, requireAdmin, adminController.listAssignments);
+router.post("/assignments", authenticate, requireAdmin, adminController.createAssignments);
+router.delete("/assignments/:id", authenticate, requireAdmin, adminController.deleteAssignment);
 
-  const resultAgg = await prisma.result.aggregate({
-    _avg: {
-      score: true,
-    },
-  });
+// --- Results & Overrides ---
+router.patch("/results/:id", authenticate, requireAdmin, adminController.overrideResult);
 
-  const recentActivity = await prisma.result.findMany({
-    take: 5,
-    orderBy: { id: "desc" },
-    include: {
-      student: {
-        select: { name: true },
-      },
-      exam: {
-        select: { title: true },
-      },
-    },
-  });
-
-  const formattedActivity = recentActivity.map((r) => ({
-    studentName: r.student.name,
-    examTitle: r.exam.title,
-    score: r.score,
-    date: r.createdAt.toISOString(),
-  }));
-
-  return {
-    totalStudents,
-    totalExams,
-    activeExams: activeAttempts,
-    averageScore: resultAgg._avg.score ? `${resultAgg._avg.score.toFixed(1)}%` : "0%",
-    recentActivity: formattedActivity,
-  };
-}
-
-router.get("/stats", authenticate, requireAdmin, async (_req, res) => {
+// --- Audit Logs ---
+router.get("/logs", authenticate, requireAdmin, async (req, res) => {
+  // Merged: auditLogService for DB logs, and filesystem log check for raw app logs
   try {
-    const dashboard = await buildAdminDashboard();
-    res.json(dashboard);
+    const dbLogs = await auditLogService.listAuditLogs(req.query ?? {});
+    
+    // Also check for app.log if requested specifically or as fallback
+    const fs = require('fs');
+    const path = require('path');
+    const logFile = path.join(process.cwd(), 'logs', 'app.log');
+
+    let appLogs = [];
+    if (fs.existsSync(logFile)) {
+      const content = fs.readFileSync(logFile, 'utf8');
+      appLogs = content.split('\n')
+        .filter(l => l.trim() !== '')
+        .map(line => {
+          try { return JSON.parse(line); } 
+          catch { return { error: "Parse error", raw: line }; }
+        })
+        .reverse()
+        .slice(0, 100);
+    }
+
+    res.json({ logs: dbLogs, appLogs });
   } catch (error) {
-    console.error("Admin Stats Error:", error);
-    res.status(500).json({ error: "Failed to fetch admin statistics" });
+    console.error("Audit Log Fetch Error:", error);
+    res.status(500).json({ error: "Failed to fetch logs" });
   }
 });
 
-router.get("/dashboard", authenticate, requireAdmin, async (_req, res) => {
-  try {
-    const dashboard = await buildAdminDashboard();
-    res.json(dashboard);
-  } catch (error) {
-    console.error("Admin Dashboard Error:", error);
-    res.status(500).json({ error: "Failed to fetch dashboard" });
-  }
-});
-
-/**
- * GET /api/admin/users
- * List of all users in the system
- */
-router.get("/users", authenticate, requireAdmin, async (req, res) => {
-  try {
-    const users = await prisma.user.findMany({
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        regimentalNumber: true,
-        role: true,
-        college: true
-      },
-      orderBy: { name: 'asc' }
-    });
-
-    res.json(users);
-  } catch (error) {
-    console.error("Admin Users Error:", error);
-    res.status(500).json({ error: "Failed to fetch user registry" });
-  }
-});
-
-router.get("/health", authenticate, requireAdmin, async (_req, res) => {
+// --- System Health ---
+router.get("/health", authenticate, requireAdmin, (req, res) => {
   res.json({ ok: true, service: "admin" });
 });
 
-router.get("/logs", authenticate, requireAdmin, async (_req, res) => {
-  const logs = await auditLogService.listAuditLogs(_req.query ?? {});
-  res.json({ logs });
+// --- Generic Exam Dropdowns ---
+router.get("/exams", authenticate, requireAdmin, async (req, res) => {
+  try {
+    const exams = await prisma.exam.findMany({
+      orderBy: { id: 'desc' },
+      include: { _count: { select: { questions: true } } }
+    });
+    res.json({
+      exams: exams.map(e => ({
+        id: e.id,
+        title: e.title,
+        status: e.status,
+        duration: e.duration,
+        questionCount: e._count.questions,
+        createdAt: e.createdAt,
+      }))
+    });
+  } catch (_error) {
+    res.status(500).json({ error: "Failed to fetch exams" });
+  }
 });
 
 module.exports = router;

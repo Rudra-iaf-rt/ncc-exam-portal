@@ -1,0 +1,1168 @@
+[2026-04-25T14:36:27.536Z] TypeError: Cannot read properties of undefined (reading 'create')
+    at C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:68:27
+    at Proxy._transactionWithCallback (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:4674)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async issueSessionTokens (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:58:3)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:27:27)
+[2026-04-25T14:36:43.022Z] TypeError: Cannot read properties of undefined (reading 'create')
+    at C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:68:27
+    at Proxy._transactionWithCallback (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:4674)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async issueSessionTokens (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:58:3)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:27:27)
+[2026-04-25T14:37:28.751Z] TypeError: Cannot read properties of undefined (reading 'create')
+    at C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:68:27
+    at Proxy._transactionWithCallback (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:4674)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async issueSessionTokens (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:58:3)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:27:27)
+[2026-04-25T14:37:29.970Z] TypeError: Cannot read properties of undefined (reading 'create')
+    at C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:68:27
+    at Proxy._transactionWithCallback (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:4674)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async issueSessionTokens (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:58:3)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:27:27)
+[2026-04-25T14:37:30.859Z] TypeError: Cannot read properties of undefined (reading 'create')
+    at C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:68:27
+    at Proxy._transactionWithCallback (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:4674)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async issueSessionTokens (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:58:3)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:27:27)
+[2026-04-25T14:37:31.072Z] TypeError: Cannot read properties of undefined (reading 'create')
+    at C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:68:27
+    at Proxy._transactionWithCallback (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:4674)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async issueSessionTokens (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:58:3)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:27:27)
+[2026-04-25T14:37:31.253Z] TypeError: Cannot read properties of undefined (reading 'create')
+    at C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:68:27
+    at Proxy._transactionWithCallback (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:4674)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async issueSessionTokens (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:58:3)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:27:27)
+[2026-04-25T14:37:31.426Z] TypeError: Cannot read properties of undefined (reading 'create')
+    at C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:68:27
+    at Proxy._transactionWithCallback (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:4674)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async issueSessionTokens (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:58:3)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:27:27)
+[2026-04-25T14:37:31.643Z] TypeError: Cannot read properties of undefined (reading 'create')
+    at C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:68:27
+    at Proxy._transactionWithCallback (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:4674)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async issueSessionTokens (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:58:3)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:27:27)
+[2026-04-25T14:37:31.850Z] TypeError: Cannot read properties of undefined (reading 'create')
+    at C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:68:27
+    at Proxy._transactionWithCallback (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:4674)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async issueSessionTokens (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:58:3)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:27:27)
+[2026-04-25T14:37:32.055Z] TypeError: Cannot read properties of undefined (reading 'create')
+    at C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:68:27
+    at Proxy._transactionWithCallback (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:4674)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async issueSessionTokens (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:58:3)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:27:27)
+[2026-04-25T14:37:32.252Z] TypeError: Cannot read properties of undefined (reading 'create')
+    at C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:68:27
+    at Proxy._transactionWithCallback (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:4674)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async issueSessionTokens (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:58:3)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:27:27)
+[2026-04-25T14:37:32.464Z] TypeError: Cannot read properties of undefined (reading 'create')
+    at C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:68:27
+    at Proxy._transactionWithCallback (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:4674)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async issueSessionTokens (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:58:3)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:27:27)
+[2026-04-25T14:37:32.629Z] TypeError: Cannot read properties of undefined (reading 'create')
+    at C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:68:27
+    at Proxy._transactionWithCallback (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:4674)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async issueSessionTokens (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:58:3)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:27:27)
+[2026-04-25T14:39:26.618Z] TypeError: Cannot read properties of undefined (reading 'create')
+    at C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:68:27
+    at Proxy._transactionWithCallback (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:4674)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async issueSessionTokens (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:58:3)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:27:27)
+[2026-04-25T14:39:48.089Z] TypeError: Cannot read properties of undefined (reading 'create')
+    at C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:68:27
+    at Proxy._transactionWithCallback (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:4674)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async issueSessionTokens (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:58:3)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:27:27)
+[2026-04-25T14:39:48.593Z] TypeError: Cannot read properties of undefined (reading 'create')
+    at C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:68:27
+    at Proxy._transactionWithCallback (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:4674)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async issueSessionTokens (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:58:3)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:27:27)
+[2026-04-25T14:40:38.902Z] TypeError: Cannot read properties of undefined (reading 'create')
+    at C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:68:27
+    at Proxy._transactionWithCallback (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:4674)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async issueSessionTokens (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:58:3)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:27:27)
+[2026-04-25T14:40:40.481Z] TypeError: Cannot read properties of undefined (reading 'create')
+    at C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:68:27
+    at Proxy._transactionWithCallback (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:4674)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async issueSessionTokens (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:58:3)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:27:27)
+[2026-04-25T14:40:59.374Z] TypeError: Cannot read properties of undefined (reading 'create')
+    at C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:68:27
+    at Proxy._transactionWithCallback (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:4674)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async issueSessionTokens (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:58:3)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:27:27)
+[2026-04-25T14:41:05.329Z] TypeError: Cannot read properties of undefined (reading 'create')
+    at C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:68:27
+    at Proxy._transactionWithCallback (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:4674)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async issueSessionTokens (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:58:3)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:27:27)
+[2026-04-25T14:41:09.074Z] TypeError: Cannot read properties of undefined (reading 'create')
+    at C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:68:27
+    at Proxy._transactionWithCallback (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:4674)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async issueSessionTokens (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:58:3)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:27:27)
+[2026-04-25T14:41:47.270Z] TypeError: Cannot read properties of undefined (reading 'create')
+    at C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:68:27
+    at Proxy._transactionWithCallback (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:4674)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async issueSessionTokens (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:58:3)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:27:27)
+[2026-04-25T14:41:48.478Z] TypeError: Cannot read properties of undefined (reading 'create')
+    at C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:68:27
+    at Proxy._transactionWithCallback (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:4674)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async issueSessionTokens (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:58:3)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:27:27)
+[2026-04-25T14:42:08.702Z] TypeError: Cannot read properties of undefined (reading 'create')
+    at C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:68:27
+    at Proxy._transactionWithCallback (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:4674)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async issueSessionTokens (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:58:3)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:27:27)
+[2026-04-25T14:42:09.911Z] TypeError: Cannot read properties of undefined (reading 'create')
+    at C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:68:27
+    at Proxy._transactionWithCallback (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:4674)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async issueSessionTokens (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:58:3)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:27:27)
+[2026-04-25T14:48:41.016Z] PrismaClientValidationError: 
+Invalid `prisma.exam.findMany()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:100:17
+
+   97   : {};
+   98 
+   99 const [exams, completedResults] = await Promise.all([
+→ 100   prisma.exam.findMany({
+          where: {
+            published: true,
+            ~~~~~~~~~
+            assignments: {
+              some: {
+                userId: 1
+              }
+            },
+        ?   AND?: ExamWhereInput | ExamWhereInput[],
+        ?   OR?: ExamWhereInput[],
+        ?   NOT?: ExamWhereInput | ExamWhereInput[],
+        ?   id?: IntFilter | Int,
+        ?   title?: StringFilter | String,
+        ?   duration?: IntFilter | Int,
+        ?   status?: StringFilter | String,
+        ?   createdBy?: IntFilter | Int,
+        ?   createdAt?: DateTimeFilter | DateTime,
+        ?   creator?: UserScalarRelationFilter | UserWhereInput,
+        ?   questions?: QuestionListRelationFilter,
+        ?   attempts?: AttemptListRelationFilter,
+        ?   results?: ResultListRelationFilter,
+        ?   materials?: MaterialListRelationFilter,
+        ?   violations?: ExamViolationListRelationFilter,
+        ?   heartbeats?: ExamHeartbeatListRelationFilter
+          },
+          orderBy: {
+            id: "desc"
+          },
+          include: {
+            _count: {
+              select: {
+                questions: true
+              }
+            },
+            creator: {
+              select: {
+                id: true,
+                name: true,
+                role: true
+              }
+            }
+          }
+        })
+
+Unknown argument `published`. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async Promise.all (index 0)
+    at async Object.listExamsCatalog (C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:99:37)
+    at async listCatalog (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:58:17)
+[2026-04-25T14:48:41.061Z] PrismaClientValidationError: 
+Invalid `prisma.exam.findMany()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:100:17
+
+   97   : {};
+   98 
+   99 const [exams, completedResults] = await Promise.all([
+→ 100   prisma.exam.findMany({
+          where: {
+            published: true,
+            ~~~~~~~~~
+            assignments: {
+              some: {
+                userId: 1
+              }
+            },
+        ?   AND?: ExamWhereInput | ExamWhereInput[],
+        ?   OR?: ExamWhereInput[],
+        ?   NOT?: ExamWhereInput | ExamWhereInput[],
+        ?   id?: IntFilter | Int,
+        ?   title?: StringFilter | String,
+        ?   duration?: IntFilter | Int,
+        ?   status?: StringFilter | String,
+        ?   createdBy?: IntFilter | Int,
+        ?   createdAt?: DateTimeFilter | DateTime,
+        ?   creator?: UserScalarRelationFilter | UserWhereInput,
+        ?   questions?: QuestionListRelationFilter,
+        ?   attempts?: AttemptListRelationFilter,
+        ?   results?: ResultListRelationFilter,
+        ?   materials?: MaterialListRelationFilter,
+        ?   violations?: ExamViolationListRelationFilter,
+        ?   heartbeats?: ExamHeartbeatListRelationFilter
+          },
+          orderBy: {
+            id: "desc"
+          },
+          include: {
+            _count: {
+              select: {
+                questions: true
+              }
+            },
+            creator: {
+              select: {
+                id: true,
+                name: true,
+                role: true
+              }
+            }
+          }
+        })
+
+Unknown argument `published`. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async Promise.all (index 0)
+    at async Object.listExamsCatalog (C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:99:37)
+    at async listCatalog (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:58:17)
+[2026-04-25T14:49:06.752Z] PrismaClientValidationError: 
+Invalid `prisma.exam.findMany()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:100:17
+
+   97   : {};
+   98 
+   99 const [exams, completedResults] = await Promise.all([
+→ 100   prisma.exam.findMany({
+          where: {
+            published: true,
+            ~~~~~~~~~
+            assignments: {
+              some: {
+                userId: 1
+              }
+            },
+        ?   AND?: ExamWhereInput | ExamWhereInput[],
+        ?   OR?: ExamWhereInput[],
+        ?   NOT?: ExamWhereInput | ExamWhereInput[],
+        ?   id?: IntFilter | Int,
+        ?   title?: StringFilter | String,
+        ?   duration?: IntFilter | Int,
+        ?   status?: StringFilter | String,
+        ?   createdBy?: IntFilter | Int,
+        ?   createdAt?: DateTimeFilter | DateTime,
+        ?   creator?: UserScalarRelationFilter | UserWhereInput,
+        ?   questions?: QuestionListRelationFilter,
+        ?   attempts?: AttemptListRelationFilter,
+        ?   results?: ResultListRelationFilter,
+        ?   materials?: MaterialListRelationFilter,
+        ?   violations?: ExamViolationListRelationFilter,
+        ?   heartbeats?: ExamHeartbeatListRelationFilter
+          },
+          orderBy: {
+            id: "desc"
+          },
+          include: {
+            _count: {
+              select: {
+                questions: true
+              }
+            },
+            creator: {
+              select: {
+                id: true,
+                name: true,
+                role: true
+              }
+            }
+          }
+        })
+
+Unknown argument `published`. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async Promise.all (index 0)
+    at async Object.listExamsCatalog (C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:99:37)
+    at async listCatalog (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:58:17)
+[2026-04-25T14:49:06.778Z] PrismaClientValidationError: 
+Invalid `prisma.exam.findMany()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:100:17
+
+   97   : {};
+   98 
+   99 const [exams, completedResults] = await Promise.all([
+→ 100   prisma.exam.findMany({
+          where: {
+            published: true,
+            ~~~~~~~~~
+            assignments: {
+              some: {
+                userId: 1
+              }
+            },
+        ?   AND?: ExamWhereInput | ExamWhereInput[],
+        ?   OR?: ExamWhereInput[],
+        ?   NOT?: ExamWhereInput | ExamWhereInput[],
+        ?   id?: IntFilter | Int,
+        ?   title?: StringFilter | String,
+        ?   duration?: IntFilter | Int,
+        ?   status?: StringFilter | String,
+        ?   createdBy?: IntFilter | Int,
+        ?   createdAt?: DateTimeFilter | DateTime,
+        ?   creator?: UserScalarRelationFilter | UserWhereInput,
+        ?   questions?: QuestionListRelationFilter,
+        ?   attempts?: AttemptListRelationFilter,
+        ?   results?: ResultListRelationFilter,
+        ?   materials?: MaterialListRelationFilter,
+        ?   violations?: ExamViolationListRelationFilter,
+        ?   heartbeats?: ExamHeartbeatListRelationFilter
+          },
+          orderBy: {
+            id: "desc"
+          },
+          include: {
+            _count: {
+              select: {
+                questions: true
+              }
+            },
+            creator: {
+              select: {
+                id: true,
+                name: true,
+                role: true
+              }
+            }
+          }
+        })
+
+Unknown argument `published`. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async Promise.all (index 0)
+    at async Object.listExamsCatalog (C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:99:37)
+    at async listCatalog (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:58:17)
+[2026-04-25T15:04:50.546Z] PrismaClientValidationError: 
+Invalid `prisma.exam.update()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:214:22
+
+  211 if (Object.keys(payload).length === 0) {
+  212   throw new HttpError(400, "Nothing to update");
+  213 }
+→ 214 return prisma.exam.update({
+        where: {
+          id: 6
+        },
+        data: {
+          status: "LIVE",
+          publishedAt: new Date("2026-04-25T15:04:50.505Z"),
+          ~~~~~~~~~~~
+      ?   title?: String | StringFieldUpdateOperationsInput,
+      ?   duration?: Int | IntFieldUpdateOperationsInput,
+      ?   createdAt?: DateTime | DateTimeFieldUpdateOperationsInput,
+      ?   creator?: UserUpdateOneRequiredWithoutExamsCreatedNestedInput,
+      ?   questions?: QuestionUpdateManyWithoutExamNestedInput,
+      ?   attempts?: AttemptUpdateManyWithoutExamNestedInput,
+      ?   results?: ResultUpdateManyWithoutExamNestedInput,
+      ?   assignments?: ExamAssignmentUpdateManyWithoutExamNestedInput,
+      ?   materials?: MaterialUpdateManyWithoutExamNestedInput,
+      ?   violations?: ExamViolationUpdateManyWithoutExamNestedInput,
+      ?   heartbeats?: ExamHeartbeatUpdateManyWithoutExamNestedInput
+        },
+        include: {
+          questions: {
+            orderBy: {
+              id: "asc"
+            }
+          }
+        }
+      })
+
+Unknown argument `publishedAt`. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async updateMeta (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:106:16)
+[2026-04-25T15:06:52.935Z] PrismaClientValidationError: 
+Invalid `prisma.exam.update()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:214:22
+
+  211 if (Object.keys(payload).length === 0) {
+  212   throw new HttpError(400, "Nothing to update");
+  213 }
+→ 214 return prisma.exam.update({
+        where: {
+          id: 6
+        },
+        data: {
+          status: "LIVE",
+          publishedAt: new Date("2026-04-25T15:06:52.923Z"),
+          ~~~~~~~~~~~
+      ?   title?: String | StringFieldUpdateOperationsInput,
+      ?   duration?: Int | IntFieldUpdateOperationsInput,
+      ?   createdAt?: DateTime | DateTimeFieldUpdateOperationsInput,
+      ?   creator?: UserUpdateOneRequiredWithoutExamsCreatedNestedInput,
+      ?   questions?: QuestionUpdateManyWithoutExamNestedInput,
+      ?   attempts?: AttemptUpdateManyWithoutExamNestedInput,
+      ?   results?: ResultUpdateManyWithoutExamNestedInput,
+      ?   assignments?: ExamAssignmentUpdateManyWithoutExamNestedInput,
+      ?   materials?: MaterialUpdateManyWithoutExamNestedInput,
+      ?   violations?: ExamViolationUpdateManyWithoutExamNestedInput,
+      ?   heartbeats?: ExamHeartbeatUpdateManyWithoutExamNestedInput
+        },
+        include: {
+          questions: {
+            orderBy: {
+              id: "asc"
+            }
+          }
+        }
+      })
+
+Unknown argument `publishedAt`. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async updateMeta (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:106:16)
+[2026-04-25T15:06:59.205Z] PrismaClientValidationError: 
+Invalid `prisma.exam.update()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:214:22
+
+  211 if (Object.keys(payload).length === 0) {
+  212   throw new HttpError(400, "Nothing to update");
+  213 }
+→ 214 return prisma.exam.update({
+        where: {
+          id: 6
+        },
+        data: {
+          status: "LIVE",
+          publishedAt: new Date("2026-04-25T15:06:59.192Z"),
+          ~~~~~~~~~~~
+      ?   title?: String | StringFieldUpdateOperationsInput,
+      ?   duration?: Int | IntFieldUpdateOperationsInput,
+      ?   createdAt?: DateTime | DateTimeFieldUpdateOperationsInput,
+      ?   creator?: UserUpdateOneRequiredWithoutExamsCreatedNestedInput,
+      ?   questions?: QuestionUpdateManyWithoutExamNestedInput,
+      ?   attempts?: AttemptUpdateManyWithoutExamNestedInput,
+      ?   results?: ResultUpdateManyWithoutExamNestedInput,
+      ?   assignments?: ExamAssignmentUpdateManyWithoutExamNestedInput,
+      ?   materials?: MaterialUpdateManyWithoutExamNestedInput,
+      ?   violations?: ExamViolationUpdateManyWithoutExamNestedInput,
+      ?   heartbeats?: ExamHeartbeatUpdateManyWithoutExamNestedInput
+        },
+        include: {
+          questions: {
+            orderBy: {
+              id: "asc"
+            }
+          }
+        }
+      })
+
+Unknown argument `publishedAt`. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async updateMeta (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:106:16)
+[2026-04-25T15:07:12.815Z] PrismaClientValidationError: 
+Invalid `prisma.exam.update()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:214:22
+
+  211 if (Object.keys(payload).length === 0) {
+  212   throw new HttpError(400, "Nothing to update");
+  213 }
+→ 214 return prisma.exam.update({
+        where: {
+          id: 6
+        },
+        data: {
+          status: "LIVE",
+          publishedAt: new Date("2026-04-25T15:07:12.796Z"),
+          ~~~~~~~~~~~
+      ?   title?: String | StringFieldUpdateOperationsInput,
+      ?   duration?: Int | IntFieldUpdateOperationsInput,
+      ?   createdAt?: DateTime | DateTimeFieldUpdateOperationsInput,
+      ?   creator?: UserUpdateOneRequiredWithoutExamsCreatedNestedInput,
+      ?   questions?: QuestionUpdateManyWithoutExamNestedInput,
+      ?   attempts?: AttemptUpdateManyWithoutExamNestedInput,
+      ?   results?: ResultUpdateManyWithoutExamNestedInput,
+      ?   assignments?: ExamAssignmentUpdateManyWithoutExamNestedInput,
+      ?   materials?: MaterialUpdateManyWithoutExamNestedInput,
+      ?   violations?: ExamViolationUpdateManyWithoutExamNestedInput,
+      ?   heartbeats?: ExamHeartbeatUpdateManyWithoutExamNestedInput
+        },
+        include: {
+          questions: {
+            orderBy: {
+              id: "asc"
+            }
+          }
+        }
+      })
+
+Unknown argument `publishedAt`. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async updateMeta (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:106:16)
+[2026-04-25T15:07:20.151Z] PrismaClientValidationError: 
+Invalid `prisma.exam.update()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:214:22
+
+  211 if (Object.keys(payload).length === 0) {
+  212   throw new HttpError(400, "Nothing to update");
+  213 }
+→ 214 return prisma.exam.update({
+        where: {
+          id: 6
+        },
+        data: {
+          status: "LIVE",
+          publishedAt: new Date("2026-04-25T15:07:20.143Z"),
+          ~~~~~~~~~~~
+      ?   title?: String | StringFieldUpdateOperationsInput,
+      ?   duration?: Int | IntFieldUpdateOperationsInput,
+      ?   createdAt?: DateTime | DateTimeFieldUpdateOperationsInput,
+      ?   creator?: UserUpdateOneRequiredWithoutExamsCreatedNestedInput,
+      ?   questions?: QuestionUpdateManyWithoutExamNestedInput,
+      ?   attempts?: AttemptUpdateManyWithoutExamNestedInput,
+      ?   results?: ResultUpdateManyWithoutExamNestedInput,
+      ?   assignments?: ExamAssignmentUpdateManyWithoutExamNestedInput,
+      ?   materials?: MaterialUpdateManyWithoutExamNestedInput,
+      ?   violations?: ExamViolationUpdateManyWithoutExamNestedInput,
+      ?   heartbeats?: ExamHeartbeatUpdateManyWithoutExamNestedInput
+        },
+        include: {
+          questions: {
+            orderBy: {
+              id: "asc"
+            }
+          }
+        }
+      })
+
+Unknown argument `publishedAt`. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async updateMeta (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:106:16)
+[2026-04-25T15:09:30.259Z] PrismaClientValidationError: 
+Invalid `prisma.exam.update()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:214:22
+
+  211 if (Object.keys(payload).length === 0) {
+  212   throw new HttpError(400, "Nothing to update");
+  213 }
+→ 214 return prisma.exam.update({
+        where: {
+          id: 6
+        },
+        data: {
+          status: "LIVE",
+          publishedAt: new Date("2026-04-25T15:09:30.091Z"),
+          ~~~~~~~~~~~
+      ?   title?: String | StringFieldUpdateOperationsInput,
+      ?   duration?: Int | IntFieldUpdateOperationsInput,
+      ?   createdAt?: DateTime | DateTimeFieldUpdateOperationsInput,
+      ?   creator?: UserUpdateOneRequiredWithoutExamsCreatedNestedInput,
+      ?   questions?: QuestionUpdateManyWithoutExamNestedInput,
+      ?   attempts?: AttemptUpdateManyWithoutExamNestedInput,
+      ?   results?: ResultUpdateManyWithoutExamNestedInput,
+      ?   assignments?: ExamAssignmentUpdateManyWithoutExamNestedInput,
+      ?   materials?: MaterialUpdateManyWithoutExamNestedInput,
+      ?   violations?: ExamViolationUpdateManyWithoutExamNestedInput,
+      ?   heartbeats?: ExamHeartbeatUpdateManyWithoutExamNestedInput
+        },
+        include: {
+          questions: {
+            orderBy: {
+              id: "asc"
+            }
+          }
+        }
+      })
+
+Unknown argument `publishedAt`. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async updateMeta (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:106:16)
+[2026-04-25T15:10:05.327Z] PrismaClientValidationError: 
+Invalid `prisma.exam.update()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:214:22
+
+  211 if (Object.keys(payload).length === 0) {
+  212   throw new HttpError(400, "Nothing to update");
+  213 }
+→ 214 return prisma.exam.update({
+        where: {
+          id: 6
+        },
+        data: {
+          status: "LIVE",
+          publishedAt: new Date("2026-04-25T15:10:05.317Z"),
+          ~~~~~~~~~~~
+      ?   title?: String | StringFieldUpdateOperationsInput,
+      ?   duration?: Int | IntFieldUpdateOperationsInput,
+      ?   createdAt?: DateTime | DateTimeFieldUpdateOperationsInput,
+      ?   creator?: UserUpdateOneRequiredWithoutExamsCreatedNestedInput,
+      ?   questions?: QuestionUpdateManyWithoutExamNestedInput,
+      ?   attempts?: AttemptUpdateManyWithoutExamNestedInput,
+      ?   results?: ResultUpdateManyWithoutExamNestedInput,
+      ?   assignments?: ExamAssignmentUpdateManyWithoutExamNestedInput,
+      ?   materials?: MaterialUpdateManyWithoutExamNestedInput,
+      ?   violations?: ExamViolationUpdateManyWithoutExamNestedInput,
+      ?   heartbeats?: ExamHeartbeatUpdateManyWithoutExamNestedInput
+        },
+        include: {
+          questions: {
+            orderBy: {
+              id: "asc"
+            }
+          }
+        }
+      })
+
+Unknown argument `publishedAt`. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async updateMeta (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:106:16)
+[2026-04-25T15:10:17.048Z] PrismaClientValidationError: 
+Invalid `prisma.exam.update()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:214:22
+
+  211 if (Object.keys(payload).length === 0) {
+  212   throw new HttpError(400, "Nothing to update");
+  213 }
+→ 214 return prisma.exam.update({
+        where: {
+          id: 6
+        },
+        data: {
+          status: "LIVE",
+          publishedAt: new Date("2026-04-25T15:10:17.041Z"),
+          ~~~~~~~~~~~
+      ?   title?: String | StringFieldUpdateOperationsInput,
+      ?   duration?: Int | IntFieldUpdateOperationsInput,
+      ?   createdAt?: DateTime | DateTimeFieldUpdateOperationsInput,
+      ?   creator?: UserUpdateOneRequiredWithoutExamsCreatedNestedInput,
+      ?   questions?: QuestionUpdateManyWithoutExamNestedInput,
+      ?   attempts?: AttemptUpdateManyWithoutExamNestedInput,
+      ?   results?: ResultUpdateManyWithoutExamNestedInput,
+      ?   assignments?: ExamAssignmentUpdateManyWithoutExamNestedInput,
+      ?   materials?: MaterialUpdateManyWithoutExamNestedInput,
+      ?   violations?: ExamViolationUpdateManyWithoutExamNestedInput,
+      ?   heartbeats?: ExamHeartbeatUpdateManyWithoutExamNestedInput
+        },
+        include: {
+          questions: {
+            orderBy: {
+              id: "asc"
+            }
+          }
+        }
+      })
+
+Unknown argument `publishedAt`. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async updateMeta (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:106:16)
+[2026-04-25T15:11:46.795Z] PrismaClientValidationError: 
+Invalid `prisma.exam.update()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:214:22
+
+  211 if (Object.keys(payload).length === 0) {
+  212   throw new HttpError(400, "Nothing to update");
+  213 }
+→ 214 return prisma.exam.update({
+        where: {
+          id: 6
+        },
+        data: {
+          status: "LIVE",
+          publishedAt: new Date("2026-04-25T15:11:46.779Z"),
+          ~~~~~~~~~~~
+      ?   title?: String | StringFieldUpdateOperationsInput,
+      ?   duration?: Int | IntFieldUpdateOperationsInput,
+      ?   createdAt?: DateTime | DateTimeFieldUpdateOperationsInput,
+      ?   creator?: UserUpdateOneRequiredWithoutExamsCreatedNestedInput,
+      ?   questions?: QuestionUpdateManyWithoutExamNestedInput,
+      ?   attempts?: AttemptUpdateManyWithoutExamNestedInput,
+      ?   results?: ResultUpdateManyWithoutExamNestedInput,
+      ?   assignments?: ExamAssignmentUpdateManyWithoutExamNestedInput,
+      ?   materials?: MaterialUpdateManyWithoutExamNestedInput,
+      ?   violations?: ExamViolationUpdateManyWithoutExamNestedInput,
+      ?   heartbeats?: ExamHeartbeatUpdateManyWithoutExamNestedInput
+        },
+        include: {
+          questions: {
+            orderBy: {
+              id: "asc"
+            }
+          }
+        }
+      })
+
+Unknown argument `publishedAt`. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async updateMeta (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:106:16)
+[2026-04-25T15:12:43.867Z] PrismaClientValidationError: 
+Invalid `prisma.exam.update()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:214:22
+
+  211 if (Object.keys(payload).length === 0) {
+  212   throw new HttpError(400, "Nothing to update");
+  213 }
+→ 214 return prisma.exam.update({
+        where: {
+          id: 6
+        },
+        data: {
+          status: "LIVE",
+          publishedAt: new Date("2026-04-25T15:12:43.851Z"),
+          ~~~~~~~~~~~
+      ?   title?: String | StringFieldUpdateOperationsInput,
+      ?   duration?: Int | IntFieldUpdateOperationsInput,
+      ?   createdAt?: DateTime | DateTimeFieldUpdateOperationsInput,
+      ?   creator?: UserUpdateOneRequiredWithoutExamsCreatedNestedInput,
+      ?   questions?: QuestionUpdateManyWithoutExamNestedInput,
+      ?   attempts?: AttemptUpdateManyWithoutExamNestedInput,
+      ?   results?: ResultUpdateManyWithoutExamNestedInput,
+      ?   assignments?: ExamAssignmentUpdateManyWithoutExamNestedInput,
+      ?   materials?: MaterialUpdateManyWithoutExamNestedInput,
+      ?   violations?: ExamViolationUpdateManyWithoutExamNestedInput,
+      ?   heartbeats?: ExamHeartbeatUpdateManyWithoutExamNestedInput
+        },
+        include: {
+          questions: {
+            orderBy: {
+              id: "asc"
+            }
+          }
+        }
+      })
+
+Unknown argument `publishedAt`. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async updateMeta (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:106:16)
+[2026-04-25T15:15:25.351Z] PrismaClientValidationError: 
+Invalid `prisma.exam.update()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:214:22
+
+  211 if (Object.keys(payload).length === 0) {
+  212   throw new HttpError(400, "Nothing to update");
+  213 }
+→ 214 return prisma.exam.update({
+        where: {
+          id: 6
+        },
+        data: {
+          status: "LIVE",
+          publishedAt: new Date("2026-04-25T15:15:25.344Z"),
+          ~~~~~~~~~~~
+      ?   title?: String | StringFieldUpdateOperationsInput,
+      ?   duration?: Int | IntFieldUpdateOperationsInput,
+      ?   createdAt?: DateTime | DateTimeFieldUpdateOperationsInput,
+      ?   creator?: UserUpdateOneRequiredWithoutExamsCreatedNestedInput,
+      ?   questions?: QuestionUpdateManyWithoutExamNestedInput,
+      ?   attempts?: AttemptUpdateManyWithoutExamNestedInput,
+      ?   results?: ResultUpdateManyWithoutExamNestedInput,
+      ?   assignments?: ExamAssignmentUpdateManyWithoutExamNestedInput,
+      ?   materials?: MaterialUpdateManyWithoutExamNestedInput,
+      ?   violations?: ExamViolationUpdateManyWithoutExamNestedInput,
+      ?   heartbeats?: ExamHeartbeatUpdateManyWithoutExamNestedInput
+        },
+        include: {
+          questions: {
+            orderBy: {
+              id: "asc"
+            }
+          }
+        }
+      })
+
+Unknown argument `publishedAt`. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async updateMeta (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:106:16)
+[2026-04-25T15:15:49.201Z] PrismaClientValidationError: 
+Invalid `prisma.exam.update()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:214:22
+
+  211 if (Object.keys(payload).length === 0) {
+  212   throw new HttpError(400, "Nothing to update");
+  213 }
+→ 214 return prisma.exam.update({
+        where: {
+          id: 2
+        },
+        data: {
+          status: "LIVE",
+          publishedAt: new Date("2026-04-25T15:15:49.193Z"),
+          ~~~~~~~~~~~
+      ?   title?: String | StringFieldUpdateOperationsInput,
+      ?   duration?: Int | IntFieldUpdateOperationsInput,
+      ?   createdAt?: DateTime | DateTimeFieldUpdateOperationsInput,
+      ?   creator?: UserUpdateOneRequiredWithoutExamsCreatedNestedInput,
+      ?   questions?: QuestionUpdateManyWithoutExamNestedInput,
+      ?   attempts?: AttemptUpdateManyWithoutExamNestedInput,
+      ?   results?: ResultUpdateManyWithoutExamNestedInput,
+      ?   assignments?: ExamAssignmentUpdateManyWithoutExamNestedInput,
+      ?   materials?: MaterialUpdateManyWithoutExamNestedInput,
+      ?   violations?: ExamViolationUpdateManyWithoutExamNestedInput,
+      ?   heartbeats?: ExamHeartbeatUpdateManyWithoutExamNestedInput
+        },
+        include: {
+          questions: {
+            orderBy: {
+              id: "asc"
+            }
+          }
+        }
+      })
+
+Unknown argument `publishedAt`. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async updateMeta (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:106:16)
+[2026-04-25T15:16:55.376Z] PrismaClientValidationError: 
+Invalid `prisma.exam.update()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:214:22
+
+  211 if (Object.keys(payload).length === 0) {
+  212   throw new HttpError(400, "Nothing to update");
+  213 }
+→ 214 return prisma.exam.update({
+        where: {
+          id: 2
+        },
+        data: {
+          status: "LIVE",
+          publishedAt: new Date("2026-04-25T15:16:55.366Z"),
+          ~~~~~~~~~~~
+      ?   title?: String | StringFieldUpdateOperationsInput,
+      ?   duration?: Int | IntFieldUpdateOperationsInput,
+      ?   createdAt?: DateTime | DateTimeFieldUpdateOperationsInput,
+      ?   creator?: UserUpdateOneRequiredWithoutExamsCreatedNestedInput,
+      ?   questions?: QuestionUpdateManyWithoutExamNestedInput,
+      ?   attempts?: AttemptUpdateManyWithoutExamNestedInput,
+      ?   results?: ResultUpdateManyWithoutExamNestedInput,
+      ?   assignments?: ExamAssignmentUpdateManyWithoutExamNestedInput,
+      ?   materials?: MaterialUpdateManyWithoutExamNestedInput,
+      ?   violations?: ExamViolationUpdateManyWithoutExamNestedInput,
+      ?   heartbeats?: ExamHeartbeatUpdateManyWithoutExamNestedInput
+        },
+        include: {
+          questions: {
+            orderBy: {
+              id: "asc"
+            }
+          }
+        }
+      })
+
+Unknown argument `publishedAt`. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async updateMeta (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:106:16)
+[2026-04-25T15:17:11.669Z] PrismaClientValidationError: 
+Invalid `prisma.exam.update()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:214:22
+
+  211 if (Object.keys(payload).length === 0) {
+  212   throw new HttpError(400, "Nothing to update");
+  213 }
+→ 214 return prisma.exam.update({
+        where: {
+          id: 6
+        },
+        data: {
+          status: "LIVE",
+          publishedAt: new Date("2026-04-25T15:17:11.658Z"),
+          ~~~~~~~~~~~
+      ?   title?: String | StringFieldUpdateOperationsInput,
+      ?   duration?: Int | IntFieldUpdateOperationsInput,
+      ?   createdAt?: DateTime | DateTimeFieldUpdateOperationsInput,
+      ?   creator?: UserUpdateOneRequiredWithoutExamsCreatedNestedInput,
+      ?   questions?: QuestionUpdateManyWithoutExamNestedInput,
+      ?   attempts?: AttemptUpdateManyWithoutExamNestedInput,
+      ?   results?: ResultUpdateManyWithoutExamNestedInput,
+      ?   assignments?: ExamAssignmentUpdateManyWithoutExamNestedInput,
+      ?   materials?: MaterialUpdateManyWithoutExamNestedInput,
+      ?   violations?: ExamViolationUpdateManyWithoutExamNestedInput,
+      ?   heartbeats?: ExamHeartbeatUpdateManyWithoutExamNestedInput
+        },
+        include: {
+          questions: {
+            orderBy: {
+              id: "asc"
+            }
+          }
+        }
+      })
+
+Unknown argument `publishedAt`. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async updateMeta (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:106:16)
+[2026-04-25T15:18:38.132Z] PrismaClientValidationError: 
+Invalid `prisma.exam.update()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:214:22
+
+  211 if (Object.keys(payload).length === 0) {
+  212   throw new HttpError(400, "Nothing to update");
+  213 }
+→ 214 return prisma.exam.update({
+        where: {
+          id: 6
+        },
+        data: {
+          status: "LIVE",
+          publishedAt: new Date("2026-04-25T15:18:38.124Z"),
+          ~~~~~~~~~~~
+      ?   title?: String | StringFieldUpdateOperationsInput,
+      ?   duration?: Int | IntFieldUpdateOperationsInput,
+      ?   createdAt?: DateTime | DateTimeFieldUpdateOperationsInput,
+      ?   creator?: UserUpdateOneRequiredWithoutExamsCreatedNestedInput,
+      ?   questions?: QuestionUpdateManyWithoutExamNestedInput,
+      ?   attempts?: AttemptUpdateManyWithoutExamNestedInput,
+      ?   results?: ResultUpdateManyWithoutExamNestedInput,
+      ?   assignments?: ExamAssignmentUpdateManyWithoutExamNestedInput,
+      ?   materials?: MaterialUpdateManyWithoutExamNestedInput,
+      ?   violations?: ExamViolationUpdateManyWithoutExamNestedInput,
+      ?   heartbeats?: ExamHeartbeatUpdateManyWithoutExamNestedInput
+        },
+        include: {
+          questions: {
+            orderBy: {
+              id: "asc"
+            }
+          }
+        }
+      })
+
+Unknown argument `publishedAt`. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async updateMeta (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:106:16)
+[2026-04-25T15:19:14.665Z] PrismaClientValidationError: 
+Invalid `prisma.exam.update()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:214:22
+
+  211 if (Object.keys(payload).length === 0) {
+  212   throw new HttpError(400, "Nothing to update");
+  213 }
+→ 214 return prisma.exam.update({
+        where: {
+          id: 6
+        },
+        data: {
+          status: "LIVE",
+          publishedAt: new Date("2026-04-25T15:19:14.647Z"),
+          ~~~~~~~~~~~
+      ?   title?: String | StringFieldUpdateOperationsInput,
+      ?   duration?: Int | IntFieldUpdateOperationsInput,
+      ?   createdAt?: DateTime | DateTimeFieldUpdateOperationsInput,
+      ?   creator?: UserUpdateOneRequiredWithoutExamsCreatedNestedInput,
+      ?   questions?: QuestionUpdateManyWithoutExamNestedInput,
+      ?   attempts?: AttemptUpdateManyWithoutExamNestedInput,
+      ?   results?: ResultUpdateManyWithoutExamNestedInput,
+      ?   assignments?: ExamAssignmentUpdateManyWithoutExamNestedInput,
+      ?   materials?: MaterialUpdateManyWithoutExamNestedInput,
+      ?   violations?: ExamViolationUpdateManyWithoutExamNestedInput,
+      ?   heartbeats?: ExamHeartbeatUpdateManyWithoutExamNestedInput
+        },
+        include: {
+          questions: {
+            orderBy: {
+              id: "asc"
+            }
+          }
+        }
+      })
+
+Unknown argument `publishedAt`. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async updateMeta (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:106:16)
+[2026-04-25T15:21:39.210Z] PrismaClientValidationError: 
+Invalid `prisma.exam.update()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:214:22
+
+  211 if (Object.keys(payload).length === 0) {
+  212   throw new HttpError(400, "Nothing to update");
+  213 }
+→ 214 return prisma.exam.update({
+        where: {
+          id: 7
+        },
+        data: {
+          status: "LIVE",
+          publishedAt: new Date("2026-04-25T15:21:39.041Z"),
+          ~~~~~~~~~~~
+      ?   title?: String | StringFieldUpdateOperationsInput,
+      ?   duration?: Int | IntFieldUpdateOperationsInput,
+      ?   createdAt?: DateTime | DateTimeFieldUpdateOperationsInput,
+      ?   creator?: UserUpdateOneRequiredWithoutExamsCreatedNestedInput,
+      ?   questions?: QuestionUpdateManyWithoutExamNestedInput,
+      ?   attempts?: AttemptUpdateManyWithoutExamNestedInput,
+      ?   results?: ResultUpdateManyWithoutExamNestedInput,
+      ?   assignments?: ExamAssignmentUpdateManyWithoutExamNestedInput,
+      ?   materials?: MaterialUpdateManyWithoutExamNestedInput,
+      ?   violations?: ExamViolationUpdateManyWithoutExamNestedInput,
+      ?   heartbeats?: ExamHeartbeatUpdateManyWithoutExamNestedInput
+        },
+        include: {
+          questions: {
+            orderBy: {
+              id: "asc"
+            }
+          }
+        }
+      })
+
+Unknown argument `publishedAt`. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async updateMeta (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:108:18)
+[2026-04-25T15:24:24.063Z] PrismaClientKnownRequestError: 
+Invalid `prisma.attempt.create()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:352:40
+
+  349   };
+  350 }
+  351 
+→ 352 const attempt = await prisma.attempt.create(
+Unique constraint failed on the fields: (`"studentId"`, `"examId"`)
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:8286)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async Object.startAttempt (C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:352:19)
+    at async startAttempt (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:75:18)

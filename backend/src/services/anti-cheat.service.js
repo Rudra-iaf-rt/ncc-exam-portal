@@ -12,18 +12,36 @@ function parsePositiveInt(value, label) {
 async function reportViolation(studentId, body = {}) {
   const examId = parsePositiveInt(body.examId, "examId");
   const type = String(body.type || "").trim();
+  const MAX_WARNINGS = 3;
+
   if (!type) {
     throw new HttpError(400, "type is required");
   }
-  const item = await prisma.examViolation.create({
-    data: {
-      studentId,
-      examId,
-      type,
-      message: body.message ? String(body.message) : null,
-    },
+
+  const [item] = await prisma.$transaction([
+    prisma.examViolation.create({
+      data: {
+        studentId,
+        examId,
+        type,
+        message: body.message ? String(body.message) : null,
+      },
+    }),
+    prisma.attempt.updateMany({
+      where: { studentId, examId, status: "IN_PROGRESS" },
+      data: { warningCount: { increment: 1 } },
+    }),
+  ]);
+
+  const attempt = await prisma.attempt.findUnique({
+    where: { studentId_examId: { studentId, examId } },
+    select: { warningCount: true },
   });
-  return item;
+
+  const warningCount = attempt?.warningCount || 0;
+  const terminate = warningCount >= MAX_WARNINGS;
+
+  return { ...item, warningCount, terminate };
 }
 
 async function heartbeat(studentId, body = {}) {

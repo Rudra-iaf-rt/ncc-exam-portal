@@ -4,6 +4,12 @@ This document lists all active API endpoints available in the backend.
 
 **Base URL**: `http://localhost:3000/api`
 
+> [!IMPORTANT]
+> **Default Seed Credentials (Development)**
+> - **Student**: `STU001` / `student123`
+> - **Admin**: `admin@example.com` / `admin123`
+> - **Instructor**: `instructor@example.com` / `admin123`
+
 ---
 
 ## 1. Authentication
@@ -31,7 +37,6 @@ curl -X POST http://localhost:3000/api/auth/register \
     "id": 1,
     "name": "Jane Doe",
     "regimentalNumber": "NCC/2024/123",
-    "email": null,
     "role": "STUDENT",
     "college": "Example College"
   }
@@ -43,219 +48,120 @@ curl -X POST http://localhost:3000/api/auth/register \
 ### POST /auth/login
 Login for students using regimental number.
 
-**Request:**
-```bash
-curl -X POST http://localhost:3000/api/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "regimentalNumber": "NCC/2024/123",
-    "password": "password123"
-  }'
-```
-
-**Response (200):**
-```json
-{
-  "token": "eyJhbG...",
-  "user": { ... }
-}
-```
-
 ---
 
 ### POST /auth/login/staff
 Login for Admins and Instructors using email.
-
-**Request:**
-```bash
-curl -X POST http://localhost:3000/api/auth/login/staff \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "admin@ncc.in",
-    "password": "adminpassword"
-  }'
-```
-
-**Response (200):**
-```json
-{
-  "token": "eyJhbG...",
-  "user": { ... }
-}
-```
 
 ---
 
 ### GET /auth/me
 Get current authenticated user profile.
 
-**Request:**
-```bash
-curl -X GET http://localhost:3000/api/auth/me \
-  -H "Authorization: Bearer <token>"
-```
-
-**Response (200):**
-```json
-{
-  "user": { ... }
-}
-```
-
 ---
 
-## 2. Exams
+## 2. Exams (Catalog & Management)
 
 ### GET /exams
-List all exams with question counts. Correct answers are stripped.
-
-**Request:**
-```bash
-curl -X GET http://localhost:3000/api/exams \
-  -H "Authorization: Bearer <token>"
-```
-
-**Response (200):**
-```json
-{
-  "exams": [
-    {
-      "id": 1,
-      "title": "B Certificate Exam",
-      "duration": 60,
-      "questionCount": 50
-    }
-  ]
-}
-```
+List available exams. 
+- **Students**: Only see exams assigned to them that are LIVE.
+- **Staff**: See all exams in the catalog.
 
 ---
 
 ### POST /exams/create
 Create a new exam (Admin/Instructor only).
 
+---
+
+### PATCH /exams/:id/publish
+Change exam status to LIVE (Admin/Instructor only).
+
+---
+
+## 3. Exam Attempts (Student)
+
+### POST /attempt/start
+Start or resume an exam attempt. Returns the exam details and existing answers.
+
 **Request:**
-```bash
-curl -X POST http://localhost:3000/api/exams/create \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "title": "C Certificate Exam 2024",
-    "duration": 120,
-    "questions": [
-      {
-        "question": "What is the motto of NCC?",
-        "options": ["Unity and Discipline", "Service Before Self", "Duty and Honor", "Valour"],
-        "answer": "Unity and Discipline"
-      }
-    ]
-  }'
+```json
+{ "examId": 1 }
 ```
 
-**Response (201):**
+**Response (200/201):**
 ```json
 {
-  "exam": {
-    "id": 2,
-    "title": "C Certificate Exam 2024",
-    "duration": 120,
-    "createdBy": 1,
-    "questions": [ ... ]
-  }
+  "attemptId": 123,
+  "exam": { "id": 1, "title": "...", "questions": [...] },
+  "answers": { "101": "Option A" },
+  "currentQuestionIndex": 5,
+  "remainingSeconds": 3600
 }
 ```
 
 ---
 
-### GET /exams/:id
-Get single exam with questions (Student only).
+### POST /attempt/answer
+Autosave a single answer and/or sync navigation progress.
 
 **Request:**
-```bash
-curl -X GET http://localhost:3000/api/exams/1 \
-  -H "Authorization: Bearer <token>"
+```json
+{
+  "examId": 1,
+  "questionId": 101, 
+  "selectedAnswer": "Option B",
+  "nextQuestionIndex": 6
+}
 ```
-
----
-
-### POST /attempt/start
-Start an exam attempt (Student only).
-
-**Request:**
-```bash
-curl -X POST http://localhost:3000/api/attempt/start \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{ "examId": 1 }'
-```
+*Note: `questionId` and `selectedAnswer` are optional if only updating the index.*
 
 ---
 
 ### POST /attempt/submit
-Submit an exam attempt (Student only).
-
-**Request:**
-```bash
-curl -X POST http://localhost:3000/api/attempt/submit \
-  -H "Authorization: Bearer <token>" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "examId": 1,
-    "answers": [
-      { "questionId": 1, "selectedAnswer": "Unity and Discipline" }
-    ]
-  }'
-```
+Submit final exam answers and compute score.
 
 ---
 
-## 3. Results
-
-### GET /results/admin
-Fetch all results across all colleges (Admin only).
+### POST /exam/violation
+Log a proctoring security breach.
 
 **Request:**
-```bash
-curl -X GET http://localhost:3000/api/results/admin \
-  -H "Authorization: Bearer <admin_token>"
+```json
+{
+  "examId": 1,
+  "type": "TAB_SWITCH"
+}
 ```
 
 **Response (200):**
 ```json
 {
-  "results": [
-    {
-      "id": 1,
-      "score": 85,
-      "examId": 1,
-      "examTitle": "B Certificate",
-      "studentId": 4,
-      "studentName": "Rahul Kumar",
-      "regimentalNumber": "NCC/24/004",
-      "college": "A-College"
-    }
-  ]
+  "warningCount": 1,
+  "terminate": false
 }
 ```
 
 ---
 
-### GET /results/instructor
-Fetch results for students in the instructor's college.
+## 4. Results
 
-**Request:**
-```bash
-curl -X GET http://localhost:3000/api/results/instructor \
-  -H "Authorization: Bearer <instructor_token>"
-```
+### GET /results
+Fetch examination history.
+- **Students**: Returns their own scores.
+- **Staff**: Returns all results (filtered by college for instructors).
 
 ---
 
-### GET /results/student
-Fetch own results.
+### GET /results/admin
+Fetch all results across all colleges (Admin only).
 
-**Request:**
-```bash
-curl -X GET http://localhost:3000/api/results/student \
-  -H "Authorization: Bearer <student_token>"
-```
+---
+
+## Error Codes
+- `400`: Bad Request (Validation failed)
+- `401`: Unauthorized (Invalid or expired token)
+- `403`: Forbidden (Insufficient permissions)
+- `404`: Not Found
+- `409`: Conflict (Already submitted)
+- `500`: Internal Server Error

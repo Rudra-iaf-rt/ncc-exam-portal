@@ -1,62 +1,125 @@
 const usersService = require("../services/users.service");
 const auditLogService = require("../services/audit-log.service");
+const { logger } = require("../utils/logger");
 
-async function createInstructor(req, res) {
-  const user = await usersService.createInstructor(req.body ?? {});
-  await auditLogService.recordAudit(req, {
-    action: "USER_CREATE_INSTRUCTOR",
-    entityType: "User",
-    entityId: user.id,
-    statusCode: 201,
-  });
-  res.status(201).json({ user });
-}
-
-async function listInstructors(_req, res) {
-  const users = await usersService.listUsers({ role: "INSTRUCTOR" });
-  res.json({ users });
+async function createUser(req, res) {
+  try {
+    const user = await usersService.createUser(req.body);
+    await auditLogService.recordAudit(req, {
+      action: "USER_CREATE",
+      entityType: "User",
+      entityId: user.id,
+      statusCode: 201,
+    });
+    logger.audit('USER_MANUAL_CREATE', { userId: user.id, regNo: user.regimentalNumber }, req.user.id);
+    res.status(201).json(user);
+  } catch (error) {
+    const status = error.status || 500;
+    res.status(status).json({ error: error.message || "Failed to create user" });
+  }
 }
 
 async function listAll(req, res) {
-  const users = await usersService.listUsers(req.query ?? {});
-  res.json({ users });
+  try {
+    const users = await usersService.listUsers(req.query ?? {});
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch user registry" });
+  }
+}
+
+async function searchUsers(req, res) {
+  try {
+    const users = await usersService.searchUsers(req.query);
+    res.json(users);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to search cadets" });
+  }
+}
+
+async function getFilters(req, res) {
+  try {
+    const filters = await usersService.getFilters();
+    res.json(filters);
+  } catch (error) {
+    res.status(500).json({ error: "Failed to fetch filter data" });
+  }
 }
 
 async function getById(req, res) {
-  const user = await usersService.getUserById(req.params.id);
-  res.json({ user });
+  try {
+    const user = await usersService.getUserById(req.params.id);
+    res.json(user);
+  } catch (error) {
+    const status = error.status || 500;
+    res.status(status).json({ error: error.message || "User not found" });
+  }
+}
+
+async function updateUser(req, res) {
+  try {
+    const user = await usersService.updateUser(req.params.id, req.body);
+    await auditLogService.recordAudit(req, {
+      action: "USER_UPDATE",
+      entityType: "User",
+      entityId: user.id,
+      statusCode: 200,
+    });
+    logger.audit('USER_UPDATE', { targetUserId: user.id }, req.user.id);
+    res.json(user);
+  } catch (error) {
+    const status = error.status || 500;
+    res.status(status).json({ error: error.message || "Failed to update user" });
+  }
 }
 
 async function removeById(req, res) {
-  const payload = await usersService.deleteUserById(req.params.id);
-  await auditLogService.recordAudit(req, {
-    action: "USER_DELETE",
-    entityType: "User",
-    entityId: payload.id,
-    statusCode: 200,
-  });
-  res.json(payload);
+  try {
+    const id = Number(req.params.id);
+    if (id === req.user.id) {
+      return res.status(400).json({ error: "You cannot delete your own administrative account" });
+    }
+    const payload = await usersService.deleteUserById(req.params.id);
+    await auditLogService.recordAudit(req, {
+      action: "USER_DELETE",
+      entityType: "User",
+      entityId: payload.id,
+      statusCode: 200,
+    });
+    logger.audit('USER_DELETE', { targetUserId: id }, req.user.id);
+    res.json(payload);
+  } catch (error) {
+    const status = error.status || 500;
+    res.status(status).json({ error: error.message || "Failed to delete user" });
+  }
 }
 
 async function resetPassword(req, res) {
-  const payload = await usersService.adminResetUserPassword(
-    req.params.id,
-    req.body?.newPassword
-  );
-  await auditLogService.recordAudit(req, {
-    action: "USER_ADMIN_RESET_PASSWORD",
-    entityType: "User",
-    entityId: req.params.id,
-    statusCode: 200,
-  });
-  res.json(payload);
+  try {
+    const payload = await usersService.adminResetUserPassword(
+      req.params.id,
+      req.body?.newPassword
+    );
+    await auditLogService.recordAudit(req, {
+      action: "USER_ADMIN_RESET_PASSWORD",
+      entityType: "User",
+      entityId: req.params.id,
+      statusCode: 200,
+    });
+    res.json(payload);
+  } catch (error) {
+    const status = error.status || 500;
+    res.status(status).json({ error: error.message || "Failed to reset password" });
+  }
 }
 
 module.exports = {
-  createInstructor,
-  listInstructors,
+  createUser,
   listAll,
+  searchUsers,
+  getFilters,
   getById,
+  updateUser,
   removeById,
   resetPassword,
 };

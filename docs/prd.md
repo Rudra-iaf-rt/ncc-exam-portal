@@ -341,14 +341,12 @@ NOT_STARTED → IN_PROGRESS → SUBMITTED / TIMED_OUT
 * Server load spikes
 
 ---
-
 ## 12. Future Enhancements
 
 * AI-based proctoring
 * Mobile-first app
 * Advanced analytics dashboard
 * Offline sync capability
-
 ---
 
 ## Final Principle

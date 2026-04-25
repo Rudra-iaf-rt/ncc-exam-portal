@@ -44,7 +44,11 @@ app-example
 /android
 .vscode
 .ai-session
+<<<<<<< HEAD
 .env
 =======
 node_modules/
 >>>>>>> b25fd685eef0acff4cdef89c966c99f7dfb4c7e5
+=======
+.env
+>>>>>>> staging

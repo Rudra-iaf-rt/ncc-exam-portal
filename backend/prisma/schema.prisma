@@ -16,11 +16,15 @@ model User {
   regimentalNumber   String?   @unique
   email              String?   @unique
   mobile             String?
-  batch              String?
+  batch              String?   // e.g., 2024-25
   yearOfStudy        String?
   password           String
-  role               String // STUDENT | ADMIN | INSTRUCTOR
+  role               String    // STUDENT | ADMIN | INSTRUCTOR
   college            String
+  wing               String?   // ARMY | NAVY | AIR
+  isActive           Boolean   @default(true)
+  refreshToken       String?   // Legacy refresh token field from staging
+  
   examsCreated       Exam[]    @relation("ExamCreator")
   attempts           Attempt[]
   results            Result[]
@@ -31,21 +35,11 @@ model User {
   examViolations     ExamViolation[]
   examHeartbeats     ExamHeartbeat[]
   auditLogs          AuditLog[]
-  refreshTokens      RefreshToken[]
+  refreshTokens      RefreshToken[]  // Detailed refresh tokens from HEAD
+  assignments        ExamAssignment[]
 }
 
-model AllowedStudent {
-  id               Int      @id @default(autoincrement())
-  regimentalNumber String   @unique
-  name             String?
-  college          String?
-  batch            String?
-  isRegistered     Boolean  @default(false)
-  createdAt        DateTime @default(now())
 
-  @@index([isRegistered])
-  @@index([createdAt])
-}
 
 model PasswordResetToken {
   id        Int      @id @default(autoincrement())
@@ -64,29 +58,47 @@ model PasswordResetToken {
 model Material {
   id           Int      @id @default(autoincrement())
   title        String?
+  category     String?  // From staging
   originalName String
   storedName   String   @unique
   mimeType     String
   sizeBytes    Int
+  fileUrl      String?  // From staging
+  examId       Int?     // From staging
   uploadedById Int
+  
   uploadedBy   User     @relation(fields: [uploadedById], references: [id])
+  exam         Exam?    @relation(fields: [examId], references: [id], onDelete: SetNull)
   createdAt    DateTime @default(now())
 }
 
 model Exam {
-  id        Int        @id @default(autoincrement())
-  title     String
-  duration  Int // minutes
-  published Boolean    @default(false)
+  id          Int              @id @default(autoincrement())
+  title       String
+  duration    Int // minutes
+  status      String           @default("DRAFT") // DRAFT | LIVE | ARCHIVED
   publishedAt DateTime?
-  createdBy Int
-  createdAt DateTime   @default(now())
-  creator   User       @relation("ExamCreator", fields: [createdBy], references: [id])
-  questions Question[]
-  attempts  Attempt[]
-  results   Result[]
-  violations ExamViolation[]
-  heartbeats ExamHeartbeat[]
+  createdBy   Int
+  createdAt   DateTime         @default(now())
+  creator     User             @relation("ExamCreator", fields: [createdBy], references: [id])
+  questions   Question[]
+  attempts    Attempt[]
+  results     Result[]
+  assignments ExamAssignment[]
+  materials   Material[]
+  violations  ExamViolation[]
+  heartbeats  ExamHeartbeat[]
+}
+
+model ExamAssignment {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  examId    Int
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  exam      Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, examId])
 }
 
 model Question {
@@ -99,16 +111,19 @@ model Question {
 }
 
 model Attempt {
-  id        Int       @id @default(autoincrement())
-  studentId Int
-  examId    Int
-  status    String // IN_PROGRESS | SUBMITTED
-  answersJson Json?
+  id           Int       @id @default(autoincrement())
+  studentId    Int
+  examId       Int
+  status       String    // IN_PROGRESS | SUBMITTED | TIMED_OUT
+  answers      Json?     @default("[]")
   currentQuestionIndex Int @default(0)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @default(now()) @updatedAt
-  student   User     @relation(fields: [studentId], references: [id])
-  exam      Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  warningCount Int       @default(0)     // Server-side proctoring violation counter
+  startedAt    DateTime  @default(now())
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @default(now()) @updatedAt
+  
+  student      User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  exam         Exam      @relation(fields: [examId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, examId])
 }
@@ -119,7 +134,7 @@ model Result {
   examId    Int
   score     Int // percentage 0–100
   createdAt DateTime @default(now())
-  student   User     @relation(fields: [studentId], references: [id])
+  student   User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
   exam      Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, examId])

@@ -11,6 +11,8 @@ function mapResultRow(r) {
     studentName: r.student?.name ?? null,
     regimentalNumber: r.student?.regimentalNumber ?? null,
     college: r.student?.college ?? null,
+    createdAt: r.createdAt,
+    exam: r.exam ?? null,
   };
 }
 
