@@ -1,6 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -9,85 +6,111 @@ datasource db {
   provider = "postgresql"
 }
 
-// STUDENT: regimentalNumber required; ADMIN/INSTRUCTOR: email required (login paths differ)
 model User {
-  id                 Int       @id @default(autoincrement())
-  name               String
-  regimentalNumber   String?   @unique
-  email              String?   @unique
-  mobile             String?
-  batch              String?   // e.g., 2024-25
-  yearOfStudy        String?
-  password           String
-  role               String    // STUDENT | ADMIN | INSTRUCTOR
-  college            String
-  wing               String?   // ARMY | NAVY | AIR
-  isActive           Boolean   @default(true)
-  refreshToken       String?   // Legacy refresh token field from staging
-  
-  examsCreated       Exam[]    @relation("ExamCreator")
-  attempts           Attempt[]
-  results            Result[]
-  materialsUploaded  Material[]
-  passwordResetTokens PasswordResetToken[]
-  sentNotifications  Notification[] @relation("NotificationSender")
-  receivedNotifications Notification[] @relation("NotificationRecipient")
-  examViolations     ExamViolation[]
-  examHeartbeats     ExamHeartbeat[]
-  auditLogs          AuditLog[]
-  refreshTokens      RefreshToken[]  // Detailed refresh tokens from HEAD
-  assignments        ExamAssignment[]
+  id                    Int                  @id @default(autoincrement())
+  name                  String
+  regimentalNumber      String?              @unique
+  email                 String?              @unique
+  password              String
+  role                  String
+  refreshToken          String?
+  batch                 String?
+  isActive              Boolean              @default(true)
+  wing                  String?
+  mobile                String?
+  yearOfStudy           String?
+  collegeCode           String?
+  attempts              Attempt[]
+  auditLogs             AuditLog[]
+  examsCreated          Exam[]               @relation("ExamCreator")
+  assignments           ExamAssignment[]
+  examHeartbeats        ExamHeartbeat[]
+  examViolations        ExamViolation[]
+  materialsUploaded     Material[]
+  sentNotifications     Notification[]       @relation("NotificationSender")
+  receivedNotifications Notification[]       @relation("NotificationRecipient")
+  passwordResetTokens   PasswordResetToken[]
+  refreshTokens         RefreshToken[]
+  results               Result[]
+  college               College?             @relation(fields: [collegeCode], references: [code])
 }
 
+model College {
+  id              Int        @id @default(autoincrement())
+  name            String     @unique
+  code            String     @unique
+  address         String?
+  city            String?
+  state           String?
+  pincode         String?
+  nccContactName  String?
+  nccContactEmail String?
+  nccContactPhone String?
+  isActive        Boolean    @default(true)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  materials       Material[]
+  users           User[]
 
+  @@index([isActive])
+  @@index([code])
+}
 
 model PasswordResetToken {
-  id        Int      @id @default(autoincrement())
+  id        Int       @id @default(autoincrement())
   userId    Int
-  tokenHash String   @unique
+  tokenHash String    @unique
   expiresAt DateTime
   usedAt    DateTime?
-  createdAt DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([expiresAt])
 }
 
 model Material {
-  id           Int      @id @default(autoincrement())
+  id           Int          @id @default(autoincrement())
   title        String?
-  category     String?  // From staging
-  originalName String
-  storedName   String   @unique
-  mimeType     String
-  sizeBytes    Int
-  fileUrl      String?  // From staging
-  examId       Int?     // From staging
+  category     String?
+  fileUrl      String?
+  examId       Int?
+  createdAt    DateTime     @default(now())
+  mimeType     String?
+  originalName String?
+  sizeBytes    Int?
+  storedName   String?      @unique
   uploadedById Int
-  
-  uploadedBy   User     @relation(fields: [uploadedById], references: [id])
-  exam         Exam?    @relation(fields: [examId], references: [id], onDelete: SetNull)
-  createdAt    DateTime @default(now())
+  accessStatus AccessStatus @default(VERIFIED)
+  collegeId    Int?
+  description  String?
+  driveFileId  String?
+  fileType     FileType?
+  isActive     Boolean      @default(true)
+  subject      String?
+  updatedAt    DateTime     @updatedAt
+  wing         String?
+  college      College?     @relation(fields: [collegeId], references: [id])
+  exam         Exam?        @relation(fields: [examId], references: [id])
+  uploadedBy   User         @relation(fields: [uploadedById], references: [id])
 }
 
 model Exam {
   id          Int              @id @default(autoincrement())
   title       String
-  duration    Int // minutes
-  status      String           @default("DRAFT") // DRAFT | LIVE | ARCHIVED
-  publishedAt DateTime?
+  duration    Int
   createdBy   Int
   createdAt   DateTime         @default(now())
-  creator     User             @relation("ExamCreator", fields: [createdBy], references: [id])
-  questions   Question[]
+  status      String           @default("DRAFT")
+  publishedAt DateTime?
   attempts    Attempt[]
-  results     Result[]
+  creator     User             @relation("ExamCreator", fields: [createdBy], references: [id])
   assignments ExamAssignment[]
-  materials   Material[]
-  violations  ExamViolation[]
   heartbeats  ExamHeartbeat[]
+  violations  ExamViolation[]
+  materials   Material[]
+  questions   Question[]
+  results     Result[]
 }
 
 model ExamAssignment {
@@ -95,8 +118,8 @@ model ExamAssignment {
   userId    Int
   examId    Int
   createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   exam      Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, examId])
 }
@@ -111,19 +134,18 @@ model Question {
 }
 
 model Attempt {
-  id           Int       @id @default(autoincrement())
-  studentId    Int
-  examId       Int
-  status       String    // IN_PROGRESS | SUBMITTED | TIMED_OUT
-  answers      Json?     @default("[]")
-  currentQuestionIndex Int @default(0)
-  warningCount Int       @default(0)     // Server-side proctoring violation counter
-  startedAt    DateTime  @default(now())
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @default(now()) @updatedAt
-  
-  student      User      @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  exam         Exam      @relation(fields: [examId], references: [id], onDelete: Cascade)
+  id                   Int      @id @default(autoincrement())
+  studentId            Int
+  examId               Int
+  status               String
+  createdAt            DateTime @default(now())
+  answers              Json?    @default("[]")
+  startedAt            DateTime @default(now())
+  warningCount         Int      @default(0)
+  currentQuestionIndex Int      @default(0)
+  updatedAt            DateTime @default(now()) @updatedAt
+  exam                 Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  student              User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, examId])
 }
@@ -132,10 +154,10 @@ model Result {
   id        Int      @id @default(autoincrement())
   studentId Int
   examId    Int
-  score     Int // percentage 0–100
+  score     Int
   createdAt DateTime @default(now())
-  student   User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
   exam      Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  student   User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, examId])
 }
@@ -147,9 +169,8 @@ model ExamViolation {
   type      String
   message   String?
   createdAt DateTime @default(now())
-
-  student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  exam    Exam @relation(fields: [examId], references: [id], onDelete: Cascade)
+  exam      Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  student   User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@index([studentId, examId])
   @@index([examId, createdAt])
@@ -162,9 +183,8 @@ model ExamHeartbeat {
   activeQuestionIndex Int?
   lastSeenAt          DateTime @updatedAt
   createdAt           DateTime @default(now())
-
-  student User @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  exam    Exam @relation(fields: [examId], references: [id], onDelete: Cascade)
+  exam                Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+  student             User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, examId])
   @@index([examId, lastSeenAt])
@@ -176,9 +196,8 @@ model Notification {
   userId    Int?
   sentById  Int
   createdAt DateTime @default(now())
-
-  recipient User? @relation("NotificationRecipient", fields: [userId], references: [id], onDelete: SetNull)
-  sender    User  @relation("NotificationSender", fields: [sentById], references: [id], onDelete: Cascade)
+  sender    User     @relation("NotificationSender", fields: [sentById], references: [id], onDelete: Cascade)
+  recipient User?    @relation("NotificationRecipient", fields: [userId], references: [id])
 
   @@index([userId, createdAt])
   @@index([sentById, createdAt])
@@ -198,8 +217,7 @@ model AuditLog {
   requestId  String?
   metadata   Json?
   createdAt  DateTime @default(now())
-
-  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  user       User?    @relation(fields: [userId], references: [id])
 
   @@index([createdAt])
   @@index([action, createdAt])
@@ -207,15 +225,27 @@ model AuditLog {
 }
 
 model RefreshToken {
-  id         Int      @id @default(autoincrement())
-  userId     Int
-  tokenHash  String   @unique
-  expiresAt  DateTime
-  revokedAt  DateTime?
-  createdAt  DateTime @default(now())
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id        Int       @id @default(autoincrement())
+  userId    Int
+  tokenHash String    @unique
+  expiresAt DateTime
+  revokedAt DateTime?
+  createdAt DateTime  @default(now())
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId, expiresAt])
   @@index([expiresAt])
+}
+
+enum FileType {
+  PDF
+  VIDEO
+  DOCUMENT
+}
+
+enum AccessStatus {
+  VERIFIED
+  RESTRICTED
+  PENDING
+  ERROR
 }

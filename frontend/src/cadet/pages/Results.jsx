@@ -124,7 +124,7 @@ const CadetResults = () => {
                            <td className="px-6 py-5">
                               <div className="flex items-center gap-3 font-ui text-[15px] font-medium text-ink group-hover:text-navy">
                                  <FileText size={16} className="text-ink-4" />
-                                 {res.exam?.title || "Exam Data Unavailable"}
+                                 {res.exam.title}
                               </div>
                            </td>
                            <td className="px-6 py-5">

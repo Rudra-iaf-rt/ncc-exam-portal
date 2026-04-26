@@ -6,8 +6,6 @@ const { sanitizeUser } = require("./auth.service");
 
 const SALT_ROUNDS = 10;
 
-
-
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
 }
@@ -22,16 +20,31 @@ function safeUserSelect() {
     batch: true,
     yearOfStudy: true,
     role: true,
-    college: true,
+    collegeCode: true,
+    college: {
+      select: {
+        name: true,
+        code: true
+      }
+    },
     wing: true,
     isActive: true,
   };
 }
 
-async function createUser(body) {
-  const { name, regimentalNumber, college, password, role, email, wing, batch, isActive } = body;
+async function createUser(body, currentUser, tx = prisma) {
+  let { name, regimentalNumber, college: collegeCode, password, role, email, wing, batch, isActive } = body;
   
-  const existing = await prisma.user.findFirst({
+  if (currentUser?.role === ROLES.INSTRUCTOR) {
+    const instructorRecord = await prisma.user.findUnique({ where: { id: currentUser.id } });
+    if (!instructorRecord || !instructorRecord.collegeCode) {
+      throw new HttpError(403, "Instructor must have an assigned college to create cadets");
+    }
+    collegeCode = instructorRecord.collegeCode;
+    role = ROLES.STUDENT; // Instructors can only create students
+  }
+  
+  const existing = await tx.user.findFirst({
     where: { 
       OR: [
         regimentalNumber ? { regimentalNumber } : undefined,
@@ -44,33 +57,35 @@ async function createUser(body) {
     throw new HttpError(409, "User with this Regimental Number or Email already exists");
   }
 
-  const hashedPassword = await bcrypt.hash(password || "cadet123", SALT_ROUNDS);
+  const defaultPass = (role || ROLES.STUDENT) === ROLES.INSTRUCTOR ? 'staff@ncc123' : 'cadet123';
+  const hashedPassword = await bcrypt.hash(password || defaultPass, SALT_ROUNDS);
 
-  const user = await prisma.user.create({
+  const user = await tx.user.create({
     data: {
       name,
       regimentalNumber,
-      college,
+      collegeCode,
       password: hashedPassword,
       role: role || ROLES.STUDENT,
       email: email ? normalizeEmail(email) : null,
       wing,
       batch,
       isActive: isActive ?? true
-    }
+    },
+    include: { college: true }
   });
 
   return sanitizeUser(user);
 }
 
-async function updateUser(idRaw, body) {
+async function updateUser(idRaw, body, tx = prisma) {
   const id = Number(idRaw);
   if (!Number.isFinite(id)) throw new HttpError(400, "Invalid user ID");
 
-  const { name, regimentalNumber, college, password, email, role, wing, batch, isActive } = body;
+  const { name, regimentalNumber, college: collegeCode, password, email, role, wing, batch, isActive } = body;
 
   if (regimentalNumber || email) {
-    const existing = await prisma.user.findFirst({
+    const existing = await tx.user.findFirst({
       where: {
         id: { not: id },
         OR: [
@@ -87,7 +102,7 @@ async function updateUser(idRaw, body) {
   const updateData = {
     name,
     regimentalNumber,
-    college,
+    collegeCode,
     email: email ? normalizeEmail(email) : undefined,
     role,
     wing,
@@ -99,35 +114,118 @@ async function updateUser(idRaw, body) {
     updateData.password = await bcrypt.hash(password, SALT_ROUNDS);
   }
 
-  const user = await prisma.user.update({
+  const user = await tx.user.update({
     where: { id },
     data: updateData,
+    include: { college: true }
   });
 
   return sanitizeUser(user);
 }
 
-async function listUsers(query = {}) {
+async function listUsers(query = {}, currentUser) {
   const role = typeof query.role === "string" ? query.role.trim().toUpperCase() : null;
   const where = role ? { role } : {};
+
+  if (currentUser?.role === ROLES.INSTRUCTOR) {
+    const instructorRecord = await prisma.user.findUnique({ where: { id: currentUser.id } });
+    if (instructorRecord?.collegeCode) {
+      where.collegeCode = instructorRecord.collegeCode;
+    }
+  }
+
   const rows = await prisma.user.findMany({
     where,
     orderBy: { name: "asc" },
     select: safeUserSelect(),
   });
-  return rows.map(sanitizeUser);
+  
+  return rows.map(u => ({
+    ...sanitizeUser(u),
+    college: u.college?.name || u.collegeCode || 'N/A'
+  }));
 }
 
-async function searchUsers(filters = {}) {
-  const { wing, college, batch, query } = filters;
-  
-  return prisma.user.findMany({
+async function listInstructors() {
+  const rows = await prisma.user.findMany({
+    where: { role: ROLES.INSTRUCTOR },
+    orderBy: { name: "asc" },
+    select: safeUserSelect(),
+  });
+  return rows.map(u => ({
+    ...sanitizeUser(u),
+    college: u.college?.name || u.collegeCode || 'N/A'
+  }));
+}
+
+async function createInstructor(body, tx = prisma) {
+  return createUser({ ...body, role: ROLES.INSTRUCTOR }, null, tx);
+}
+
+async function bulkImportCadets(cadetsArray, currentUser) {
+  if (!Array.isArray(cadetsArray)) {
+    throw new HttpError(400, "Cadets data must be an array");
+  }
+
+  const results = {
+    success: 0,
+    failed: 0,
+    errors: []
+  };
+
+  const defaultPassword = await bcrypt.hash('cadet123', SALT_ROUNDS);
+
+  for (const cadet of cadetsArray) {
+    try {
+      const { name, regimentalNumber, collegeCode, wing, batch } = cadet;
+      
+      if (!name || !regimentalNumber || !collegeCode) {
+        throw new Error("Missing required fields: name, regimentalNumber, or collegeCode");
+      }
+
+      await prisma.user.create({
+        data: {
+          name,
+          regimentalNumber,
+          collegeCode: collegeCode.toUpperCase(),
+          role: ROLES.STUDENT,
+          password: defaultPassword,
+          wing: wing || null,
+          batch: batch || null,
+          isActive: true
+        }
+      });
+      results.success++;
+    } catch (err) {
+      results.failed++;
+      results.errors.push({ 
+        regimentalNumber: cadet.regimentalNumber || 'N/A', 
+        error: err.message 
+      });
+    }
+  }
+
+  return results;
+}
+
+async function searchUsers(filters = {}, currentUser) {
+  const { wing, batch, query } = filters;
+  let collegeCode = filters.collegeCode;
+
+  if (currentUser?.role === ROLES.INSTRUCTOR) {
+    const instructorRecord = await prisma.user.findUnique({ where: { id: currentUser.id } });
+    if (instructorRecord?.collegeCode) {
+      collegeCode = instructorRecord.collegeCode;
+    }
+  }
+
+  const rows = await prisma.user.findMany({
     where: {
       role: ROLES.STUDENT,
       isActive: true,
       AND: [
         wing ? { wing } : {},
-        college ? { college: { contains: college, mode: 'insensitive' } } : {},
+        collegeCode ? { collegeCode } : {},
         batch ? { batch: { contains: batch, mode: 'insensitive' } } : {},
         query ? {
           OR: [
@@ -140,18 +238,35 @@ async function searchUsers(filters = {}) {
     select: safeUserSelect(),
     take: 50
   });
+
+  return rows.map(u => ({
+    ...sanitizeUser(u),
+    college: u.college?.name || u.collegeCode || 'N/A'
+  }));
 }
 
-async function getFilters() {
+async function getFilters(currentUser) {
+  let collegeWhere = {};
+  if (currentUser?.role === ROLES.INSTRUCTOR) {
+    const instructorRecord = await prisma.user.findUnique({ where: { id: currentUser.id } });
+    if (instructorRecord?.collegeCode) {
+      collegeWhere = { collegeCode: instructorRecord.collegeCode };
+    }
+  }
+
   const [wings, colleges, batches] = await Promise.all([
-    prisma.user.findMany({ where: { role: ROLES.STUDENT }, select: { wing: true }, distinct: ['wing'] }),
-    prisma.user.findMany({ where: { role: ROLES.STUDENT }, select: { college: true }, distinct: ['college'] }),
-    prisma.user.findMany({ where: { role: ROLES.STUDENT }, select: { batch: true }, distinct: ['batch'] }),
+    prisma.user.findMany({ where: { role: ROLES.STUDENT, ...collegeWhere }, select: { wing: true }, distinct: ['wing'] }),
+    prisma.user.findMany({ 
+      where: { role: ROLES.STUDENT, ...collegeWhere }, 
+      select: { college: { select: { name: true } } }, 
+      distinct: ['collegeCode'] 
+    }),
+    prisma.user.findMany({ where: { role: ROLES.STUDENT, ...collegeWhere }, select: { batch: true }, distinct: ['batch'] }),
   ]);
 
   return {
     wings: wings.map(w => w.wing).filter(Boolean),
-    colleges: colleges.map(c => c.college).filter(Boolean).sort(),
+    colleges: colleges.map(c => c.college?.name).filter(Boolean).sort(),
     batches: batches.map(b => b.batch).filter(Boolean).sort((a, b) => b.localeCompare(a))
   };
 }
@@ -168,7 +283,10 @@ async function getUserById(idRaw) {
   if (!user) {
     throw new HttpError(404, "User not found");
   }
-  return sanitizeUser(user);
+  return {
+    ...sanitizeUser(user),
+    college: user.college?.name || user.collegeCode || 'N/A'
+  };
 }
 
 async function deleteUserById(idRaw) {
@@ -182,7 +300,6 @@ async function deleteUserById(idRaw) {
     throw new HttpError(404, "User not found");
   }
 
-  // Atomic deletion of all user data
   await prisma.$transaction(async (tx) => {
     await tx.result.deleteMany({ where: { studentId: id } });
     await tx.attempt.deleteMany({ where: { studentId: id } });
@@ -219,4 +336,7 @@ module.exports = {
   getUserById,
   deleteUserById,
   adminResetUserPassword,
+  listInstructors,
+  createInstructor,
+  bulkImportCadets,
 };

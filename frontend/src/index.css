@@ -1,98 +1,172 @@
 @import "tailwindcss";
-
-@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,700&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600;700&display=swap');
 
 @theme {
-  --font-display: "Cormorant Garamond", serif;
-  --font-ui: "Outfit", sans-serif;
-  --font-mono: "DM Mono", monospace;
-
-  --color-navy: #1A2744;
-  --color-navy-mid: #253660;
-  --color-navy-soft: #4A6090;
-  --color-navy-pale: #B8C8E0;
-  --color-navy-wash: #EDF1F8;
-
-  --color-gold: #B8860B;
-  --color-gold-mid: #D4A017;
-  --color-gold-deep: #8E6806;
-  --color-gold-pale: #F0DC82;
-  --color-gold-wash: #FBF5DC;
-
-  --color-crimson: #8B1A1A;
-  --color-crimson-deep: #631212;
-  --color-crimson-soft: #C44040;
-  --color-crimson-wash: #FAEAEA;
-
-  --color-stone: #F4F2EC;
-  --color-stone-mid: #E8E4D8;
-  --color-stone-deep: #CCC8BC;
-  --color-stone-wash: #F9F8F4;
-
-  --color-ink: #1C1C18;
-  --color-ink-2: #3A3A34;
-  --color-ink-3: #6A6A60;
-  --color-ink-4: #9A9A8E;
-
-  --color-white: #FDFCF8;
-}
-
-@layer base {
-  * {
-    @apply border-stone-deep;
-  }
+  /* System Scale Overrides */
+  --spacing-12: 3rem;
   
-  html, body {
-    @apply bg-stone text-ink font-ui min-h-screen;
-    margin: 0;
-    padding: 0;
-  }
+  /* Breakpoints */
+  --breakpoint-sm: 640px;
+  --breakpoint-md: 768px;
+  --breakpoint-lg: 1024px;
+  --breakpoint-xl: 1280px;
+  --breakpoint-2xl: 1536px;
 
-  #root {
-    @apply min-h-screen flex flex-col;
-  }
+  --color-olive: var(--olive);
+  --color-olive-mid: var(--olive-mid);
+  --color-olive-soft: var(--olive-soft);
+  --color-olive-pale: var(--olive-pale);
+  --color-olive-wash: var(--olive-wash);
 
-  h1, h2, h3, h4, h5, h6 {
-    @apply font-display text-ink font-semibold;
-  }
+  --color-navy: var(--navy);
+  --color-navy-mid: var(--navy-mid);
+  --color-navy-soft: var(--navy-soft);
+  --color-navy-pale: var(--navy-pale);
+  --color-navy-wash: var(--navy-wash);
 
-  input, button, textarea, select {
-    font-family: inherit;
-  }
+  --color-gold: var(--gold);
+  --color-gold-mid: var(--gold-mid);
+  --color-gold-deep: var(--gold-deep);
+  --color-gold-pale: var(--gold-pale);
+  --color-gold-wash: var(--gold-wash);
 
-  /* Custom Scrollbar Styles */
-  ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
-  }
+  --color-crimson: var(--crimson);
+  --color-crimson-deep: var(--crimson-deep);
+  --color-crimson-soft: var(--crimson-soft);
+  --color-crimson-wash: var(--crimson-wash);
 
-  ::-webkit-scrollbar-track {
-    background: transparent;
-  }
+  --color-stone: var(--stone);
+  --color-stone-mid: var(--stone-mid);
+  --color-stone-deep: var(--stone-deep);
+  --color-stone-wash: var(--stone-wash);
 
-  ::-webkit-scrollbar-thumb {
-    background: var(--color-stone-deep);
-    border-radius: 10px;
-    border: 2px solid transparent;
-    background-clip: content-box;
-  }
+  --color-ink: var(--ink);
+  --color-ink-2: var(--ink-2);
+  --color-ink-3: var(--ink-3);
+  --color-ink-4: var(--ink-4);
 
-  ::-webkit-scrollbar-thumb:hover {
-    background: var(--color-navy-soft);
-  }
+  --font-display: var(--f-display);
+  --font-ui: var(--f-ui);
+  --font-mono: var(--f-mono);
 
-  /* Firefox Support */
-  * {
-    scrollbar-width: thin;
-    scrollbar-color: var(--color-stone-deep) transparent;
-  }
+  --radius-r: var(--r);
+  --radius-rl: var(--rl);
 }
 
-/* Custom utility for the login card specifically if needed, 
-   but let's keep it to standard utilities in the JSX */
+:root {
+  /* Design Tokens from NCC Style Guide */
+  --olive:      #3B3D2A;
+  --olive-mid:  #5A5E3E;
+  --olive-soft: #8B9063;
+  --olive-pale: #C8CC9E;
+  --olive-wash: #EEF0E0;
+  
+  --navy:       #1A2744;
+  --navy-mid:   #253660;
+  --navy-soft:  #4A6090;
+  --navy-pale:  #B8C8E0;
+  --navy-wash:  #EDF1F8;
+  
+  --gold:       #B8860B;
+  --gold-mid:   #D4A017;
+  --gold-deep:  #8E6806;
+  --gold-pale:  #F0DC82;
+  --gold-wash:  #FBF5DC;
+  
+  --crimson:    #8B1A1A;
+  --crimson-deep:#631212;
+  --crimson-soft:#C44040;
+  --crimson-wash:#FAEAEA;
+  
+  --stone:      #F4F2EC;
+  --stone-mid:  #E8E4D8;
+  --stone-deep: #CCC8BC;
+  --stone-wash: #F9F8F4;
+  
+  --ink:        #1C1C18;
+  --ink-2:      #3A3A34;
+  --ink-3:      #6A6A60;
+  --ink-4:      #9A9A8E;
+  
+  --white:      #FDFCF8; 
+  
+  --r: 6px; 
+  --rl: 10px;
+  
+  --f-display: 'Cormorant Garamond', serif;
+  --f-ui: 'Outfit', sans-serif;
+  --f-mono: 'DM Mono', monospace;
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+  --text: var(--ink-2);
+  --text-h: var(--ink);
+  --bg: var(--stone);
+  --border: var(--stone-deep);
+  --accent: var(--navy);
+}
+
+body {
+  font-family: var(--f-ui);
+  background: var(--stone);
+  color: var(--ink);
+  font-size: 15px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+#root {
+  min-height: 100svh;
+}
+
+[data-sonner-toaster] {
+  font-family: var(--f-ui) !important;
+}
+
+/* ─── Global Scrollbars ──────────────────────────────────────────────────── */
+
+/* Webkit (Chrome, Edge, Safari) */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--stone-deep);
+  border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--navy-soft);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--stone-deep) transparent;
+}
+
+/* ─── Dark sidebar variant ───────────────────────────────────────────────── */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 3px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 999px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.custom-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.08) transparent;
 }

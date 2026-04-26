@@ -67,18 +67,12 @@ async function createExam(creatorUserId, body) {
   };
 }
 
-/**
- * Create exam from an instructor PDF: extract text, parse MCQs (OpenAI optional), then persist.
- */
 async function createExamFromPdf(creatorUserId, { title, duration, pdfBuffer }) {
   const text = await extractPdfText(pdfBuffer);
   const questions = await buildQuestionsFromPdfText(text);
   return createExam(creatorUserId, { title, duration, questions });
 }
 
-/**
- * Create exam from instructor Excel template.
- */
 async function createExamFromExcel(creatorUserId, { title, duration, excelBuffer }) {
   const questions = await extractQuestionsFromExcelBuffer(excelBuffer);
   return createExam(creatorUserId, { title, duration, questions });
@@ -102,7 +96,15 @@ async function listExamsCatalog(userId, role) {
       orderBy: { id: "desc" },
       include: {
         _count: { select: { questions: true } },
-        creator: { select: { id: true, name: true, role: true } },
+        creator: { 
+          select: { 
+            id: true, 
+            name: true, 
+            role: true,
+            collegeCode: true,
+            college: { select: { name: true } }
+          } 
+        },
       },
     }),
     isStudent
@@ -130,6 +132,7 @@ async function listExamsCatalog(userId, role) {
           id: e.creator.id,
           name: e.creator.name,
           role: e.creator.role,
+          college: e.creator.college?.name || e.creator.collegeCode || 'N/A'
         }
       : null,
   }));
@@ -370,6 +373,22 @@ async function startAttempt(studentId, examIdRaw) {
       },
     };
   } catch (err) {
+    if (err.code === "P2002") {
+      const newlyCreated = await prisma.attempt.findUnique({
+        where: { studentId_examId: { studentId, examId } },
+      });
+      if (newlyCreated) {
+        return {
+          status: 200,
+          body: {
+            attemptId: newlyCreated.id,
+            exam: stripAnswersFromExam(exam),
+            answers: newlyCreated.answers || {},
+            currentQuestionIndex: newlyCreated.currentQuestionIndex ?? 0,
+          },
+        };
+      }
+    }
     console.error("startAttempt error:", err);
     throw err;
   }
@@ -384,7 +403,6 @@ async function saveAttemptAnswer(studentId, body) {
   if (!Number.isFinite(examId)) {
     throw new HttpError(400, "examId is required");
   }
-  // questionId and selectedAnswer are optional if we just want to update nextQuestionIndex
   
   if (!Number.isFinite(nextQuestionIndex) || nextQuestionIndex < 0) {
     throw new HttpError(400, "nextQuestionIndex must be a non-negative number");

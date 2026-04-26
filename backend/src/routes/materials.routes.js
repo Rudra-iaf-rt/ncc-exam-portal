@@ -71,4 +71,11 @@ router.delete(
   asyncHandler(materialsController.remove)
 );
 
+router.post(
+  "/materials/:id/revalidate",
+  authenticate,
+  requireStaff,
+  asyncHandler(materialsController.revalidate)
+);
+
 module.exports = router;

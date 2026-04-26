@@ -17,8 +17,8 @@ export const examApi = {
   submitAttempt: (data) => apiClient.post('/attempt/submit', data),
 
   // Results
-  getResults: () => apiClient.get('/results'),
-  getAdminResults: () => apiClient.get('/results/admin'),
+  getResults: (params) => apiClient.get('/results', { params }),
+  getAdminResults: (params) => apiClient.get('/results/admin', { params }),
 };
 
 export default examApi;

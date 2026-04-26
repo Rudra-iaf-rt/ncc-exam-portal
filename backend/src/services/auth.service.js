@@ -42,7 +42,8 @@ function sanitizeUser(user) {
     batch: user.batch,
     yearOfStudy: user.yearOfStudy,
     role: user.role,
-    college: user.college,
+    collegeCode: user.collegeCode,
+    college: user.college?.name || user.collegeCode,
     wing: user.wing,
     isActive: user.isActive,
   };
@@ -93,6 +94,7 @@ async function loginStudent({ regimentalNumber, password }) {
       regimentalNumber: String(regimentalNumber).trim(),
       role: ROLES.STUDENT,
     },
+    include: { college: true }
   });
 
   if (!user) {
@@ -119,6 +121,7 @@ async function loginStaff({ email, password }) {
       email: normalizedEmail,
       role: { in: [ROLES.ADMIN, ROLES.INSTRUCTOR] },
     },
+    include: { college: true }
   });
 
   if (!user) {
@@ -136,6 +139,7 @@ async function loginStaff({ email, password }) {
 async function getMe(userId) {
   const user = await prisma.user.findUnique({
     where: { id: userId },
+    include: { college: true }
   });
   if (!user) {
     throw new HttpError(404, "User not found");
@@ -146,6 +150,7 @@ async function getMe(userId) {
 async function refreshSession(userId) {
   const user = await prisma.user.findUnique({
     where: { id: userId },
+    include: { college: true }
   });
   if (!user) {
     throw new HttpError(404, "User not found");
@@ -162,7 +167,7 @@ async function refreshSessionWithToken(rawRefreshToken) {
   const tokenHash = sha256(refreshToken);
   const record = await prisma.refreshToken.findUnique({
     where: { tokenHash },
-    include: { user: true },
+    include: { user: { include: { college: true } } },
   });
 
   if (!record || !record.user) {
@@ -202,8 +207,8 @@ async function requestPasswordReset({ email }) {
   }
 
   const user = await prisma.user.findFirst({
-    where: { email: emailNorm, role: ROLES.STUDENT },
-    select: { id: true, email: true, name: true },
+    where: { email: emailNorm },
+    select: { id: true, email: true, name: true, role: true },
   });
   if (!user || !user.email) {
     return;
@@ -226,7 +231,7 @@ async function requestPasswordReset({ email }) {
 
   const subject = "Reset your NCC Exam Portal password";
   const text = [
-    `Hello ${user.name || "Cadet"},`,
+    `Hello ${user.name || "User"},`,
     "",
     "We received a request to reset your password.",
     "Use the link below to set a new password:",
@@ -288,10 +293,37 @@ async function resetPassword({ token, newPassword }) {
     }),
   ]);
 }
+async function changePassword({ userId, oldPassword, newPassword }) {
+  if (!oldPassword || !newPassword) {
+    throw new HttpError(400, "oldPassword and newPassword are required");
+  }
+  if (newPassword.length < 6) {
+    throw new HttpError(400, "newPassword must be at least 6 characters");
+  }
+
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, password: true },
+  });
+
+  if (!user) {
+    throw new HttpError(404, "User not found");
+  }
+
+  const match = await bcrypt.compare(String(oldPassword), user.password);
+  if (!match) {
+    throw new HttpError(401, "Invalid current password");
+  }
+
+  const hashed = await bcrypt.hash(String(newPassword), SALT_ROUNDS);
+  await prisma.user.update({
+    where: { id: userId },
+    data: { password: hashed },
+  });
+}
 
 module.exports = {
   sanitizeUser,
-
   loginStudent,
   loginStaff,
   getMe,
@@ -300,4 +332,5 @@ module.exports = {
   logoutWithRefreshToken,
   requestPasswordReset,
   resetPassword,
+  changePassword,
 };

@@ -63,7 +63,7 @@ export default function UserManagement() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const { data } = await adminApi.getUsers();
+        const { data } = await adminApi.getUsers({ role: 'STUDENT' });
         if (data) setUsers(data);
       } catch (error) {
         console.error('Failed to fetch users:', error);
@@ -77,8 +77,8 @@ export default function UserManagement() {
   return (
     <div className="max-w-[1000px]">
       <PageHeader 
-        title="Cadet *Registry*" 
-        subtitle="Manage cadet enrollment and administrative access control." 
+        title="Cadet *Registry*"
+        subtitle="Centralized record of all enrolled students."
         action={
           <div className="flex gap-3">
             <button 

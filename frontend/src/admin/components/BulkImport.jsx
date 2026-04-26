@@ -50,7 +50,7 @@ export default function BulkImport({ isOpen, onClose, onRefresh }) {
   };
 
   const downloadTemplate = () => {
-    const headers = 'name,regimentalNumber,college,wing,batch,email\n';
+    const headers = 'name,regimentalNumber,collegeCode,wing,batch,email\n';
     const blob = new Blob([headers], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
     const a = document.createElement('a');
@@ -100,7 +100,7 @@ export default function BulkImport({ isOpen, onClose, onRefresh }) {
                 ) : (
                   <div className="text-center">
                     <p className="font-medium text-ink-2">Click or drag CSV here</p>
-                    <p className="text-[11px] text-ink-4 mt-1">Fields: name, regimentalNumber, college, wing, batch, email</p>
+                    <p className="text-[11px] text-ink-4 mt-1">Fields: name, regimentalNumber, collegeCode, wing, batch, email</p>
                   </div>
                 )}
               </label>

@@ -6,7 +6,8 @@ const examRoutes = require("./routes/exams.routes");
 const resultsRoutes = require("./routes/results.routes");
 const materialsRoutes = require("./routes/materials.routes");
 const usersRoutes = require("./routes/users.routes");
-const adminRoutes = require("./routes/admin");
+const adminRoutes = require('./routes/admin');
+const collegesRoutes = require('./routes/colleges.routes');
 
 const notificationsRoutes = require("./routes/notifications.routes");
 const antiCheatRoutes = require("./routes/anti-cheat.routes");
@@ -29,7 +30,8 @@ app.use("/api", materialsRoutes);
 app.use("/api", examRoutes);
 app.use("/api", resultsRoutes);
 app.use("/api", usersRoutes);
-app.use("/api/admin", adminRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api', collegesRoutes);
 
 app.use("/api", notificationsRoutes);
 app.use("/api", antiCheatRoutes);

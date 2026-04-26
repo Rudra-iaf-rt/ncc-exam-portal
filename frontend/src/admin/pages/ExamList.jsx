@@ -72,13 +72,14 @@ export default function ExamList() {
                 <th className="font-normal px-4 py-3">Duration</th>
                 <th className="font-normal px-4 py-3">Questions</th>
                 <th className="font-normal px-4 py-3">Status</th>
+                <th className="font-normal px-4 py-3">College</th>
                 <th className="font-normal px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
             <tbody className="font-ui text-[13.5px] text-ink-2">
               {exams.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="text-center p-12 text-ink-4 font-light">
+                  <td colSpan="7" className="text-center p-12 text-ink-4 font-light">
                     No active assessment protocols found in the database.
                   </td>
                 </tr>
@@ -105,6 +106,15 @@ export default function ExamList() {
                         <option value="LIVE">LIVE</option>
                         <option value="ARCHIVED">ARCHIVED</option>
                       </select>
+                    </td>
+                    <td className="px-4 py-3">
+                      {e.creator?.college ? (
+                        <span className="font-mono text-[10px] tracking-[0.05em] py-1 px-2.5 rounded-full font-medium inline-flex bg-stone-mid text-ink-3 border border-stone-deep">
+                          {e.creator.college}
+                        </span>
+                      ) : (
+                        <span className="text-ink-4 text-[12px]">—</span>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-right">
                       <div className="flex gap-2 justify-end items-center">

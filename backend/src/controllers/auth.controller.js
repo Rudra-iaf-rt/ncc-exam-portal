@@ -93,6 +93,19 @@ async function logout(req, res) {
   });
   res.json(payload);
 }
+async function changePassword(req, res) {
+  await authService.changePassword({
+    userId: req.user.id,
+    ...(req.body ?? {}),
+  });
+  await auditLogService.recordAudit(req, {
+    action: "AUTH_CHANGE_PASSWORD",
+    entityType: "User",
+    entityId: req.user.id,
+    statusCode: 200,
+  });
+  res.json({ ok: true });
+}
 
 module.exports = {
   register,
@@ -103,5 +116,6 @@ module.exports = {
   refreshWithToken,
   forgotPassword,
   resetPassword,
+  changePassword,
   logout,
 };

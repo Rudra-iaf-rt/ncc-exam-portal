@@ -1,7 +1,7 @@
 const express = require("express");
 const multer = require("multer");
 const { authenticate } = require("../middleware/auth");
-const { requireAdmin } = require("../middleware/roles");
+const { requireAdmin, requireStaff } = require("../middleware/roles");
 const adminController = require("../controllers/admin.controller");
 const usersController = require("../controllers/users.controller");
 const { prisma } = require("../lib/prisma");
@@ -11,25 +11,25 @@ const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
 
 // --- Dashboard & Stats ---
-router.get("/stats", authenticate, requireAdmin, adminController.getStats);
-router.get("/dashboard", authenticate, requireAdmin, adminController.getStats); // Alias for backward compatibility
+router.get("/stats", authenticate, requireStaff, adminController.getStats);
+router.get("/dashboard", authenticate, requireStaff, adminController.getStats); // Alias for backward compatibility
 
 // --- User Management ---
-router.get("/users", authenticate, requireAdmin, usersController.listAll);
-router.post("/users", authenticate, requireAdmin, usersController.createUser);
-router.get("/users/search", authenticate, requireAdmin, usersController.searchUsers);
-router.get("/users/filters", authenticate, requireAdmin, usersController.getFilters);
+router.get("/users", authenticate, requireStaff, usersController.listAll);
+router.post("/users", authenticate, requireStaff, usersController.createUser);
+router.get("/users/search", authenticate, requireStaff, usersController.searchUsers);
+router.get("/users/filters", authenticate, requireStaff, usersController.getFilters);
 router.post("/users/import", authenticate, requireAdmin, upload.single("file"), adminController.importUsers);
-router.patch("/users/:id", authenticate, requireAdmin, usersController.updateUser);
-router.delete("/users/:id", authenticate, requireAdmin, usersController.removeById);
+router.patch("/users/:id", authenticate, requireStaff, usersController.updateUser);
+router.delete("/users/:id", authenticate, requireStaff, usersController.removeById);
 
 // --- Exam Assignments ---
-router.get("/assignments", authenticate, requireAdmin, adminController.listAssignments);
-router.post("/assignments", authenticate, requireAdmin, adminController.createAssignments);
-router.delete("/assignments/:id", authenticate, requireAdmin, adminController.deleteAssignment);
+router.get("/assignments", authenticate, requireStaff, adminController.listAssignments);
+router.post("/assignments", authenticate, requireStaff, adminController.createAssignments);
+router.delete("/assignments/:id", authenticate, requireStaff, adminController.deleteAssignment);
 
 // --- Results & Overrides ---
-router.patch("/results/:id", authenticate, requireAdmin, adminController.overrideResult);
+router.patch("/results/:id", authenticate, requireStaff, adminController.overrideResult);
 
 // --- Audit Logs ---
 router.get("/logs", authenticate, requireAdmin, async (req, res) => {
@@ -68,11 +68,14 @@ router.get("/health", authenticate, requireAdmin, (req, res) => {
 });
 
 // --- Generic Exam Dropdowns ---
-router.get("/exams", authenticate, requireAdmin, async (req, res) => {
+router.get("/exams", authenticate, requireStaff, async (req, res) => {
   try {
     const exams = await prisma.exam.findMany({
       orderBy: { id: 'desc' },
-      include: { _count: { select: { questions: true } } }
+      include: { 
+        _count: { select: { questions: true } },
+        creator: { select: { college: true } }
+      }
     });
     res.json({
       exams: exams.map(e => ({
@@ -81,6 +84,7 @@ router.get("/exams", authenticate, requireAdmin, async (req, res) => {
         status: e.status,
         duration: e.duration,
         questionCount: e._count.questions,
+        college: e.creator?.college,
         createdAt: e.createdAt,
       }))
     });

@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { Shield, Lock, User, Info, ArrowRight } from 'lucide-react';
 import { authApi } from '../../api';
-import { setToken, setRefreshToken, saveUser } from '../../lib/auth';
 import { toast } from 'sonner';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 const CadetLogin = () => {
   const [regNo, setRegNo] = useState('');
@@ -18,13 +17,10 @@ const CadetLogin = () => {
     try {
       const { data } = await authApi.login({ regimentalNumber: regNo, password });
       setLoading(false);
-      
-      setToken(data.token);
-      setRefreshToken(data.refreshToken);
-      saveUser(data.user);
-      
+      localStorage.setItem('ncc_token', data.token);
+      localStorage.setItem('ncc_user', JSON.stringify(data.user));
       toast.success('Login successful. Welcome back!');
-      navigate('/dashboard');
+      navigate('/cadet/dashboard');
     } catch (apiErr) {
       setLoading(false);
       toast.error(apiErr.message || 'Login failed. Please check your credentials.');
@@ -65,7 +61,15 @@ const CadetLogin = () => {
           </div>
 
           <div className="flex flex-col gap-1.5">
-            <label htmlFor="password" className="text-[12px] font-bold text-ink-3 uppercase tracking-wider ml-1">Secure Passkey</label>
+            <div className="flex items-center justify-between ml-1">
+              <label htmlFor="password" className="text-[12px] font-bold text-ink-3 uppercase tracking-wider">Password</label>
+              <Link
+                to="/forgot-password?type=cadet"
+                className="text-[11px] font-bold text-navy/40 hover:text-navy transition-colors uppercase tracking-wide"
+              >
+                Forgot password?
+              </Link>
+            </div>
             <div className="relative flex items-center">
               <Lock size={18} className="absolute left-4 z-20 text-ink-4" />
               <input

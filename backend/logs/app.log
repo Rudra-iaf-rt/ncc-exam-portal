@@ -172,3 +172,37 @@
 {"timestamp":"2026-04-25T15:32:06.085Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Missing or malformed Authorization header","path":"/logout"}
 {"timestamp":"2026-04-25T16:05:40.645Z","level":"AUDIT","actor":2,"action":"USERS_BULK_IMPORT","count":1,"errors":0,"totalProcessed":1}
 {"timestamp":"2026-04-25T16:05:54.712Z","level":"AUDIT","actor":2,"action":"USER_UPDATE","targetUserId":5}
+{"timestamp":"2026-04-25T17:44:09.379Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Token verification failed","error":"jwt expired","path":"/me"}
+{"timestamp":"2026-04-25T17:44:09.400Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Token verification failed","error":"jwt expired","path":"/me"}
+{"timestamp":"2026-04-25T17:46:40.314Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Token verification failed","error":"jwt expired","path":"/results"}
+{"timestamp":"2026-04-25T17:46:40.319Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Token verification failed","error":"jwt expired","path":"/me"}
+{"timestamp":"2026-04-25T17:46:40.323Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Token verification failed","error":"jwt expired","path":"/results"}
+{"timestamp":"2026-04-25T17:46:40.328Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Token verification failed","error":"jwt expired","path":"/me"}
+{"timestamp":"2026-04-26T03:34:03.891Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Token verification failed","error":"jwt expired","path":"/me"}
+{"timestamp":"2026-04-26T03:34:03.903Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Token verification failed","error":"jwt expired","path":"/me"}
+{"timestamp":"2026-04-26T03:53:28.796Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Token verification failed","error":"jwt malformed","path":"/admin/colleges"}
+{"timestamp":"2026-04-26T04:08:19.979Z","level":"AUDIT","actor":2,"action":"USER_UPDATE","targetUserId":1}
+{"timestamp":"2026-04-26T04:08:26.220Z","level":"AUDIT","actor":2,"action":"USER_UPDATE","targetUserId":5}
+{"timestamp":"2026-04-26T04:13:07.912Z","level":"AUDIT","actor":2,"action":"USER_UPDATE","targetUserId":3}
+{"timestamp":"2026-04-26T04:37:36.799Z","level":"AUDIT","actor":2,"action":"USER_MANUAL_CREATE","userId":6,"regNo":"734a2"}
+{"timestamp":"2026-04-26T04:45:37.830Z","level":"AUDIT","actor":2,"action":"RESULT_OVERRIDE","resultId":3,"newScore":95,"reason":"test"}
+{"timestamp":"2026-04-26T06:34:48.847Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Missing or malformed Authorization header","path":"/materials"}
+{"timestamp":"2026-04-26T06:34:48.852Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Missing or malformed Authorization header","path":"/materials"}
+{"timestamp":"2026-04-26T07:42:17.464Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Token verification failed","error":"jwt expired","path":"/exams"}
+{"timestamp":"2026-04-26T07:42:17.470Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Token verification failed","error":"jwt expired","path":"/results"}
+{"timestamp":"2026-04-26T07:42:17.487Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Token verification failed","error":"jwt expired","path":"/me"}
+{"timestamp":"2026-04-26T07:42:17.492Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Token verification failed","error":"jwt expired","path":"/exams"}
+{"timestamp":"2026-04-26T07:42:17.496Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Token verification failed","error":"jwt expired","path":"/results"}
+{"timestamp":"2026-04-26T07:42:17.500Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Token verification failed","error":"jwt expired","path":"/me"}
+{"timestamp":"2026-04-26T07:48:45.202Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Missing or malformed Authorization header","path":"/materials"}
+{"timestamp":"2026-04-26T07:48:45.207Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Missing or malformed Authorization header","path":"/materials"}
+{"timestamp":"2026-04-26T09:05:02.230Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Missing or malformed Authorization header","path":"/materials"}
+{"timestamp":"2026-04-26T09:05:02.279Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Missing or malformed Authorization header","path":"/materials"}
+{"timestamp":"2026-04-26T09:54:16.832Z","level":"AUDIT","actor":2,"action":"EXAM_BULK_ASSIGN","examId":"8","count":2}
+{"timestamp":"2026-04-26T10:08:56.522Z","level":"AUDIT","actor":2,"action":"EXAM_BULK_ASSIGN","examId":"9","count":2}
+{"timestamp":"2026-04-26T10:26:53.518Z","level":"AUDIT","actor":2,"action":"EXAM_BULK_ASSIGN","examId":"10","count":2}
+{"timestamp":"2026-04-26T10:27:02.870Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Missing or malformed Authorization header","path":"/attempt/start"}
+{"timestamp":"2026-04-26T10:27:02.907Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Missing or malformed Authorization header","path":"/attempt/start"}
+{"timestamp":"2026-04-26T10:39:45.549Z","level":"AUDIT","actor":2,"action":"USER_MANUAL_CREATE","userId":9,"regNo":"123456"}
+{"timestamp":"2026-04-26T10:40:34.261Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Missing or malformed Authorization header","path":"/logout"}
+{"timestamp":"2026-04-26T10:51:14.074Z","level":"AUDIT","actor":2,"action":"EXAM_BULK_ASSIGN","examId":"10","count":1}

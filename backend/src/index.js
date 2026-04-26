@@ -39,5 +39,5 @@ app.use((err, req, res, next) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`Server listening on http://localhost:${PORT}`);
+  console.log(`Server listening on http://localhost:${PORT} \n Student Login : http://localhost:${PORT}/login \n Admin & Staff Login : http://localhost:${PORT}/admin/login`);
 });

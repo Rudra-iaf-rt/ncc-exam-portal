@@ -16,11 +16,9 @@ export const useProctoring = ({ onSecurityBreach, maxWarnings = 3 }) => {
     onSecurityBreachRef.current = onSecurityBreach;
   }, [onSecurityBreach]);
 
-  // examId and attemptId injected from ExamAttempt via ref so we don't need it as a prop
+  // examId injected from ExamAttempt via ref so we don't need it as a prop
   const examIdRef = useRef(null);
-  const attemptIdRef = useRef(null);
   const setExamId = useCallback((id) => { examIdRef.current = id; }, []);
-  const setAttemptId = useCallback((id) => { attemptIdRef.current = id; }, []);
 
   const isViolatingRef = useRef(false);
 
@@ -38,11 +36,7 @@ export const useProctoring = ({ onSecurityBreach, maxWarnings = 3 }) => {
 
     if (examIdRef.current) {
       try {
-        const { data } = await examApi.saveViolation({ 
-          examId: Number(examIdRef.current), 
-          attemptId: attemptIdRef.current ? Number(attemptIdRef.current) : undefined,
-          type 
-        });
+        const { data } = await examApi.saveViolation({ examId: examIdRef.current, type });
         newCount = data.warningCount;
         if (data.terminate) {
           onSecurityBreachRef.current?.(true);
@@ -130,9 +124,22 @@ export const useProctoring = ({ onSecurityBreach, maxWarnings = 3 }) => {
       }
     };
 
+    // Debounce mouse-leave so native browser overlays (e.g. the screen-share
+    // notification bar) don't falsely trigger a violation. The cursor must leave
+    // the document and NOT return for 500 ms before we count it.
+    let mouseLeaveTimer = null;
+
     const handleMouseLeave = () => {
-      if (isScreenSharing) {
+      if (!isScreenSharing) return;
+      mouseLeaveTimer = setTimeout(() => {
         recordViolation('MOUSE_LEAVE');
+      }, 500);
+    };
+
+    const handleMouseEnter = () => {
+      if (mouseLeaveTimer) {
+        clearTimeout(mouseLeaveTimer);
+        mouseLeaveTimer = null;
       }
     };
 
@@ -140,12 +147,15 @@ export const useProctoring = ({ onSecurityBreach, maxWarnings = 3 }) => {
     document.addEventListener('visibilitychange', handleVisibilityChange);
     window.addEventListener('blur', handleBlur);
     document.addEventListener('mouseleave', handleMouseLeave);
+    document.addEventListener('mouseenter', handleMouseEnter);
 
     return () => {
+      if (mouseLeaveTimer) clearTimeout(mouseLeaveTimer);
       document.removeEventListener('fullscreenchange', handleFullscreenChange);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('blur', handleBlur);
       document.removeEventListener('mouseleave', handleMouseLeave);
+      document.removeEventListener('mouseenter', handleMouseEnter);
     };
   }, [isScreenSharing, recordViolation]);
 
@@ -173,7 +183,6 @@ export const useProctoring = ({ onSecurityBreach, maxWarnings = 3 }) => {
     requestFullscreen,
     requestScreenShare,
     setExamId, // Expose so ExamAttempt can inject examId after startExam resolves
-    setAttemptId, // Added for linking violations to attempts
     screenStream,
   };
 };

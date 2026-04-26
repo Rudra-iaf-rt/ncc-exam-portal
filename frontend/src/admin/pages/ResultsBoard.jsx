@@ -26,7 +26,7 @@ export default function ResultsBoard() {
 
   const fetchResults = async () => {
     try {
-      const { data } = await examApi.getAdminResults();
+      const { data } = await examApi.getResults();
       if (data) setResults(data.results);
     } catch (error) {
       console.error('Failed to fetch results:', error);

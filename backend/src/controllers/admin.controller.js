@@ -3,7 +3,7 @@ const { prisma } = require("../lib/prisma");
 
 async function getStats(req, res) {
   try {
-    const stats = await adminService.getStats();
+    const stats = await adminService.getStats(req.user);
     res.json(stats);
   } catch (_error) {
     res.status(500).json({ error: "Failed to fetch admin statistics" });
@@ -13,22 +13,42 @@ async function getStats(req, res) {
 async function importUsers(req, res) {
   try {
     if (!req.file) {
-      return res.status(400).json({ error: "No CSV file uploaded" });
+      return res.status(400).json({ error: "No file uploaded" });
     }
     const result = await adminService.importUsers(req.file.buffer, req.file.originalname, req.user.id);
     res.json(result);
   } catch (error) {
     const status = error.status || 500;
-    res.status(status).json({ error: error.message || "Failed to process CSV file" });
+    res.status(status).json({ error: error.message || "Failed to process import" });
   }
 }
 
 async function listAssignments(req, res) {
   try {
+    const { ROLES } = require("../middleware/roles");
+    let whereClause = {};
+
+    if (req.user.role === ROLES.INSTRUCTOR) {
+      const instructorRecord = await prisma.user.findUnique({ where: { id: req.user.id } });
+      if (instructorRecord?.collegeCode) {
+        whereClause = {
+          user: { collegeCode: instructorRecord.collegeCode }
+        };
+      }
+    }
+
     const assignments = await prisma.examAssignment.findMany({
+      where: whereClause,
       include: {
         user: {
-          select: { name: true, regimentalNumber: true, college: true, wing: true, batch: true }
+          select: { 
+            name: true, 
+            regimentalNumber: true, 
+            collegeCode: true,
+            college: { select: { name: true } }, 
+            wing: true, 
+            batch: true 
+          }
         },
         exam: {
           select: { title: true }
@@ -36,7 +56,17 @@ async function listAssignments(req, res) {
       },
       orderBy: { createdAt: 'desc' }
     });
-    res.json(assignments);
+
+    // Flatten college name for frontend
+    const flattened = assignments.map(a => ({
+      ...a,
+      user: {
+        ...a.user,
+        college: a.user.college?.name || a.user.collegeCode || 'N/A'
+      }
+    }));
+
+    res.json(flattened);
   } catch (_error) {
     res.status(500).json({ error: "Failed to fetch assignments" });
   }
@@ -44,8 +74,8 @@ async function listAssignments(req, res) {
 
 async function createAssignments(req, res) {
   try {
-    const { examId, wing, college, batch, userIds } = req.body;
-    const result = await adminService.bulkAssign(examId, { wing, college, batch }, userIds, req.user.id);
+    const { examId, wing, collegeCode, batch, userIds } = req.body;
+    const result = await adminService.bulkAssign(examId, { wing, collegeCode, batch }, userIds, req.user);
     res.json(result);
   } catch (error) {
     const status = error.status || 500;
@@ -71,10 +101,6 @@ async function overrideResult(req, res) {
     if (typeof score !== 'number' || score < 0 || score > 100) {
       return res.status(400).json({ error: "Score must be a number between 0 and 100" });
     }
-    if (!reason || reason.length < 5) {
-      return res.status(400).json({ error: "A valid reason (min 5 chars) is required for overrides" });
-    }
-
     const result = await adminService.overrideResult(id, score, reason, req.user.id);
     res.json(result);
   } catch (_error) {

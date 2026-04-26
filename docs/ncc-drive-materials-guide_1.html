@@ -1,0 +1,1142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NCC Portal — Drive Materials Guide</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,600&family=DM+Mono:wght@400;500&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --navy:#1A2744;--navy-mid:#253660;--navy-soft:#4A6090;--navy-pale:#B8C8E0;--navy-wash:#EDF1F8;
+  --olive:#3B3D2A;--olive-mid:#5A5E3E;--olive-soft:#8B9063;--olive-pale:#C8CC9E;--olive-wash:#EEF0E0;
+  --gold:#B8860B;--gold-mid:#D4A017;--gold-pale:#F0DC82;--gold-wash:#FBF5DC;
+  --crimson:#8B1A1A;--crimson-soft:#C44040;--crimson-wash:#FAEAEA;
+  --stone:#F4F2EC;--stone-mid:#E8E4D8;--stone-deep:#CCC8BC;
+  --ink:#1C1C18;--ink2:#3A3A34;--ink3:#6A6A60;--ink4:#9A9A8E;
+  --white:#FDFCF8;
+  --fd:'Cormorant Garamond',serif;
+  --fu:'Outfit',sans-serif;
+  --fm:'DM Mono',monospace;
+  --r:6px;--rl:10px;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--fu);background:var(--stone);color:var(--ink);font-size:15px;line-height:1.65}
+
+/* ── NAV ── */
+.wrap{display:flex;min-height:100vh}
+nav{
+  width:236px;flex-shrink:0;background:var(--navy);
+  display:flex;flex-direction:column;
+  position:sticky;top:0;height:100vh;overflow-y:auto;
+  padding:0 0 32px;
+}
+.nb{padding:28px 20px 22px;border-bottom:1px solid rgba(255,255,255,0.06);margin-bottom:8px}
+.nb-shield{
+  width:34px;height:38px;
+  background:var(--gold);
+  clip-path:polygon(0 0,100% 0,100% 70%,50% 100%,0 70%);
+  display:flex;align-items:center;justify-content:center;
+  margin-bottom:12px;
+}
+.nb-shield span{font-family:var(--fm);font-size:10px;font-weight:500;color:var(--navy);margin-top:-3px}
+.nb-title{font-family:var(--fd);font-size:17px;color:#E8E4D4;font-style:italic;line-height:1.2}
+.nb-sub{font-family:var(--fm);font-size:9px;color:rgba(255,255,255,0.25);letter-spacing:0.12em;text-transform:uppercase;margin-top:2px}
+.ns{font-family:var(--fm);font-size:9px;letter-spacing:0.14em;text-transform:uppercase;color:rgba(255,255,255,0.2);padding:14px 20px 4px}
+nav a{display:block;padding:7px 20px;font-size:13px;color:rgba(255,255,255,0.42);text-decoration:none;border-left:2px solid transparent;transition:all 0.15s;font-weight:400}
+nav a:hover{color:rgba(255,255,255,0.78);background:rgba(255,255,255,0.04)}
+nav a.on{color:#E8E4D4;border-left-color:var(--gold);background:rgba(255,255,255,0.06)}
+
+/* ── MAIN ── */
+main{flex:1;overflow-x:hidden}
+.hero{background:var(--navy);padding:52px 64px 46px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--gold),var(--gold-mid) 40%,var(--olive-pale))}
+.h-eyebrow{font-family:var(--fm);font-size:10px;letter-spacing:0.16em;text-transform:uppercase;color:var(--gold);margin-bottom:14px}
+.h-title{font-family:var(--fd);font-size:48px;color:#F4F0E4;line-height:1.06;font-weight:500;margin-bottom:8px}
+.h-title em{font-style:italic;color:var(--gold-pale)}
+.h-sub{font-size:14px;color:rgba(255,255,255,0.42);font-weight:300;margin-bottom:28px;max-width:500px;line-height:1.65}
+.h-pills{display:flex;gap:8px;flex-wrap:wrap}
+.h-pill{font-family:var(--fm);font-size:10px;letter-spacing:0.08em;padding:4px 12px;border:1px solid rgba(255,255,255,0.12);border-radius:20px;color:rgba(255,255,255,0.38)}
+
+/* ── CONTENT ── */
+.content{padding:52px 64px 120px;max-width:900px}
+.section{margin-bottom:72px;scroll-margin-top:24px}
+.s-label{font-family:var(--fm);font-size:9px;letter-spacing:0.18em;text-transform:uppercase;color:var(--olive-soft);margin-bottom:6px}
+.s-title{font-family:var(--fd);font-size:30px;color:var(--ink);line-height:1.1;margin-bottom:6px;font-weight:500}
+.s-title em{font-style:italic;color:var(--navy-soft)}
+.s-desc{font-size:14px;color:var(--ink3);margin-bottom:24px;font-weight:300;line-height:1.7;max-width:600px}
+.divider{height:1px;background:var(--stone-mid);margin-bottom:24px}
+
+.sub{font-family:var(--fm);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink4);margin:28px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--stone-mid)}
+
+/* ── CODE BLOCKS ── */
+pre{
+  background:var(--ink);color:#C8C4B8;
+  padding:22px 26px;border-radius:var(--rl);
+  overflow-x:auto;margin:14px 0 22px;
+  font-family:var(--fm);font-size:12.5px;line-height:1.75;
+  border:1px solid #2A2A24;
+}
+pre .cm{color:#4A4E44}
+pre .kw{color:#7AB8D8}
+pre .st{color:#98C88A}
+pre .fn{color:#E8C87A}
+pre .ty{color:#C8A0E0}
+pre .num{color:#F09858}
+pre .at{color:#C8A0D4}
+pre .lm{color:rgba(255,255,255,0.12);user-select:none;margin-right:16px;font-size:11px}
+.file-tab{
+  display:inline-flex;align-items:center;gap:8px;
+  background:#2A2A24;border:1px solid #3A3A34;
+  padding:6px 14px;border-radius:var(--r) var(--r) 0 0;
+  font-family:var(--fm);font-size:11px;color:#888;
+  margin-bottom:-1px;position:relative;z-index:1;
+}
+.file-tab .dot{width:8px;height:8px;border-radius:50%}
+code{font-family:var(--fm);font-size:12px;background:var(--stone-mid);padding:2px 6px;border-radius:4px;color:var(--navy-mid)}
+
+/* ── CALLOUTS ── */
+.note{font-size:13.5px;color:var(--ink3);background:var(--navy-wash);border-left:3px solid var(--navy-soft);padding:12px 16px;border-radius:0 var(--r) var(--r) 0;margin:14px 0 20px;line-height:1.6}
+.note strong{color:var(--navy);font-weight:500}
+.warn{font-size:13.5px;color:var(--ink3);background:var(--gold-wash);border-left:3px solid var(--gold);padding:12px 16px;border-radius:0 var(--r) var(--r) 0;margin:14px 0 20px}
+.warn strong{color:#8a6000;font-weight:500}
+.danger{font-size:13.5px;color:var(--ink3);background:var(--crimson-wash);border-left:3px solid var(--crimson-soft);padding:12px 16px;border-radius:0 var(--r) var(--r) 0;margin:14px 0 20px}
+.danger strong{color:var(--crimson);font-weight:500}
+.tip{font-size:13.5px;color:var(--ink3);background:var(--olive-wash);border-left:3px solid var(--olive-soft);padding:12px 16px;border-radius:0 var(--r) var(--r) 0;margin:14px 0 20px}
+.tip strong{color:var(--olive-mid);font-weight:500}
+
+/* ── TABLES ── */
+.t-wrap{border:1px solid var(--stone-deep);border-radius:var(--rl);overflow:hidden;margin:14px 0 22px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{text-align:left;font-family:var(--fm);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:var(--ink4);padding:10px 14px;border-bottom:1px solid var(--stone-deep);background:var(--stone);font-weight:400}
+tbody tr{border-bottom:1px solid var(--stone-mid)}
+tbody tr:last-child{border-bottom:none}
+tbody td{padding:11px 14px;color:var(--ink2);vertical-align:top}
+tbody tr:hover td{background:var(--stone)}
+td:first-child{font-family:var(--fm);font-size:11.5px;color:var(--crimson)}
+td.ok{font-family:var(--fm);font-size:11.5px;color:#3B6D11}
+td.plain{font-family:var(--fu);font-size:13px;color:var(--ink2)}
+
+/* ── STEP FLOW ── */
+.steps{display:flex;flex-direction:column;gap:0;margin:16px 0}
+.step{display:flex;gap:20px;padding:20px 0;border-bottom:1px solid var(--stone-mid)}
+.step:last-child{border-bottom:none}
+.step-num{
+  width:32px;height:32px;border-radius:50%;
+  background:var(--navy);color:#E8E4D4;
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--fm);font-size:12px;flex-shrink:0;
+  margin-top:2px;
+}
+.step-body{flex:1}
+.step-title{font-weight:500;color:var(--ink);margin-bottom:4px;font-size:14px}
+.step-desc{font-size:13.5px;color:var(--ink3);line-height:1.65;font-weight:300}
+
+/* ── FLOW DIAGRAM ── */
+.flow{display:flex;align-items:center;gap:0;margin:18px 0;flex-wrap:wrap}
+.flow-box{
+  background:var(--white);border:1px solid var(--stone-deep);
+  border-radius:var(--r);padding:10px 16px;
+  font-size:12.5px;font-weight:500;color:var(--ink);
+  text-align:center;flex-shrink:0;min-width:100px;
+}
+.flow-box.navy{background:var(--navy);color:#E8E4D4;border-color:var(--navy)}
+.flow-box.olive{background:var(--olive-wash);color:var(--olive);border-color:var(--olive-pale)}
+.flow-box.gold{background:var(--gold-wash);color:var(--gold);border-color:var(--gold-pale)}
+.flow-box.red{background:var(--crimson-wash);color:var(--crimson);border-color:rgba(139,26,26,0.2)}
+.flow-arrow{padding:0 6px;color:var(--ink4);font-size:16px;flex-shrink:0}
+.flow-sub{font-size:11px;color:var(--ink4);font-weight:300;font-family:var(--fm);margin-top:3px}
+
+/* ── URL ANATOMY ── */
+.url-wrap{
+  background:var(--ink);border-radius:var(--rl);padding:22px 26px;
+  font-family:var(--fm);font-size:13px;margin:16px 0 22px;
+  overflow-x:auto;border:1px solid #2A2A24;
+}
+.url-line{display:flex;flex-wrap:wrap;gap:0;line-height:2;margin-bottom:14px}
+.url-line:last-child{margin-bottom:0}
+.u-base{color:#7AB8D8}
+.u-path{color:#C8C4B8}
+.u-id{color:#E8C87A;background:rgba(232,200,122,0.1);padding:1px 6px;border-radius:3px;margin:0 1px}
+.u-param{color:#98C88A}
+.url-legend{display:flex;flex-wrap:wrap;gap:16px;margin-top:16px;padding-top:16px;border-top:1px solid #2A2A24}
+.ul-item{display:flex;align-items:center;gap:6px;font-family:var(--fm);font-size:10px}
+.ul-dot{width:10px;height:10px;border-radius:2px;flex-shrink:0}
+
+/* ── RENDERING MODES ── */
+.modes{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:16px 0}
+.mode-card{background:var(--white);border:1px solid var(--stone-deep);border-radius:var(--rl);overflow:hidden}
+.mode-head{padding:14px 16px;border-bottom:1px solid var(--stone-mid)}
+.mode-icon{font-size:20px;margin-bottom:6px}
+.mode-name{font-weight:500;font-size:13.5px;color:var(--ink)}
+.mode-type{font-family:var(--fm);font-size:10px;color:var(--ink4);margin-top:2px}
+.mode-body{padding:14px 16px;font-size:13px;color:var(--ink3);line-height:1.6;font-weight:300}
+.mode-url{font-family:var(--fm);font-size:10px;color:var(--navy-soft);background:var(--navy-wash);padding:6px 10px;border-radius:4px;margin-top:10px;word-break:break-all}
+
+/* ── SCHEMA CARD ── */
+.schema{
+  background:var(--ink);border-radius:var(--rl);border:1px solid #2A2A24;
+  padding:22px 26px;margin:14px 0 22px;overflow-x:auto;
+}
+.schema-title{font-family:var(--fm);font-size:10px;letter-spacing:0.12em;text-transform:uppercase;color:#4A6090;margin-bottom:14px}
+.schema-model{display:flex;flex-direction:column;gap:4px}
+.s-field{display:flex;gap:12px;align-items:baseline;padding:3px 0;border-bottom:1px solid #1E1E18}
+.s-field:last-child{border-bottom:none}
+.s-fname{font-family:var(--fm);font-size:12.5px;color:#C8C4B8;min-width:140px}
+.s-ftype{font-family:var(--fm);font-size:12px;color:#7AB8D8}
+.s-fnote{font-family:var(--fm);font-size:11px;color:#4A4E44;margin-left:auto}
+
+/* ── FILE TREE ── */
+.tree{
+  background:var(--ink);border-radius:var(--rl);border:1px solid #2A2A24;
+  padding:22px 26px;font-family:var(--fm);font-size:12.5px;
+  line-height:1.9;color:#C8C4B8;margin:14px 0 22px;
+}
+.tr{color:#4A4E44}
+.tf{color:#98C88A}
+.td{color:#7AB8D8}
+.tn{color:#E8C87A}
+
+/* ── ADMIN MOCKUP ── */
+.mock-shell{background:var(--white);border:1px solid var(--stone-deep);border-radius:var(--rl);overflow:hidden;margin:14px 0 24px}
+.mock-topbar{height:46px;border-bottom:1px solid var(--stone-mid);display:flex;align-items:center;padding:0 20px;gap:12px}
+.mock-title{font-weight:500;font-size:13.5px;flex:1}
+.mock-btn{height:30px;padding:0 14px;border-radius:5px;font-size:12px;font-weight:500;display:inline-flex;align-items:center;gap:6px;cursor:default}
+.mb-primary{background:var(--navy);color:#E8E4D4}
+.mb-ghost{background:transparent;color:var(--ink3);border:1px solid var(--stone-deep)}
+.mock-body{padding:20px}
+.mock-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.mock-card{border:1px solid var(--stone-deep);border-radius:var(--rl);overflow:hidden}
+.mc-head{padding:12px 16px;border-bottom:1px solid var(--stone-mid);display:flex;align-items:center;justify-content:space-between}
+.mc-title{font-weight:500;font-size:13px;color:var(--ink)}
+.mc-type{font-family:var(--fm);font-size:10px;color:var(--ink4);background:var(--stone);padding:2px 8px;border-radius:4px}
+.mc-body{padding:14px 16px}
+.mc-label{font-family:var(--fm);font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink4);margin-bottom:5px}
+.mc-input{width:100%;height:32px;border:1px solid var(--stone-deep);border-radius:5px;padding:0 10px;font-size:12.5px;color:var(--ink3);background:var(--white);display:flex;align-items:center;margin-bottom:10px}
+.mc-input.focus{border-color:var(--navy-soft);box-shadow:0 0 0 3px var(--navy-wash)}
+.mc-input.ok{border-color:#98C88A;background:#F0F8EA}
+.mc-input.err{border-color:var(--crimson-soft);background:var(--crimson-wash)}
+.mc-hint{font-size:11px;color:var(--ink4);margin-bottom:10px;margin-top:-7px}
+.mc-ok{font-size:11px;color:#3B6D11;margin-bottom:10px;margin-top:-7px}
+.mc-err{font-size:11px;color:var(--crimson-soft);margin-bottom:10px;margin-top:-7px}
+.badge{font-family:var(--fm);font-size:10px;letter-spacing:0.04em;padding:3px 9px;border-radius:20px}
+.b-pdf{background:#FAEAEA;color:var(--crimson)}
+.b-vid{background:var(--navy-wash);color:var(--navy-mid)}
+.b-doc{background:var(--olive-wash);color:var(--olive-mid)}
+
+/* ── CADET LIBRARY MOCKUP ── */
+.lib-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;padding:16px}
+.lib-card{background:var(--white);border:1px solid var(--stone-mid);border-radius:var(--rl);overflow:hidden}
+.lc-thumb{height:80px;display:flex;align-items:center;justify-content:center;font-size:28px}
+.lc-thumb.pdf{background:#FFF0F0}
+.lc-thumb.vid{background:#EDF1F8}
+.lc-thumb.doc{background:var(--olive-wash)}
+.lc-body{padding:10px 12px}
+.lc-title{font-weight:500;font-size:12px;color:var(--ink);margin-bottom:4px;line-height:1.3}
+.lc-sub{font-size:10.5px;color:var(--ink4);font-weight:300}
+.lc-foot{padding:8px 12px;border-top:1px solid var(--stone-mid);display:flex;gap:6px}
+.lc-btn{flex:1;height:26px;border-radius:4px;font-size:10.5px;display:flex;align-items:center;justify-content:center;gap:4px;cursor:default;font-weight:500}
+.lc-view{background:var(--navy-wash);color:var(--navy-mid)}
+.lc-dl{background:var(--stone-mid);color:var(--ink2)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:768px){
+  nav{display:none}
+  .content{padding:32px 24px 80px}
+  .modes{grid-template-columns:1fr}
+  .mock-grid{grid-template-columns:1fr}
+  .lib-grid{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- ── SIDEBAR ── -->
+<nav id="nav">
+  <div class="nb">
+    <div class="nb-shield"><span>NCC</span></div>
+    <div class="nb-title">Materials<br>Guide</div>
+    <div class="nb-sub">Drive Integration · v1.0</div>
+  </div>
+
+  <div class="ns">Concept</div>
+  <a href="#s-overview">How it works</a>
+  <a href="#s-urls">Drive URL anatomy</a>
+  <a href="#s-modes">Rendering modes</a>
+
+  <div class="ns">Backend</div>
+  <a href="#s-schema">Database schema</a>
+  <a href="#s-routes">API routes</a>
+  <a href="#s-validate">Link validation</a>
+
+  <div class="ns">Frontend</div>
+  <a href="#s-utils">Drive utilities</a>
+  <a href="#s-admin">Admin screen</a>
+  <a href="#s-cadet">Cadet library</a>
+  <a href="#s-viewer">PDF viewer</a>
+
+  <div class="ns">Operations</div>
+  <a href="#s-upload">Upload guide</a>
+  <a href="#s-gotchas">Gotchas</a>
+  <a href="#s-checklist">Launch checklist</a>
+</nav>
+
+<!-- ── MAIN ── -->
+<main>
+<div class="hero">
+  <div class="h-eyebrow">NCC Tirupati Unit · Examination Portal</div>
+  <div class="h-title">Drive Materials<br><em>Integration Guide</em></div>
+  <div class="h-sub">Complete playbook for building the syllabus materials module — from Google Drive setup to in-portal PDF rendering, download links, and the admin management screen.</div>
+  <div class="h-pills">
+    <span class="h-pill">Google Drive</span>
+    <span class="h-pill">Express + Prisma</span>
+    <span class="h-pill">React</span>
+    <span class="h-pill">iframe embed</span>
+    <span class="h-pill">Link validation</span>
+  </div>
+</div>
+
+<div class="content">
+
+<!-- ════════════ OVERVIEW ════════════ -->
+<div class="section" id="s-overview">
+  <div class="s-label">01 — Concept</div>
+  <div class="s-title">How it <em>works</em></div>
+  <div class="s-desc">The portal never stores files. It stores only a Google Drive file ID — a short string like <code>1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms</code>. All file delivery — preview, stream, download — comes directly from Google's servers. You manage files in Drive, your portal just points to them.</div>
+  <div class="divider"></div>
+
+  <div class="sub">System flow</div>
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-title">ANO uploads file to Google Drive</div>
+        <div class="step-desc">PDF, video, or document uploaded to the unit's shared Drive folder. Sharing is set to "Anyone with the link — Viewer". This takes 60 seconds.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-title">ANO pastes the share URL into the admin portal</div>
+        <div class="step-desc">The portal extracts the file ID from the pasted URL automatically. The ANO fills in the title, subject, and wing. No technical knowledge required.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-title">Backend validates the link</div>
+        <div class="step-desc">The server makes a HEAD request to the Drive preview URL. If it returns 200, the link is accessible. If it redirects to accounts.google.com, it's restricted — the material is flagged before cadets ever see it.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <div class="step-title">Material is saved to the database</div>
+        <div class="step-desc">Only the Drive file ID is stored — never a full URL. The full URL is constructed at runtime from the ID. This means if Google ever changes their URL format, you update one utility function, not thousands of database rows.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <div class="step-title">Cadets see and access materials</div>
+        <div class="step-desc">PDFs embed directly in the portal via iframe. Videos and documents open in Google's viewer in a new tab. Every material card has a Download button that triggers a direct download from Drive.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note"><strong>Why not store files on your server?</strong> File storage requires a CDN or object storage service (S3, Cloudflare R2), egress costs, backup strategy, and significant added complexity. For an MVP with one unit, Drive is free, reliable, globally cached, and zero maintenance. Migrate to S3 only if the unit grows significantly or Drive's access-control limitations become a real problem.</div>
+</div>
+
+<!-- ════════════ URL ANATOMY ════════════ -->
+<div class="section" id="s-urls">
+  <div class="s-label">02 — Concept</div>
+  <div class="s-title">Drive URL <em>anatomy</em></div>
+  <div class="s-desc">One file ID generates three distinct URLs, each serving a different purpose. Understanding this is the foundation of the entire module.</div>
+  <div class="divider"></div>
+
+  <div class="url-wrap">
+    <div style="font-family:var(--fm);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#4A6090;margin-bottom:16px">Share URL (what Drive gives you)</div>
+    <div class="url-line">
+      <span class="u-base">https://drive.google.com</span><span class="u-path">/file/d/</span><span class="u-id">1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms</span><span class="u-path">/view</span><span class="u-param">?usp=sharing</span>
+    </div>
+    <div style="font-family:var(--fm);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#4A6090;margin-bottom:16px;margin-top:22px">Preview URL (iframe embed — PDFs only)</div>
+    <div class="url-line">
+      <span class="u-base">https://drive.google.com</span><span class="u-path">/file/d/</span><span class="u-id">1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms</span><span class="u-path">/preview</span>
+    </div>
+    <div style="font-family:var(--fm);font-size:9px;letter-spacing:0.12em;text-transform:uppercase;color:#4A6090;margin-bottom:16px;margin-top:22px">Download URL (direct download — all file types)</div>
+    <div class="url-line">
+      <span class="u-base">https://drive.google.com</span><span class="u-path">/uc?export=download&amp;id=</span><span class="u-id">1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms</span>
+    </div>
+    <div class="url-legend">
+      <div class="ul-item"><div class="ul-dot" style="background:#7AB8D8"></div><span style="color:#7AB8D8">Base domain</span></div>
+      <div class="ul-item"><div class="ul-dot" style="background:#C8C4B8"></div><span style="color:#C8C4B8">Path fragments</span></div>
+      <div class="ul-item"><div class="ul-dot" style="background:#E8C87A"></div><span style="color:#E8C87A">File ID — the only thing stored in DB</span></div>
+      <div class="ul-item"><div class="ul-dot" style="background:#98C88A"></div><span style="color:#98C88A">Query parameters</span></div>
+    </div>
+  </div>
+
+  <div class="warn"><strong>The file ID is the source of truth.</strong> You extract it once when the ANO pastes the URL. Everything else is constructed from it. Never store the full URL — it contains Google's tracking parameters and can change format between Drive versions.</div>
+</div>
+
+<!-- ════════════ RENDERING MODES ════════════ -->
+<div class="section" id="s-modes">
+  <div class="s-label">03 — Concept</div>
+  <div class="s-title">Rendering <em>modes</em></div>
+  <div class="s-desc">Three file types — three distinct rendering strategies. The <code>fileType</code> field in the database drives which mode is used at render time.</div>
+  <div class="divider"></div>
+
+  <div class="modes">
+    <div class="mode-card">
+      <div class="mode-head">
+        <div class="mode-icon">📄</div>
+        <div class="mode-name">PDF</div>
+        <div class="mode-type">Syllabus, notes, handouts</div>
+      </div>
+      <div class="mode-body">
+        Embedded directly in the portal via <code>&lt;iframe&gt;</code> using the <code>/preview</code> URL. Cadets read without leaving the page. Download button overlaid at bottom-right.
+        <div class="mode-url">/file/d/{`ID`}/preview</div>
+      </div>
+    </div>
+    <div class="mode-card">
+      <div class="mode-head">
+        <div class="mode-icon">🎬</div>
+        <div class="mode-name">Video</div>
+        <div class="mode-type">Lectures, demonstrations</div>
+      </div>
+      <div class="mode-body">
+        Opens in Google Drive's native video player in a new tab. Drive streams the video with range requests — no buffering setup needed on your end.
+        <div class="mode-url">/file/d/{`ID`}/view</div>
+      </div>
+    </div>
+    <div class="mode-card">
+      <div class="mode-head">
+        <div class="mode-icon">📝</div>
+        <div class="mode-name">Document</div>
+        <div class="mode-type">DOCX, PPTX, XLSX</div>
+      </div>
+      <div class="mode-body">
+        Opens in Google Docs Viewer in a new tab. Drive renders Office files natively. Download button always shown — cadets can grab the original file.
+        <div class="mode-url">/file/d/{`ID`}/view</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ════════════ SCHEMA ════════════ -->
+<div class="section" id="s-schema">
+  <div class="s-label">04 — Backend</div>
+  <div class="s-title">Database <em>schema</em></div>
+  <div class="s-desc">A single <code>Material</code> model added to your existing Prisma schema. It connects to <code>User</code> (uploader) and optionally to <code>College</code> for scoped visibility.</div>
+  <div class="divider"></div>
+
+  <div class="file-tab"><div class="dot" style="background:#3B82F6"></div>schema.prisma</div>
+  <pre><span class="kw">model</span> <span class="ty">Material</span> {
+  <span class="at">id</span>           <span class="ty">String</span>       <span class="fn">@id</span> <span class="fn">@default</span>(<span class="fn">cuid</span>())
+  <span class="at">title</span>        <span class="ty">String</span>
+  <span class="at">subject</span>      <span class="ty">String</span>       <span class="cm">// e.g. "NCC Drill", "Map Reading", "First Aid"</span>
+  <span class="at">description</span>  <span class="ty">String</span>?
+  <span class="at">driveFileId</span>  <span class="ty">String</span>       <span class="cm">// ONLY the file ID — never the full URL</span>
+  <span class="at">fileType</span>     <span class="ty">FileType</span>     <span class="cm">// PDF | VIDEO | DOCUMENT</span>
+  <span class="at">wing</span>         <span class="ty">Wing</span>?        <span class="cm">// ARMY | NAVY | AIR_FORCE | null = all wings</span>
+  <span class="at">collegeId</span>    <span class="ty">String</span>?      <span class="cm">// null = visible to all colleges (Super Admin only)</span>
+  <span class="at">college</span>      <span class="ty">College</span>?     <span class="fn">@relation</span>(fields: [<span class="at">collegeId</span>], references: [<span class="at">id</span>])
+  <span class="at">uploadedById</span> <span class="ty">String</span>
+  <span class="at">uploadedBy</span>   <span class="ty">User</span>         <span class="fn">@relation</span>(fields: [<span class="at">uploadedById</span>], references: [<span class="at">id</span>])
+  <span class="at">accessStatus</span> <span class="ty">AccessStatus</span> <span class="fn">@default</span>(<span class="ty">VERIFIED</span>)
+  <span class="at">isActive</span>     <span class="ty">Boolean</span>      <span class="fn">@default</span>(<span class="ty">true</span>)
+  <span class="at">createdAt</span>    <span class="ty">DateTime</span>     <span class="fn">@default</span>(<span class="fn">now</span>())
+  <span class="at">updatedAt</span>    <span class="ty">DateTime</span>     <span class="fn">@updatedAt</span>
+}
+
+<span class="kw">enum</span> <span class="ty">FileType</span> {
+  <span class="ty">PDF</span>
+  <span class="ty">VIDEO</span>
+  <span class="ty">DOCUMENT</span>
+}
+
+<span class="kw">enum</span> <span class="ty">AccessStatus</span> {
+  <span class="ty">VERIFIED</span>    <span class="cm">// Drive returns 200 — cadets can access</span>
+  <span class="ty">RESTRICTED</span>  <span class="cm">// Drive redirects to login — file is private</span>
+  <span class="ty">PENDING</span>     <span class="cm">// Not yet validated</span>
+  <span class="ty">ERROR</span>       <span class="cm">// Unexpected response from Drive</span>
+}</pre>
+
+  <div class="note"><strong>Why <code>accessStatus</code>?</strong> This field is what protects cadets from broken links. When validation runs (on save, and on a nightly cron), it updates this field. Cadets only see materials where <code>accessStatus === 'VERIFIED'</code>. Admins see all materials with the status clearly labelled.</div>
+</div>
+
+<!-- ════════════ API ROUTES ════════════ -->
+<div class="section" id="s-routes">
+  <div class="s-label">05 — Backend</div>
+  <div class="s-title">API <em>routes</em></div>
+  <div class="s-desc">Six endpoints covering the full materials lifecycle. The <code>POST</code> route does double duty — it extracts the Drive ID and triggers validation before saving.</div>
+  <div class="divider"></div>
+
+  <div class="t-wrap">
+    <table>
+      <thead><tr><th>Method + path</th><th>Auth</th><th>Purpose</th></tr></thead>
+      <tbody>
+        <tr><td>GET /api/materials</td><td class="plain">Cadet, ANO, Admin</td><td class="plain">List materials visible to the requester (scoped by college + wing from JWT)</td></tr>
+        <tr><td>GET /api/materials/:id</td><td class="plain">Cadet, ANO, Admin</td><td class="plain">Single material detail (used by viewer page)</td></tr>
+        <tr><td>POST /api/materials</td><td class="plain">ANO, Admin</td><td class="plain">Create material — extracts Drive ID, validates access, saves to DB</td></tr>
+        <tr><td>PUT /api/materials/:id</td><td class="plain">ANO (owner), Admin</td><td class="plain">Update title, subject, description, wing, active status</td></tr>
+        <tr><td>DELETE /api/materials/:id</td><td class="plain">Admin only</td><td class="plain">Soft delete (sets isActive = false)</td></tr>
+        <tr><td>POST /api/materials/:id/revalidate</td><td class="plain">ANO, Admin</td><td class="plain">Re-run Drive access check on demand (for fixing restricted materials)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="file-tab"><div class="dot" style="background:#22C55E"></div>routes/materials.ts</div>
+  <pre><span class="cm">// POST /api/materials — create a new material</span>
+router.<span class="fn">post</span>(<span class="st">'/'</span>, <span class="fn">requireRole</span>([<span class="st">'COLLEGE_ADMIN'</span>, <span class="st">'SUPER_ADMIN'</span>]), <span class="kw">async</span> (req, res) => {
+  <span class="kw">const</span> { title, subject, description, driveUrl, fileType, wing } = req.body
+
+  <span class="cm">// 1. Extract file ID from whatever URL format Drive gives</span>
+  <span class="kw">const</span> driveFileId = <span class="fn">extractDriveId</span>(driveUrl)
+  <span class="kw">if</span> (!driveFileId) {
+    <span class="kw">return</span> res.<span class="fn">status</span>(<span class="num">400</span>).<span class="fn">json</span>({ message: <span class="st">'Invalid Google Drive URL'</span> })
+  }
+
+  <span class="cm">// 2. Validate that the file is publicly accessible</span>
+  <span class="kw">const</span> accessStatus = <span class="kw">await</span> <span class="fn">validateDriveAccess</span>(driveFileId)
+
+  <span class="cm">// 3. Save to DB — use the requester's collegeId from JWT for ANO</span>
+  <span class="kw">const</span> material = <span class="kw">await</span> prisma.material.<span class="fn">create</span>({
+    data: {
+      title, subject, description, driveFileId, fileType, wing,
+      collegeId: req.user.role === <span class="st">'SUPER_ADMIN'</span> ? <span class="kw">null</span> : req.user.collegeId,
+      uploadedById: req.user.id,
+      accessStatus,
+    }
+  })
+
+  <span class="cm">// 4. Warn the ANO if the file is restricted, but still save</span>
+  res.<span class="fn">status</span>(<span class="num">201</span>).<span class="fn">json</span>({
+    material,
+    warning: accessStatus === <span class="st">'RESTRICTED'</span>
+      ? <span class="st">'File appears to be restricted. Cadets will not be able to access it until you update the sharing settings in Google Drive.'</span>
+      : <span class="kw">null</span>
+  })
+})</pre>
+
+  <div class="sub">Cadet-side query — scoped visibility</div>
+  <pre><span class="cm">// GET /api/materials — cadets only see what they're eligible for</span>
+router.<span class="fn">get</span>(<span class="st">'/'</span>, <span class="fn">requireAuth</span>(), <span class="kw">async</span> (req, res) => {
+  <span class="kw">const</span> { subject, fileType, wing } = req.query
+  <span class="kw">const</span> { user } = req
+
+  <span class="kw">const</span> where = {
+    isActive: <span class="kw">true</span>,
+    accessStatus: <span class="st">'VERIFIED'</span>,
+    <span class="cm">// Material is visible if: no college restriction OR matches cadet's college</span>
+    OR: [
+      { collegeId: <span class="kw">null</span> },         <span class="cm">// global material</span>
+      { collegeId: user.collegeId }, <span class="cm">// college-specific material</span>
+    ],
+    <span class="cm">// Wing filter: show if no wing restriction OR matches cadet's wing</span>
+    ...(user.wing ? { OR: [{ wing: <span class="kw">null</span> }, { wing: user.wing }] } : {}),
+    <span class="cm">// Optional client-side filters</span>
+    ...(subject  ? { subject }  : {}),
+    ...(fileType ? { fileType } : {}),
+  }
+
+  <span class="kw">const</span> materials = <span class="kw">await</span> prisma.material.<span class="fn">findMany</span>({
+    where,
+    select: {
+      id: <span class="kw">true</span>, title: <span class="kw">true</span>, subject: <span class="kw">true</span>,
+      description: <span class="kw">true</span>, fileType: <span class="kw">true</span>, wing: <span class="kw">true</span>,
+      driveFileId: <span class="kw">true</span>,  <span class="cm">// needed to construct URLs client-side</span>
+      createdAt: <span class="kw">true</span>,
+    },
+    orderBy: { createdAt: <span class="st">'desc'</span> }
+  })
+
+  res.<span class="fn">json</span>(materials)
+})</pre>
+</div>
+
+<!-- ════════════ VALIDATION ════════════ -->
+<div class="section" id="s-validate">
+  <div class="s-label">06 — Backend</div>
+  <div class="s-title">Link <em>validation</em></div>
+  <div class="s-desc">The most important backend function in this module. It protects every cadet from clicking a link that silently redirects them to a Google login page.</div>
+  <div class="divider"></div>
+
+  <div class="file-tab"><div class="dot" style="background:#F59E0B"></div>utils/drive.ts</div>
+  <pre><span class="kw">import</span> axios <span class="kw">from</span> <span class="st">'axios'</span>
+
+<span class="cm">// ── ID extraction ─────────────────────────────────────────────</span>
+<span class="kw">export function</span> <span class="fn">extractDriveId</span>(url: <span class="ty">string</span>): <span class="ty">string</span> | <span class="ty">null</span> {
+  <span class="kw">const</span> patterns = [
+    <span class="cm">// /file/d/ID/view  (most common share link format)</span>
+    <span class="st">/\/file\/d\/([a-zA-Z0-9_-]{25,})/</span>,
+    <span class="cm">// ?id=ID  (older download links)</span>
+    <span class="st">/[?&]id=([a-zA-Z0-9_-]{25,})/</span>,
+    <span class="cm">// /d/ID  (shortened links)</span>
+    <span class="st">/\/d\/([a-zA-Z0-9_-]{25,})/</span>,
+  ]
+  <span class="kw">for</span> (<span class="kw">const</span> pattern <span class="kw">of</span> patterns) {
+    <span class="kw">const</span> match = url.<span class="fn">match</span>(pattern)
+    <span class="kw">if</span> (match) <span class="kw">return</span> match[<span class="num">1</span>]
+  }
+  <span class="kw">return null</span>
+}
+
+<span class="cm">// ── URL construction ──────────────────────────────────────────</span>
+<span class="kw">export const</span> driveUrl = {
+  preview:  (id: <span class="ty">string</span>) => <span class="st">`https://drive.google.com/file/d/${id}/preview`</span>,
+  view:     (id: <span class="ty">string</span>) => <span class="st">`https://drive.google.com/file/d/${id}/view`</span>,
+  download: (id: <span class="ty">string</span>) => <span class="st">`https://drive.google.com/uc?export=download&id=${id}`</span>,
+}
+
+<span class="cm">// ── Access validation ─────────────────────────────────────────</span>
+<span class="kw">export async function</span> <span class="fn">validateDriveAccess</span>(
+  fileId: <span class="ty">string</span>
+): Promise&lt;<span class="st">'VERIFIED'</span> | <span class="st">'RESTRICTED'</span> | <span class="st">'ERROR'</span>&gt; {
+  <span class="kw">try</span> {
+    <span class="kw">const</span> response = <span class="kw">await</span> axios.<span class="fn">get</span>(<span class="fn">driveUrl.preview</span>(fileId), {
+      maxRedirects: <span class="num">0</span>,       <span class="cm">// don't follow redirects — a redirect IS the error signal</span>
+      timeout: <span class="num">5000</span>,
+      validateStatus: (s) => s &lt; <span class="num">400</span>,
+    })
+
+    <span class="kw">const</span> finalUrl = response.request?.res?.responseUrl ?? <span class="st">''</span>
+
+    <span class="cm">// If Drive redirected to accounts.google.com — file is restricted</span>
+    <span class="kw">if</span> (finalUrl.<span class="fn">includes</span>(<span class="st">'accounts.google.com'</span>)) {
+      <span class="kw">return</span> <span class="st">'RESTRICTED'</span>
+    }
+
+    <span class="cm">// 200 or 204 with no redirect = file is public</span>
+    <span class="kw">if</span> (response.status === <span class="num">200</span>) <span class="kw">return</span> <span class="st">'VERIFIED'</span>
+
+    <span class="kw">return</span> <span class="st">'ERROR'</span>
+  } <span class="kw">catch</span> (err) {
+    <span class="cm">// Network failure, timeout, or 404 — treat as ERROR not RESTRICTED</span>
+    console.<span class="fn">error</span>(<span class="st">'Drive validation failed:'</span>, err)
+    <span class="kw">return</span> <span class="st">'ERROR'</span>
+  }
+}</pre>
+
+  <div class="sub">Nightly revalidation cron</div>
+  <pre><span class="cm">// cron/revalidateMaterials.ts — run nightly at 2am</span>
+<span class="kw">import</span> cron <span class="kw">from</span> <span class="st">'node-cron'</span>
+
+cron.<span class="fn">schedule</span>(<span class="st">'0 2 * * *'</span>, <span class="kw">async</span> () => {
+  <span class="kw">const</span> materials = <span class="kw">await</span> prisma.material.<span class="fn">findMany</span>({
+    where: { isActive: <span class="kw">true</span> },
+    select: { id: <span class="kw">true</span>, driveFileId: <span class="kw">true</span> }
+  })
+
+  <span class="kw">for</span> (<span class="kw">const</span> m <span class="kw">of</span> materials) {
+    <span class="kw">const</span> status = <span class="kw">await</span> <span class="fn">validateDriveAccess</span>(m.driveFileId)
+    <span class="kw">await</span> prisma.material.<span class="fn">update</span>({
+      where: { id: m.id },
+      data: { accessStatus: status }
+    })
+  }
+
+  console.<span class="fn">log</span>(<span class="st">`Revalidated ${materials.length} materials`</span>)
+})</pre>
+
+  <div class="warn"><strong>Install node-cron:</strong> <code>npm install node-cron @types/node-cron</code>. Register the cron in your Express app entry point — <code>import './cron/revalidateMaterials'</code>. It fires once on server start and then every night at 2am. For a production deployment on a service like Railway or Render, a cron job is better than an in-process scheduler — use their native cron feature instead.</div>
+</div>
+
+<!-- ════════════ UTILS ════════════ -->
+<div class="section" id="s-utils">
+  <div class="s-label">07 — Frontend</div>
+  <div class="s-title">Drive <em>utilities</em></div>
+  <div class="s-desc">The frontend-side utility module. Mirrors the backend <code>driveUrl</code> helper so URL construction never lives in component code.</div>
+  <div class="divider"></div>
+
+  <div class="tree">
+    <span class="tr">src/</span><br>
+    <span class="tr">├── </span><span class="td">utils/</span><br>
+    <span class="tr">│   ├── </span><span class="tf">drive.ts</span>       <span class="cm" style="color:#4A4E44">  ← URL helpers (below)</span><br>
+    <span class="tr">│   └── </span><span class="tf">validators.ts</span>  <span class="cm" style="color:#4A4E44">  ← form validation</span><br>
+    <span class="tr">├── </span><span class="td">components/materials/</span><br>
+    <span class="tr">│   ├── </span><span class="tn">MaterialCard.tsx</span>  <span class="cm" style="color:#4A4E44"> ← cadet library card</span><br>
+    <span class="tr">│   ├── </span><span class="tn">MaterialViewer.tsx</span><span class="cm" style="color:#4A4E44"> ← PDF iframe + fallback</span><br>
+    <span class="tr">│   └── </span><span class="tn">MaterialForm.tsx</span>  <span class="cm" style="color:#4A4E44"> ← admin create/edit form</span><br>
+    <span class="tr">├── </span><span class="td">pages/cadet/</span><br>
+    <span class="tr">│   └── </span><span class="tn">MaterialsLibrary.tsx</span><br>
+    <span class="tr">└── </span><span class="td">pages/admin/</span><br>
+    <span class="tr">    └── </span><span class="tn">MaterialManagement.tsx</span>
+  </div>
+
+  <div class="file-tab"><div class="dot" style="background:#3B82F6"></div>utils/drive.ts (frontend)</div>
+  <pre><span class="cm">// Construct Drive URLs from a file ID</span>
+<span class="kw">export const</span> driveUrl = {
+  preview:  (id: <span class="ty">string</span>) => <span class="st">`https://drive.google.com/file/d/${id}/preview`</span>,
+  view:     (id: <span class="ty">string</span>) => <span class="st">`https://drive.google.com/file/d/${id}/view`</span>,
+  download: (id: <span class="ty">string</span>) => <span class="st">`https://drive.google.com/uc?export=download&id=${id}`</span>,
+}
+
+<span class="cm">// Detect file type from a pasted URL if the ANO doesn't specify</span>
+<span class="kw">export function</span> <span class="fn">detectFileType</span>(url: <span class="ty">string</span>): <span class="st">'PDF'</span> | <span class="st">'VIDEO'</span> | <span class="st">'DOCUMENT'</span> | <span class="kw">null</span> {
+  <span class="kw">const</span> lower = url.<span class="fn">toLowerCase</span>()
+  <span class="kw">if</span> (lower.<span class="fn">includes</span>(<span class="st">'.pdf'</span>))  <span class="kw">return</span> <span class="st">'PDF'</span>
+  <span class="kw">if</span> (lower.<span class="fn">includes</span>(<span class="st">'.mp4'</span>) || lower.<span class="fn">includes</span>(<span class="st">'.mov'</span>)) <span class="kw">return</span> <span class="st">'VIDEO'</span>
+  <span class="kw">if</span> (lower.<span class="fn">includes</span>(<span class="st">'.docx'</span>) || lower.<span class="fn">includes</span>(<span class="st">'.pptx'</span>)) <span class="kw">return</span> <span class="st">'DOCUMENT'</span>
+  <span class="kw">return null</span>  <span class="cm">// ANO must select manually</span>
+}
+
+<span class="cm">// Icon for each file type — used in MaterialCard</span>
+<span class="kw">export const</span> fileTypeIcon: Record&lt;<span class="ty">string</span>, <span class="ty">string</span>&gt; = {
+  PDF:      <span class="st">'📄'</span>,
+  VIDEO:    <span class="st">'🎬'</span>,
+  DOCUMENT: <span class="st">'📝'</span>,
+}
+
+<span class="cm">// Label shown to cadets</span>
+<span class="kw">export const</span> fileTypeLabel: Record&lt;<span class="ty">string</span>, <span class="ty">string</span>&gt; = {
+  PDF:      <span class="st">'PDF document'</span>,
+  VIDEO:    <span class="st">'Video'</span>,
+  DOCUMENT: <span class="st">'Document'</span>,
+}</pre>
+</div>
+
+<!-- ════════════ ADMIN SCREEN ════════════ -->
+<div class="section" id="s-admin">
+  <div class="s-label">08 — Frontend</div>
+  <div class="s-title">Admin <em>screen</em></div>
+  <div class="s-desc">The Material Management screen for ANOs and Super Admins. The form field for the Drive URL does the heavy lifting — it extracts the file ID on paste and immediately shows a validation status.</div>
+  <div class="divider"></div>
+
+  <!-- MOCKUP -->
+  <div class="mock-shell">
+    <div class="mock-topbar">
+      <span style="font-size:12px;color:var(--ink4);cursor:default">← Materials</span>
+      <span class="mock-title" style="margin-left:12px">Add material</span>
+      <div style="display:flex;gap:8px">
+        <div class="mock-btn mb-ghost">Cancel</div>
+        <div class="mock-btn mb-primary">Save material</div>
+      </div>
+    </div>
+    <div class="mock-body">
+      <div class="mock-grid">
+        <div>
+          <div class="mc-label" style="font-family:var(--fm);font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink4);margin-bottom:14px">Metadata</div>
+          <div class="mock-card">
+            <div class="mc-body">
+              <div class="mc-label">Material title</div>
+              <div class="mc-input">NCC Drill Manual — Part II</div>
+              <div style="height:10px"></div>
+              <div class="mc-label">Subject / topic</div>
+              <div class="mc-input">Drill & Ceremonial</div>
+              <div style="height:10px"></div>
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+                <div>
+                  <div class="mc-label">File type</div>
+                  <div class="mc-input" style="justify-content:space-between">PDF <span>▾</span></div>
+                </div>
+                <div>
+                  <div class="mc-label">Wing</div>
+                  <div class="mc-input" style="justify-content:space-between">All wings <span>▾</span></div>
+                </div>
+              </div>
+              <div style="height:10px"></div>
+              <div class="mc-label">Description (optional)</div>
+              <div class="mc-input" style="height:56px;align-items:flex-start;padding-top:8px">Standard drill movements and commands for B and C certificate cadets.</div>
+            </div>
+          </div>
+        </div>
+        <div>
+          <div class="mc-label" style="font-family:var(--fm);font-size:9px;text-transform:uppercase;letter-spacing:0.1em;color:var(--ink4);margin-bottom:14px">Google Drive link</div>
+          <div class="mock-card">
+            <div class="mc-body">
+              <div class="mc-label">Paste Drive share URL</div>
+              <div class="mc-input ok" style="font-family:var(--fm);font-size:11px;word-break:break-all;height:auto;padding:8px 10px;">https://drive.google.com/file/d/1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms/view?usp=sharing</div>
+              <div class="mc-ok">✓ File ID extracted: 1BxiMVs0XRA5nFMdKvBdBZjgmUUqptlbs74OgVE2upms</div>
+              <div style="background:var(--olive-wash);border:1px solid var(--olive-pale);border-radius:var(--r);padding:12px 14px;margin-top:4px">
+                <div style="font-family:var(--fm);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--olive-mid);margin-bottom:6px">Access validation</div>
+                <div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:var(--ink2)">
+                  <div style="width:10px;height:10px;border-radius:50%;background:#3B6D11;flex-shrink:0"></div>
+                  File is publicly accessible. Cadets will be able to open and download this material.
+                </div>
+              </div>
+              <div style="height:12px"></div>
+              <div style="font-family:var(--fm);font-size:9px;letter-spacing:0.1em;text-transform:uppercase;color:var(--ink4);margin-bottom:8px">Preview</div>
+              <div style="background:var(--stone);border:1px solid var(--stone-deep);border-radius:var(--r);height:120px;display:flex;align-items:center;justify-content:center;font-size:28px">📄</div>
+              <div style="font-size:11.5px;color:var(--ink4);margin-top:6px;font-family:var(--fm)">PDF will embed via iframe on the cadet library page</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="sub">MaterialForm.tsx — URL input handler</div>
+  <pre><span class="cm">// components/materials/MaterialForm.tsx</span>
+<span class="kw">import</span> { useState } <span class="kw">from</span> <span class="st">'react'</span>
+<span class="kw">import</span> { <span class="fn">extractDriveId</span>, <span class="fn">detectFileType</span> } <span class="kw">from</span> <span class="st">'@/utils/drive'</span>
+
+<span class="kw">function</span> <span class="fn">MaterialForm</span>({ onSave }) {
+  <span class="kw">const</span> [driveUrl, setDriveUrl] = <span class="fn">useState</span>(<span class="st">''</span>)
+  <span class="kw">const</span> [fileId, setFileId]   = <span class="fn">useState</span>&lt;<span class="ty">string</span> | <span class="kw">null</span>&gt;(<span class="kw">null</span>)
+  <span class="kw">const</span> [idError, setIdError] = <span class="fn">useState</span>(<span class="kw">false</span>)
+
+  <span class="cm">// Run on every keystroke — extract ID immediately on paste</span>
+  <span class="kw">const</span> <span class="fn">handleUrlChange</span> = (val: <span class="ty">string</span>) => {
+    setDriveUrl(val)
+    <span class="kw">const</span> extracted = <span class="fn">extractDriveId</span>(val)
+    setFileId(extracted)
+    setIdError(val.<span class="fn">length</span> &gt; <span class="num">10</span> && !extracted)
+  }
+
+  <span class="kw">return</span> (
+    &lt;div&gt;
+      &lt;label&gt;Paste Drive share URL&lt;/label&gt;
+      &lt;input
+        value={driveUrl}
+        onChange={e =&gt; <span class="fn">handleUrlChange</span>(e.target.value)}
+        placeholder=<span class="st">"https://drive.google.com/file/d/..."</span>
+        className={fileId ? <span class="st">'border-green-400'</span> : idError ? <span class="st">'border-red-400'</span> : <span class="st">''</span>}
+      /&gt;
+
+      {fileId &amp;&amp; (
+        &lt;p className=<span class="st">"text-xs text-green-700 mt-1"</span>&gt;
+          ✓ File ID extracted: {fileId}
+        &lt;/p&gt;
+      )}
+      {idError &amp;&amp; (
+        &lt;p className=<span class="st">"text-xs text-red-600 mt-1"</span>&gt;
+          Could not extract a file ID from this URL. Paste the full share link from Google Drive.
+        &lt;/p&gt;
+      )}
+    &lt;/div&gt;
+  )
+}</pre>
+</div>
+
+<!-- ════════════ CADET LIBRARY ════════════ -->
+<div class="section" id="s-cadet">
+  <div class="s-label">09 — Frontend</div>
+  <div class="s-title">Cadet <em>library</em></div>
+  <div class="s-desc">The materials page cadets see. Filter by subject and file type. Each card shows the file type, opens the PDF in the viewer, or opens videos/documents in a new tab. Download is always one tap away.</div>
+  <div class="divider"></div>
+
+  <!-- CADET LIBRARY MOCKUP -->
+  <div class="mock-shell">
+    <div class="mock-topbar">
+      <span class="mock-title">Study materials</span>
+      <div style="display:flex;gap:8px">
+        <div class="mock-btn mb-ghost" style="height:28px;font-size:11px">All subjects ▾</div>
+        <div class="mock-btn mb-ghost" style="height:28px;font-size:11px">All types ▾</div>
+      </div>
+    </div>
+    <div class="lib-grid">
+      <div class="lib-card">
+        <div class="lc-thumb pdf">📄</div>
+        <div class="lc-body">
+          <div class="lc-title">NCC Drill Manual — Part II</div>
+          <div class="lc-sub">Drill &amp; Ceremonial · PDF</div>
+        </div>
+        <div class="lc-foot">
+          <div class="lc-btn lc-view">View</div>
+          <div class="lc-btn lc-dl">⤓ Download</div>
+        </div>
+      </div>
+      <div class="lib-card">
+        <div class="lc-thumb vid">🎬</div>
+        <div class="lc-body">
+          <div class="lc-title">Map Reading — Lecture 3</div>
+          <div class="lc-sub">Field Craft · Video</div>
+        </div>
+        <div class="lc-foot">
+          <div class="lc-btn lc-view">Open video</div>
+          <div class="lc-btn lc-dl">⤓ Download</div>
+        </div>
+      </div>
+      <div class="lib-card">
+        <div class="lc-thumb doc">📝</div>
+        <div class="lc-body">
+          <div class="lc-title">B-Cert Exam Syllabus 2026</div>
+          <div class="lc-sub">Examinations · Document</div>
+        </div>
+        <div class="lc-foot">
+          <div class="lc-btn lc-view">Open doc</div>
+          <div class="lc-btn lc-dl">⤓ Download</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="file-tab"><div class="dot" style="background:#E879F9"></div>components/materials/MaterialCard.tsx</div>
+  <pre><span class="kw">import</span> { driveUrl, fileTypeIcon, fileTypeLabel } <span class="kw">from</span> <span class="st">'@/utils/drive'</span>
+
+<span class="kw">export function</span> <span class="fn">MaterialCard</span>({ material, onView }) {
+  <span class="kw">const</span> isPDF     = material.fileType === <span class="st">'PDF'</span>
+  <span class="kw">const</span> isInline  = isPDF   <span class="cm">// PDFs open in portal viewer</span>
+  <span class="kw">const</span> viewHref  = isInline ? <span class="kw">undefined</span> : driveUrl.<span class="fn">view</span>(material.driveFileId)
+
+  <span class="kw">return</span> (
+    &lt;div className=<span class="st">"border rounded-lg overflow-hidden bg-white"</span>&gt;
+      &lt;div className=<span class="st">{`h-20 flex items-center justify-center text-3xl ${
+        isPDF ? 'bg-red-50' : material.fileType === 'VIDEO' ? 'bg-blue-50' : 'bg-green-50'
+      }`}&gt;
+        {fileTypeIcon[material.fileType]}
+      &lt;/div&gt;
+
+      &lt;div className=<span class="st">"p-3"</span>&gt;
+        &lt;p className=<span class="st">"font-medium text-sm text-ink leading-snug"</span>&gt;{material.title}&lt;/p&gt;
+        &lt;p className=<span class="st">"text-xs text-ink-3 mt-1 font-light"</span>&gt;
+          {material.subject} · {fileTypeLabel[material.fileType]}
+        &lt;/p&gt;
+      &lt;/div&gt;
+
+      &lt;div className=<span class="st">"border-t p-2 flex gap-2"</span>&gt;
+        {isInline ? (
+          &lt;button
+            onClick={() =&gt; <span class="fn">onView</span>(material)}
+            className=<span class="st">"flex-1 h-7 text-xs font-medium bg-navy-wash text-navy-mid rounded"</span>
+          &gt;View&lt;/button&gt;
+        ) : (
+          &lt;a
+            href={viewHref} target=<span class="st">"_blank"</span> rel=<span class="st">"noreferrer"</span>
+            className=<span class="st">"flex-1 h-7 text-xs font-medium bg-navy-wash text-navy-mid rounded flex items-center justify-center"</span>
+          &gt;{material.fileType === <span class="st">'VIDEO'</span> ? <span class="st">'Open video'</span> : <span class="st">'Open doc'</span>}&lt;/a&gt;
+        )}
+
+        &lt;a
+          href={driveUrl.<span class="fn">download</span>(material.driveFileId)}
+          target=<span class="st">"_blank"</span> rel=<span class="st">"noreferrer"</span>
+          className=<span class="st">"flex-1 h-7 text-xs font-medium bg-stone-mid text-ink-2 rounded flex items-center justify-center gap-1"</span>
+        &gt;⤓ Download&lt;/a&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</pre>
+</div>
+
+<!-- ════════════ PDF VIEWER ════════════ -->
+<div class="section" id="s-viewer">
+  <div class="s-label">10 — Frontend</div>
+  <div class="s-title">PDF <em>viewer</em></div>
+  <div class="s-desc">When a cadet taps "View" on a PDF card, a full-height viewer opens. The Drive preview URL loads in an iframe. A persistent download button stays visible regardless of scroll position.</div>
+  <div class="divider"></div>
+
+  <div class="file-tab"><div class="dot" style="background:#E879F9"></div>components/materials/MaterialViewer.tsx</div>
+  <pre><span class="kw">import</span> { driveUrl } <span class="kw">from</span> <span class="st">'@/utils/drive'</span>
+
+<span class="kw">export function</span> <span class="fn">MaterialViewer</span>({ material, onClose }) {
+  <span class="kw">if</span> (!material) <span class="kw">return null</span>
+
+  <span class="kw">return</span> (
+    <span class="cm">// Full-screen overlay</span>
+    &lt;div className=<span class="st">"fixed inset-0 bg-black/60 z-50 flex flex-col"</span>&gt;
+
+      <span class="cm">// Top bar</span>
+      &lt;div className=<span class="st">"h-12 bg-navy flex items-center px-4 gap-3 flex-shrink-0"</span>&gt;
+        &lt;button onClick={onClose} className=<span class="st">"text-white/60 hover:text-white text-sm"</span>&gt;
+          ← Back to materials
+        &lt;/button&gt;
+        &lt;span className=<span class="st">"text-white/80 text-sm flex-1 truncate"</span>&gt;{material.title}&lt;/span&gt;
+        &lt;a
+          href={driveUrl.<span class="fn">download</span>(material.driveFileId)}
+          target=<span class="st">"_blank"</span> rel=<span class="st">"noreferrer"</span>
+          className=<span class="st">"btn-primary btn-sm flex items-center gap-2"</span>
+        &gt;
+          ⤓ Download PDF
+        &lt;/a&gt;
+      &lt;/div&gt;
+
+      <span class="cm">// iframe — fills remaining height</span>
+      &lt;div className=<span class="st">"flex-1 relative"</span>&gt;
+        &lt;iframe
+          src={driveUrl.<span class="fn">preview</span>(material.driveFileId)}
+          className=<span class="st">"w-full h-full border-0"</span>
+          title={material.title}
+          allow=<span class="st">"autoplay"</span>
+        /&gt;
+
+        <span class="cm">// Fallback — shown if iframe fails to load</span>
+        &lt;noscript&gt;
+          &lt;div className=<span class="st">"absolute inset-0 flex items-center justify-center bg-stone"</span>&gt;
+            &lt;div className=<span class="st">"text-center"</span>&gt;
+              &lt;p className=<span class="st">"text-ink-3 mb-4"</span>&gt;Unable to load preview in your browser.&lt;/p&gt;
+              &lt;a href={driveUrl.<span class="fn">view</span>(material.driveFileId)} target=<span class="st">"_blank"</span>&gt;
+                Open in Google Drive
+              &lt;/a&gt;
+            &lt;/div&gt;
+          &lt;/div&gt;
+        &lt;/noscript&gt;
+      &lt;/div&gt;
+
+      <span class="cm">// Bottom fallback bar — always visible</span>
+      &lt;div className=<span class="st">"h-10 bg-stone border-t border-stone-deep flex items-center justify-center gap-3 flex-shrink-0"</span>&gt;
+        &lt;span className=<span class="st">"text-xs text-ink-3"</span>&gt;Can't see the preview?&lt;/span&gt;
+        &lt;a
+          href={driveUrl.<span class="fn">view</span>(material.driveFileId)}
+          target=<span class="st">"_blank"</span> rel=<span class="st">"noreferrer"</span>
+          className=<span class="st">"text-xs text-navy-soft underline"</span>
+        &gt;Open directly in Google Drive&lt;/a&gt;
+      &lt;/div&gt;
+    &lt;/div&gt;
+  )
+}</pre>
+
+  <div class="danger"><strong>iframe + Google login:</strong> A cadet who is signed into a Google account that does not have permission to view the file will see a blank iframe — no error, no message. The fallback bar at the bottom ("Can't see the preview? Open directly in Google Drive") is not optional. It must always render beneath the iframe.</div>
+</div>
+
+<!-- ════════════ UPLOAD GUIDE ════════════ -->
+<div class="section" id="s-upload">
+  <div class="s-label">11 — Operations</div>
+  <div class="s-title">ANO Upload <em>guide</em></div>
+  <div class="s-desc">What you tell every ANO, word for word. Keep this as a printed SOP pinned in the unit office.</div>
+  <div class="divider"></div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-body">
+        <div class="step-title">Go to drive.google.com</div>
+        <div class="step-desc">Sign in with your unit Google account (not a personal account). Navigate to the NCC Tirupati shared folder. Create a subfolder for the subject if it doesn't already exist.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-body">
+        <div class="step-title">Upload the file</div>
+        <div class="step-desc">Drag and drop the PDF, video, or document into the folder. Wait for the upload to complete — you'll see a green tick. Keep files under 20MB where possible. Compress PDFs using Smallpdf or ilovepdf.com before uploading if they're large.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-body">
+        <div class="step-title">Set sharing to "Anyone with the link"</div>
+        <div class="step-desc">Right-click the file → Share → Change from "Restricted" to <strong>Anyone with the link</strong>. Role must be <strong>Viewer</strong> (not Editor or Commenter). Click Copy link. This is the critical step — if sharing is wrong, cadets get a blank page.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-body">
+        <div class="step-title">Open the portal and add the material</div>
+        <div class="step-desc">Go to Materials → Add material. Paste the copied link into the Drive URL field. Fill in the title, subject, file type, and wing. The portal will automatically check if the file is accessible before saving.</div>
+      </div>
+    </div>
+    <div class="step">
+      <div class="step-num">5</div>
+      <div class="step-body">
+        <div class="step-title">Verify with a cadet account</div>
+        <div class="step-desc">Log in as a test cadet in a different browser (or Incognito). Open the material and confirm you can view and download it. This takes 2 minutes and prevents dozens of support requests.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="tip"><strong>Drive folder structure recommendation</strong><br>
+  Organise Drive as: <code>NCC Tirupati / [Wing] / [Subject] / [Year] / filename.pdf</code><br>
+  Example: <code>NCC Tirupati / Army / Drill / 2026 / drill-manual-part-2.pdf</code><br>
+  This makes it easy to find and replace outdated materials when syllabi change.</div>
+</div>
+
+<!-- ════════════ GOTCHAS ════════════ -->
+<div class="section" id="s-gotchas">
+  <div class="s-label">12 — Operations</div>
+  <div class="s-title">Known <em>gotchas</em></div>
+  <div class="s-desc">Every issue you will encounter, documented before you hit them.</div>
+  <div class="divider"></div>
+
+  <div class="t-wrap">
+    <table>
+      <thead><tr><th>Problem</th><th>Symptom</th><th>Fix</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>iframe blank — cadet signed into wrong Google account</td>
+          <td class="plain">White iframe, no error message</td>
+          <td class="plain">Always show "Can't see? Open in Drive" fallback. Ensure sharing is "Anyone with link", not "Specific people".</td>
+        </tr>
+        <tr>
+          <td>Large file download warning page</td>
+          <td class="plain">Download button shows a Google "too large to scan" HTML page instead of the file</td>
+          <td class="plain">Keep files under 25MB. Compress PDFs first. For videos, use compressed MP4 at 720p.</td>
+        </tr>
+        <tr>
+          <td>ANO accidentally sets sharing to "Restricted"</td>
+          <td class="plain">Portal shows RESTRICTED badge on the material</td>
+          <td class="plain">Validation catches this on save. ANO must fix in Drive then click Revalidate in the portal.</td>
+        </tr>
+        <tr>
+          <td>Drive changes the URL format</td>
+          <td class="plain">ID extraction fails for new uploads</td>
+          <td class="plain">Update <code>extractDriveId()</code> regex patterns in one place. All existing IDs in DB are unaffected.</td>
+        </tr>
+        <tr>
+          <td>Cadet on mobile — iframe too small</td>
+          <td class="plain">PDF is unreadable on a phone screen</td>
+          <td class="plain">On mobile (<code>pointer: coarse</code>), replace the iframe with a full-screen "Open in Drive" button instead. Drive's mobile app handles PDF rendering better than an iframe.</td>
+        </tr>
+        <tr>
+          <td>Video embedded in iframe — autoplay blocked</td>
+          <td class="plain">Video doesn't play, browser shows permission error</td>
+          <td class="plain">Videos must use the <code>/view</code> URL and open in a new tab. Never embed videos in an iframe.</td>
+        </tr>
+        <tr>
+          <td>Nightly cron marks a temporarily down file as RESTRICTED</td>
+          <td class="plain">Material disappears from cadet view during Drive outage</td>
+          <td class="plain">Change cron logic: only update from VERIFIED to RESTRICTED if validation fails <em>3 consecutive nights</em>. Store <code>consecutiveFailures Int @default(0)</code> on the model.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- ════════════ CHECKLIST ════════════ -->
+<div class="section" id="s-checklist">
+  <div class="s-label">13 — Operations</div>
+  <div class="s-title">Launch <em>checklist</em></div>
+  <div class="s-desc">Go through this in order before the materials module goes live to cadets.</div>
+  <div class="divider"></div>
+
+  <div class="t-wrap">
+    <table>
+      <thead><tr><th>Item</th><th>Owner</th><th>Done when</th></tr></thead>
+      <tbody>
+        <tr><td>Prisma migration applied</td><td class="plain">Developer</td><td class="plain"><code>npx prisma migrate deploy</code> succeeds in production</td></tr>
+        <tr><td>Drive utility functions tested</td><td class="plain">Developer</td><td class="plain">extractDriveId passes with 5 different URL formats</td></tr>
+        <tr><td>Link validation tested — VERIFIED path</td><td class="plain">Developer</td><td class="plain">Public file returns VERIFIED</td></tr>
+        <tr><td>Link validation tested — RESTRICTED path</td><td class="plain">Developer</td><td class="plain">Private file returns RESTRICTED</td></tr>
+        <tr><td>Nightly cron registered in app entry point</td><td class="plain">Developer</td><td class="plain">Cron fires on server start, logs output</td></tr>
+        <tr><td>PDF viewer iframe tested in Chrome, Firefox, Safari</td><td class="plain">Developer</td><td class="plain">Preview loads in all three</td></tr>
+        <tr><td>Mobile fallback implemented</td><td class="plain">Developer</td><td class="plain">On touch devices, viewer shows "Open in Drive" button instead of iframe</td></tr>
+        <tr><td>Fallback bar renders below iframe</td><td class="plain">Developer</td><td class="plain">"Can't see the preview?" text always visible</td></tr>
+        <tr><td>ANO upload SOP shared with all ANOs</td><td class="plain">Unit HQ</td><td class="plain">Every ANO has read steps 1–5 above</td></tr>
+        <tr><td>Test material added and verified by cadet</td><td class="plain">ANO + Cadet</td><td class="plain">Cadet opens material in Incognito, can view and download</td></tr>
+        <tr><td>RESTRICTED badge visible in admin panel</td><td class="plain">Developer + ANO</td><td class="plain">Deliberately set a file to Restricted in Drive, confirm admin sees warning badge</td></tr>
+        <tr><td>Download link tested for large file</td><td class="plain">Developer</td><td class="plain">Upload a 24MB PDF, confirm download link delivers the file (not Google's scan warning)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div style="border-top:1px solid var(--stone-mid);padding-top:20px;margin-top:40px;display:flex;align-items:center;justify-content:space-between">
+    <span style="font-family:var(--fm);font-size:9px;color:var(--ink4);letter-spacing:0.1em;text-transform:uppercase">NCC Tirupati Unit · Drive Materials Integration Guide · v1.0</span>
+    <span style="font-family:var(--fm);font-size:9px;color:var(--ink4)">Unity &amp; Discipline</span>
+  </div>
+</div>
+
+</div><!-- /content -->
+</main>
+</div><!-- /wrap -->
+
+<script>
+const links = document.querySelectorAll('nav a');
+const secs  = document.querySelectorAll('.section[id]');
+const obs = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      links.forEach(l => l.classList.remove('on'));
+      const a = document.querySelector(`nav a[href="#${e.target.id}"]`);
+      if (a) a.classList.add('on');
+    }
+  });
+}, { rootMargin: '-15% 0px -65% 0px' });
+secs.forEach(s => obs.observe(s));
+links.forEach(l => l.addEventListener('click', e => {
+  e.preventDefault();
+  const id = l.getAttribute('href').slice(1);
+  document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}));
+</script>
+</body>
+</html>

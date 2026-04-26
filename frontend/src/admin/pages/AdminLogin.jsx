@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useAdminAuth } from '../../contexts/AdminAuth';
 import { Mail, Lock, AlertCircle } from 'lucide-react';
@@ -84,6 +84,14 @@ export default function AdminLogin() {
                 disabled={isSubmitting}
               />
               <Lock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-4" />
+            </div>
+            <div className="flex justify-end mt-1.5">
+              <Link 
+                to="/forgot-password?type=admin" 
+                className="text-[10px] font-bold text-navy hover:text-navy-mid transition-colors uppercase tracking-wider"
+              >
+                Forgot Password?
+              </Link>
             </div>
           </div>
 

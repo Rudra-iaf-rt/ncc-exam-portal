@@ -9,7 +9,7 @@ const { HttpError } = require("../utils/http-error");
 const userSchema = z.object({
   name: z.string({ required_error: "Name is required" }).min(2, "Name must be at least 2 characters"),
   regimentalNumber: z.string({ required_error: "Regimental Number is required" }).min(5, "Regimental Number must be at least 5 characters"),
-  college: z.string({ required_error: "College name is required" }).min(2, "College name is too short"),
+  collegeCode: z.string({ required_error: "College code is required" }).min(2, "College code is too short"),
   password: z.string().optional().default("cadet123"),
   email: z.string().email("Invalid email format").optional().nullable().or(z.literal("")),
   role: z.enum(["STUDENT", "ADMIN", "INSTRUCTOR"]).optional().default("STUDENT"),
@@ -18,13 +18,27 @@ const userSchema = z.object({
   isActive: z.boolean().optional().default(true),
 });
 
-async function getStats() {
+async function getStats(currentUser) {
+  let userWhere = { role: "STUDENT" };
+  let attemptWhere = { status: "IN_PROGRESS" };
+  let resultWhere = {};
+
+  if (currentUser?.role === "INSTRUCTOR") {
+    const instructorRecord = await prisma.user.findUnique({ where: { id: currentUser.id } });
+    if (instructorRecord?.collegeCode) {
+      userWhere.collegeCode = instructorRecord.collegeCode;
+      attemptWhere.student = { collegeCode: instructorRecord.collegeCode };
+      resultWhere.student = { collegeCode: instructorRecord.collegeCode };
+    }
+  }
+
   const [totalStudents, totalExams, activeAttempts, resultAgg, recentActivity] = await Promise.all([
-    prisma.user.count({ where: { role: "STUDENT" } }),
+    prisma.user.count({ where: userWhere }),
     prisma.exam.count(),
-    prisma.attempt.count({ where: { status: "IN_PROGRESS" } }),
-    prisma.result.aggregate({ _avg: { score: true } }),
+    prisma.attempt.count({ where: attemptWhere }),
+    prisma.result.aggregate({ where: resultWhere, _avg: { score: true } }),
     prisma.result.findMany({
+      where: resultWhere,
       take: 5,
       orderBy: { id: 'desc' },
       include: {
@@ -50,7 +64,6 @@ async function getStats() {
 
 async function importUsers(fileBuffer, originalName, adminId) {
   const results = [];
-  const errors = [];
   const stream = Readable.from(fileBuffer);
 
   await new Promise((resolve, reject) => {
@@ -68,26 +81,21 @@ async function importUsers(fileBuffer, originalName, adminId) {
     throw new HttpError(400, "CSV file is empty or headers mismatch");
   }
 
+  const errors = [];
   const validUsers = [];
+  
+  // Fetch existing users to check uniqueness
   const existingUsers = await prisma.user.findMany({
-    where: { 
-      OR: [
-        { regimentalNumber: { not: null } },
-        { email: { not: null } }
-      ]
-    },
     select: { regimentalNumber: true, email: true }
   });
-
   const existingRegNos = new Set(existingUsers.map(u => u.regimentalNumber).filter(Boolean));
-  const existingEmails = new Set(existingUsers.map(u => u.email).filter(Boolean));
 
   for (let i = 0; i < results.length; i++) {
     const row = results[i];
     const rawData = {
       name: row.name || row.Name || row.NAME,
       regimentalNumber: row.regimentalNumber || row.RegimentalNumber || row.regNo || row.RegNo,
-      college: row.college || row.College || row.COLLEGE,
+      collegeCode: (row.collegeCode || row.CollegeCode || row.college || row.College)?.toUpperCase(),
       wing: (row.wing || row.Wing || row.WING)?.toUpperCase() || null,
       batch: row.batch || row.Batch || row.BATCH || null,
       email: row.email || row.Email || row.EMAIL || null,
@@ -96,27 +104,12 @@ async function importUsers(fileBuffer, originalName, adminId) {
 
     const parsed = userSchema.safeParse(rawData);
     if (!parsed.success) {
-      const fieldErrors = parsed.error.flatten().fieldErrors;
-      const summary = Object.entries(fieldErrors)
-        .map(([field, msgs]) => `${field.charAt(0).toUpperCase() + field.slice(1)}: ${msgs.join(', ')}`)
-        .join(" | ");
-
-      errors.push({ row: i + 1, error: summary });
+      errors.push({ row: i + 1, error: "Validation failed" });
       continue;
     }
 
     if (existingRegNos.has(parsed.data.regimentalNumber)) {
-      errors.push({ row: i + 1, regNo: parsed.data.regimentalNumber, error: "Regimental Number already exists" });
-      continue;
-    }
-
-    if (parsed.data.email && existingEmails.has(parsed.data.email)) {
-      errors.push({ row: i + 1, email: parsed.data.email, error: "Email already exists" });
-      continue;
-    }
-
-    if (validUsers.some(u => u.regimentalNumber === parsed.data.regimentalNumber)) {
-      errors.push({ row: i + 1, regNo: parsed.data.regimentalNumber, error: "Duplicate Regimental Number in file" });
+      errors.push({ row: i + 1, regNo: parsed.data.regimentalNumber, error: "Already exists" });
       continue;
     }
 
@@ -135,41 +128,43 @@ async function importUsers(fileBuffer, originalName, adminId) {
       skipDuplicates: true,
     });
 
-    logger.audit('USERS_BULK_IMPORT', { 
-      count: created.count, 
-      errors: errors.length,
-      totalProcessed: results.length 
-    }, adminId);
-
     return {
       success: true,
       count: created.count,
-      totalProcessed: results.length,
       errors: errors.length > 0 ? errors : undefined
     };
   }
 
-  return {
-    success: true,
-    count: 0,
-    totalProcessed: results.length,
-    errors: errors.length > 0 ? errors : undefined
-  };
+  return { success: true, count: 0, errors };
 }
 
-async function bulkAssign(examId, filters, userIds, adminId) {
+async function bulkAssign(examId, filters, userIds, currentUser) {
   let targetUserIds = [];
+  const adminId = currentUser.id;
+  let enforcedCollegeCode = undefined;
+
+  if (currentUser?.role === "INSTRUCTOR") {
+    const instructorRecord = await prisma.user.findUnique({ where: { id: currentUser.id } });
+    if (!instructorRecord || !instructorRecord.collegeCode) {
+      throw new HttpError(403, "Instructor must be assigned to a college to assign exams");
+    }
+    enforcedCollegeCode = instructorRecord.collegeCode;
+  }
 
   if (userIds && Array.isArray(userIds) && userIds.length > 0) {
-    targetUserIds = userIds.map(id => parseInt(id));
+    const where = { id: { in: userIds.map(id => parseInt(id)) } };
+    if (enforcedCollegeCode) where.collegeCode = enforcedCollegeCode;
+    
+    const validUsers = await prisma.user.findMany({ where, select: { id: true } });
+    targetUserIds = validUsers.map(u => u.id);
   } else {
-    const { wing, college, batch } = filters;
+    const { wing, collegeCode, batch } = filters;
     const users = await prisma.user.findMany({
       where: {
         role: "STUDENT",
         isActive: true,
         wing: wing || undefined,
-        college: college || undefined,
+        collegeCode: enforcedCollegeCode || collegeCode || undefined,
         batch: batch || undefined,
       },
       select: { id: true }
@@ -178,7 +173,7 @@ async function bulkAssign(examId, filters, userIds, adminId) {
   }
 
   if (targetUserIds.length === 0) {
-    throw new HttpError(404, "No eligible cadets found for these parameters");
+    throw new HttpError(404, "No eligible cadets found");
   }
 
   const assignmentsData = targetUserIds.map(uid => ({
@@ -191,7 +186,7 @@ async function bulkAssign(examId, filters, userIds, adminId) {
     skipDuplicates: true
   });
 
-  logger.audit('EXAM_BULK_ASSIGN', { examId, count: created.count, filters }, adminId);
+  logger.audit('EXAM_BULK_ASSIGN', { examId, count: created.count }, adminId);
   return { success: true, count: created.count };
 }
 
@@ -205,14 +200,7 @@ async function overrideResult(resultId, score, reason, adminId) {
     }
   });
 
-  logger.audit('RESULT_OVERRIDE', { 
-    resultId, 
-    newScore: score, 
-    reason, 
-    student: result.student.regimentalNumber,
-    exam: result.exam.title 
-  }, adminId);
-
+  logger.audit('RESULT_OVERRIDE', { resultId, newScore: score, reason }, adminId);
   return result;
 }
 

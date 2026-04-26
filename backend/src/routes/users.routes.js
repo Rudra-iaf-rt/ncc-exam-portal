@@ -48,4 +48,11 @@ router.post(
   asyncHandler(usersController.resetPassword)
 );
 
+router.post(
+  "/users/bulk-import",
+  authenticate,
+  requireAdmin,
+  asyncHandler(usersController.bulkImportCadets)
+);
+
 module.exports = router;

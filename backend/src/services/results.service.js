@@ -10,7 +10,7 @@ function mapResultRow(r) {
     studentId: r.studentId,
     studentName: r.student?.name ?? null,
     regimentalNumber: r.student?.regimentalNumber ?? null,
-    college: r.student?.college ?? null,
+    college: r.student?.college?.name || r.student?.collegeCode || null,
     createdAt: r.createdAt,
     exam: r.exam ?? null,
   };
@@ -22,9 +22,9 @@ function parseOptionalExamId(query) {
   return Number.isFinite(n) ? n : NaN;
 }
 
-function parseOptionalCollege(query) {
-  if (typeof query.college !== "string") return null;
-  const t = query.college.trim();
+function parseOptionalCollegeCode(query) {
+  if (typeof query.collegeCode !== "string") return null;
+  const t = query.collegeCode.trim();
   return t === "" ? null : t;
 }
 
@@ -35,7 +35,8 @@ const resultInclude = {
       id: true,
       name: true,
       regimentalNumber: true,
-      college: true,
+      collegeCode: true,
+      college: { select: { name: true } }
     },
   },
 };
@@ -66,25 +67,25 @@ async function listForInstructor(instructorId, query) {
 
   const me = await prisma.user.findUnique({
     where: { id: instructorId },
-    select: { college: true },
+    select: { collegeCode: true },
   });
   if (!me) {
     throw new HttpError(404, "User not found");
   }
 
-  const collegeParam = parseOptionalCollege(query);
-  const college = collegeParam ?? me.college;
+  const collegeCodeParam = parseOptionalCollegeCode(query);
+  const collegeCode = collegeCodeParam ?? me.collegeCode;
 
   const rows = await prisma.result.findMany({
     where: {
-      student: { college },
+      student: { collegeCode },
       ...(examId != null ? { examId } : {}),
     },
     orderBy: { id: "desc" },
     include: resultInclude,
   });
 
-  return { college, results: rows.map(mapResultRow) };
+  return { collegeCode, results: rows.map(mapResultRow) };
 }
 
 async function listForAdmin(query) {
@@ -92,12 +93,12 @@ async function listForAdmin(query) {
   if (Number.isNaN(examId)) {
     throw new HttpError(400, "Invalid examId query");
   }
-  const college = parseOptionalCollege(query);
+  const collegeCode = parseOptionalCollegeCode(query);
 
   const rows = await prisma.result.findMany({
     where: {
       ...(examId != null ? { examId } : {}),
-      ...(college != null ? { student: { college } } : {}),
+      ...(collegeCode != null ? { student: { collegeCode } } : {}),
     },
     orderBy: { id: "desc" },
     include: resultInclude,

@@ -34,7 +34,9 @@ const ExamAttempt = () => {
     answersRef.current = answers;
   }, [answers]);
   
-  const { syncStatus, queueSave } = useExamAutoSave(id);
+  // syncStatus: 'idle' | 'saving' | 'saved' | 'error'
+  // Start as 'idle' so no badge shows before the first save attempt.
+  const { syncStatus, queueSave } = useExamAutoSave(attemptId);
 
   const {
     isFullscreen,
@@ -46,7 +48,6 @@ const ExamAttempt = () => {
     requestFullscreen,
     requestScreenShare,
     setExamId: setProctoringExamId,
-    setAttemptId: setProctoringAttemptId,
   } = useProctoring({
     onSecurityBreach: (terminate) => {
       if (terminate) {
@@ -66,23 +67,18 @@ const ExamAttempt = () => {
       if (data) {
         setExam(data.exam);
         setAttemptId(data.attemptId);
-        setProctoringAttemptId(data.attemptId); // Give proctoring hook the attemptId
-        // Use server-computed remaining seconds so refresh doesn't reset the timer
+        setProctoringExamId(Number(id)); 
         setTimeLeft(data.remainingSeconds ?? data.exam.duration * 60);
 
-        // Re-hydrate any answers already saved to the DB
-        if (data.answers) {
-          setAnswers(data.answers);
+        if (data.answers && data.answers.length > 0) {
+          const ansMap = {};
+          data.answers.forEach(a => { ansMap[a.questionId] = a.selectedAnswer; });
+          setAnswers(ansMap);
         }
-        if (data.currentQuestionIndex) {
-          setCurrentQ(data.currentQuestionIndex);
-        }
-        
-        setProctoringExamId(id);
       }
     } catch (error) {
       toast.error(error.message || 'Failed to start exam session');
-      navigate('/dashboard');
+      navigate('/cadet/dashboard');
     } finally {
       setLoading(false);
     }
@@ -107,35 +103,7 @@ const ExamAttempt = () => {
 
   const handleSelect = (questionId, option) => {
     setAnswers(prev => ({ ...prev, [questionId]: option }));
-    queueSave(questionId, option, currentQ);
-  };
-
-  const syncProgress = async (newIndex) => {
-    try {
-      await examApi.saveAnswer({ 
-        examId: Number(id), 
-        nextQuestionIndex: newIndex 
-      });
-    } catch (err) {
-      // Non-critical failure, don't interrupt user
-      console.error('Progress sync failed:', err);
-    }
-  };
-
-  const handlePrev = () => {
-    if (currentQ > 0) {
-      const next = currentQ - 1;
-      setCurrentQ(next);
-      syncProgress(next);
-    }
-  };
-
-  const handleNext = () => {
-    if (currentQ < exam.questions.length - 1) {
-      const next = currentQ + 1;
-      setCurrentQ(next);
-      syncProgress(next);
-    }
+    queueSave(questionId, option);
   };
 
   const handleSubmit = async (isAuto = false) => {
@@ -240,20 +208,23 @@ const ExamAttempt = () => {
         <div className="flex flex-col">
           <h1 className="font-display text-xl text-[#F4F0E4]">{exam.title}</h1>
           <div className="mt-1 flex items-center gap-2">
-            <div className={`flex items-center gap-2 rounded-full bg-white/10 px-2.5 py-1 text-[10px] uppercase tracking-wider ${
-              syncStatus === 'saving' ? 'text-gold' : 
-              syncStatus === 'saved' ? 'text-olive-pale' : 
-              'text-crimson-soft'
-            }`}>
-              {syncStatus === 'saving' && <RefreshCw size={12} className="animate-spin" />}
-              {syncStatus === 'saved' && <ShieldCheck size={12} />}
-              {syncStatus === 'error' && <AlertTriangle size={12} />}
-              <span className="font-mono">
-                {syncStatus === 'saving' ? 'Saving Progress...' : 
-                 syncStatus === 'saved' ? 'Data Synchronized' : 
-                 'Connection Failure'}
-              </span>
-            </div>
+            {/* Only show sync badge after first interaction — avoids false 'Connection Failure' on mount */}
+            {syncStatus && syncStatus !== 'idle' && (
+              <div className={`flex items-center gap-2 rounded-full bg-white/10 px-2.5 py-1 text-[10px] uppercase tracking-wider ${
+                syncStatus === 'saving' ? 'text-gold' : 
+                syncStatus === 'saved' ? 'text-olive-pale' : 
+                'text-crimson-soft'
+              }`}>
+                {syncStatus === 'saving' && <RefreshCw size={12} className="animate-spin" />}
+                {syncStatus === 'saved' && <ShieldCheck size={12} />}
+                {syncStatus === 'error' && <AlertTriangle size={12} />}
+                <span className="font-mono">
+                  {syncStatus === 'saving' ? 'Saving Progress...' : 
+                   syncStatus === 'saved' ? 'Data Synchronized' : 
+                   'Connection Failure'}
+                </span>
+              </div>
+            )}
 
             <div className={`flex items-center gap-3 rounded-md border px-4 py-2 transition-all ${
               warningCount === 0 ? 'bg-emerald-500/10 border-emerald-500/30' :
@@ -339,9 +310,10 @@ const ExamAttempt = () => {
           </div>
         </aside>
 
-        {/* Question Area */}
-        <div className="flex flex-col items-center overflow-y-auto p-12">
-          <div className="w-full max-w-[850px] rounded-rl border border-stone-deep bg-white p-12 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+        {/* Question Area — fills all remaining horizontal space */}
+        <div className="flex flex-1 flex-col overflow-y-auto p-8">
+          {/* Question card: full width with comfortable inset padding */}
+          <div className="w-full flex-1 rounded-rl border border-stone-deep bg-white p-10 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
             <div className="mb-8 flex items-center justify-between">
               <span className="font-mono text-[10px] font-bold tracking-[0.2em] uppercase text-navy-soft">
                 Question {(currentQ + 1).toString().padStart(2, '0')} / {exam.questions.length.toString().padStart(2, '0')}
@@ -378,17 +350,18 @@ const ExamAttempt = () => {
             </div>
           </div>
 
-          <div className="mt-8 flex w-full max-w-[850px] justify-between">
+          {/* Navigation row — spans full width matching the card above */}
+          <div className="mt-6 flex w-full justify-between">
             <button 
               disabled={currentQ === 0}
-              onClick={handlePrev}
+              onClick={() => setCurrentQ(prev => prev - 1)}
               className="flex items-center gap-3 rounded-r border border-stone-deep bg-white px-8 py-3 font-ui text-[14px] font-bold text-navy transition-all hover:bg-stone-wash active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
             >
               <ChevronLeft size={20} /> PREVIOUS
             </button>
             <button 
               disabled={currentQ === exam.questions.length - 1}
-              onClick={handleNext}
+              onClick={() => setCurrentQ(prev => prev + 1)}
               className="flex items-center gap-3 rounded-r bg-navy px-10 py-3 font-ui text-[14px] font-bold text-[#F4F0E4] transition-all hover:bg-navy-mid active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
             >
               NEXT <ChevronRight size={20} />

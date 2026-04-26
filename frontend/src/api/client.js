@@ -58,7 +58,11 @@ apiClient.interceptors.response.use(
         })
           .then((token) => {
             if (token) {
-              originalRequest.headers.set('Authorization', `Bearer ${token}`);
+              if (originalRequest.headers.set) {
+                originalRequest.headers.set('Authorization', `Bearer ${token}`);
+              } else {
+                originalRequest.headers.Authorization = `Bearer ${token}`;
+              }
               return apiClient(originalRequest);
             }
             return Promise.reject(error);
@@ -71,6 +75,10 @@ apiClient.interceptors.response.use(
 
       try {
         const refreshToken = getRefreshToken();
+        if (!refreshToken) {
+          throw new Error('No refresh token available');
+        }
+
         const { data } = await axios.post(`${API_URL}/auth/refresh`, { refreshToken }, {
           withCredentials: true
         });
