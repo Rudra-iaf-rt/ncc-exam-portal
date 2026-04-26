@@ -172,3 +172,4 @@
 {"timestamp":"2026-04-25T15:32:06.085Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Missing or malformed Authorization header","path":"/logout"}
 {"timestamp":"2026-04-25T16:05:40.645Z","level":"AUDIT","actor":2,"action":"USERS_BULK_IMPORT","count":1,"errors":0,"totalProcessed":1}
 {"timestamp":"2026-04-25T16:05:54.712Z","level":"AUDIT","actor":2,"action":"USER_UPDATE","targetUserId":5}
+{"timestamp":"2026-04-25T11:42:46.823Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Token verification failed","error":"jwt expired","path":"/me"}
