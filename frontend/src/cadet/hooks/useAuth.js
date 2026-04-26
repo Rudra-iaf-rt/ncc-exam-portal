@@ -1,15 +1,9 @@
 import { useState, useCallback, useEffect } from 'react';
 import { authApi } from '../../api';
+import { getSavedUser, getRefreshToken, clearAuth } from '../../lib/auth';
 
 export const useAuth = () => {
-  const [user, setUser] = useState(() => {
-    try {
-      return JSON.parse(localStorage.getItem('ncc_user') || 'null');
-    } catch (e) {
-      console.log(e)
-      return null;
-    }
-  });
+  const [user, setUser] = useState(() => getSavedUser());
 
   useEffect(() => {
     const handleLogout = () => {
@@ -22,12 +16,12 @@ export const useAuth = () => {
 
   const logout = useCallback(async () => {
     try {
-      await authApi.logout();
+      const refreshToken = getRefreshToken();
+      await authApi.logout({ refreshToken });
     } catch (e) {
       // ignore logout failures
     } finally {
-      localStorage.removeItem('ncc_token');
-      localStorage.removeItem('ncc_user');
+      clearAuth();
       setUser(null);
       // Dispatch event to sync other tabs/components
       window.dispatchEvent(new Event('ncc_logout'));

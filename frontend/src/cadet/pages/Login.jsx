@@ -3,6 +3,7 @@ import { Shield, Lock, User, Info, ArrowRight } from 'lucide-react';
 import { authApi } from '../../api';
 import { toast } from 'sonner';
 import { useNavigate, Link } from 'react-router-dom';
+import { setToken, setRefreshToken, saveUser } from '../../lib/auth';
 
 const CadetLogin = () => {
   const [regNo, setRegNo] = useState('');
@@ -17,8 +18,11 @@ const CadetLogin = () => {
     try {
       const { data } = await authApi.login({ regimentalNumber: regNo, password });
       setLoading(false);
-      localStorage.setItem('ncc_token', data.token);
-      localStorage.setItem('ncc_user', JSON.stringify(data.user));
+      
+      if (data.token) setToken(data.token);
+      if (data.refreshToken) setRefreshToken(data.refreshToken);
+      if (data.user) saveUser(data.user);
+
       toast.success('Login successful. Welcome back!');
       navigate('/cadet/dashboard');
     } catch (apiErr) {

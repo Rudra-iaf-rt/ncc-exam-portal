@@ -312,7 +312,7 @@ async function changePassword({ userId, oldPassword, newPassword }) {
 
   const match = await bcrypt.compare(String(oldPassword), user.password);
   if (!match) {
-    throw new HttpError(401, "Invalid current password");
+    throw new HttpError(403, "Invalid current password");
   }
 
   const hashed = await bcrypt.hash(String(newPassword), SALT_ROUNDS);

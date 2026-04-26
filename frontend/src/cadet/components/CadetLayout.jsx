@@ -144,7 +144,7 @@ export const CadetLayout = () => {
               <img 
                 src="/assets/ncc-logo.png" 
                 alt="NCC Logo" 
-                className="w-full h-full object-contain scale-110 drop-shadow-md" 
+                className="w-full h-full object-contain scale-[1.25] drop-shadow-md" 
               />
             </div>
 
