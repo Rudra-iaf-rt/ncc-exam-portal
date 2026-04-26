@@ -9,6 +9,15 @@ export const examApi = {
   getExams: () => apiClient.get('/exams'),
   getAssigned: () => apiClient.get('/exams').then(res => res.data.exams),
   createExam: (data) => apiClient.post('/exams/create', data),
+  createExamFromExcel: ({ title, duration, file }) => {
+    const form = new FormData();
+    form.append('title', String(title ?? ''));
+    form.append('duration', String(duration ?? ''));
+    form.append('file', file);
+    return apiClient.post('/exams/create-from-excel', form, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
   
   // Attempts
   startAttempt: (examId) => apiClient.post('/attempt/start', { examId }),
