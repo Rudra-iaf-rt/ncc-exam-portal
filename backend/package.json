@@ -36,8 +36,10 @@
     "nodemailer": "^6.10.1",
     "pdf-parse": "^1.1.4",
     "pg": "^8.20.0",
-    "prisma": "^7.6.0",
     "xlsx": "^0.18.5",
     "zod": "^4.3.6"
+  },
+  "devDependencies": {
+    "prisma": "^7.8.0"
   }
 }

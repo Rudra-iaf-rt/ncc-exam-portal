@@ -2,36 +2,36 @@ const authService = require("../services/auth.service");
 const auditLogService = require("../services/audit-log.service");
 
 async function register(req, res) {
-  const { token, user } = await authService.registerStudent(req.body ?? {});
+  const payload = await authService.registerStudent(req.body ?? {});
   await auditLogService.recordAudit(req, {
     action: "AUTH_REGISTER_STUDENT",
     entityType: "User",
-    entityId: user.id,
+    entityId: payload.user.id,
     statusCode: 201,
   });
-  res.status(201).json({ token, user });
+  res.status(201).json(payload);
 }
 
 async function loginStudent(req, res) {
-  const { token, user } = await authService.loginStudent(req.body ?? {});
+  const payload = await authService.loginStudent(req.body ?? {});
   await auditLogService.recordAudit(req, {
     action: "AUTH_LOGIN_STUDENT",
     entityType: "User",
-    entityId: user.id,
+    entityId: payload.user.id,
     statusCode: 200,
   });
-  res.json({ token, user });
+  res.json(payload);
 }
 
 async function loginStaff(req, res) {
-  const { token, user } = await authService.loginStaff(req.body ?? {});
+  const payload = await authService.loginStaff(req.body ?? {});
   await auditLogService.recordAudit(req, {
     action: "AUTH_LOGIN_STAFF",
     entityType: "User",
-    entityId: user.id,
+    entityId: payload.user.id,
     statusCode: 200,
   });
-  res.json({ token, user });
+  res.json(payload);
 }
 
 async function me(req, res) {

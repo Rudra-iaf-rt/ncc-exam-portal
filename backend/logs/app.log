@@ -217,3 +217,20 @@
 {"timestamp":"2026-04-26T11:18:07.612Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Missing or malformed Authorization header","path":"/materials"}
 {"timestamp":"2026-04-26T11:31:12.798Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Missing or malformed Authorization header","path":"/materials"}
 {"timestamp":"2026-04-26T11:31:12.818Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Missing or malformed Authorization header","path":"/materials"}
+{"timestamp":"2026-04-26T23:38:25.758Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Token verification failed","error":"jwt expired","path":"/me"}
+{"timestamp":"2026-04-26T23:38:25.791Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Token verification failed","error":"jwt expired","path":"/me"}
+{"timestamp":"2026-04-26T23:56:50.519Z","level":"AUDIT","actor":3,"action":"USER_MANUAL_CREATE","userId":8,"regNo":"AP2025SDAF0490599"}
+{"timestamp":"2026-04-27T00:04:55.897Z","level":"AUDIT","actor":3,"action":"EXAM_BULK_ASSIGN","examId":"3","count":1}
+{"timestamp":"2026-04-27T00:05:02.305Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Missing or malformed Authorization header","path":"/attempt/start"}
+{"timestamp":"2026-04-27T00:05:02.310Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Missing or malformed Authorization header","path":"/attempt/start"}
+{"timestamp":"2026-04-27T00:33:18.081Z","level":"AUDIT","actor":3,"action":"EXAM_BULK_ASSIGN","examId":"4","count":1}
+{"timestamp":"2026-04-27T01:12:09.236Z","level":"AUDIT","actor":3,"action":"EXAM_BULK_ASSIGN","examId":"5","count":1}
+{"timestamp":"2026-04-27T04:48:36.957Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Token verification failed","error":"jwt expired","path":"/me"}
+{"timestamp":"2026-04-27T04:48:36.974Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Token verification failed","error":"jwt expired","path":"/me"}
+{"timestamp":"2026-04-27T05:09:53.848Z","level":"AUDIT","actor":3,"action":"USER_DELETE","targetUserId":1}
+{"timestamp":"2026-04-27T05:53:18.676Z","level":"AUDIT","actor":3,"action":"EXAM_BULK_ASSIGN","examId":"6","count":2}
+{"timestamp":"2026-04-27T08:26:34.633Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Token verification failed","error":"jwt expired","path":"/me"}
+{"timestamp":"2026-04-27T08:26:34.656Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Token verification failed","error":"jwt expired","path":"/me"}
+{"timestamp":"2026-04-27T08:35:06.945Z","level":"AUDIT","actor":3,"action":"EXAM_BULK_ASSIGN","examId":"6","count":0}
+{"timestamp":"2026-04-27T08:37:31.747Z","level":"AUDIT","actor":3,"action":"EXAM_BULK_ASSIGN","examId":"7","count":1}
+{"timestamp":"2026-04-27T08:39:22.392Z","level":"AUDIT","actor":3,"action":"EXAM_BULK_ASSIGN","examId":"7","count":1}

@@ -1497,3 +1497,176 @@ The column `User.wing` does not exist in the current database.
     at async a (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
     at async Object.loginStaff (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\src\services\auth.service.js:117:16)
     at async loginStaff (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\src\controllers\auth.controller.js:27:27)
+[2026-04-26T23:38:39.885Z] PrismaClientValidationError: 
+Invalid `prisma.user.findFirst()` invocation in
+C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\src\services\auth.service.js:119:34
+
+  116 
+  117 const normalizedEmail = String(email).trim().toLowerCase();
+  118 
+→ 119 const user = await prisma.user.findFirst({
+        where: {
+          email: "admin@example.com",
+          role: {
+            in: [
+              "ADMIN",
+              "INSTRUCTOR"
+            ]
+          }
+        },
+        include: {
+          college: true,
+          ~~~~~~~
+      ?   examsCreated?: true,
+      ?   attempts?: true,
+      ?   results?: true,
+      ?   materialsUploaded?: true,
+      ?   passwordResetTokens?: true,
+      ?   sentNotifications?: true,
+      ?   receivedNotifications?: true,
+      ?   examViolations?: true,
+      ?   examHeartbeats?: true,
+      ?   auditLogs?: true,
+      ?   refreshTokens?: true,
+      ?   assignments?: true
+        }
+      })
+
+Invalid scalar field `college` for include statement on model User. Available options are marked with ?.
+Note that include statements only accept relation fields.
+    at ar (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at e.throwValidationError (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:10216)
+    at vc (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:6577)
+    at Sc (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:6364)
+    at Tc (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:6250)
+    at Et (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:5927)
+    at pr (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:5811)
+    at C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:7400
+    at Object.runInChildSpan (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:2516)
+    at di.runInChildSpan (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:2850)
+[2026-04-26T23:38:45.263Z] PrismaClientValidationError: 
+Invalid `prisma.user.findFirst()` invocation in
+C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\src\services\auth.service.js:119:34
+
+  116 
+  117 const normalizedEmail = String(email).trim().toLowerCase();
+  118 
+→ 119 const user = await prisma.user.findFirst({
+        where: {
+          email: "admin@example.com",
+          role: {
+            in: [
+              "ADMIN",
+              "INSTRUCTOR"
+            ]
+          }
+        },
+        include: {
+          college: true,
+          ~~~~~~~
+      ?   examsCreated?: true,
+      ?   attempts?: true,
+      ?   results?: true,
+      ?   materialsUploaded?: true,
+      ?   passwordResetTokens?: true,
+      ?   sentNotifications?: true,
+      ?   receivedNotifications?: true,
+      ?   examViolations?: true,
+      ?   examHeartbeats?: true,
+      ?   auditLogs?: true,
+      ?   refreshTokens?: true,
+      ?   assignments?: true
+        }
+      })
+
+Invalid scalar field `college` for include statement on model User. Available options are marked with ?.
+Note that include statements only accept relation fields.
+    at ar (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at e.throwValidationError (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:10216)
+    at vc (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:6577)
+    at Sc (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:6364)
+    at Tc (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:6250)
+    at Et (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:5927)
+    at pr (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:5811)
+    at C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:7400
+    at Object.runInChildSpan (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:2516)
+    at di.runInChildSpan (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:2850)
+[2026-04-26T23:39:31.536Z] PrismaClientValidationError: 
+Invalid `prisma.user.findFirst()` invocation in
+C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\src\services\auth.service.js:119:34
+
+  116 
+  117 const normalizedEmail = String(email).trim().toLowerCase();
+  118 
+→ 119 const user = await prisma.user.findFirst({
+        where: {
+          email: "admin@example.com",
+          role: {
+            in: [
+              "ADMIN",
+              "INSTRUCTOR"
+            ]
+          }
+        },
+        include: {
+          college: true,
+          ~~~~~~~
+      ?   examsCreated?: true,
+      ?   attempts?: true,
+      ?   results?: true,
+      ?   materialsUploaded?: true,
+      ?   passwordResetTokens?: true,
+      ?   sentNotifications?: true,
+      ?   receivedNotifications?: true,
+      ?   examViolations?: true,
+      ?   examHeartbeats?: true,
+      ?   auditLogs?: true,
+      ?   refreshTokens?: true,
+      ?   assignments?: true
+        }
+      })
+
+Invalid scalar field `college` for include statement on model User. Available options are marked with ?.
+Note that include statements only accept relation fields.
+    at ar (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at e.throwValidationError (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:10216)
+    at vc (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:6577)
+    at Sc (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:6364)
+    at Tc (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:6250)
+    at Et (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:5927)
+    at pr (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:5811)
+    at C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:7400
+    at Object.runInChildSpan (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:2516)
+    at di.runInChildSpan (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:2850)
+[2026-04-26T23:40:18.979Z] PrismaClientKnownRequestError: 
+Invalid `prisma.user.findFirst()` invocation in
+C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\src\services\auth.service.js:119:34
+
+  116 
+  117 const normalizedEmail = String(email).trim().toLowerCase();
+  118 
+→ 119 const user = await prisma.user.findFirst(
+The column `User.refreshToken` does not exist in the current database.
+    at Gr.handleRequestError (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:8286)
+    at Gr.handleAndLogRequestError (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async Object.loginStaff (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\src\services\auth.service.js:119:16)
+    at async loginStaff (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\src\controllers\auth.controller.js:27:27)
+[2026-04-26T23:43:29.789Z] PrismaClientKnownRequestError: 
+Invalid `prisma.user.findFirst()` invocation in
+C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\src\services\auth.service.js:119:34
+
+  116 
+  117 const normalizedEmail = String(email).trim().toLowerCase();
+  118 
+→ 119 const user = await prisma.user.findFirst(
+The column `User.refreshToken` does not exist in the current database.
+    at Gr.handleRequestError (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:8286)
+    at Gr.handleAndLogRequestError (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async Object.loginStaff (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\src\services\auth.service.js:119:16)
+    at async loginStaff (C:\Users\G Rudra\OneDrive\Documents\AIR-WING\App\ncc-exam-portal\backend\src\controllers\auth.controller.js:27:27)

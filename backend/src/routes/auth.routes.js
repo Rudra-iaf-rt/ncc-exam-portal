@@ -7,6 +7,7 @@ const { asyncHandler } = require("../middleware/error-handler");
 const router = express.Router();
 
 
+router.post("/register", authRateLimiter, asyncHandler(authController.register));
 router.post("/login", authRateLimiter, asyncHandler(authController.loginStudent));
 router.post("/login/student", authRateLimiter, asyncHandler(authController.loginStudent));
 router.post("/login/staff", authRateLimiter, asyncHandler(authController.loginStaff));

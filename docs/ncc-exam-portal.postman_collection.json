@@ -1,0 +1,532 @@
+{
+  "info": {
+    "name": "NCC Exam Portal API",
+    "_postman_id": "b9ed8fb6-8983-4a43-8a3e-63adf8d3d752",
+    "description": "Full API collection generated from currently mounted backend routes in src/app.js.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "GET /health",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/health",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "health"
+              ]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "POST /api/auth/login (Student)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  if (json.token) pm.collectionVariables.set('studentToken', json.token);",
+                  "  if (json.refreshToken) pm.collectionVariables.set('studentRefreshToken', json.refreshToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"regimentalNumber\": \"{{studentRegimentalNumber}}\",\n  \"password\": \"{{studentPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/auth/login/staff",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  if (json.token) pm.collectionVariables.set('staffToken', json.token);",
+                  "  if (json.refreshToken) pm.collectionVariables.set('staffRefreshToken', json.refreshToken);",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{staffEmail}}\",\n  \"password\": \"{{staffPassword}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login/staff",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login", "staff"]
+            }
+          }
+        },
+        {
+          "name": "GET /api/auth/me",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/me",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "me"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/auth/refresh",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{studentRefreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/refresh",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "refresh"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/auth/refresh-token",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{studentRefreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/refresh-token",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "refresh-token"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/auth/password/forgot",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{studentEmail}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/password/forgot",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "password", "forgot"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/auth/password/reset",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"<RESET_TOKEN_FROM_EMAIL>\",\n  \"newPassword\": \"newpass123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/password/reset",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "password", "reset"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/auth/password/change",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"oldPassword\": \"{{studentPassword}}\",\n  \"newPassword\": \"newpass123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/password/change",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "password", "change"]
+            }
+          }
+        },
+        {
+          "name": "POST /api/auth/logout",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"refreshToken\": \"{{studentRefreshToken}}\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/logout",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "logout"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Exams & Attempts",
+      "item": [
+        {
+          "name": "POST /api/exams/create",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{staffToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Demo Exam\",\n  \"duration\": 30,\n  \"questions\": [\n    {\n      \"question\": \"2 + 2 = ?\",\n      \"options\": [\"1\", \"2\", \"3\", \"4\"],\n      \"answer\": \"4\"\n    }\n  ]\n}"
+            },
+            "url": { "raw": "{{baseUrl}}/api/exams/create", "host": ["{{baseUrl}}"], "path": ["api", "exams", "create"] }
+          }
+        },
+        {
+          "name": "POST /api/exams/create-from-pdf",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{staffToken}}" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "title", "value": "PDF Exam", "type": "text" },
+                { "key": "duration", "value": "30", "type": "text" },
+                { "key": "pdf", "type": "file", "src": "" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/api/exams/create-from-pdf", "host": ["{{baseUrl}}"], "path": ["api", "exams", "create-from-pdf"] }
+          }
+        },
+        {
+          "name": "POST /api/exams/create-from-excel",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{staffToken}}" }
+            ],
+            "body": {
+              "mode": "formdata",
+              "formdata": [
+                { "key": "title", "value": "XLSX Exam", "type": "text" },
+                { "key": "duration", "value": "30", "type": "text" },
+                { "key": "file", "type": "file", "src": "" }
+              ]
+            },
+            "url": { "raw": "{{baseUrl}}/api/exams/create-from-excel", "host": ["{{baseUrl}}"], "path": ["api", "exams", "create-from-excel"] }
+          }
+        },
+        {
+          "name": "GET /api/exams",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{studentToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/exams", "host": ["{{baseUrl}}"], "path": ["api", "exams"] }
+          }
+        },
+        {
+          "name": "GET /api/exams/:id",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{studentToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/exams/{{examId}}", "host": ["{{baseUrl}}"], "path": ["api", "exams", "{{examId}}"] }
+          }
+        },
+        {
+          "name": "GET /api/staff/exams/:id",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{staffToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/staff/exams/{{examId}}", "host": ["{{baseUrl}}"], "path": ["api", "staff", "exams", "{{examId}}"] }
+          }
+        },
+        {
+          "name": "PATCH /api/exams/:id",
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{staffToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"title\": \"Updated Exam Title\",\n  \"duration\": 45\n}" },
+            "url": { "raw": "{{baseUrl}}/api/exams/{{examId}}", "host": ["{{baseUrl}}"], "path": ["api", "exams", "{{examId}}"] }
+          }
+        },
+        {
+          "name": "PUT /api/exams/:id/questions",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{staffToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"questions\": [\n    {\n      \"question\": \"Capital of India?\",\n      \"options\": [\"Mumbai\", \"New Delhi\", \"Chennai\", \"Kolkata\"],\n      \"answer\": \"New Delhi\"\n    }\n  ]\n}" },
+            "url": { "raw": "{{baseUrl}}/api/exams/{{examId}}/questions", "host": ["{{baseUrl}}"], "path": ["api", "exams", "{{examId}}", "questions"] }
+          }
+        },
+        {
+          "name": "PATCH /api/exams/:id/publish",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Authorization", "value": "Bearer {{staffToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/exams/{{examId}}/publish", "host": ["{{baseUrl}}"], "path": ["api", "exams", "{{examId}}", "publish"] }
+          }
+        },
+        {
+          "name": "DELETE /api/exams/:id",
+          "request": {
+            "method": "DELETE",
+            "header": [{ "key": "Authorization", "value": "Bearer {{staffToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/exams/{{examId}}", "host": ["{{baseUrl}}"], "path": ["api", "exams", "{{examId}}"] }
+          }
+        },
+        {
+          "name": "POST /api/attempt/start",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"examId\": {{examId}}\n}" },
+            "url": { "raw": "{{baseUrl}}/api/attempt/start", "host": ["{{baseUrl}}"], "path": ["api", "attempt", "start"] }
+          }
+        },
+        {
+          "name": "POST /api/attempt/answer",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"examId\": {{examId}},\n  \"questionId\": {{questionId}},\n  \"selectedAnswer\": \"A\",\n  \"currentQuestionIndex\": 0\n}" },
+            "url": { "raw": "{{baseUrl}}/api/attempt/answer", "host": ["{{baseUrl}}"], "path": ["api", "attempt", "answer"] }
+          }
+        },
+        {
+          "name": "POST /api/attempt/save-progress",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"examId\": {{examId}},\n  \"questionId\": {{questionId}},\n  \"selectedAnswer\": \"A\",\n  \"currentQuestionIndex\": 0\n}" },
+            "url": { "raw": "{{baseUrl}}/api/attempt/save-progress", "host": ["{{baseUrl}}"], "path": ["api", "attempt", "save-progress"] }
+          }
+        },
+        {
+          "name": "POST /api/attempt/submit",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"examId\": {{examId}},\n  \"answers\": [\n    {\n      \"questionId\": {{questionId}},\n      \"selectedAnswer\": \"A\"\n    }\n  ]\n}" },
+            "url": { "raw": "{{baseUrl}}/api/attempt/submit", "host": ["{{baseUrl}}"], "path": ["api", "attempt", "submit"] }
+          }
+        },
+        {
+          "name": "GET /api/attempt/status/:examId",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{studentToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/attempt/status/{{examId}}", "host": ["{{baseUrl}}"], "path": ["api", "attempt", "status", "{{examId}}"] }
+          }
+        },
+        {
+          "name": "GET /api/attempt/details/:attemptId",
+          "request": {
+            "method": "GET",
+            "header": [{ "key": "Authorization", "value": "Bearer {{studentToken}}" }],
+            "url": { "raw": "{{baseUrl}}/api/attempt/details/{{attemptId}}", "host": ["{{baseUrl}}"], "path": ["api", "attempt", "details", "{{attemptId}}"] }
+          }
+        },
+        {
+          "name": "POST /api/exams/submit (alias)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{studentToken}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": { "mode": "raw", "raw": "{\n  \"examId\": {{examId}},\n  \"answers\": []\n}" },
+            "url": { "raw": "{{baseUrl}}/api/exams/submit", "host": ["{{baseUrl}}"], "path": ["api", "exams", "submit"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Results",
+      "item": [
+        { "name": "GET /api/results", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{staffToken}}" }], "url": { "raw": "{{baseUrl}}/api/results", "host": ["{{baseUrl}}"], "path": ["api", "results"] } } },
+        { "name": "GET /api/results/student", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{studentToken}}" }], "url": { "raw": "{{baseUrl}}/api/results/student", "host": ["{{baseUrl}}"], "path": ["api", "results", "student"] } } },
+        { "name": "GET /api/results/instructor", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{staffToken}}" }], "url": { "raw": "{{baseUrl}}/api/results/instructor", "host": ["{{baseUrl}}"], "path": ["api", "results", "instructor"] } } },
+        { "name": "GET /api/results/admin", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{staffToken}}" }], "url": { "raw": "{{baseUrl}}/api/results/admin", "host": ["{{baseUrl}}"], "path": ["api", "results", "admin"] } } },
+        { "name": "GET /api/results/summary/:examId", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{staffToken}}" }], "url": { "raw": "{{baseUrl}}/api/results/summary/{{examId}}", "host": ["{{baseUrl}}"], "path": ["api", "results", "summary", "{{examId}}"] } } },
+        { "name": "GET /api/results/export/:examId", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{staffToken}}" }], "url": { "raw": "{{baseUrl}}/api/results/export/{{examId}}", "host": ["{{baseUrl}}"], "path": ["api", "results", "export", "{{examId}}"] } } }
+      ]
+    },
+    {
+      "name": "Materials",
+      "item": [
+        {
+          "name": "POST /api/material/upload",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Authorization", "value": "Bearer {{staffToken}}" }],
+            "body": { "mode": "formdata", "formdata": [{ "key": "title", "value": "NCC Notes", "type": "text" }, { "key": "description", "value": "Demo upload", "type": "text" }, { "key": "file", "type": "file", "src": "" }] },
+            "url": { "raw": "{{baseUrl}}/api/material/upload", "host": ["{{baseUrl}}"], "path": ["api", "material", "upload"] }
+          }
+        },
+        { "name": "GET /api/materials", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{studentToken}}" }], "url": { "raw": "{{baseUrl}}/api/materials", "host": ["{{baseUrl}}"], "path": ["api", "materials"] } } },
+        { "name": "GET /api/materials/:id", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{studentToken}}" }], "url": { "raw": "{{baseUrl}}/api/materials/{{materialId}}", "host": ["{{baseUrl}}"], "path": ["api", "materials", "{{materialId}}"] } } },
+        { "name": "GET /api/materials/:id/download", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{studentToken}}" }], "url": { "raw": "{{baseUrl}}/api/materials/{{materialId}}/download", "host": ["{{baseUrl}}"], "path": ["api", "materials", "{{materialId}}", "download"] } } },
+        { "name": "DELETE /api/materials/:id", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{staffToken}}" }], "url": { "raw": "{{baseUrl}}/api/materials/{{materialId}}", "host": ["{{baseUrl}}"], "path": ["api", "materials", "{{materialId}}"] } } },
+        { "name": "POST /api/materials/:id/revalidate", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{staffToken}}" }], "url": { "raw": "{{baseUrl}}/api/materials/{{materialId}}/revalidate", "host": ["{{baseUrl}}"], "path": ["api", "materials", "{{materialId}}", "revalidate"] } } }
+      ]
+    },
+    {
+      "name": "Users",
+      "item": [
+        { "name": "POST /api/users/create-instructor", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Instructor One\",\n  \"email\": \"instructor1@example.com\",\n  \"password\": \"instr123\",\n  \"collegeCode\": \"NCC001\"\n}" }, "url": { "raw": "{{baseUrl}}/api/users/create-instructor", "host": ["{{baseUrl}}"], "path": ["api", "users", "create-instructor"] } } },
+        { "name": "GET /api/users/instructors", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": { "raw": "{{baseUrl}}/api/users/instructors", "host": ["{{baseUrl}}"], "path": ["api", "users", "instructors"] } } },
+        { "name": "GET /api/users/all", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": { "raw": "{{baseUrl}}/api/users/all", "host": ["{{baseUrl}}"], "path": ["api", "users", "all"] } } },
+        { "name": "GET /api/users/:id", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": { "raw": "{{baseUrl}}/api/users/{{userId}}", "host": ["{{baseUrl}}"], "path": ["api", "users", "{{userId}}"] } } },
+        { "name": "DELETE /api/users/:id", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": { "raw": "{{baseUrl}}/api/users/{{userId}}", "host": ["{{baseUrl}}"], "path": ["api", "users", "{{userId}}"] } } },
+        { "name": "POST /api/users/:id/reset-password", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"newPassword\": \"newpass123\"\n}" }, "url": { "raw": "{{baseUrl}}/api/users/{{userId}}/reset-password", "host": ["{{baseUrl}}"], "path": ["api", "users", "{{userId}}", "reset-password"] } } },
+        { "name": "POST /api/users/bulk-import", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"cadets\": [\n    {\n      \"name\": \"Cadet 1\",\n      \"regimentalNumber\": \"STU999\",\n      \"email\": \"cadet1@example.com\",\n      \"password\": \"cadet123\"\n    }\n  ]\n}" }, "url": { "raw": "{{baseUrl}}/api/users/bulk-import", "host": ["{{baseUrl}}"], "path": ["api", "users", "bulk-import"] } } }
+      ]
+    },
+    {
+      "name": "Admin",
+      "item": [
+        { "name": "GET /api/admin/stats", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{staffToken}}" }], "url": { "raw": "{{baseUrl}}/api/admin/stats", "host": ["{{baseUrl}}"], "path": ["api", "admin", "stats"] } } },
+        { "name": "GET /api/admin/dashboard", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{staffToken}}" }], "url": { "raw": "{{baseUrl}}/api/admin/dashboard", "host": ["{{baseUrl}}"], "path": ["api", "admin", "dashboard"] } } },
+        { "name": "GET /api/admin/users", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{staffToken}}" }], "url": { "raw": "{{baseUrl}}/api/admin/users", "host": ["{{baseUrl}}"], "path": ["api", "admin", "users"] } } },
+        { "name": "POST /api/admin/users", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{staffToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"New User\",\n  \"email\": \"new.user@example.com\",\n  \"password\": \"strong123\",\n  \"role\": \"INSTRUCTOR\"\n}" }, "url": { "raw": "{{baseUrl}}/api/admin/users", "host": ["{{baseUrl}}"], "path": ["api", "admin", "users"] } } },
+        { "name": "GET /api/admin/users/search", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{staffToken}}" }], "url": { "raw": "{{baseUrl}}/api/admin/users/search?q=test", "host": ["{{baseUrl}}"], "path": ["api", "admin", "users", "search"], "query": [{ "key": "q", "value": "test" }] } } },
+        { "name": "GET /api/admin/users/filters", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{staffToken}}" }], "url": { "raw": "{{baseUrl}}/api/admin/users/filters", "host": ["{{baseUrl}}"], "path": ["api", "admin", "users", "filters"] } } },
+        { "name": "POST /api/admin/users/import", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "body": { "mode": "formdata", "formdata": [{ "key": "file", "type": "file", "src": "" }] }, "url": { "raw": "{{baseUrl}}/api/admin/users/import", "host": ["{{baseUrl}}"], "path": ["api", "admin", "users", "import"] } } },
+        { "name": "PATCH /api/admin/users/:id", "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{staffToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Updated Name\"\n}" }, "url": { "raw": "{{baseUrl}}/api/admin/users/{{userId}}", "host": ["{{baseUrl}}"], "path": ["api", "admin", "users", "{{userId}}"] } } },
+        { "name": "DELETE /api/admin/users/:id", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{staffToken}}" }], "url": { "raw": "{{baseUrl}}/api/admin/users/{{userId}}", "host": ["{{baseUrl}}"], "path": ["api", "admin", "users", "{{userId}}"] } } },
+        { "name": "GET /api/admin/assignments", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{staffToken}}" }], "url": { "raw": "{{baseUrl}}/api/admin/assignments", "host": ["{{baseUrl}}"], "path": ["api", "admin", "assignments"] } } },
+        { "name": "POST /api/admin/assignments", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{staffToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"examId\": {{examId}},\n  \"wing\": \"SD\",\n  \"collegeCode\": \"NCC001\",\n  \"batch\": \"2026\"\n}" }, "url": { "raw": "{{baseUrl}}/api/admin/assignments", "host": ["{{baseUrl}}"], "path": ["api", "admin", "assignments"] } } },
+        { "name": "DELETE /api/admin/assignments/:id", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{staffToken}}" }], "url": { "raw": "{{baseUrl}}/api/admin/assignments/{{assignmentId}}", "host": ["{{baseUrl}}"], "path": ["api", "admin", "assignments", "{{assignmentId}}"] } } },
+        { "name": "PATCH /api/admin/results/:id", "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{staffToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"score\": 80,\n  \"reason\": \"Manual correction\"\n}" }, "url": { "raw": "{{baseUrl}}/api/admin/results/{{resultId}}", "host": ["{{baseUrl}}"], "path": ["api", "admin", "results", "{{resultId}}"] } } },
+        { "name": "GET /api/admin/logs", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": { "raw": "{{baseUrl}}/api/admin/logs", "host": ["{{baseUrl}}"], "path": ["api", "admin", "logs"] } } },
+        { "name": "GET /api/admin/health", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": { "raw": "{{baseUrl}}/api/admin/health", "host": ["{{baseUrl}}"], "path": ["api", "admin", "health"] } } },
+        { "name": "GET /api/admin/exams", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{staffToken}}" }], "url": { "raw": "{{baseUrl}}/api/admin/exams", "host": ["{{baseUrl}}"], "path": ["api", "admin", "exams"] } } }
+      ]
+    },
+    {
+      "name": "Colleges",
+      "item": [
+        { "name": "GET /api/admin/colleges", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{staffToken}}" }], "url": { "raw": "{{baseUrl}}/api/admin/colleges", "host": ["{{baseUrl}}"], "path": ["api", "admin", "colleges"] } } },
+        { "name": "POST /api/admin/colleges", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"code\": \"NCC001\",\n  \"name\": \"NCC Demo College\"\n}" }, "url": { "raw": "{{baseUrl}}/api/admin/colleges", "host": ["{{baseUrl}}"], "path": ["api", "admin", "colleges"] } } },
+        { "name": "PATCH /api/admin/colleges/:id", "request": { "method": "PATCH", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"name\": \"Updated College Name\"\n}" }, "url": { "raw": "{{baseUrl}}/api/admin/colleges/{{collegeId}}", "host": ["{{baseUrl}}"], "path": ["api", "admin", "colleges", "{{collegeId}}"] } } },
+        { "name": "DELETE /api/admin/colleges/:id", "request": { "method": "DELETE", "header": [{ "key": "Authorization", "value": "Bearer {{adminToken}}" }], "url": { "raw": "{{baseUrl}}/api/admin/colleges/{{collegeId}}", "host": ["{{baseUrl}}"], "path": ["api", "admin", "colleges", "{{collegeId}}"] } } }
+      ]
+    },
+    {
+      "name": "Notifications",
+      "item": [
+        { "name": "POST /api/notifications/send", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{staffToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"title\": \"Exam update\",\n  \"message\": \"Your exam starts at 10 AM\",\n  \"targetRole\": \"STUDENT\"\n}" }, "url": { "raw": "{{baseUrl}}/api/notifications/send", "host": ["{{baseUrl}}"], "path": ["api", "notifications", "send"] } } },
+        { "name": "GET /api/notifications", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{studentToken}}" }], "url": { "raw": "{{baseUrl}}/api/notifications", "host": ["{{baseUrl}}"], "path": ["api", "notifications"] } } }
+      ]
+    },
+    {
+      "name": "Anti-Cheat",
+      "item": [
+        { "name": "POST /api/exam/violation", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{studentToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"examId\": {{examId}},\n  \"type\": \"TAB_SWITCH\",\n  \"details\": \"Window focus lost\"\n}" }, "url": { "raw": "{{baseUrl}}/api/exam/violation", "host": ["{{baseUrl}}"], "path": ["api", "exam", "violation"] } } },
+        { "name": "POST /api/exam/heartbeat", "request": { "method": "POST", "header": [{ "key": "Authorization", "value": "Bearer {{studentToken}}" }, { "key": "Content-Type", "value": "application/json" }], "body": { "mode": "raw", "raw": "{\n  \"examId\": {{examId}},\n  \"status\": \"active\"\n}" }, "url": { "raw": "{{baseUrl}}/api/exam/heartbeat", "host": ["{{baseUrl}}"], "path": ["api", "exam", "heartbeat"] } } },
+        { "name": "GET /api/exam/flags/:examId", "request": { "method": "GET", "header": [{ "key": "Authorization", "value": "Bearer {{staffToken}}" }], "url": { "raw": "{{baseUrl}}/api/exam/flags/{{examId}}", "host": ["{{baseUrl}}"], "path": ["api", "exam", "flags", "{{examId}}"] } } }
+      ]
+    }
+  ],
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:3000" },
+    { "key": "studentRegimentalNumber", "value": "STU001" },
+    { "key": "studentPassword", "value": "student123" },
+    { "key": "studentEmail", "value": "student@example.com" },
+    { "key": "staffEmail", "value": "admin@example.com" },
+    { "key": "staffPassword", "value": "admin123" },
+    { "key": "studentToken", "value": "" },
+    { "key": "studentRefreshToken", "value": "" },
+    { "key": "staffToken", "value": "" },
+    { "key": "staffRefreshToken", "value": "" },
+    { "key": "adminToken", "value": "" },
+    { "key": "examId", "value": "1" },
+    { "key": "questionId", "value": "1" },
+    { "key": "attemptId", "value": "1" },
+    { "key": "userId", "value": "1" },
+    { "key": "materialId", "value": "1" },
+    { "key": "assignmentId", "value": "1" },
+    { "key": "resultId", "value": "1" },
+    { "key": "collegeId", "value": "1" }
+  ]
+}
