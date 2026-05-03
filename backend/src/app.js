@@ -20,15 +20,17 @@ const allowedOrigins = [
   process.env.CLIENT_URL,
   "https://ncc-exam-portal.vercel.app",
   "http://localhost:5173",
-  "http://localhost:5174"
-
-]
+  "http://localhost:5174",
+  "https://ncc-exam-portal-1.onrender.com",
+].filter(Boolean);
 
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
+      console.warn(`[CORS] Rejected origin: ${origin}`);
       callback(new Error('Not allowed by CORS'));
     }
   },

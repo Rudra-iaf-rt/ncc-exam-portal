@@ -41,7 +41,8 @@ async function getFilters(req, res) {
   try {
     const filters = await usersService.getFilters(req.user);
     res.json(filters);
-  } catch (_error) {
+  } catch (error) {
+    console.error("[Get Filters Error]", error);
     res.status(500).json({ error: "Failed to fetch filter data" });
   }
 }
@@ -117,7 +118,8 @@ async function listInstructors(req, res) {
   try {
     const instructors = await usersService.listInstructors();
     res.json(instructors);
-  } catch (_error) {
+  } catch (error) {
+    console.error("[Instructor List Error]", error);
     res.status(500).json({ error: "Failed to fetch instructor registry" });
   }
 }

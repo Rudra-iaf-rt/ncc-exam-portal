@@ -5,7 +5,8 @@ async function getStats(req, res) {
   try {
     const stats = await adminService.getStats(req.user);
     res.json(stats);
-  } catch (_error) {
+  } catch (error) {
+    console.error("[Stats Error]", error);
     res.status(500).json({ error: "Failed to fetch admin statistics" });
   }
 }
@@ -71,7 +72,8 @@ async function listAssignments(req, res) {
     }));
 
     res.json(flattened);
-  } catch (_error) {
+  } catch (error) {
+    console.error("[Assignments List Error]", error);
     res.status(500).json({ error: "Failed to fetch assignments" });
   }
 }
@@ -100,7 +102,8 @@ async function deleteAssignment(req, res) {
     const id = parseInt(req.params.id);
     await prisma.examAssignment.delete({ where: { id } });
     res.json({ success: true });
-  } catch (_error) {
+  } catch (error) {
+    console.error("[Assignment Delete Error]", error);
     res.status(500).json({ error: "Failed to delete assignment" });
   }
 }
@@ -119,7 +122,8 @@ async function overrideResult(req, res) {
     }
     const result = await adminService.overrideResult(id, score, reason, req.user.id);
     res.json(result);
-  } catch (_error) {
+  } catch (error) {
+    console.error("[Result Override Error]", error);
     res.status(500).json({ error: "Failed to update result" });
   }
 }
@@ -130,7 +134,8 @@ async function listBatches(req, res) {
       orderBy: { name: 'desc' }
     });
     res.json(batches);
-  } catch (_error) {
+  } catch (error) {
+    console.error("[List Batches Error]", error);
     res.status(500).json({ error: "Failed to fetch batches" });
   }
 }
@@ -196,7 +201,8 @@ async function deleteBatch(req, res) {
     const id = parseInt(req.params.id);
     await prisma.batch.delete({ where: { id } });
     res.json({ success: true });
-  } catch (_error) {
+  } catch (error) {
+    console.error("[Delete Batch Error]", error);
     res.status(500).json({ error: "Failed to delete batch" });
   }
 }

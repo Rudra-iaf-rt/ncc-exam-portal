@@ -13,6 +13,7 @@ async function register(req, res) {
 }
 
 async function loginStudent(req, res) {
+  console.log("Payload", req.body)
   const payload = await authService.loginStudent(req.body ?? {});
   await auditLogService.recordAudit(req, {
     action: "AUTH_LOGIN_STUDENT",
@@ -24,14 +25,22 @@ async function loginStudent(req, res) {
 }
 
 async function loginStaff(req, res) {
-  const payload = await authService.loginStaff(req.body ?? {});
-  await auditLogService.recordAudit(req, {
-    action: "AUTH_LOGIN_STAFF",
-    entityType: "User",
-    entityId: payload.user.id,
-    statusCode: 200,
-  });
-  res.json(payload);
+  try {
+    console.log("[AUTH] Login staff attempt", { email: req.body?.email });
+    const payload = await authService.loginStaff(req.body ?? {});
+    
+    await auditLogService.recordAudit(req, {
+      action: "AUTH_LOGIN_STAFF",
+      entityType: "User",
+      entityId: payload.user.id,
+      statusCode: 200,
+    }).catch(err => console.error("[AUDIT] Record failed", err));
+
+    res.json(payload);
+  } catch (error) {
+    console.error("[AUTH] Login failed", { email: req.body?.email, error: error.message });
+    throw error;
+  }
 }
 
 async function me(req, res) {

@@ -10,7 +10,18 @@ if (!connectionString) {
   );
 }
 
-const pool = new Pool({ connectionString });
+const pool = new Pool({
+  connectionString,
+  ssl: {
+    rejectUnauthorized: false, 
+  },
+  max: 10, 
+});
+
+pool.on("error", (err) => {
+  console.error("[Postgres Pool Error]", err);
+});
+
 const adapter = new PrismaPg(pool);
 
 const globalForPrisma = globalThis;

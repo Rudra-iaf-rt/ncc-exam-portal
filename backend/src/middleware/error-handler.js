@@ -10,7 +10,7 @@ function notFoundHandler(_req, res) {
   res.status(404).json({ error: "Not found" });
 }
 
-function errorHandler(err, _req, res, next) {
+function errorHandler(err, req, res, next) {
   if (res.headersSent) {
     return next(err);
   }
@@ -24,20 +24,45 @@ function errorHandler(err, _req, res, next) {
           ? err.statusCode
           : 500;
 
+  const message = err.message || "Internal Server Error";
+
+  // Handle CORS errors specifically
+  if (message === "Not allowed by CORS") {
+    return res.status(403).json({
+      error: "CORS Error",
+      message: "The origin is not allowed to access this resource",
+      code: "AUTH_CORS"
+    });
+  }
+
   const isServer = status >= 500;
+  
+  // Structured logging for ALL errors
+  console.error(`[ERROR] ${err.code || (isServer ? 'SRV_001' : 'VAL_001')}: ${err.message}`, {
+    status,
+    path: req.path,
+    method: req.method,
+    actor: req.user?.id || 'anonymous',
+    stack: isServer ? err.stack : undefined
+  });
+
+  // File logging
   if (isServer) {
-    console.error(err);
     try {
       const fs = require("fs");
       const logMsg = `[${new Date().toISOString()}] ${err.stack || err.message}\n`;
       fs.appendFileSync("backend-error.log", logMsg);
     } catch (e) {
-      console.log(e);
+      console.error("[LOGGER] Failed to write to log file", e.message);
     }
   }
 
-  const message = isServer ? "Internal server error" : err.message || "Request failed";
-  res.status(status).json({ error: message });
+  // Graceful failure for the user
+  res.status(status).json({
+    error: isServer ? "Internal Server Error" : "Bad Request",
+    message: (process.env.NODE_ENV === "development" || !isServer) ? message : "Something went wrong",
+    code: err.code || (isServer ? 'SRV_001' : 'VAL_001')
+  });
 }
 
 module.exports = { asyncHandler, notFoundHandler, errorHandler };

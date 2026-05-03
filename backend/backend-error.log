@@ -1692,3 +1692,243 @@ The column `User.refreshToken` does not exist in the current database.
     at processParams (C:\College Projects\ncc-exam-portal\backend\node_modules\router\index.js:582:12)
     at next (C:\College Projects\ncc-exam-portal\backend\node_modules\router\index.js:291:5)
     at Function.handle (C:\College Projects\ncc-exam-portal\backend\node_modules\router\index.js:186:3)
+[2026-05-03T11:41:27.338Z] PrismaClientKnownRequestError: 
+Invalid `prisma.user.findUnique()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:140:34
+
+  137 }
+  138 
+  139 async function getMe(userId) {
+→ 140   const user = await prisma.user.findUnique(
+Can't reach database server at ep-dawn-moon-anzejqj0.c-6.us-east-1.aws.neon.tech
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:8286)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async Object.getMe (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:140:16)
+    at async me (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:47:16)
+[2026-05-03T11:41:27.442Z] PrismaClientKnownRequestError: 
+Invalid `prisma.user.findUnique()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:140:34
+
+  137 }
+  138 
+  139 async function getMe(userId) {
+→ 140   const user = await prisma.user.findUnique(
+Can't reach database server at ep-dawn-moon-anzejqj0.c-6.us-east-1.aws.neon.tech
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:8286)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async Object.getMe (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:140:16)
+    at async me (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:47:16)
+[2026-05-03T11:41:43.982Z] PrismaClientKnownRequestError: 
+Invalid `prisma.user.findFirst()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:119:34
+
+  116 
+  117 const normalizedEmail = String(email).trim().toLowerCase();
+  118 
+→ 119 const user = await prisma.user.findFirst(
+Can't reach database server at ep-dawn-moon-anzejqj0.c-6.us-east-1.aws.neon.tech
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:8286)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async Object.loginStaff (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:119:16)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:30:21)
+[2026-05-03T12:00:40.026Z] PrismaClientKnownRequestError: 
+Invalid `prisma.college.findMany()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\colleges.service.js:41:41
+
+  38 
+  39 async function listCollegesAll() {
+  40   // For admin — includes inactive
+→ 41   const colleges = await prisma.college.findMany(
+Can't reach database server at ep-dawn-moon-anzejqj0-pooler.c-6.us-east-1.aws.neon.tech
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:8286)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async Object.listCollegesAll (C:\College Projects\ncc-exam-portal\backend\src\services\colleges.service.js:41:20)
+    at async list (C:\College Projects\ncc-exam-portal\backend\src\controllers\colleges.controller.js:6:7)
+[2026-05-03T12:18:26.177Z] PrismaClientKnownRequestError: 
+Invalid `prisma.user.findFirst()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:119:34
+
+  116 
+  117 const normalizedEmail = String(email).trim().toLowerCase();
+  118 
+→ 119 const user = await prisma.user.findFirst(
+Can't reach database server at ep-dawn-moon-anzejqj0-pooler.c-6.us-east-1.aws.neon.tech
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:8286)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async Object.loginStaff (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:119:16)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:30:21)
+[2026-05-03T12:18:27.879Z] PrismaClientKnownRequestError: 
+Invalid `prisma.user.findFirst()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:119:34
+
+  116 
+  117 const normalizedEmail = String(email).trim().toLowerCase();
+  118 
+→ 119 const user = await prisma.user.findFirst(
+Can't reach database server at ep-dawn-moon-anzejqj0-pooler.c-6.us-east-1.aws.neon.tech
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:8286)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async Object.loginStaff (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:119:16)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:30:21)
+[2026-05-03T12:18:54.030Z] PrismaClientKnownRequestError: 
+Invalid `prisma.user.findFirst()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:119:34
+
+  116 
+  117 const normalizedEmail = String(email).trim().toLowerCase();
+  118 
+→ 119 const user = await prisma.user.findFirst(
+Can't reach database server at ep-dawn-moon-anzejqj0-pooler.c-6.us-east-1.aws.neon.tech
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:8286)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async Object.loginStaff (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:119:16)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:30:21)
+[2026-05-03T12:18:56.145Z] PrismaClientKnownRequestError: 
+Invalid `prisma.user.findFirst()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:119:34
+
+  116 
+  117 const normalizedEmail = String(email).trim().toLowerCase();
+  118 
+→ 119 const user = await prisma.user.findFirst(
+Can't reach database server at ep-dawn-moon-anzejqj0-pooler.c-6.us-east-1.aws.neon.tech
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:8286)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async Object.loginStaff (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:119:16)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:30:21)
+[2026-05-03T12:19:14.151Z] PrismaClientKnownRequestError: 
+Invalid `prisma.user.findFirst()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:119:34
+
+  116 
+  117 const normalizedEmail = String(email).trim().toLowerCase();
+  118 
+→ 119 const user = await prisma.user.findFirst(
+Can't reach database server at ep-dawn-moon-anzejqj0-pooler.c-6.us-east-1.aws.neon.tech
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:8286)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async Object.loginStaff (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:119:16)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:30:21)
+[2026-05-03T12:19:23.625Z] PrismaClientKnownRequestError: 
+Invalid `prisma.user.findFirst()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:119:34
+
+  116 
+  117 const normalizedEmail = String(email).trim().toLowerCase();
+  118 
+→ 119 const user = await prisma.user.findFirst(
+Can't reach database server at ep-dawn-moon-anzejqj0-pooler.c-6.us-east-1.aws.neon.tech
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:8286)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async Object.loginStaff (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:119:16)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:30:21)
+[2026-05-03T12:23:52.260Z] PrismaClientKnownRequestError: 
+Invalid `prisma.college.findMany()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\colleges.service.js:41:41
+
+  38 
+  39 async function listCollegesAll() {
+  40   // For admin — includes inactive
+→ 41   const colleges = await prisma.college.findMany(
+Can't reach database server at ep-dawn-moon-anzejqj0-pooler.c-6.us-east-1.aws.neon.tech
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:8286)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async Object.listCollegesAll (C:\College Projects\ncc-exam-portal\backend\src\services\colleges.service.js:41:20)
+    at async list (C:\College Projects\ncc-exam-portal\backend\src\controllers\colleges.controller.js:6:7)
+[2026-05-03T12:24:27.318Z] PrismaClientKnownRequestError: 
+Invalid `prisma.user.findUnique()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:140:34
+
+  137 }
+  138 
+  139 async function getMe(userId) {
+→ 140   const user = await prisma.user.findUnique(
+Can't reach database server at ep-dawn-moon-anzejqj0-pooler.c-6.us-east-1.aws.neon.tech
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:8286)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async Object.getMe (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:140:16)
+    at async me (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:47:16)
+[2026-05-03T12:24:27.457Z] PrismaClientKnownRequestError: 
+Invalid `prisma.user.findUnique()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:140:34
+
+  137 }
+  138 
+  139 async function getMe(userId) {
+→ 140   const user = await prisma.user.findUnique(
+Can't reach database server at ep-dawn-moon-anzejqj0-pooler.c-6.us-east-1.aws.neon.tech
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:8286)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async Object.getMe (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:140:16)
+    at async me (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:47:16)
+[2026-05-03T12:24:41.982Z] PrismaClientKnownRequestError: 
+Invalid `prisma.user.findFirst()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:119:34
+
+  116 
+  117 const normalizedEmail = String(email).trim().toLowerCase();
+  118 
+→ 119 const user = await prisma.user.findFirst(
+Can't reach database server at ep-dawn-moon-anzejqj0-pooler.c-6.us-east-1.aws.neon.tech
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:8286)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async Object.loginStaff (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:119:16)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:30:21)
+[2026-05-03T12:24:44.396Z] PrismaClientKnownRequestError: 
+Invalid `prisma.user.findFirst()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:119:34
+
+  116 
+  117 const normalizedEmail = String(email).trim().toLowerCase();
+  118 
+→ 119 const user = await prisma.user.findFirst(
+Can't reach database server at ep-dawn-moon-anzejqj0-pooler.c-6.us-east-1.aws.neon.tech
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:8286)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async Object.loginStaff (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:119:16)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:30:21)

@@ -2,6 +2,10 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 import { examApi } from '../../api';
 
+const isMobileDevice = () => {
+  return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+};
+
 export const useProctoring = ({ onSecurityBreach, maxWarnings = 3 }) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [isScreenSharing, setIsScreenSharing] = useState(false);
@@ -57,17 +61,46 @@ export const useProctoring = ({ onSecurityBreach, maxWarnings = 3 }) => {
 
   // Fullscreen Handlers
   const requestFullscreen = useCallback(async () => {
+    const isMobile = isMobileDevice();
+    
     try {
       if (document.documentElement.requestFullscreen) {
         await document.documentElement.requestFullscreen();
         setIsFullscreen(true);
+      } else if (isMobile) {
+        // Fallback for mobile devices (like iOS) that don't support document-level fullscreen
+        setIsFullscreen(true);
+        toast.info('Secure Mode: Fullscreen bypass activated for mobile.', {
+          description: 'Please do not switch tabs during the exam.'
+        });
+      } else {
+        toast.error('Fullscreen mode is not supported by your browser.');
       }
     } catch (_err) {
-      toast.error('Failed to enter fullscreen mode. Please check browser permissions.');
+      if (isMobile) {
+        setIsFullscreen(true);
+      } else {
+        toast.error('Failed to enter fullscreen mode. Please check browser permissions.');
+      }
     }
   }, []);
 
   const requestScreenShare = useCallback(async () => {
+    const isMobile = isMobileDevice();
+    const hasScreenShareSupport = !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia);
+
+    if (isMobile || !hasScreenShareSupport) {
+      setIsScreenSharing(true);
+      if (isMobile) {
+        toast.info('Mobile detected: Screen sharing requirement waived.', {
+          description: 'Ensure you stay on this page to avoid violations.'
+        });
+      } else {
+        toast.warning('Browser limit: Screen sharing not supported. Proceeding with caution.');
+      }
+      return true;
+    }
+
     try {
       const stream = await navigator.mediaDevices.getDisplayMedia({
         video: { displaySurface: 'monitor' },
@@ -94,6 +127,12 @@ export const useProctoring = ({ onSecurityBreach, maxWarnings = 3 }) => {
       setIsScreenSharing(true);
       return true;
     } catch (_err) {
+      // If it's a mobile device and getDisplayMedia failed (some mobile browsers 
+      // have the API but it fails or is restricted), allow bypass.
+      if (isMobile) {
+        setIsScreenSharing(true);
+        return true;
+      }
       toast.error('Screen sharing is required to attempt the exam.');
       return false;
     }
