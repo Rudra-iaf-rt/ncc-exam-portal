@@ -11,6 +11,7 @@
     "db:migrate:deploy": "prisma migrate deploy",
     "db:push": "prisma db push",
     "db:seed": "node prisma/seed.js",
+    "postinstall": "prisma generate",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "prisma": {
@@ -22,7 +23,7 @@
   "type": "commonjs",
   "dependencies": {
     "@prisma/adapter-pg": "^7.7.0",
-    "@prisma/client": "^7.6.0",
+    "@prisma/client": "^7.8.0",
     "bcrypt": "^6.0.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.6",
@@ -36,10 +37,10 @@
     "nodemailer": "^6.10.1",
     "pdf-parse": "^1.1.4",
     "pg": "^8.20.0",
+    "prisma": "^7.8.0",
     "xlsx": "^0.18.5",
     "zod": "^4.3.6"
   },
   "devDependencies": {
-    "prisma": "^7.8.0"
   }
 }
