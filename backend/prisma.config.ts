@@ -8,6 +8,7 @@ export default defineConfig({
     seed: "node prisma/seed.js"
   },
   datasource: {
-    url: env("DATABASE_URL"),
+    // Use process.env directly with a fallback to avoid strict validation errors during build/generation
+    url: process.env.DATABASE_URL || "postgresql://postgres:password@localhost:5432/placeholder",
   },
 });

@@ -249,3 +249,5 @@
 {"timestamp":"2026-05-03T09:15:38.267Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Token verification failed","error":"jwt expired","path":"/me"}
 {"timestamp":"2026-05-03T09:15:53.460Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Missing or malformed Authorization header","path":"/materials"}
 {"timestamp":"2026-05-03T09:15:53.483Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Missing or malformed Authorization header","path":"/materials"}
+{"timestamp":"2026-05-03T10:36:43.413Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Token verification failed","error":"jwt expired","path":"/me"}
+{"timestamp":"2026-05-03T10:36:43.425Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Token verification failed","error":"jwt expired","path":"/me"}
