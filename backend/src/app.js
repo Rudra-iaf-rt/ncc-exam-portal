@@ -22,7 +22,7 @@ const allowedOrigins = [
   
 ]
 
-app.use(cors(), {
+app.use(cors({
   origin: (origin, callback) => {
     if (!origin || allowedOrigins.includes(origin)) {
       callback(null, true);
@@ -30,7 +30,8 @@ app.use(cors(), {
       callback(new Error('Not allowed by CORS'));
     }
   },
-});
+  credentials: true
+}));
 app.use(requestContext);
 app.use(securityHeaders);
 app.use(express.json());
