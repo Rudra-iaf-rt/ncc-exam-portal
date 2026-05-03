@@ -58,7 +58,7 @@ export default function ExamCreate() {
   };
 
   const validateStep1 = () => {
-    if (!basicInfo.title.trim()) return 'Examination title is required for deployment.';
+    if (!basicInfo.title.trim()) return 'Examination title is required.';
     if (basicInfo.duration < 1) return 'Duration must be at least 1 minute for valid assessment.';
     return null;
   };
@@ -92,7 +92,7 @@ export default function ExamCreate() {
         duration: basicInfo.duration,
         file: excelFile
       });
-      toast.success('Exam successfully deployed from registry file.');
+      toast.success('Exam successfully created from file.');
       navigate('/admin/exams');
     } catch (error) {
       toast.error(error.message || 'Could not create the exam from this file.');
@@ -115,10 +115,10 @@ export default function ExamCreate() {
         ...basicInfo,
         questions
       });
-      toast.success('Examination protocol successfully deployed.');
+      toast.success('Examination successfully created.');
       navigate('/admin/exams');
     } catch (error) {
-      toast.error(error.message || 'Operational failure: Unable to deploy examination protocol.');
+      toast.error(error.message || 'Operational failure: Unable to create examination.');
     } finally {
       setIsSubmitting(false);
     }
@@ -127,10 +127,10 @@ export default function ExamCreate() {
   return (
     <div className="max-w-[900px] mx-auto">
       <PageHeader 
-        title="Deploy New *Examination*" 
+        title="Create New *Examination*" 
         subtitle={
           creationMode === 'excel'
-            ? 'Upload an Excel/CSV sheet with questions and answers to deploy instantly.'
+            ? 'Upload an Excel/CSV sheet with questions and answers to create an exam instantly.'
             : step === 1
               ? 'Phase I: Mission Parameters & Configuration'
               : `Phase II: Intelligence Assessment Architecture (${questions.length} Blocks)`
@@ -144,7 +144,7 @@ export default function ExamCreate() {
           onClick={() => setCreationMode('excel')}
         >
           <FileUp size={16} strokeWidth={1.5} />
-          <span>From HQ Registry (Excel)</span>
+          <span>From Exam File (Excel)</span>
         </button>
         <button
           type="button"
@@ -176,13 +176,14 @@ export default function ExamCreate() {
                 value={basicInfo.duration}
                 min={1}
                 onChange={(e) => setBasicInfo({ ...basicInfo, duration: parseInt(e.target.value, 10) || 0 })}
+                onFocus={(e) => e.target.select()}
               />
             </div>
           </div>
 
           <div className="mb-8">
             <div className="flex justify-between items-center mb-2">
-              <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3">Registry File (Excel / CSV)</label>
+              <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3">Question File (Excel / CSV)</label>
               <div className="flex gap-2">
                 <a href="/exam-template.xlsx" download className="text-[11px] font-medium text-navy-soft hover:text-navy flex items-center gap-1">
                   <Download size={13} /> XLSX Template
@@ -223,7 +224,7 @@ export default function ExamCreate() {
               disabled={isSubmitting}
             >
               <ShieldCheck size={16} strokeWidth={1.5} />
-              <span>{isSubmitting ? 'Importing Registry...' : 'Deploy from Registry'}</span>
+              <span>{isSubmitting ? 'Importing Questions...' : 'Upload Questions'}</span>
             </button>
           </div>
         </div>
@@ -259,7 +260,8 @@ export default function ExamCreate() {
                       type="number"
                       className="w-full h-[38px] pl-10 pr-3 border border-stone-deep rounded-md font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all placeholder:text-ink-4" 
                       value={basicInfo.duration}
-                      onChange={(e) => setBasicInfo({ ...basicInfo, duration: parseInt(e.target.value) || 0 })}
+                      onChange={(e) => setBasicInfo({ ...basicInfo, duration: parseInt(e.target.value, 10) || 0 })}
+                      onFocus={(e) => e.target.select()}
                     />
                     <Clock size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-4" />
                   </div>
@@ -275,7 +277,7 @@ export default function ExamCreate() {
                     if (err) toast.error(err); else { setStep(2); }
                   }}
                 >
-                  <span>Initialize Intelligence Phase</span>
+                  <span>Continue to Questions</span>
                   <ArrowRight size={16} strokeWidth={1.5} />
                 </button>
               </div>
@@ -348,7 +350,7 @@ export default function ExamCreate() {
                   </button>
                   <button className="h-[36px] px-[18px] rounded-md font-ui text-[13px] font-medium flex items-center justify-center gap-2 bg-navy text-[#F4F0E4] hover:bg-navy-mid transition-all disabled:opacity-50 disabled:cursor-not-allowed" onClick={handleSubmit} disabled={isSubmitting}>
                     <ShieldCheck size={16} strokeWidth={1.5} />
-                    <span>{isSubmitting ? 'Deploying Protocol...' : 'Finalize & Deploy'}</span>
+                    <span>{isSubmitting ? 'Creating Exam...' : 'Finalize & Create'}</span>
                   </button>
                 </div>
               </div>

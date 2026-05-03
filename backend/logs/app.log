@@ -234,3 +234,18 @@
 {"timestamp":"2026-04-27T08:35:06.945Z","level":"AUDIT","actor":3,"action":"EXAM_BULK_ASSIGN","examId":"6","count":0}
 {"timestamp":"2026-04-27T08:37:31.747Z","level":"AUDIT","actor":3,"action":"EXAM_BULK_ASSIGN","examId":"7","count":1}
 {"timestamp":"2026-04-27T08:39:22.392Z","level":"AUDIT","actor":3,"action":"EXAM_BULK_ASSIGN","examId":"7","count":1}
+{"timestamp":"2026-05-03T07:30:36.683Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Token verification failed","error":"jwt expired","path":"/results"}
+{"timestamp":"2026-05-03T07:30:36.712Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Token verification failed","error":"jwt expired","path":"/results"}
+{"timestamp":"2026-05-03T07:47:02.323Z","level":"AUDIT","actor":2,"action":"EXAM_BULK_ASSIGN","examId":"10","count":2}
+{"timestamp":"2026-05-03T08:07:51.168Z","level":"AUDIT","actor":2,"action":"EXAM_BULK_ASSIGN","examId":"10","count":0}
+{"timestamp":"2026-05-03T08:11:52.748Z","level":"AUDIT","actor":2,"action":"EXAM_BULK_ASSIGN","examId":"11","count":2}
+{"timestamp":"2026-05-03T08:20:39.593Z","level":"AUDIT","actor":2,"action":"USER_MANUAL_CREATE","userId":15,"regNo":"12"}
+{"timestamp":"2026-05-03T08:39:22.452Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Missing or malformed Authorization header","path":"/exams/12"}
+{"timestamp":"2026-05-03T08:39:28.028Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Missing or malformed Authorization header","path":"/exams"}
+{"timestamp":"2026-05-03T08:49:21.507Z","level":"AUDIT","actor":2,"action":"EXAM_BULK_ASSIGN","examId":"13","count":1}
+{"timestamp":"2026-05-03T08:50:09.622Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Missing or malformed Authorization header","path":"/materials"}
+{"timestamp":"2026-05-03T08:50:09.641Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Missing or malformed Authorization header","path":"/materials"}
+{"timestamp":"2026-05-03T09:15:38.229Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Token verification failed","error":"jwt expired","path":"/me"}
+{"timestamp":"2026-05-03T09:15:38.267Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Token verification failed","error":"jwt expired","path":"/me"}
+{"timestamp":"2026-05-03T09:15:53.460Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Missing or malformed Authorization header","path":"/materials"}
+{"timestamp":"2026-05-03T09:15:53.483Z","level":"WARN","actor":"SYSTEM","action":"AUTH_FAILED","reason":"Missing or malformed Authorization header","path":"/materials"}

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { adminApi } from '../../api';
+import { useAdminAuth } from '../../contexts/AdminAuth';
 import { toast } from 'sonner';
 import { PageHeader } from '../components/Shared';
 import { 
@@ -13,14 +14,19 @@ import {
 import BulkImport from '../components/BulkImport';
 import AddUserModal from '../components/AddUserModal';
 import EditUserModal from '../components/EditUserModal';
+import BatchManagementModal from '../components/BatchManagementModal';
+import { Calendar } from 'lucide-react';
 
 export default function UserManagement() {
+  const { user } = useAdminAuth();
+  const isAdmin = user?.role === 'ADMIN';
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshKey, setRefreshKey] = useState(0);
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isBatchOpen, setIsBatchOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [wingFilter, setWingFilter] = useState('ALL');
@@ -28,6 +34,7 @@ export default function UserManagement() {
   const handleRefresh = () => setRefreshKey(prev => prev + 1);
 
   const handleDelete = async (id, name) => {
+    if (!isAdmin) return;
     if (!window.confirm(`Are you sure you want to permanently delete ${name}? All their exam attempts, results, and assignments will be purged.`)) {
       return;
     }
@@ -42,6 +49,7 @@ export default function UserManagement() {
   };
 
   const openEdit = (user) => {
+    if (!isAdmin) return;
     setSelectedUser(user);
     setIsEditOpen(true);
   };
@@ -75,11 +83,11 @@ export default function UserManagement() {
   }, [refreshKey]);
 
   return (
-    <div className="max-w-[1000px]">
+    <div className="w-full pb-10">
       <PageHeader 
-        title="Cadet *Registry*"
-        subtitle="Centralized record of all enrolled students."
-        action={
+        title="Cadets"
+        subtitle={isAdmin ? "Centralized record of all enrolled students." : `Student records for ${user?.college || 'your college'}.`}
+        action={isAdmin && (
           <div className="flex gap-3">
             <button 
               className="h-[36px] px-[18px] rounded-md font-ui text-[13px] font-medium flex items-center gap-2 transition-all bg-transparent border border-stone-deep text-ink-2 hover:bg-stone hover:text-navy"
@@ -89,6 +97,13 @@ export default function UserManagement() {
               <span>Bulk Import</span>
             </button>
             <button 
+              className="h-[36px] px-[18px] rounded-md font-ui text-[13px] font-medium flex items-center gap-2 transition-all bg-transparent border border-stone-deep text-ink-2 hover:bg-stone hover:text-navy"
+              onClick={() => setIsBatchOpen(true)}
+            >
+              <Calendar size={16} strokeWidth={1.5} />
+              <span>Manage Batches</span>
+            </button>
+            <button 
               className="h-[36px] px-[18px] rounded-md font-ui text-[13px] font-medium flex items-center gap-2 transition-all bg-navy text-[#F4F0E4] hover:bg-navy-mid"
               onClick={() => setIsAddOpen(true)}
             >
@@ -96,7 +111,7 @@ export default function UserManagement() {
               <span>Add Cadet</span>
             </button>
           </div>
-        }
+        )}
       />
 
       <AddUserModal 
@@ -124,6 +139,11 @@ export default function UserManagement() {
         isOpen={isImportOpen} 
         onClose={() => setIsImportOpen(false)} 
         onRefresh={handleRefresh}
+      />
+
+      <BatchManagementModal 
+        isOpen={isBatchOpen}
+        onClose={() => setIsBatchOpen(false)}
       />
 
       <div className="mb-5 flex gap-3 flex-wrap">
@@ -154,7 +174,7 @@ export default function UserManagement() {
           <div className="flex gap-4">
             <ShieldAlert size={24} className="text-gold" />
             <div>
-              <h2 className="text-navy m-0 mb-2 text-[18px] font-semibold font-ui">Empty Registry</h2>
+              <h2 className="text-navy m-0 mb-2 text-[18px] font-semibold font-ui">No Cadets Found</h2>
               <p className="text-[14px] text-ink-4 m-0 leading-[1.6] font-ui">
                 No registered cadets or administrators found in the database. New users must register via the student portal or be added manually.
               </p>
@@ -173,28 +193,33 @@ export default function UserManagement() {
                 <th className="font-normal px-4 py-3">Wing</th>
                 <th className="font-normal px-4 py-3">Status</th>
                 <th className="font-normal px-4 py-3">College</th>
-                <th className="font-normal px-4 py-3 text-right">Actions</th>
+                {isAdmin && <th className="font-normal px-4 py-3 text-right">Actions</th>}
               </tr>
             </thead>
             <tbody className="font-ui text-[13.5px] text-ink-2">
               {!loading ? (
                 filteredUsers.map((user) => (
                   <tr key={user.id} className="border-b border-stone-mid hover:bg-stone-wash transition-colors last:border-b-0">
-                    <td className="px-4 py-3 font-medium text-navy">{user.name}</td>
-                    <td className="px-4 py-3"><code className="font-mono text-[12px] bg-transparent p-0 text-ink-3">{user.regimentalNumber || user.email || 'N/A'}</code></td>
                     <td className="px-4 py-3">
-                      {user.wing ? (
-                        <span className={`font-mono text-[10px] tracking-[0.06em] py-1 px-2.5 rounded-full font-medium inline-flex ${
-                          user.wing.toUpperCase() === 'ARMY' ? 'bg-[#ef444420] text-[#b91c1c] border border-[#b91c1c30]' :
-                          user.wing.toUpperCase() === 'NAVY' ? 'bg-[#3b82f620] text-[#1d4ed8] border border-[#1d4ed830]' :
-                          user.wing.toUpperCase() === 'AIR' ? 'bg-[#06b6d420] text-[#0891b2] border border-[#0891b230]' :
-                          'bg-stone-mid text-ink-3'
-                        }`}>
-                          {user.wing}
-                        </span>
-                      ) : (
-                        <span className="font-mono text-[10px] tracking-[0.06em] py-1 px-2.5 rounded-full font-medium inline-flex bg-stone-mid text-ink-3">N/A</span>
+                      <div className="font-medium text-navy">{user.name}</div>
+                      {user.yearOfStudy && (
+                        <div className="text-[10px] text-ink-4 mt-0.5 flex items-center gap-1">
+                          <span className="px-1.5 py-0.5 bg-stone-deep rounded uppercase tracking-tighter font-bold">Year {user.yearOfStudy}</span>
+                          {user.batch && <span className="opacity-40">·</span>}
+                          {user.batch && <span>Batch {user.batch}</span>}
+                        </div>
                       )}
+                    </td>
+                    <td className="px-4 py-3"><code className="font-mono text-[12px] bg-transparent p-0 text-ink-3 tracking-wide">{user.regimentalNumber || user.email || 'N/A'}</code></td>
+                    <td className="px-4 py-3">
+                      <span className={`font-mono text-[10px] tracking-[0.06em] py-1 px-2.5 rounded-full font-medium inline-flex ${
+                        user.wing?.toUpperCase() === 'ARMY' ? 'bg-[#ef444420] text-[#b91c1c] border border-[#b91c1c30]' :
+                        user.wing?.toUpperCase() === 'NAVY' ? 'bg-[#3b82f620] text-[#1d4ed8] border border-[#1d4ed830]' :
+                        user.wing?.toUpperCase() === 'AIR' ? 'bg-[#06b6d420] text-[#0891b2] border border-[#0891b230]' :
+                        'bg-stone-mid text-ink-3 border border-stone-deep'
+                      }`}>
+                        {user.wing || 'N/A'}
+                      </span>
                     </td>
                     <td className="px-4 py-3">
                       <div className="flex items-center gap-1.5">
@@ -204,25 +229,29 @@ export default function UserManagement() {
                         </span>
                       </div>
                     </td>
-                    <td className="px-4 py-3 text-[13px]">{user.college}</td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="flex gap-2 justify-end">
-                        <button 
-                          onClick={() => openEdit(user)}
-                          className="w-8 h-8 rounded-md flex items-center justify-center bg-stone-2 text-navy hover:bg-stone-3 transition-colors" 
-                          title="Edit User"
-                        >
-                          <Pencil size={14} />
-                        </button>
-                        <button 
-                          onClick={() => handleDelete(user.id, user.name)}
-                          className="w-8 h-8 rounded-md flex items-center justify-center bg-[#ef444410] text-[#ef4444] hover:bg-[#ef444420] transition-colors" 
-                          title="Delete User"
-                        >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
+                    <td className="px-4 py-3 text-[13px]">
+                      <div className="truncate max-w-[150px]" title={user.college}>{user.college}</div>
                     </td>
+                    {isAdmin && (
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex gap-2 justify-end">
+                          <button 
+                            onClick={() => openEdit(user)}
+                            className="w-8 h-8 rounded-md flex items-center justify-center bg-stone-2 text-navy hover:bg-stone-3 transition-colors" 
+                            title="Edit User"
+                          >
+                            <Pencil size={14} />
+                          </button>
+                          <button 
+                            onClick={() => handleDelete(user.id, user.name)}
+                            className="w-8 h-8 rounded-md flex items-center justify-center bg-[#ef444410] text-[#ef4444] hover:bg-[#ef444420] transition-colors" 
+                            title="Delete User"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      </td>
+                    )}
                   </tr>
                 ))
               ) : (

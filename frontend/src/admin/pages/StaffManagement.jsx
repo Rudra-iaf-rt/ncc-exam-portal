@@ -34,7 +34,7 @@ export default function StaffManagement() {
         if (data) setStaff(data);
       } catch (error) {
         console.error('Failed to fetch staff:', error);
-        toast.error('Failed to load instructor registry');
+        toast.error('Failed to load instructor list');
       } finally {
         setLoading(false);
       }
@@ -43,7 +43,7 @@ export default function StaffManagement() {
   }, [refreshKey]);
 
   const handleDelete = async (id, name) => {
-    if (!window.confirm(`Are you sure you want to remove ${name} from the instructor registry? They will lose all administrative access.`)) {
+    if (!window.confirm(`Are you sure you want to remove ${name} from the instructor list? They will lose all administrative access.`)) {
       return;
     }
 
@@ -72,10 +72,10 @@ export default function StaffManagement() {
   });
 
   return (
-    <div className="max-w-[1000px]">
+    <div className="w-full pb-10">
       <PageHeader 
-        title="Instructor *Registry*"
-        subtitle="Command and administrative staff across all units."
+        title="Instructors"
+        subtitle="List of instructors."
         action={
           <button 
             className="h-[36px] px-[18px] rounded-md font-ui text-[13px] font-medium flex items-center gap-2 transition-all bg-navy text-[#F4F0E4] hover:bg-navy-mid"
@@ -127,7 +127,7 @@ export default function StaffManagement() {
             <div>
               <h2 className="text-navy m-0 mb-2 text-[18px] font-semibold font-ui">No Instructors</h2>
               <p className="text-[14px] text-ink-4 m-0 leading-[1.6] font-ui">
-                The instructor registry is currently empty. Use the "Add Instructor" button to provision accounts for officers and ANOs.
+                The instructor list is currently empty. Use the "Add Instructor" button to create accounts.
               </p>
             </div>
           </div>
@@ -204,7 +204,7 @@ export default function StaffManagement() {
               ) : (
                 <tr>
                   <td colSpan="5" className="text-center p-10 text-ink-4 font-mono text-[12px]">
-                    Accessing Secure Staff Registry...
+                    Loading Instructors...
                   </td>
                 </tr>
               )}

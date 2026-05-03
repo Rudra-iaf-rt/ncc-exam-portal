@@ -254,7 +254,7 @@ async function getFilters(currentUser) {
     }
   }
 
-  const [wings, colleges, batches] = await Promise.all([
+  const [wings, colleges, userBatches, masterBatches] = await Promise.all([
     prisma.user.findMany({ where: { role: ROLES.STUDENT, ...collegeWhere }, select: { wing: true }, distinct: ['wing'] }),
     prisma.user.findMany({ 
       where: { role: ROLES.STUDENT, ...collegeWhere }, 
@@ -262,12 +262,18 @@ async function getFilters(currentUser) {
       distinct: ['collegeCode'] 
     }),
     prisma.user.findMany({ where: { role: ROLES.STUDENT, ...collegeWhere }, select: { batch: true }, distinct: ['batch'] }),
+    prisma.batch.findMany({ select: { name: true } })
   ]);
+
+  const allBatches = Array.from(new Set([
+    ...userBatches.map(b => b.batch),
+    ...masterBatches.map(b => b.name)
+  ])).filter(Boolean).sort((a, b) => b.localeCompare(a));
 
   return {
     wings: wings.map(w => w.wing).filter(Boolean),
     colleges: colleges.map(c => c.college?.name).filter(Boolean).sort(),
-    batches: batches.map(b => b.batch).filter(Boolean).sort((a, b) => b.localeCompare(a))
+    batches: allBatches
   };
 }
 

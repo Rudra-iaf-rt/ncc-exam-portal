@@ -18,6 +18,8 @@ export default function EditUserModal({ isOpen, onClose, onRefresh, user }) {
   const [colleges, setColleges] = useState([]);
   const [loading, setLoading] = useState(false);
   const [fetchingColleges, setFetchingColleges] = useState(false);
+  const [batches, setBatches] = useState([]);
+  const [fetchingBatches, setFetchingBatches] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
@@ -46,6 +48,19 @@ export default function EditUserModal({ isOpen, onClose, onRefresh, user }) {
         }
       };
       fetchColleges();
+
+      const fetchBatches = async () => {
+        setFetchingBatches(true);
+        try {
+          const { data } = await adminApi.getBatches();
+          if (data) setBatches(data); // Show all batches for editing existing records
+        } catch (error) {
+          console.error('Failed to fetch batches:', error);
+        } finally {
+          setFetchingBatches(false);
+        }
+      };
+      fetchBatches();
     }
   }, [isOpen, user]);
 
@@ -210,15 +225,19 @@ export default function EditUserModal({ isOpen, onClose, onRefresh, user }) {
                 </div>
 
                 <div className="col-span-1">
-                  <label htmlFor="edit-batch" className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-2">Batch / Year</label>
-                  <input
+                  <label htmlFor="edit-batch" className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-2">Batch / Year *</label>
+                  <select
                     id="edit-batch"
-                    type="text"
-                    placeholder="e.g. 2024-25"
+                    required
+                    className="w-full h-[42px] px-4 border border-stone-deep rounded-xl font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all shadow-sm"
                     value={formData.batch}
                     onChange={(e) => setFormData({ ...formData, batch: e.target.value })}
-                    className="w-full h-[42px] px-4 border border-stone-deep rounded-xl font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all shadow-sm"
-                  />
+                  >
+                    <option value="">{fetchingBatches ? 'Loading Batches...' : 'Select Batch'}</option>
+                    {batches.map(b => (
+                      <option key={b.id} value={b.name}>{b.name} {!b.isActive && '(Archived)'}</option>
+                    ))}
+                  </select>
                 </div>
               </>
             )}

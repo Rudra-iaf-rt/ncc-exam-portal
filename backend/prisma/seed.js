@@ -13,19 +13,40 @@ const SALT_ROUNDS = 10;
 async function main() {
   const studentPass = await bcrypt.hash("student123", SALT_ROUNDS);
   const staffPass = await bcrypt.hash("admin123", SALT_ROUNDS);
-  const sampleCadetPass = await bcrypt.hash("Sree@1234", SALT_ROUNDS);
+  const sampleCadetPass = await bcrypt.hash("Cadet123", SALT_ROUNDS);
+
+  // Create Colleges first
+  const unitHQ = await prisma.college.upsert({
+    where: { name: "Unit HQ" },
+    update: { code: "HQ001" },
+    create: {
+      name: "Unit HQ",
+      code: "HQ001",
+      isActive: true
+    }
+  });
+
+  const demoCollege = await prisma.college.upsert({
+    where: { name: "Demo College" },
+    update: { code: "COL001" },
+    create: {
+      name: "Demo College",
+      code: "COL001",
+      isActive: true
+    }
+  });
 
   // Admin user
   await prisma.user.upsert({
     where: { email: "admin@example.com" },
-    update: {},
+    update: { collegeCode: unitHQ.code },
     create: {
       name: "Demo Admin",
       regimentalNumber: null,
       email: "admin@example.com",
       password: staffPass,
       role: "ADMIN",
-      college: "Unit HQ",
+      collegeCode: unitHQ.code,
       isActive: true
     },
   });
@@ -33,14 +54,14 @@ async function main() {
   // Instructor user
   await prisma.user.upsert({
     where: { email: "instructor@example.com" },
-    update: {},
+    update: { collegeCode: demoCollege.code },
     create: {
       name: "Demo Instructor",
       regimentalNumber: null,
       email: "instructor@example.com",
       password: staffPass,
       role: "INSTRUCTOR",
-      college: "Demo College",
+      collegeCode: demoCollege.code,
       isActive: true
     },
   });
@@ -51,7 +72,7 @@ async function main() {
     update: {
       password: sampleCadetPass,
       name: "Sample Cadet",
-      college: "Demo College",
+      collegeCode: demoCollege.code,
       role: "STUDENT",
       isActive: true
     },
@@ -61,21 +82,21 @@ async function main() {
       email: null,
       password: sampleCadetPass,
       role: "STUDENT",
-      college: "Demo College",
+      collegeCode: demoCollege.code,
       isActive: true
     },
   });
 
   await prisma.user.upsert({
     where: { regimentalNumber: "STU001" },
-    update: {},
+    update: { collegeCode: demoCollege.code },
     create: {
       name: "Demo Student",
       regimentalNumber: "STU001",
       email: null,
       password: studentPass,
       role: "STUDENT",
-      college: "Demo College",
+      collegeCode: demoCollege.code,
       isActive: true
     },
   });

@@ -23,13 +23,19 @@ router.post("/users/import", authenticate, requireAdmin, upload.single("file"), 
 router.patch("/users/:id", authenticate, requireStaff, usersController.updateUser);
 router.delete("/users/:id", authenticate, requireStaff, usersController.removeById);
 
+// --- Batch Management ---
+router.get("/batches", authenticate, requireStaff, adminController.listBatches);
+router.post("/batches", authenticate, requireAdmin, adminController.createBatch);
+router.patch("/batches/:id", authenticate, requireAdmin, adminController.updateBatch);
+router.delete("/batches/:id", authenticate, requireAdmin, adminController.deleteBatch);
+
 // --- Exam Assignments ---
 router.get("/assignments", authenticate, requireStaff, adminController.listAssignments);
 router.post("/assignments", authenticate, requireStaff, adminController.createAssignments);
 router.delete("/assignments/:id", authenticate, requireStaff, adminController.deleteAssignment);
 
 // --- Results & Overrides ---
-router.patch("/results/:id", authenticate, requireStaff, adminController.overrideResult);
+router.patch("/results/:id", authenticate, requireAdmin, adminController.overrideResult);
 
 // --- Audit Logs ---
 router.get("/logs", authenticate, requireAdmin, async (req, res) => {

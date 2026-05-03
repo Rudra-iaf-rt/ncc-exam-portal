@@ -2,10 +2,13 @@ import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { NavLink } from 'react-router-dom';
 import { examApi } from '../../api';
+import { useAdminAuth } from '../../contexts/AdminAuth';
 import { PageHeader } from '../components/Shared';
-import { Plus, Eye, ShieldAlert, Edit3, Trash2 } from 'lucide-react';
+import { Plus, Eye, ShieldAlert, Edit3, Trash2, UserCheck } from 'lucide-react';
 
 export default function ExamList() {
+  const { user } = useAdminAuth();
+  const isAdmin = user?.role === 'ADMIN';
   const [exams, setExams] = useState([]);
   const [loading, setLoading] = useState(true);
 
@@ -24,6 +27,7 @@ export default function ExamList() {
   }, []);
 
   const handleStatusChange = async (id, newStatus) => {
+    if (!isAdmin) return;
     try {
       await examApi.updateExamStatus(id, newStatus);
       setExams(prev => prev.map(e => e.id === id ? { ...e, status: newStatus } : e));
@@ -34,6 +38,7 @@ export default function ExamList() {
   };
 
   const handleDelete = async (id) => {
+    if (!isAdmin) return;
     if (!window.confirm("Are you sure you want to delete this exam? This will also purge all related student attempts and results. This action cannot be undone.")) return;
     
     try {
@@ -46,20 +51,20 @@ export default function ExamList() {
   };
 
   if (loading) {
-    return <div className="p-10 text-ink-4 font-mono text-[13px]">Accessing HQ exam registry...</div>;
+    return <div className="p-10 text-ink-4 font-mono text-[13px]">Accessing exam list...</div>;
   }
 
   return (
     <div>
       <PageHeader 
         title="Exam *Management*" 
-        subtitle="Catalog of all training and certificate examinations available in the system." 
-        action={
+        subtitle={isAdmin ? "List of all exams available in the system." : "Scheduled examinations."}
+        action={isAdmin && (
           <NavLink to="/admin/exams/create" className="h-[36px] px-[18px] rounded-md font-ui text-[13px] font-medium flex items-center gap-2 transition-all bg-navy text-[#F4F0E4] hover:bg-navy-mid">
             <Plus size={16} strokeWidth={1.5} />
-            <span>Deploy New Examination</span>
+            <span>Create New Exam</span>
           </NavLink>
-        }
+        )}
       />
 
       <div className="bg-white border border-stone-deep rounded-md shadow-sm overflow-hidden mb-10">
@@ -73,14 +78,14 @@ export default function ExamList() {
                 <th className="font-normal px-4 py-3">Questions</th>
                 <th className="font-normal px-4 py-3">Status</th>
                 <th className="font-normal px-4 py-3">College</th>
-                <th className="font-normal px-4 py-3 text-right">Actions</th>
+                {isAdmin && <th className="font-normal px-4 py-3 text-right">Actions</th>}
               </tr>
             </thead>
             <tbody className="font-ui text-[13.5px] text-ink-2">
               {exams.length === 0 ? (
                 <tr>
                   <td colSpan="7" className="text-center p-12 text-ink-4 font-light">
-                    No active assessment protocols found in the database.
+                    No active exams found in the database.
                   </td>
                 </tr>
               ) : (
@@ -93,19 +98,29 @@ export default function ExamList() {
                     <td className="px-4 py-3">{e.duration} Minutes</td>
                     <td className="px-4 py-3">{e.questionCount} Items</td>
                     <td className="px-4 py-3">
-                      <select 
-                        className={`font-mono text-[10px] tracking-[0.06em] py-1 px-2.5 rounded-full font-medium inline-flex border-none outline-none cursor-pointer appearance-none text-center ${
+                      {isAdmin ? (
+                        <select 
+                          className={`font-mono text-[10px] tracking-[0.06em] py-1 px-2.5 rounded-full font-medium inline-flex border-none outline-none cursor-pointer appearance-none text-center ${
+                            e.status === 'LIVE' ? 'bg-[#10b98120] text-[#059669]' : 
+                            e.status === 'DRAFT' ? 'bg-[#f59e0b20] text-[#b45309]' : 
+                            'bg-stone-mid text-ink-3'
+                          }`}
+                          value={e.status}
+                          onChange={(ev) => handleStatusChange(e.id, ev.target.value)}
+                        >
+                          <option value="DRAFT">DRAFT</option>
+                          <option value="LIVE">LIVE</option>
+                          <option value="ARCHIVED">ARCHIVED</option>
+                        </select>
+                      ) : (
+                        <span className={`font-mono text-[10px] tracking-[0.06em] py-1 px-2.5 rounded-full font-medium inline-flex border border-stone-deep text-center ${
                           e.status === 'LIVE' ? 'bg-[#10b98120] text-[#059669]' : 
                           e.status === 'DRAFT' ? 'bg-[#f59e0b20] text-[#b45309]' : 
                           'bg-stone-mid text-ink-3'
-                        }`}
-                        value={e.status}
-                        onChange={(ev) => handleStatusChange(e.id, ev.target.value)}
-                      >
-                        <option value="DRAFT">DRAFT</option>
-                        <option value="LIVE">LIVE</option>
-                        <option value="ARCHIVED">ARCHIVED</option>
-                      </select>
+                        }`}>
+                          {e.status}
+                        </span>
+                      )}
                     </td>
                     <td className="px-4 py-3">
                       {e.creator?.college ? (
@@ -125,20 +140,32 @@ export default function ExamList() {
                         >
                           <Eye size={16} strokeWidth={1.5} />
                         </NavLink>
-                        <button 
-                          className="w-8 h-8 rounded-md flex items-center justify-center text-ink-3 hover:text-navy hover:bg-stone transition-colors" 
-                          title="Edit (Coming Soon)"
-                          onClick={() => toast.info("Exam editing is currently restricted to creation. Please contact system admin for modifications.")}
-                        >
-                          <Edit3 size={16} strokeWidth={1.5} />
-                        </button>
-                        <button 
-                          className="w-8 h-8 rounded-md flex items-center justify-center text-crimson hover:bg-crimson-wash transition-colors" 
-                          title="Delete Exam"
-                          onClick={() => handleDelete(e.id)}
-                        >
-                          <Trash2 size={16} strokeWidth={1.5} />
-                        </button>
+                        {isAdmin && (
+                          <>
+                            <NavLink 
+                              to={`/admin/exams/schedule?examId=${e.id}`}
+                              className="h-[28px] px-2.5 rounded bg-navy/5 text-navy border border-navy/10 hover:bg-navy hover:text-white transition-all flex items-center gap-1.5 font-medium text-[11px]" 
+                              title="Schedule Examination"
+                            >
+                              <UserCheck size={14} strokeWidth={2} />
+                              <span>Schedule</span>
+                            </NavLink>
+                            <NavLink 
+                              to={`/admin/exams/edit/${e.id}`}
+                              className="w-8 h-8 rounded-md flex items-center justify-center text-ink-3 hover:text-navy hover:bg-stone transition-colors" 
+                              title="Edit Exam"
+                            >
+                              <Edit3 size={16} strokeWidth={1.5} />
+                            </NavLink>
+                            <button 
+                              className="w-8 h-8 rounded-md flex items-center justify-center text-crimson hover:bg-crimson-wash transition-colors" 
+                              title="Delete Exam"
+                              onClick={() => handleDelete(e.id)}
+                            >
+                              <Trash2 size={16} strokeWidth={1.5} />
+                            </button>
+                          </>
+                        )}
                       </div>
                     </td>
                   </tr>
@@ -146,20 +173,6 @@ export default function ExamList() {
               )}
             </tbody>
           </table>
-        </div>
-      </div>
-      
-      {/* System Policy */}
-      <div className="bg-white border border-stone-deep rounded-md mt-8 p-5 border-l-4 border-l-gold shadow-sm">
-        <div className="flex gap-4">
-          <ShieldAlert size={20} className="text-gold" />
-          <div>
-            <div className="font-semibold text-[14px] text-navy font-ui">Operational Protocol</div>
-            <div className="text-[13px] text-ink-4 mt-1 leading-[1.5] font-ui">
-              Modification of active exams is currently restricted. New exams can be created via the 'Deploy New Examination' button. 
-              To delete or modify existing records, please contact the system administrator.
-            </div>
-          </div>
         </div>
       </div>
     </div>

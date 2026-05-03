@@ -16,7 +16,7 @@ import {
   ChevronDown,
   Settings2,
   GraduationCap,
-  Lock
+  Lock,
 } from 'lucide-react';
 
 function SidebarSection({ title, children, icon: SidebarIcon, defaultExpanded = false }) {
@@ -168,10 +168,10 @@ export function AdminLayout() {
           </div>
 
           <div className="space-y-2">
-            <div className="font-display text-[22px] text-[#E8E4D4] leading-none italic tracking-tighter font-black">11 (A) AIR SQT(T) NCC </div>
-            <div className="font-ui text-[9px] text-gold/30 tracking-[0.3em] uppercase font-black flex items-center justify-center gap-2">
+            <div className="font-display text-[22px] text-[#E8E4D4] leading-none italic tracking-tighter font-black">NCC TIRUPATI</div>
+            <div className="font-ui text-[10px] text-gold/30 tracking-[0.3em] uppercase font-black flex items-center justify-center gap-2">
               <span className="w-3 h-px bg-gold/20" />
-              TIRUPATI
+               
               <span className="w-3 h-px bg-gold/20" />
             </div>  
           </div>
@@ -191,20 +191,24 @@ export function AdminLayout() {
               <Trophy size={16} strokeWidth={1.5} className="group-hover/link:scale-110 transition-transform duration-300" />
               <span>Exam Results</span>
             </NavLink>
-            <NavLink to="/admin/assignments" onClick={() => setSidebarOpen(false)} className={navLinkClass}>
-              <ShieldCheck size={16} strokeWidth={1.5} className="group-hover/link:scale-110 transition-transform duration-300" />
-              <span>Eligibility</span>
-            </NavLink>
-            <NavLink to="/admin/materials" onClick={() => setSidebarOpen(false)} className={navLinkClass}>
-              <BookOpen size={16} strokeWidth={1.5} className="group-hover/link:scale-110 transition-transform duration-300" />
-              <span>Syllabus</span>
-            </NavLink>
+            {isAdmin && (
+              <>
+                <NavLink to="/admin/assignments" onClick={() => setSidebarOpen(false)} className={navLinkClass}>
+                  <UserCheck size={16} strokeWidth={1.5} className="group-hover/link:scale-110 transition-transform duration-300" />
+                  <span>Authorization</span>
+                </NavLink>
+                <NavLink to="/admin/materials" onClick={() => setSidebarOpen(false)} className={navLinkClass}>
+                  <BookOpen size={16} strokeWidth={1.5} className="group-hover/link:scale-110 transition-transform duration-300" />
+                  <span>Syllabus</span>
+                </NavLink>
+              </>
+            )}
           </SidebarSection>
 
           <SidebarSection title="Management" icon={Building2}>
             <NavLink to="/admin/users" onClick={() => setSidebarOpen(false)} className={navLinkClass}>
               <Users size={16} strokeWidth={1.5} className="group-hover/link:scale-110 transition-transform duration-300" />
-              <span>Cadet Registry</span>
+              <span>Cadets</span>
             </NavLink>
             {isAdmin && (
               <>
@@ -241,7 +245,7 @@ export function AdminLayout() {
       {/* Content */}
       <div className="flex-1 flex flex-col min-w-0 bg-stone relative">
         {/* Top Header - Sticky Utility Bar */}
-        <header className="sticky top-0 z-[90] flex items-center justify-between px-6 sm:px-8 py-2.5 bg-stone/80 backdrop-blur-xl border-b border-navy/[0.03]">
+        <header className="sticky top-0 z-[90] flex items-center justify-between px-4 py-2 bg-stone/80 backdrop-blur-xl border-b border-navy/[0.03]">
           {/* Mobile-only Branding */}
           <div className="flex lg:hidden items-center gap-3">
             <div className="relative">
@@ -253,7 +257,7 @@ export function AdminLayout() {
               />
             </div>
             <div className="flex flex-col">
-              <span className="font-display text-[14px] text-navy leading-none italic font-black">11 (A) AIR SQT(T) NCC</span>
+              <span className="font-display text-[14px] text-navy leading-none italic font-black">NCC </span>
               <span className="font-ui text-[8px] text-navy/40 font-bold uppercase tracking-wider mt-0.5">TIRUPATI</span>
             </div>
           </div>
@@ -291,7 +295,7 @@ export function AdminLayout() {
           </div>
         </header>
 
-        <main className="flex-1 w-full max-w-[1200px] mx-auto px-6 py-6 pt-6 lg:px-12 lg:py-8 lg:pt-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+        <main className="flex-1 w-full px-4 py-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
           <Outlet />
         </main>
       </div>

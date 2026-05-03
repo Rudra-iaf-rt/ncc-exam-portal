@@ -13,6 +13,7 @@ import { CadetLayout } from './cadet/components/CadetLayout'
 import Dashboard from './admin/pages/Dashboard'
 import ExamList from './admin/pages/ExamList'
 import ExamCreate from './admin/pages/ExamCreate'
+import ExamEdit from './admin/pages/ExamEdit'
 import ResultsBoard from './admin/pages/ResultsBoard'
 import UserManagement from './admin/pages/UserManagement'
 import StaffManagement from './admin/pages/StaffManagement'
@@ -20,6 +21,7 @@ import CollegeManagement from './admin/pages/CollegeManagement'
 import MaterialManagement from './admin/pages/MaterialManagement'
 
 import Assignments from './admin/pages/Assignments'
+import ScheduleExam from './admin/pages/ScheduleExam'
 import AuditLogs from './admin/pages/AuditLogs'
 import ForgotPassword from './auth/ForgotPassword'
 import ResetPassword from './auth/ResetPassword'
@@ -81,15 +83,17 @@ function App() {
             <Route index element={<Navigate to="/admin/dashboard" replace />} />
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="exams" element={<ExamList />} />
-            <Route path="exams/create" element={<ExamCreate />} />
             <Route path="results" element={<ResultsBoard />} />
-            <Route path="assignments" element={<Assignments />} />
-            <Route path="materials" element={<MaterialManagement />} />
             <Route path="users" element={<UserManagement />} />
             <Route path="settings/password" element={<ChangePassword />} />
             
             {/* Admin-only sections */}
             <Route element={<RequireAdmin />}>
+              <Route path="exams/create" element={<ExamCreate />} />
+              <Route path="exams/edit/:id" element={<ExamEdit />} />
+              <Route path="exams/schedule" element={<ScheduleExam />} />
+              <Route path="assignments" element={<Assignments />} />
+              <Route path="materials" element={<MaterialManagement />} />
               <Route path="staff" element={<StaffManagement />} />
               <Route path="colleges" element={<CollegeManagement />} />
               <Route path="logs" element={<AuditLogs />} />

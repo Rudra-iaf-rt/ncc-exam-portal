@@ -161,10 +161,10 @@ export default function CollegeManagement() {
   );
 
   return (
-    <div className="max-w-[1200px]">
+    <div className="w-full pb-10">
       <PageHeader 
-        title="College *Registry*"
-        subtitle="Master list of participating educational institutions."
+        title="Colleges"
+        subtitle="List of participating colleges."
         action={
           <button 
             className="h-[36px] px-[18px] rounded-md font-ui text-[13px] font-medium flex items-center gap-2 transition-all bg-navy text-[#F4F0E4] hover:bg-navy-mid"

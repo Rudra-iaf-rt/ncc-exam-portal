@@ -19,6 +19,12 @@ export const adminApi = {
   getStats: () => apiClient.get('/admin/stats'),
   getLogs: () => apiClient.get('/admin/logs'),
 
+  // Batches
+  getBatches: () => apiClient.get('/admin/batches'),
+  createBatch: (data) => apiClient.post('/admin/batches', data),
+  updateBatch: (id, data) => apiClient.patch(`/admin/batches/${id}`, data),
+  deleteBatch: (id) => apiClient.delete(`/admin/batches/${id}`),
+
   getAssignments: () => apiClient.get('/admin/assignments'),
   createAssignments: (data) => apiClient.post('/admin/assignments', data),
   deleteAssignment: (id) => apiClient.delete(`/admin/assignments/${id}`),

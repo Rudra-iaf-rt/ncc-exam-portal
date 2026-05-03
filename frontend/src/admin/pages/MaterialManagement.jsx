@@ -164,7 +164,7 @@ export default function MaterialManagement() {
   );
 
   return (
-    <div className="max-w-[1200px]">
+    <div className="w-full pb-10">
       <PageHeader 
         title="Syllabus *Materials*"
         subtitle="Repository of academic resources and training manuals."

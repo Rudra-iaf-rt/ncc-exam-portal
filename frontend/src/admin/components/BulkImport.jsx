@@ -151,7 +151,7 @@ export default function BulkImport({ isOpen, onClose, onRefresh }) {
               )}
 
               <button className="w-full h-[40px] mt-8 rounded-md font-ui text-[14px] font-medium flex items-center justify-center bg-navy text-[#F4F0E4] hover:bg-navy-mid transition-all" onClick={onClose}>
-                Return to Registry
+                Finish & Close
               </button>
             </div>
           )}

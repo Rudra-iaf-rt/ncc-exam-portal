@@ -27,10 +27,10 @@ export function PageHeader({ title, subtitle, action }) {
   };
 
   return (
-    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-5 mb-10 pb-6 border-b border-stone-mid">
+    <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 mb-4 pb-4 border-b border-stone-mid">
       <div>
-        <h1 className="font-display text-3xl font-medium text-ink leading-tight">{renderTitle()}</h1>
-        {subtitle && <p className="font-ui text-[14px] text-ink-3 mt-1.5 font-normal">{subtitle}</p>}
+        <h1 className="font-display text-2xl font-medium text-ink leading-tight">{renderTitle()}</h1>
+        {subtitle && <p className="font-ui text-[13px] text-ink-3 mt-1 font-normal">{subtitle}</p>}
       </div>
       {action && <div>{action}</div>}
     </div>

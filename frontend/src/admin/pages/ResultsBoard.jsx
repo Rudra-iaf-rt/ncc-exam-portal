@@ -1,11 +1,14 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { adminApi, examApi } from '../../api';
+import { useAdminAuth } from '../../contexts/AdminAuth';
 import { toast } from 'sonner';
 import { PageHeader } from '../components/Shared';
 import { Download, Search, Edit3, XCircle, ShieldAlert } from 'lucide-react';
 
 export default function ResultsBoard() {
+  const { user } = useAdminAuth();
+  const isAdmin = user?.role === 'ADMIN';
   const [searchParams] = useSearchParams();
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -30,7 +33,7 @@ export default function ResultsBoard() {
       if (data) setResults(data.results);
     } catch (error) {
       console.error('Failed to fetch results:', error);
-      toast.error("Could not retrieve personnel performance records.");
+      toast.error("Could not retrieve student performance records.");
     } finally {
       setLoading(false);
     }
@@ -89,7 +92,7 @@ export default function ResultsBoard() {
     a.click();
   };
 
-  if (loading) return <div className="p-10 text-ink-4 font-mono text-[13px]">Retrieving personnel performance records...</div>;
+  if (loading) return <div className="p-10 text-ink-4 font-mono text-[13px]">Retrieving cadet performance records...</div>;
 
   return (
     <div>
@@ -131,7 +134,7 @@ export default function ResultsBoard() {
           </select>
         </div>
         <div>
-          <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Search Personnel</label>
+          <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Search Cadets</label>
           <div className="relative">
             <input 
               className="w-full h-[38px] pl-9 pr-3 border border-stone-deep rounded-md font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all placeholder:text-ink-4" 
@@ -156,7 +159,7 @@ export default function ResultsBoard() {
                 <th className="font-normal px-4 py-3">Exam Name</th>
                 <th className="font-normal px-4 py-3">Score</th>
                 <th className="font-normal px-4 py-3">Status</th>
-                <th className="font-normal px-4 py-3 text-right">Action</th>
+                {isAdmin && <th className="font-normal px-4 py-3 text-right">Action</th>}
               </tr>
             </thead>
             <tbody className="font-ui text-[13.5px] text-ink-2">
@@ -173,7 +176,7 @@ export default function ResultsBoard() {
                       <div className="font-medium text-ink">{r.studentName}</div>
                       <div className="text-[11px] text-ink-4 font-light">{r.college}</div>
                     </td>
-                    <td className="px-4 py-3"><code className="font-mono text-[12px] bg-transparent p-0 text-ink-3">{r.regimentalNumber}</code></td>
+                    <td className="px-4 py-3"><code className="font-mono text-[12px] bg-transparent p-0 text-ink-3 tracking-wide">{r.regimentalNumber}</code></td>
                     <td className="px-4 py-3">{r.college}</td>
                     <td className="px-4 py-3">{r.examTitle}</td>
                     <td className={`px-4 py-3 font-semibold ${r.score >= 70 ? 'text-[#3B6D11]' : r.score < 40 ? 'text-crimson' : 'text-ink'}`}>
@@ -184,18 +187,20 @@ export default function ResultsBoard() {
                         {r.score >= 40 ? 'Qualified' : 'Not Clear'}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-right">
-                      <button 
-                        className="w-8 h-8 rounded-md inline-flex items-center justify-center text-navy-soft hover:bg-stone hover:text-navy transition-colors" 
-                        onClick={() => {
-                          setEditingResult(r);
-                          setOverrideForm({ score: r.score, reason: '' });
-                        }}
-                        title="Override Score"
-                      >
-                        <Edit3 size={16} />
-                      </button>
-                    </td>
+                    {isAdmin && (
+                      <td className="px-4 py-3 text-right">
+                        <button 
+                          className="w-8 h-8 rounded-md inline-flex items-center justify-center text-navy-soft hover:bg-stone hover:text-navy transition-colors" 
+                          onClick={() => {
+                            setEditingResult(r);
+                            setOverrideForm({ score: r.score, reason: '' });
+                          }}
+                          title="Override Score"
+                        >
+                          <Edit3 size={16} />
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))
               )}
@@ -205,7 +210,7 @@ export default function ResultsBoard() {
       </div>
 
       {/* Override Modal */}
-      {editingResult && (
+      {isAdmin && editingResult && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-[#0E1929]/40 backdrop-blur-sm">
           <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full max-w-[450px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)]">
             <div className="bg-stone border-b border-stone-mid px-6 py-5 flex justify-between items-center">
@@ -220,7 +225,7 @@ export default function ResultsBoard() {
             
             <form onSubmit={handleOverride} className="p-6">
               <div className="mb-5 p-3 bg-stone rounded-lg border-l-4 border-l-navy border border-transparent border-t-stone-deep border-r-stone-deep border-b-stone-deep">
-                <div className="font-mono text-[10px] tracking-[0.1em] uppercase text-ink-4 mb-1">Target Personnel</div>
+                <div className="font-mono text-[10px] tracking-[0.1em] uppercase text-ink-4 mb-1">Target Cadet</div>
                 <div className="font-semibold text-navy">{editingResult.studentName}</div>
                 <div className="text-[12px] text-ink-3">{editingResult.examTitle}</div>
               </div>
@@ -242,7 +247,7 @@ export default function ResultsBoard() {
                 <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Reason for Override</label>
                 <textarea 
                   className="w-full p-3 border border-stone-deep rounded-md font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all min-h-[80px] resize-none" 
-                  placeholder="e.g. Technical error during submission, command level re-evaluation..."
+                  placeholder="e.g. Technical error during submission, re-evaluation requested..."
                   required
                   value={overrideForm.reason}
                   onChange={e => setOverrideForm({...overrideForm, reason: e.target.value})}

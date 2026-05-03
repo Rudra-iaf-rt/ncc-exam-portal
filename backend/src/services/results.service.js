@@ -73,8 +73,8 @@ async function listForInstructor(instructorId, query) {
     throw new HttpError(404, "User not found");
   }
 
-  const collegeCodeParam = parseOptionalCollegeCode(query);
-  const collegeCode = collegeCodeParam ?? me.collegeCode;
+  // Force instructor to their own college code for data isolation
+  const collegeCode = me.collegeCode;
 
   const rows = await prisma.result.findMany({
     where: {

@@ -56,6 +56,16 @@ model College {
   @@index([code])
 }
 
+model Batch {
+  id        Int      @id @default(autoincrement())
+  name      String   @unique
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([isActive])
+}
+
 model PasswordResetToken {
   id        Int       @id @default(autoincrement())
   userId    Int

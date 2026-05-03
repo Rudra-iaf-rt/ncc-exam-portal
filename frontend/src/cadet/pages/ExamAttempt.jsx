@@ -28,6 +28,7 @@ const ExamAttempt = () => {
   const [timeLeft, setTimeLeft] = useState(0);
   const [currentQ, setCurrentQ] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const answersRef = useRef(answers);
 
   useEffect(() => {
@@ -52,7 +53,7 @@ const ExamAttempt = () => {
     onSecurityBreach: (terminate) => {
       if (terminate) {
         toast.error('Session Terminated: Multiple security breaches detected.');
-        handleSubmit(true);
+        executeSubmit();
       }
     }
   });
@@ -92,7 +93,7 @@ const ExamAttempt = () => {
       setTimeLeft(prev => {
         if (prev <= 1) {
           clearInterval(timer);
-          handleSubmit(true); // Auto-submit
+          executeSubmit(); // Auto-submit
           return 0;
         }
         return prev - 1;
@@ -106,8 +107,8 @@ const ExamAttempt = () => {
     queueSave(questionId, option);
   };
 
-  const handleSubmit = async (isAuto = false) => {
-    if (!isAuto && !window.confirm('Are you sure you want to submit the exam?')) return;
+  const executeSubmit = async () => {
+    setShowConfirmModal(false);
     
     setIsSubmitting(true);
     const answerList = Object.entries(answersRef.current).map(([qId, val]) => ({
@@ -183,7 +184,7 @@ const ExamAttempt = () => {
           {lastViolationType === 'SCREEN_STOP' && "Screen transmission was terminated."}
           {lastViolationType === 'FOCUS_LOSS' && "Window focus lost. Please stay within the exam environment."}
           {lastViolationType === 'MOUSE_LEAVE' && "Cursor moved outside the secure examination area."}
-          {!lastViolationType && "Security protocol violation detected."}
+          {!lastViolationType && "Security violation detected."}
           {" This incident has been logged."}
         </p>
         <div className="mb-10 rounded-r bg-white/10 p-4 font-mono text-sm">
@@ -261,7 +262,7 @@ const ExamAttempt = () => {
         </div>
 
         <button 
-          onClick={() => handleSubmit()} 
+          onClick={() => setShowConfirmModal(true)} 
           className="flex items-center gap-3 rounded-r bg-white px-6 py-2.5 font-ui text-[14px] font-bold text-navy transition-all hover:bg-navy-pale active:scale-95 disabled:opacity-50"
           disabled={isSubmitting}
         >
@@ -369,6 +370,35 @@ const ExamAttempt = () => {
           </div>
         </div>
       </main>
+
+      {/* Submit Confirmation Modal */}
+      {showConfirmModal && (
+        <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-navy/90 backdrop-blur-sm p-6">
+          <div className="w-full max-w-sm rounded-rl border border-white/20 bg-white p-8 text-center shadow-2xl animate-in zoom-in-95 duration-200">
+            <div className="w-16 h-16 rounded-full bg-navy/5 flex items-center justify-center mx-auto mb-6">
+              <Send size={28} className="text-navy" />
+            </div>
+            <h2 className="mb-3 font-display text-2xl text-navy">Submit Exam?</h2>
+            <p className="mb-8 font-ui text-[14px] text-ink-3">
+              Are you sure you want to finalize and submit your answers? You cannot return to this exam once submitted.
+            </p>
+            <div className="flex gap-3">
+              <button 
+                onClick={() => setShowConfirmModal(false)}
+                className="flex-1 rounded-r border border-stone-deep bg-white py-3 font-ui text-[13px] font-bold text-ink-3 transition-all hover:bg-stone-wash"
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={executeSubmit}
+                className="flex-1 rounded-r bg-navy py-3 font-ui text-[13px] font-bold text-white transition-all hover:bg-navy-mid"
+              >
+                Yes, Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
