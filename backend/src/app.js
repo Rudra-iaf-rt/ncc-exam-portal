@@ -16,7 +16,21 @@ const { notFoundHandler, errorHandler } = require("./middleware/error-handler");
 
 const app = express();
 
-app.use(cors());
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "https://ncc-exam-portal.vercel.app",
+  
+]
+
+app.use(cors(), {
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+});
 app.use(requestContext);
 app.use(securityHeaders);
 app.use(express.json());
