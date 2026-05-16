@@ -88,7 +88,7 @@ export default function UserManagement() {
         title="Cadets"
         subtitle={isAdmin ? "Centralized record of all enrolled students." : `Student records for ${user?.college || 'your college'}.`}
         action={isAdmin && (
-          <div className="flex gap-3">
+          <div className="flex flex-wrap gap-2 sm:gap-3">
             <button 
               className="h-[36px] px-[18px] rounded-md font-ui text-[13px] font-medium flex items-center gap-2 transition-all bg-transparent border border-stone-deep text-ink-2 hover:bg-stone hover:text-navy"
               onClick={() => setIsImportOpen(true)}

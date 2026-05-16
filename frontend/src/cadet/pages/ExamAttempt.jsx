@@ -205,7 +205,7 @@ const ExamAttempt = () => {
   return (
     <div className="flex h-screen flex-col bg-stone-wash">
       {/* Top Bar */}
-      <header className="z-[100] flex items-center justify-between bg-navy px-10 py-4 shadow-lg">
+      <header className="z-[100] flex flex-wrap items-center justify-between gap-4 bg-navy px-4 sm:px-10 py-3 sm:py-4 shadow-lg">
         <div className="flex flex-col">
           <h1 className="font-display text-xl text-[#F4F0E4]">{exam.title}</h1>
           <div className="mt-1 flex items-center gap-2">
@@ -263,7 +263,7 @@ const ExamAttempt = () => {
 
         <button 
           onClick={() => setShowConfirmModal(true)} 
-          className="flex items-center gap-3 rounded-r bg-white px-6 py-2.5 font-ui text-[14px] font-bold text-navy transition-all hover:bg-navy-pale active:scale-95 disabled:opacity-50"
+          className="flex items-center gap-3 rounded-r bg-white px-4 sm:px-6 py-2 sm:py-2.5 font-ui text-[13px] sm:text-[14px] font-bold text-navy transition-all hover:bg-navy-pale active:scale-95 disabled:opacity-50"
           disabled={isSubmitting}
         >
           {isSubmitting ? 'Finalizing...' : 'Submit Exam'}
@@ -271,12 +271,12 @@ const ExamAttempt = () => {
         </button>
       </header>
 
-      <main className="grid flex-1 grid-cols-[300px_1fr] overflow-hidden">
+      <main className="flex flex-1 flex-col lg:grid lg:grid-cols-[300px_1fr] overflow-hidden">
         {/* Navigation Sidebar */}
-        <aside className="flex flex-col gap-6 border-r border-stone-deep bg-white p-8">
+        <aside className="flex flex-col gap-4 lg:gap-6 border-t lg:border-t-0 lg:border-r border-stone-deep bg-white p-4 lg:p-8 order-2 lg:order-1 overflow-y-auto max-h-[30vh] lg:max-h-none">
           <div>
             <h3 className="mb-4 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-4">Exam Progress</h3>
-            <div className="grid grid-cols-5 gap-2">
+            <div className="grid grid-cols-6 sm:grid-cols-10 lg:grid-cols-5 gap-2">
               {exam.questions.map((_, idx) => (
                 <button
                   key={idx}
@@ -312,9 +312,9 @@ const ExamAttempt = () => {
         </aside>
 
         {/* Question Area — fills all remaining horizontal space */}
-        <div className="flex flex-1 flex-col overflow-y-auto p-8">
+        <div className="flex flex-1 flex-col overflow-y-auto p-4 lg:p-8 order-1 lg:order-2">
           {/* Question card: full width with comfortable inset padding */}
-          <div className="w-full flex-1 rounded-rl border border-stone-deep bg-white p-10 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+          <div className="w-full flex-1 rounded-rl border border-stone-deep bg-white p-5 sm:p-10 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
             <div className="mb-8 flex items-center justify-between">
               <span className="font-mono text-[10px] font-bold tracking-[0.2em] uppercase text-navy-soft">
                 Question {(currentQ + 1).toString().padStart(2, '0')} / {exam.questions.length.toString().padStart(2, '0')}
@@ -329,7 +329,7 @@ const ExamAttempt = () => {
 
             <div className="flex flex-col gap-4">
               {q.options.map((opt, i) => (
-                <label key={i} className={`flex cursor-pointer items-center gap-5 rounded-r border p-5 transition-all ${
+                <label key={i} className={`flex cursor-pointer items-start sm:items-center gap-4 sm:gap-5 rounded-r border p-4 sm:p-5 transition-all ${
                   answers[q.id] === opt ? 'border-navy bg-navy-wash' : 'border-stone-deep bg-white hover:border-navy-soft hover:bg-stone-wash'
                 }`}>
                   <input
@@ -356,14 +356,14 @@ const ExamAttempt = () => {
             <button 
               disabled={currentQ === 0}
               onClick={() => setCurrentQ(prev => prev - 1)}
-              className="flex items-center gap-3 rounded-r border border-stone-deep bg-white px-8 py-3 font-ui text-[14px] font-bold text-navy transition-all hover:bg-stone-wash active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 sm:gap-3 rounded-r border border-stone-deep bg-white px-4 sm:px-8 py-3 font-ui text-[12px] sm:text-[14px] font-bold text-navy transition-all hover:bg-stone-wash active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
             >
               <ChevronLeft size={20} /> PREVIOUS
             </button>
             <button 
               disabled={currentQ === exam.questions.length - 1}
               onClick={() => setCurrentQ(prev => prev + 1)}
-              className="flex items-center gap-3 rounded-r bg-navy px-10 py-3 font-ui text-[14px] font-bold text-[#F4F0E4] transition-all hover:bg-navy-mid active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 sm:gap-3 rounded-r bg-navy px-6 sm:px-10 py-3 font-ui text-[12px] sm:text-[14px] font-bold text-[#F4F0E4] transition-all hover:bg-navy-mid active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
             >
               NEXT <ChevronRight size={20} />
             </button>

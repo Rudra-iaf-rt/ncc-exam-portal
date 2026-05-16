@@ -75,22 +75,22 @@ const CadetDashboard = () => {
           </div>
         </div>
 
-        <div className="flex items-center gap-6 rounded-lg bg-white border border-stone-deep px-6 py-3 shadow-sm">
-          <div className="flex items-center gap-3 border-r border-stone-mid pr-6">
+        <div className="flex flex-wrap items-center gap-4 sm:gap-6 rounded-lg bg-white border border-stone-deep p-4 sm:px-6 sm:py-3 shadow-sm">
+          <div className="flex items-center gap-2 sm:gap-3 border-r border-stone-mid pr-4 sm:pr-6">
             <div className="text-navy-soft"><FileText size={18} /></div>
             <div className="flex flex-col">
               <span className="text-[10px] uppercase tracking-wider text-ink-4 leading-none mb-1">Assigned</span>
               <span className="text-lg font-bold leading-none text-ink">{exams.length}</span>
             </div>
           </div>
-          <div className="flex items-center gap-3 border-r border-stone-mid pr-6">
+          <div className="flex items-center gap-2 sm:gap-3 border-r border-stone-mid pr-4 sm:pr-6">
             <div className="text-amber-600"><Clock size={18} /></div>
             <div className="flex flex-col">
               <span className="text-[10px] uppercase tracking-wider text-ink-4 leading-none mb-1">Pending</span>
               <span className="text-lg font-bold leading-none text-ink">{pendingCount}</span>
             </div>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-2 sm:gap-3">
             <div className="text-emerald-600"><Award size={18} /></div>
             <div className="flex flex-col">
               <span className="text-[10px] uppercase tracking-wider text-ink-4 leading-none mb-1">Avg Score</span>
