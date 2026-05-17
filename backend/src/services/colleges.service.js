@@ -1,4 +1,5 @@
 const { prisma } = require('../lib/prisma');
+const { redis } = require('../lib/redis');
 const { HttpError } = require('../utils/http-error');
 const userService = require('./users.service');
 
@@ -16,43 +17,111 @@ function deriveCodePrefix(name) {
   return name.replace(/\s+/g, '').toUpperCase().slice(0, 4);
 }
 
+async function attachCountsToColleges(colleges) {
+  if (!colleges || colleges.length === 0) return [];
+
+  // Group and count instructors/students per college code in a single query
+  const counts = await prisma.user.groupBy({
+    by: ['collegeCode', 'role'],
+    where: {
+      role: { in: ['INSTRUCTOR', 'STUDENT'] },
+      collegeCode: { not: null },
+    },
+    _count: {
+      _all: true,
+    },
+  });
+
+  // Build lookup map for O(1) matching
+  const lookup = {};
+  for (const item of counts) {
+    if (!item.collegeCode) continue;
+    if (!lookup[item.collegeCode]) {
+      lookup[item.collegeCode] = { officerCount: 0, cadetCount: 0 };
+    }
+    const countVal = (item._count && typeof item._count === 'object')
+      ? (item._count._all ?? item._count.id ?? 0)
+      : (item._count || 0);
+
+    if (item.role === 'INSTRUCTOR') {
+      lookup[item.collegeCode].officerCount = countVal;
+    } else if (item.role === 'STUDENT') {
+      lookup[item.collegeCode].cadetCount = countVal;
+    }
+  }
+
+  return colleges.map((c) => {
+    const countsForCollege = lookup[c.code] || { officerCount: 0, cadetCount: 0 };
+    return {
+      ...c,
+      officerCount: countsForCollege.officerCount,
+      cadetCount: countsForCollege.cadetCount,
+    };
+  });
+}
+
+async function clearCollegesCache() {
+  try {
+    await Promise.all([
+      redis.del('cache:colleges:active'),
+      redis.del('cache:colleges:all')
+    ]);
+  } catch (err) {
+    console.error('[Redis Cache Del Error]', err);
+  }
+}
+
 async function listColleges() {
+  const cacheKey = 'cache:colleges:active';
+  try {
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      return JSON.parse(cached);
+    }
+  } catch (err) {
+    console.error('[Redis Cache Get Error]', err);
+  }
+
   const colleges = await prisma.college.findMany({
     where: { isActive: true },
     orderBy: { name: 'asc' },
   });
 
-  // Attach live officer and cadet counts
-  const withCounts = await Promise.all(
-    colleges.map(async (c) => {
-      const [officerCount, cadetCount] = await Promise.all([
-        prisma.user.count({ where: { collegeCode: c.code, role: 'INSTRUCTOR' } }),
-        prisma.user.count({ where: { collegeCode: c.code, role: 'STUDENT' } }),
-      ]);
-      return { ...c, officerCount, cadetCount };
-    })
-  );
+  const result = await attachCountsToColleges(colleges);
 
-  return withCounts;
+  try {
+    await redis.set(cacheKey, JSON.stringify(result), 'EX', 60);
+  } catch (err) {
+    console.error('[Redis Cache Set Error]', err);
+  }
+
+  return result;
 }
 
 async function listCollegesAll() {
-  // For admin — includes inactive
+  const cacheKey = 'cache:colleges:all';
+  try {
+    const cached = await redis.get(cacheKey);
+    if (cached) {
+      return JSON.parse(cached);
+    }
+  } catch (err) {
+    console.error('[Redis Cache Get Error]', err);
+  }
+
   const colleges = await prisma.college.findMany({
     orderBy: { name: 'asc' },
   });
 
-  const withCounts = await Promise.all(
-    colleges.map(async (c) => {
-      const [officerCount, cadetCount] = await Promise.all([
-        prisma.user.count({ where: { collegeCode: c.code, role: 'INSTRUCTOR' } }),
-        prisma.user.count({ where: { collegeCode: c.code, role: 'STUDENT' } }),
-      ]);
-      return { ...c, officerCount, cadetCount };
-    })
-  );
+  const result = await attachCountsToColleges(colleges);
 
-  return withCounts;
+  try {
+    await redis.set(cacheKey, JSON.stringify(result), 'EX', 60);
+  } catch (err) {
+    console.error('[Redis Cache Set Error]', err);
+  }
+
+  return result;
 }
 
 async function createCollege(body) {
@@ -102,7 +171,7 @@ async function createCollege(body) {
     }
   }
 
-  return prisma.$transaction(async (tx) => {
+  const college = await prisma.$transaction(async (tx) => {
     const college = await tx.college.create({
       data: {
         name: name.trim(),
@@ -131,6 +200,9 @@ async function createCollege(body) {
 
     return college;
   });
+
+  await clearCollegesCache();
+  return college;
 }
 
 async function updateCollege(idRaw, body) {
@@ -152,7 +224,7 @@ async function updateCollege(idRaw, body) {
     if (codeTaken) throw new HttpError(409, `Code "${code.toUpperCase()}" is already in use`);
   }
 
-  return prisma.$transaction(async (tx) => {
+  const updated = await prisma.$transaction(async (tx) => {
     // Handle OIC Linking
     let finalContactName = name || nccContactName;
     let finalContactEmail = nccContactEmail;
@@ -192,6 +264,9 @@ async function updateCollege(idRaw, body) {
 
     return updated;
   });
+
+  await clearCollegesCache();
+  return updated;
 }
 
 async function deactivateCollege(idRaw) {
@@ -206,7 +281,15 @@ async function deactivateCollege(idRaw) {
     data: { isActive: false },
   });
 
+  await clearCollegesCache();
   return updated;
 }
 
-module.exports = { listColleges, listCollegesAll, createCollege, updateCollege, deactivateCollege };
+module.exports = { 
+  listColleges, 
+  listCollegesAll, 
+  createCollege, 
+  updateCollege, 
+  deactivateCollege,
+  clearCollegesCache
+};

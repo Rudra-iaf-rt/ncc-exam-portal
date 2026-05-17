@@ -1,8 +1,8 @@
 const resultsService = require("../services/results.service");
 
 async function listStudent(req, res) {
-  const results = await resultsService.listForStudent(req.user.id, req.query);
-  res.json({ results });
+  const data = await resultsService.listForStudent(req.user.id, req.query);
+  res.json(data);
 }
 
 async function listInstructor(req, res) {
@@ -11,8 +11,8 @@ async function listInstructor(req, res) {
 }
 
 async function listAdmin(req, res) {
-  const results = await resultsService.listForAdmin(req.query);
-  res.json({ results });
+  const data = await resultsService.listForAdmin(req.query);
+  res.json(data);
 }
 
 async function summary(req, res) {

@@ -12,7 +12,11 @@ import {
 import { AdminAuthContext } from './AdminAuth';
 
 export function AdminAuthProvider({ children }) {
-  const [user, setUser] = useState(getSavedUser());
+  const [user, setUser] = useState(() => {
+    const saved = getSavedUser();
+    const isStaff = saved?.role === 'ADMIN' || saved?.role === 'INSTRUCTOR';
+    return isStaff ? saved : null;
+  });
   const [isLoading, setIsLoading] = useState(true);
 
   async function logout() {
@@ -36,18 +40,38 @@ export function AdminAuthProvider({ children }) {
         return;
       }
 
+      // If the saved user is a STUDENT, do not perform staff rehydration or call logout()!
+      const saved = getSavedUser();
+      if (saved && saved.role === 'STUDENT') {
+        setUser(null);
+        setIsLoading(false);
+        return;
+      }
+
       try {
         const { data } = await authApi.getMe();
         const isStaff = data?.user?.role === 'ADMIN' || data?.user?.role === 'INSTRUCTOR';
         
-        if (data && data.user && isStaff) {
-          setUser(data.user);
-          saveUser(data.user);
+        if (data && data.user) {
+          if (isStaff) {
+            setUser(data.user);
+            saveUser(data.user);
+          } else if (data.user.role === 'STUDENT') {
+            setUser(null);
+            saveUser(data.user);
+          } else {
+            logout();
+          }
         } else {
           logout();
         }
-      } catch {
-        logout();
+      } catch (err) {
+        // Only log out if it's a definitive authentication failure (4xx except 404/429)
+        const status = err.status || err.response?.status;
+        const isAuthError = status >= 400 && status < 500 && status !== 404 && status !== 429;
+        if (isAuthError) {
+          logout();
+        }
       }
       setIsLoading(false);
     }

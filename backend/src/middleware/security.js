@@ -1,7 +1,8 @@
 const crypto = require("crypto");
 
-function requestContext(req, _res, next) {
+function requestContext(req, res, next) {
   req.requestId = crypto.randomUUID();
+  res.setHeader("X-Request-ID", req.requestId);
   next();
 }
 

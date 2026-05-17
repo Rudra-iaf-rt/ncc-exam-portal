@@ -55,8 +55,8 @@ async function createFromExcel(req, res) {
 }
 
 async function listCatalog(req, res) {
-  const exams = await examService.listExamsCatalog(req.user.id, req.user.role);
-  res.json({ exams });
+  const data = await examService.listExamsCatalog(req.user.id, req.user.role, req.query);
+  res.json(data);
 }
 
 async function getOne(req, res) {

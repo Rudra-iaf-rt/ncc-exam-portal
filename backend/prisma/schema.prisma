@@ -33,7 +33,10 @@ model User {
   refreshTokens         RefreshToken[]
   results               Result[]
   college               College?             @relation(fields: [collegeCode], references: [code])
+
+  @@index([collegeCode])
 }
+
 
 model College {
   id              Int        @id @default(autoincrement())
@@ -103,6 +106,11 @@ model Material {
   college      College?     @relation(fields: [collegeId], references: [id])
   exam         Exam?        @relation(fields: [examId], references: [id])
   uploadedBy   User         @relation(fields: [uploadedById], references: [id])
+
+  @@index([isActive])
+  @@index([examId])
+  @@index([collegeId])
+  @@index([wing])
 }
 
 model Exam {
@@ -121,6 +129,9 @@ model Exam {
   materials   Material[]
   questions   Question[]
   results     Result[]
+
+  @@index([status])
+  @@index([createdBy])
 }
 
 model ExamAssignment {
@@ -141,6 +152,8 @@ model Question {
   options  String[]
   answer   String
   exam     Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
+
+  @@index([examId])
 }
 
 model Attempt {
@@ -149,7 +162,7 @@ model Attempt {
   examId               Int
   status               String
   createdAt            DateTime @default(now())
-  answers              Json?    @default("[]")
+  answers              Json?    @default("{}")
   startedAt            DateTime @default(now())
   warningCount         Int      @default(0)
   currentQuestionIndex Int      @default(0)
@@ -158,6 +171,8 @@ model Attempt {
   student              User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, examId])
+  @@index([studentId])
+  @@index([examId])
 }
 
 model Result {
@@ -170,6 +185,7 @@ model Result {
   student   User     @relation(fields: [studentId], references: [id], onDelete: Cascade)
 
   @@unique([studentId, examId])
+  @@index([studentId])
 }
 
 model ExamViolation {

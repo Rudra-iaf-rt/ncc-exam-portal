@@ -29,6 +29,7 @@ const ExamAttempt = () => {
   const [currentQ, setCurrentQ] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [showQuestionGridModal, setShowQuestionGridModal] = useState(false);
   const answersRef = useRef(answers);
 
   useEffect(() => {
@@ -174,27 +175,49 @@ const ExamAttempt = () => {
   );
 
   if (showWarning) return (
-    <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-crimson/95 backdrop-blur-md p-6 text-white">
-      <div className="w-full max-w-md rounded-rl border border-white/30 bg-crimson-deep p-10 text-center shadow-2xl">
-        <AlertCircle size={64} className="mx-auto mb-6 text-white animate-pulse" />
-        <h2 className="mb-4 font-display text-3xl">Security Breach</h2>
-        <p className="mb-6 font-ui">
-          {lastViolationType === 'TAB_SWITCH' && "Unauthorized window or tab switch detected."}
-          {lastViolationType === 'FULLSCREEN_EXIT' && "Fullscreen mode was exited prematurely."}
-          {lastViolationType === 'SCREEN_STOP' && "Screen transmission was terminated."}
-          {lastViolationType === 'FOCUS_LOSS' && "Window focus lost. Please stay within the exam environment."}
-          {lastViolationType === 'MOUSE_LEAVE' && "Cursor moved outside the secure examination area."}
-          {!lastViolationType && "Security violation detected."}
-          {" This incident has been logged."}
-        </p>
-        <div className="mb-10 rounded-r bg-white/10 p-4 font-mono text-sm">
-          WARNING {warningCount.toString().padStart(2, '0')} OF 03
+    <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-navy/80 backdrop-blur-sm p-4 sm:p-6 text-ink animate-in fade-in duration-200">
+      <div className="w-full max-w-md rounded-rl border border-stone-deep bg-white p-6 sm:p-10 text-center shadow-2xl animate-in zoom-in-95 duration-250">
+        <div className="w-16 h-16 rounded-full bg-rose-500/10 flex items-center justify-center mx-auto mb-6 text-rose-500 animate-bounce">
+          <AlertCircle size={32} />
         </div>
+        
+        <h2 className="mb-3 font-display text-2xl text-navy font-bold">Stay in the Exam Window</h2>
+        
+        <p className="mb-6 font-ui text-[14.5px] leading-relaxed text-ink-2">
+          {lastViolationType === 'TAB_SWITCH' && "You switched to another window or tab. The system noticed you navigated away."}
+          {lastViolationType === 'FULLSCREEN_EXIT' && "You exited fullscreen mode. The exam requires fullscreen to continue."}
+          {lastViolationType === 'SCREEN_STOP' && "You stopped sharing your screen. Screen sharing is required to proctor the exam."}
+          {lastViolationType === 'FOCUS_LOSS' && "The exam window lost focus. This happens when you click outside the exam."}
+          {lastViolationType === 'MOUSE_LEAVE' && "Your cursor moved outside the secure exam area."}
+          {!lastViolationType && "A system violation was detected."}
+          {" To ensure fairness, please keep your focus solely on the exam."}
+        </p>
+
+        <div className="mb-8 flex flex-col items-center justify-center rounded-r bg-stone-wash p-4 border border-stone-deep">
+          <span className="font-mono text-[10px] uppercase tracking-wider text-ink-3 mb-2">Current Warnings</span>
+          <div className="flex gap-2">
+            {[1, 2, 3].map((num) => (
+              <div 
+                key={num}
+                className={`h-2.5 w-12 rounded-full transition-all duration-300 ${
+                  num <= warningCount ? 'bg-rose-500 shadow-[0_0_6px_rgba(244,63,94,0.4)]' : 'bg-stone-deep'
+                }`}
+              />
+            ))}
+          </div>
+          <span className="mt-2.5 font-ui text-sm font-bold text-rose-500">
+            {warningCount === 0 ? '0 of 3 Warnings' : `${warningCount} of 3 Warnings`}
+          </span>
+          <span className="mt-1 font-ui text-[11px] text-ink-4">
+            At 3 warnings, your exam is auto-submitted.
+          </span>
+        </div>
+
         <button 
           onClick={() => setShowWarning(false)}
-          className="w-full rounded-r bg-white py-4 font-ui font-bold text-crimson-deep shadow-lg transition-all hover:bg-navy-pale active:scale-95"
+          className="w-full rounded-r bg-navy py-3.5 font-ui font-bold text-[#F4F0E4] shadow-lg transition-all hover:bg-navy-mid active:scale-95 cursor-pointer"
         >
-          ACKNOWLEDGE & RETURN
+          Return to Exam
         </button>
       </div>
     </div>
@@ -204,134 +227,148 @@ const ExamAttempt = () => {
 
   return (
     <div className="flex h-screen flex-col bg-stone-wash">
-      {/* Top Bar */}
-      <header className="z-[100] flex flex-wrap items-center justify-between gap-4 bg-navy px-4 sm:px-10 py-3 sm:py-4 shadow-lg">
-        <div className="flex flex-col">
-          <h1 className="font-display text-xl text-[#F4F0E4]">{exam.title}</h1>
-          <div className="mt-1 flex items-center gap-2">
-            {/* Only show sync badge after first interaction — avoids false 'Connection Failure' on mount */}
+      {/* Redesigned Responsive Header */}
+      <header className="z-[100] sticky top-0 flex items-center justify-between bg-navy px-4 sm:px-8 py-3.5 shadow-lg border-b border-white/10 shrink-0">
+        {/* Left Section: Title & Status Pills */}
+        <div className="flex flex-col gap-1 min-w-0">
+          <h1 className="font-display text-[15px] sm:text-lg text-[#F4F0E4] font-bold truncate max-w-[130px] xs:max-w-[180px] sm:max-w-xs md:max-w-md">
+            {exam.title}
+          </h1>
+          <div className="flex flex-wrap items-center gap-1.5 sm:gap-2">
+            {/* Proctoring Status Pill */}
+            <div className={`flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold border transition-all duration-300 ${
+              warningCount === 0 ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400' :
+              warningCount < 2 ? 'bg-amber-500/10 border-amber-500/25 text-amber-400 animate-pulse' :
+              'bg-rose-500/10 border-rose-500/25 text-rose-400 animate-bounce'
+            }`}>
+              <ShieldCheck size={11} className={warningCount >= 2 ? 'animate-pulse' : ''} />
+              <span>{warningCount === 0 ? '0 Violations' : `${warningCount} of 3 Warnings`}</span>
+            </div>
+
+            {/* Network Auto-Save status Pill */}
             {syncStatus && syncStatus !== 'idle' && (
-              <div className={`flex items-center gap-2 rounded-full bg-white/10 px-2.5 py-1 text-[10px] uppercase tracking-wider ${
-                syncStatus === 'saving' ? 'text-gold' : 
-                syncStatus === 'saved' ? 'text-olive-pale' : 
-                'text-crimson-soft'
+              <div className={`flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold border transition-all duration-300 ${
+                syncStatus === 'saving' ? 'bg-amber-500/10 border-amber-500/25 text-amber-400' : 
+                syncStatus === 'saved' ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400' : 
+                'bg-rose-500/10 border-rose-500/25 text-rose-400'
               }`}>
-                {syncStatus === 'saving' && <RefreshCw size={12} className="animate-spin" />}
-                {syncStatus === 'saved' && <ShieldCheck size={12} />}
-                {syncStatus === 'error' && <AlertTriangle size={12} />}
-                <span className="font-mono">
-                  {syncStatus === 'saving' ? 'Saving Progress...' : 
-                   syncStatus === 'saved' ? 'Data Synchronized' : 
-                   'Connection Failure'}
+                {syncStatus === 'saving' ? (
+                  <RefreshCw size={10} className="animate-spin" />
+                ) : syncStatus === 'saved' ? (
+                  <ShieldCheck size={10} />
+                ) : (
+                  <AlertTriangle size={10} />
+                )}
+                <span>
+                  {syncStatus === 'saving' ? 'Saving' : 
+                   syncStatus === 'saved' ? 'Saved' : 
+                   'Sync Error'}
                 </span>
               </div>
             )}
-
-            <div className={`flex items-center gap-3 rounded-md border px-4 py-2 transition-all ${
-              warningCount === 0 ? 'bg-emerald-500/10 border-emerald-500/30' :
-              warningCount < 2 ? 'bg-amber-500/20 border-amber-500/40' :
-              'bg-rose-500/20 border-rose-500/40'
-            }`}>
-              <ShieldCheck 
-                size={18} 
-                className={
-                  warningCount === 0 ? 'text-emerald-400' : 
-                  warningCount < 2 ? 'text-amber-400 animate-pulse' : 
-                  'text-rose-400 animate-bounce'
-                } 
-              />
-              <div className="flex flex-col leading-none">
-                <span className="font-mono text-[10px] uppercase tracking-[0.15em] text-white/60 mb-0.5">Proctoring Status</span>
-                <span className={`font-mono text-[14px] font-bold tracking-tight ${
-                  warningCount === 0 ? 'text-emerald-400' : 
-                  warningCount < 2 ? 'text-amber-400' : 
-                  'text-rose-400'
-                }`}>
-                  {warningCount === 0 ? 'SECURE (0/03)' : `WARNING (${warningCount}/03)`}
-                </span>
-              </div>
-            </div>
           </div>
         </div>
         
-        <div className={`flex items-center gap-4 rounded-r px-5 py-2.5 font-ui text-xl font-bold transition-all ${
-          timeLeft < 300 ? 'bg-crimson text-white animate-pulse' : 'bg-white/15 text-white'
-        }`}>
-          <Clock size={24} />
-          <span className="font-mono">{formatTime(timeLeft)}</span>
-        </div>
+        {/* Right Section: Time & Submit */}
+        <div className="flex items-center gap-2 sm:gap-4 shrink-0">
+          <div className={`flex items-center gap-2 rounded-r px-2.5 sm:px-4 py-1.5 sm:py-2 font-mono text-sm sm:text-base md:text-lg font-bold border transition-all duration-300 ${
+            timeLeft < 300 
+              ? 'bg-rose-500/10 border-rose-500/30 text-rose-400 animate-pulse' 
+              : 'bg-white/10 border border-white/20 text-white'
+          }`}>
+            <Clock size={16} className="sm:size-5" />
+            <span>{formatTime(timeLeft)}</span>
+          </div>
 
-        <button 
-          onClick={() => setShowConfirmModal(true)} 
-          className="flex items-center gap-3 rounded-r bg-white px-4 sm:px-6 py-2 sm:py-2.5 font-ui text-[13px] sm:text-[14px] font-bold text-navy transition-all hover:bg-navy-pale active:scale-95 disabled:opacity-50"
-          disabled={isSubmitting}
-        >
-          {isSubmitting ? 'Finalizing...' : 'Submit Exam'}
-          <Send size={18} />
-        </button>
+          <button 
+            onClick={() => setShowConfirmModal(true)} 
+            className="flex items-center gap-1.5 rounded-r bg-white px-3 sm:px-5 py-1.5 sm:py-2 font-ui text-[12px] sm:text-[14px] font-bold text-navy transition-all hover:bg-navy-pale active:scale-95 disabled:opacity-50 cursor-pointer shrink-0"
+            disabled={isSubmitting}
+          >
+            <span className="hidden xs:inline">{isSubmitting ? 'Finalizing...' : 'Submit'}</span>
+            <span className="xs:hidden">{isSubmitting ? '...' : 'Submit'}</span>
+            <Send size={13} className="sm:size-4" />
+          </button>
+        </div>
       </header>
 
-      <main className="flex flex-1 flex-col lg:grid lg:grid-cols-[300px_1fr] overflow-hidden">
-        {/* Navigation Sidebar */}
-        <aside className="flex flex-col gap-4 lg:gap-6 border-t lg:border-t-0 lg:border-r border-stone-deep bg-white p-4 lg:p-8 order-2 lg:order-1 overflow-y-auto max-h-[30vh] lg:max-h-none">
+      {/* Main Container */}
+      <main className="flex flex-1 flex-row overflow-hidden relative">
+        
+        {/* Desktop Sidebar (lg and above only) */}
+        <aside className="hidden lg:flex flex-col gap-6 border-r border-stone-deep bg-white p-8 overflow-y-auto w-[300px] shrink-0">
           <div>
-            <h3 className="mb-4 font-mono text-[10px] uppercase tracking-[0.14em] text-ink-4">Exam Progress</h3>
-            <div className="grid grid-cols-6 sm:grid-cols-10 lg:grid-cols-5 gap-2">
-              {exam.questions.map((_, idx) => (
-                <button
-                  key={idx}
-                  onClick={() => setCurrentQ(idx)}
-                  className={`aspect-square rounded-[4px] border font-mono text-[13px] font-medium transition-all ${
-                    currentQ === idx ? 'border-navy bg-navy-wash text-navy shadow-[0_0_0_2px_var(--navy-wash)]' : 
-                    answers[exam.questions[idx].id] ? 'border-navy bg-navy text-white' : 
-                    'border-stone-deep bg-white text-ink-3 hover:border-navy-soft'
-                  }`}
-                >
-                  {(idx + 1).toString().padStart(2, '0')}
-                </button>
-              ))}
+            <h3 className="mb-4 font-ui text-[11px] font-bold uppercase tracking-wider text-ink-4">Exam Progress</h3>
+            <div className="grid grid-cols-5 gap-2">
+              {exam.questions.map((_, idx) => {
+                const isActive = currentQ === idx;
+                const isAnswered = answers[exam.questions[idx].id];
+                return (
+                  <button
+                    key={idx}
+                    onClick={() => setCurrentQ(idx)}
+                    className={`aspect-square rounded-r border font-ui text-[13.5px] font-semibold transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-md cursor-pointer active:scale-95 flex items-center justify-center ${
+                      isActive ? 'bg-white text-navy font-bold ring-2 ring-navy ring-offset-2 border-navy shadow-sm' : 
+                      isAnswered ? 'bg-navy text-white font-bold border-navy' : 
+                      'bg-stone-wash border-stone-deep text-ink-3 hover:bg-white hover:border-navy-pale'
+                    }`}
+                  >
+                    {(idx + 1).toString().padStart(2, '0')}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
+          {/* Desktop Navigation Legend */}
           <div className="mt-auto border-t border-dashed border-stone-deep pt-6">
             <div className="flex flex-col gap-3">
               <div className="flex items-center gap-3 text-[11px] uppercase tracking-wider text-ink-3">
-                <span className="h-3 w-3 rounded-[2px] bg-navy"></span>
-                <span className="font-mono">Completed</span>
+                <span className="h-3.5 w-3.5 rounded-r bg-navy shadow-sm"></span>
+                <span className="font-ui font-medium">Completed</span>
               </div>
               <div className="flex items-center gap-3 text-[11px] uppercase tracking-wider text-ink-3">
-                <span className="h-3 w-3 rounded-[2px] border border-navy bg-navy-wash"></span>
-                <span className="font-mono">Active</span>
+                <span className="h-3.5 w-3.5 rounded-r border-2 border-navy bg-navy-wash"></span>
+                <span className="font-ui font-medium">Active</span>
               </div>
               <div className="flex items-center gap-3 text-[11px] uppercase tracking-wider text-ink-3">
-                <span className="h-3 w-3 rounded-[2px] border border-stone-deep"></span>
-                <span className="font-mono">Unvisited</span>
+                <span className="h-3.5 w-3.5 rounded-r border border-stone-deep bg-stone-wash"></span>
+                <span className="font-ui font-medium">Unvisited</span>
               </div>
             </div>
           </div>
         </aside>
 
-        {/* Question Area — fills all remaining horizontal space */}
-        <div className="flex flex-1 flex-col overflow-y-auto p-4 lg:p-8 order-1 lg:order-2">
-          {/* Question card: full width with comfortable inset padding */}
+        {/* Question Content Area */}
+        <div className="flex flex-1 flex-col overflow-y-auto p-4 lg:p-8">
+          
+          {/* Question Card */}
           <div className="w-full flex-1 rounded-rl border border-stone-deep bg-white p-5 sm:p-10 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
-            <div className="mb-8 flex items-center justify-between">
-              <span className="font-mono text-[10px] font-bold tracking-[0.2em] uppercase text-navy-soft">
-                Question {(currentQ + 1).toString().padStart(2, '0')} / {exam.questions.length.toString().padStart(2, '0')}
+            <div className="mb-6 sm:mb-8 flex items-center justify-between">
+              <span className="font-ui text-[11px] font-bold tracking-wider uppercase text-navy-soft">
+                Question {(currentQ + 1).toString().padStart(2, '0')} of {exam.questions.length.toString().padStart(2, '0')}
               </span>
-              <div className="flex items-center gap-2 rounded-full bg-stone-wash px-3 py-1 text-[11px] font-medium text-ink-4">
+              <div className="flex items-center gap-2 rounded-full bg-stone-wash px-3 py-1 text-[11px] font-semibold text-ink-4 border border-stone-deep/40">
                 <ShieldCheck size={12} className="text-olive-soft" />
-                <span className="font-ui uppercase tracking-wide">Exam Session Active</span>
+                <span className="font-ui uppercase tracking-wide">Exam Session Secure</span>
               </div>
             </div>
             
-            <p className="mb-10 font-display text-2xl leading-relaxed text-ink">{q.question}</p>
+            <p className="mb-8 sm:mb-10 font-display text-xl sm:text-2xl leading-relaxed text-ink font-medium">
+              {q.question}
+            </p>
 
-            <div className="flex flex-col gap-4">
+            {/* Answer Options */}
+            <div className="flex flex-col gap-3.5">
               {q.options.map((opt, i) => (
-                <label key={i} className={`flex cursor-pointer items-start sm:items-center gap-4 sm:gap-5 rounded-r border p-4 sm:p-5 transition-all ${
-                  answers[q.id] === opt ? 'border-navy bg-navy-wash' : 'border-stone-deep bg-white hover:border-navy-soft hover:bg-stone-wash'
-                }`}>
+                <label 
+                  key={i} 
+                  className={`flex cursor-pointer items-center gap-4 rounded-r border p-4 transition-all duration-200 transform hover:translate-x-0.5 ${
+                    answers[q.id] === opt 
+                      ? 'border-navy bg-navy-wash/75 shadow-sm' 
+                      : 'border-stone-deep bg-white hover:border-navy-soft hover:bg-stone-wash'
+                  }`}
+                >
                   <input
                     type="radio"
                     className="hidden"
@@ -340,58 +377,145 @@ const ExamAttempt = () => {
                     checked={answers[q.id] === opt}
                     onChange={() => handleSelect(q.id, opt)}
                   />
-                  <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border font-mono text-[13px] font-bold transition-all ${
-                    answers[q.id] === opt ? 'border-navy bg-navy text-white' : 'border-stone-deep bg-white text-ink-3'
+                  <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border font-ui text-[13.5px] font-bold transition-all duration-200 ${
+                    answers[q.id] === opt ? 'border-navy bg-navy text-[#F4F0E4] shadow-sm' : 'border-stone-deep bg-white text-ink-3'
                   }`}>
                     {String.fromCharCode(65 + i)}
                   </span>
-                  <span className="font-ui text-[16px] text-ink-2">{opt}</span>
+                  <span className="font-ui text-[16px] text-ink-2 font-medium">{opt}</span>
                 </label>
               ))}
             </div>
           </div>
 
-          {/* Navigation row — spans full width matching the card above */}
-          <div className="mt-6 flex w-full justify-between">
+          {/* Previous / Next Actions */}
+          <div className="mt-5 sm:mt-6 flex w-full justify-between gap-4">
             <button 
               disabled={currentQ === 0}
               onClick={() => setCurrentQ(prev => prev - 1)}
-              className="flex items-center gap-2 sm:gap-3 rounded-r border border-stone-deep bg-white px-4 sm:px-8 py-3 font-ui text-[12px] sm:text-[14px] font-bold text-navy transition-all hover:bg-stone-wash active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 rounded-r border border-stone-deep bg-white px-5 sm:px-8 py-3 font-ui text-[13px] sm:text-[14px] font-bold text-navy transition-all hover:bg-stone-wash active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
             >
-              <ChevronLeft size={20} /> PREVIOUS
+              <ChevronLeft size={18} /> PREVIOUS
             </button>
             <button 
               disabled={currentQ === exam.questions.length - 1}
               onClick={() => setCurrentQ(prev => prev + 1)}
-              className="flex items-center gap-2 sm:gap-3 rounded-r bg-navy px-6 sm:px-10 py-3 font-ui text-[12px] sm:text-[14px] font-bold text-[#F4F0E4] transition-all hover:bg-navy-mid active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 rounded-r bg-navy px-6 sm:px-10 py-3 font-ui text-[13px] sm:text-[14px] font-bold text-[#F4F0E4] transition-all hover:bg-navy-mid active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
             >
-              NEXT <ChevronRight size={20} />
+              NEXT <ChevronRight size={18} />
             </button>
           </div>
         </div>
       </main>
 
+      {/* Mobile Sticky Bottom Summary and Grid Button */}
+      <div className="lg:hidden shrink-0 border-t border-stone-deep bg-white px-4 py-3 shadow-2xl flex items-center justify-between z-50">
+        <div className="flex flex-col">
+          <span className="font-ui text-[10px] font-bold uppercase tracking-wider text-ink-4">Progress</span>
+          <span className="font-ui text-[14px] font-bold text-navy">
+            {Object.keys(answers).length} of {exam.questions.length} Answered
+          </span>
+        </div>
+        
+        <button 
+          onClick={() => setShowQuestionGridModal(true)}
+          className="flex items-center gap-2.5 rounded-r border border-stone-deep bg-stone-wash px-3.5 py-2 font-ui text-[13px] font-bold text-navy hover:bg-stone-deep/20 transition-all active:scale-95 cursor-pointer shadow-sm"
+        >
+          <span>Questions</span>
+          <span className="flex items-center justify-center bg-navy text-white text-[11px] rounded-full h-5 px-2 min-w-[20px] font-ui font-semibold">
+            {(currentQ + 1).toString().padStart(2, '0')}
+          </span>
+        </button>
+      </div>
+
+      {/* Mobile Drawer / Expanding Sheet Grid Modal */}
+      {showQuestionGridModal && (
+        <div 
+          onClick={() => setShowQuestionGridModal(false)}
+          className="fixed inset-0 z-[1500] lg:hidden flex items-end justify-center bg-navy/80 backdrop-blur-sm p-0 animate-in fade-in duration-200"
+        >
+          <div 
+            onClick={(e) => e.stopPropagation()}
+            className="w-full bg-white rounded-t-2xl border-t border-stone-deep px-6 pb-8 pt-4 shadow-2xl flex flex-col max-h-[80vh] animate-in slide-in-from-bottom duration-300"
+          >
+            {/* Native drag handle indicator */}
+            <div className="w-12 h-1.5 bg-stone-deep rounded-full mx-auto mb-5 shrink-0" />
+
+            {/* Drawer Header */}
+            <div className="flex items-center justify-between pb-3 mb-4 shrink-0 border-b border-stone-wash">
+              <div className="flex flex-col">
+                <h3 className="font-display text-lg text-navy font-bold">Select Question</h3>
+                <span className="font-ui text-xs text-ink-3">Tap any number to instantly navigate</span>
+              </div>
+            </div>
+
+            {/* Drawer Legend */}
+            <div className="flex flex-wrap items-center gap-4 bg-stone-wash p-3 rounded-r mb-4 text-[11px] shrink-0 border border-stone-deep/40">
+              <div className="flex items-center gap-1.5">
+                <span className="h-3 w-3 rounded-r bg-navy shadow-sm" />
+                <span className="font-ui font-medium text-ink-2">Completed ({Object.keys(answers).length})</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="h-3 w-3 rounded-r border border-navy bg-navy-wash animate-pulse" />
+                <span className="font-ui font-medium text-ink-2">Active</span>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <span className="h-3 w-3 rounded-r border border-stone-deep bg-white" />
+                <span className="font-ui font-medium text-ink-2">Unvisited ({exam.questions.length - Object.keys(answers).length})</span>
+              </div>
+            </div>
+
+            {/* Scrollable Questions Grid */}
+            <div className="overflow-y-auto flex-1 py-2 pr-1 select-none custom-scrollbar">
+              <div className="grid grid-cols-5 xs:grid-cols-6 sm:grid-cols-8 gap-2">
+                {exam.questions.map((_, idx) => {
+                  const isActive = currentQ === idx;
+                  const isAnswered = answers[exam.questions[idx].id];
+                  return (
+                    <button
+                      key={idx}
+                      onClick={() => {
+                        setCurrentQ(idx);
+                        setShowQuestionGridModal(false);
+                      }}
+                      className={`aspect-square rounded-r border font-ui text-[14px] font-bold transition-all duration-200 flex items-center justify-center cursor-pointer active:scale-95 hover:-translate-y-0.5 hover:shadow-md ${
+                        isActive ? 'bg-white text-navy font-bold ring-2 ring-navy ring-offset-2 border-navy shadow-sm' : 
+                        isAnswered ? 'bg-navy text-white font-bold border-navy shadow-sm' : 
+                        'bg-stone-wash border-stone-deep text-ink-3 hover:bg-white hover:border-navy-pale'
+                      }`}
+                      style={{ minHeight: '44px' }}
+                    >
+                      {(idx + 1).toString().padStart(2, '0')}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Submit Confirmation Modal */}
       {showConfirmModal && (
-        <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-navy/90 backdrop-blur-sm p-6">
-          <div className="w-full max-w-sm rounded-rl border border-white/20 bg-white p-8 text-center shadow-2xl animate-in zoom-in-95 duration-200">
+        <div className="fixed inset-0 z-[3000] flex items-center justify-center bg-navy/90 backdrop-blur-sm p-6 animate-in fade-in duration-200">
+          <div className="w-full max-w-sm rounded-rl border border-stone-deep bg-white p-8 text-center shadow-2xl animate-in zoom-in-95 duration-250">
             <div className="w-16 h-16 rounded-full bg-navy/5 flex items-center justify-center mx-auto mb-6">
               <Send size={28} className="text-navy" />
             </div>
-            <h2 className="mb-3 font-display text-2xl text-navy">Submit Exam?</h2>
-            <p className="mb-8 font-ui text-[14px] text-ink-3">
+            <h2 className="mb-3 font-display text-2xl text-navy font-bold">Submit Exam?</h2>
+            <p className="mb-8 font-ui text-[14px] leading-relaxed text-ink-3">
               Are you sure you want to finalize and submit your answers? You cannot return to this exam once submitted.
             </p>
             <div className="flex gap-3">
               <button 
                 onClick={() => setShowConfirmModal(false)}
-                className="flex-1 rounded-r border border-stone-deep bg-white py-3 font-ui text-[13px] font-bold text-ink-3 transition-all hover:bg-stone-wash"
+                className="flex-1 rounded-r border border-stone-deep bg-white py-3 font-ui text-[13px] font-bold text-ink-3 transition-all hover:bg-stone-wash cursor-pointer"
               >
                 Cancel
               </button>
               <button 
                 onClick={executeSubmit}
-                className="flex-1 rounded-r bg-navy py-3 font-ui text-[13px] font-bold text-white transition-all hover:bg-navy-mid"
+                className="flex-1 rounded-r bg-navy py-3 font-ui text-[13px] font-bold text-white transition-all hover:bg-navy-mid cursor-pointer"
               >
                 Yes, Submit
               </button>

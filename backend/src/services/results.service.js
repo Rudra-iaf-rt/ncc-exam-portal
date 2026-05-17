@@ -1,4 +1,5 @@
 const { prisma } = require("../lib/prisma");
+const { redis } = require("../lib/redis");
 const { HttpError } = require("../utils/http-error");
 
 function mapResultRow(r) {
@@ -47,16 +48,55 @@ async function listForStudent(studentId, query) {
     throw new HttpError(400, "Invalid examId query");
   }
 
-  const rows = await prisma.result.findMany({
-    where: {
-      studentId,
-      ...(examId != null ? { examId } : {}),
-    },
-    orderBy: { id: "desc" },
-    include: resultInclude,
-  });
+  const page = Math.max(1, parseInt(query.page || "1", 10));
+  const limit = Math.min(100, Math.max(1, parseInt(query.limit || "20", 10)));
+  const skip = (page - 1) * limit;
 
-  return rows.map(mapResultRow);
+  const cacheKey = `results:student:${studentId}:${examId || 'all'}:p${page}:l${limit}`;
+  try {
+    const cached = await redis.get(cacheKey);
+    if (cached) return JSON.parse(cached);
+  } catch (err) {
+    console.error("[Redis] GET error in listForStudent", err);
+  }
+
+  const [rows, total] = await Promise.all([
+    prisma.result.findMany({
+      where: {
+        studentId,
+        ...(examId != null ? { examId } : {}),
+      },
+      orderBy: { id: "desc" },
+      include: resultInclude,
+      skip,
+      take: limit,
+    }),
+    prisma.result.count({
+      where: {
+        studentId,
+        ...(examId != null ? { examId } : {}),
+      },
+    }),
+  ]);
+
+  const finalResults = rows.map(mapResultRow);
+  const response = {
+    results: finalResults,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+
+  try {
+    await redis.setex(cacheKey, 60, JSON.stringify(response));
+  } catch (err) {
+    console.error("[Redis] SET error in listForStudent", err);
+  }
+
+  return response;
 }
 
 async function listForInstructor(instructorId, query) {
@@ -65,27 +105,84 @@ async function listForInstructor(instructorId, query) {
     throw new HttpError(400, "Invalid examId query");
   }
 
-  const me = await prisma.user.findUnique({
-    where: { id: instructorId },
-    select: { collegeCode: true },
-  });
-  if (!me) {
-    throw new HttpError(404, "User not found");
+  const page = Math.max(1, parseInt(query.page || "1", 10));
+  const limit = Math.min(100, Math.max(1, parseInt(query.limit || "20", 10)));
+  const skip = (page - 1) * limit;
+
+  // We should cache instructor metadata to avoid hitting the DB every time just to get collegeCode
+  const instructorCacheKey = `user:metadata:${instructorId}`;
+  let collegeCode = null;
+  try {
+    const cachedCollegeCode = await redis.get(instructorCacheKey);
+    if (cachedCollegeCode) {
+      collegeCode = cachedCollegeCode;
+    }
+  } catch (err) {
+    console.error("[Redis] GET error in instructor metadata", err);
   }
 
-  // Force instructor to their own college code for data isolation
-  const collegeCode = me.collegeCode;
+  if (!collegeCode) {
+    const me = await prisma.user.findUnique({
+      where: { id: instructorId },
+      select: { collegeCode: true },
+    });
+    if (!me) {
+      throw new HttpError(404, "User not found");
+    }
+    collegeCode = me.collegeCode || "NONE";
+    try {
+      await redis.setex(instructorCacheKey, 300, collegeCode); // Cache instructor info for 5 mins
+    } catch (err) {
+      console.error("[Redis] SET error in instructor metadata", err);
+    }
+  }
 
-  const rows = await prisma.result.findMany({
-    where: {
-      student: { collegeCode },
-      ...(examId != null ? { examId } : {}),
+  const cacheKey = `results:instructor:${instructorId}:${collegeCode}:${examId || 'all'}:p${page}:l${limit}`;
+  try {
+    const cached = await redis.get(cacheKey);
+    if (cached) return JSON.parse(cached);
+  } catch (err) {
+    console.error("[Redis] GET error in listForInstructor", err);
+  }
+
+  const [rows, total] = await Promise.all([
+    prisma.result.findMany({
+      where: {
+        student: { collegeCode: collegeCode === "NONE" ? null : collegeCode },
+        ...(examId != null ? { examId } : {}),
+      },
+      orderBy: { id: "desc" },
+      include: resultInclude,
+      skip,
+      take: limit,
+    }),
+    prisma.result.count({
+      where: {
+        student: { collegeCode: collegeCode === "NONE" ? null : collegeCode },
+        ...(examId != null ? { examId } : {}),
+      },
+    }),
+  ]);
+
+  const finalResults = rows.map(mapResultRow);
+  const response = {
+    collegeCode: collegeCode === "NONE" ? null : collegeCode,
+    results: finalResults,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
     },
-    orderBy: { id: "desc" },
-    include: resultInclude,
-  });
+  };
 
-  return { collegeCode, results: rows.map(mapResultRow) };
+  try {
+    await redis.setex(cacheKey, 30, JSON.stringify(response)); // Cache results for 30s
+  } catch (err) {
+    console.error("[Redis] SET error in listForInstructor", err);
+  }
+
+  return response;
 }
 
 async function listForAdmin(query) {
@@ -95,16 +192,55 @@ async function listForAdmin(query) {
   }
   const collegeCode = parseOptionalCollegeCode(query);
 
-  const rows = await prisma.result.findMany({
-    where: {
-      ...(examId != null ? { examId } : {}),
-      ...(collegeCode != null ? { student: { collegeCode } } : {}),
-    },
-    orderBy: { id: "desc" },
-    include: resultInclude,
-  });
+  const page = Math.max(1, parseInt(query.page || "1", 10));
+  const limit = Math.min(100, Math.max(1, parseInt(query.limit || "20", 10)));
+  const skip = (page - 1) * limit;
 
-  return rows.map(mapResultRow);
+  const cacheKey = `results:admin:${examId || 'all'}:${collegeCode || 'all'}:p${page}:l${limit}`;
+  try {
+    const cached = await redis.get(cacheKey);
+    if (cached) return JSON.parse(cached);
+  } catch (err) {
+    console.error("[Redis] GET error in listForAdmin", err);
+  }
+
+  const [rows, total] = await Promise.all([
+    prisma.result.findMany({
+      where: {
+        ...(examId != null ? { examId } : {}),
+        ...(collegeCode != null ? { student: { collegeCode } } : {}),
+      },
+      orderBy: { id: "desc" },
+      include: resultInclude,
+      skip,
+      take: limit,
+    }),
+    prisma.result.count({
+      where: {
+        ...(examId != null ? { examId } : {}),
+        ...(collegeCode != null ? { student: { collegeCode } } : {}),
+      },
+    }),
+  ]);
+
+  const finalResults = rows.map(mapResultRow);
+  const response = {
+    results: finalResults,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    },
+  };
+
+  try {
+    await redis.setex(cacheKey, 30, JSON.stringify(response));
+  } catch (err) {
+    console.error("[Redis] SET error in listForAdmin", err);
+  }
+
+  return response;
 }
 
 async function examSummary(examIdRaw) {

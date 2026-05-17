@@ -12,7 +12,7 @@
     "db:push": "prisma db push",
     "db:seed": "node prisma/seed.js",
     "postinstall": "prisma generate",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "prisma": {
     "seed": "node prisma/seed.js"
@@ -31,6 +31,7 @@
     "csv-parser": "^3.2.0",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
+    "ioredis": "^5.10.1",
     "jsonwebtoken": "^9.0.3",
     "multer": "^2.1.1",
     "node-cron": "^4.2.1",
@@ -42,5 +43,6 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "jest": "^30.4.2"
   }
 }

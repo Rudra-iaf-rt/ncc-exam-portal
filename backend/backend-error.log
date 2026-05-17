@@ -1932,3 +1932,683 @@ Can't reach database server at ep-dawn-moon-anzejqj0-pooler.c-6.us-east-1.aws.ne
     at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
     at async Object.loginStaff (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:119:16)
     at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:30:21)
+[2026-05-16T21:39:45.411Z] PrismaClientValidationError: 
+Invalid `prisma.user.findUnique()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:140:34
+
+  137 }
+  138 
+  139 async function getMe(userId) {
+→ 140   const user = await prisma.user.findUnique({
+          where: {
+            id: undefined,
+        ?   regimentalNumber?: String,
+        ?   email?: String,
+        ?   AND?: UserWhereInput | UserWhereInput[],
+        ?   OR?: UserWhereInput[],
+        ?   NOT?: UserWhereInput | UserWhereInput[],
+        ?   name?: StringFilter | String,
+        ?   password?: StringFilter | String,
+        ?   role?: StringFilter | String,
+        ?   refreshToken?: StringNullableFilter | String | Null,
+        ?   batch?: StringNullableFilter | String | Null,
+        ?   isActive?: BoolFilter | Boolean,
+        ?   wing?: StringNullableFilter | String | Null,
+        ?   mobile?: StringNullableFilter | String | Null,
+        ?   yearOfStudy?: StringNullableFilter | String | Null,
+        ?   collegeCode?: StringNullableFilter | String | Null,
+        ?   attempts?: AttemptListRelationFilter,
+        ?   auditLogs?: AuditLogListRelationFilter,
+        ?   examsCreated?: ExamListRelationFilter,
+        ?   assignments?: ExamAssignmentListRelationFilter,
+        ?   examHeartbeats?: ExamHeartbeatListRelationFilter,
+        ?   examViolations?: ExamViolationListRelationFilter,
+        ?   materialsUploaded?: MaterialListRelationFilter,
+        ?   sentNotifications?: NotificationListRelationFilter,
+        ?   receivedNotifications?: NotificationListRelationFilter,
+        ?   passwordResetTokens?: PasswordResetTokenListRelationFilter,
+        ?   refreshTokens?: RefreshTokenListRelationFilter,
+        ?   results?: ResultListRelationFilter,
+        ?   college?: CollegeNullableScalarRelationFilter | CollegeWhereInput | Null
+          },
+          include: {
+            college: true
+          }
+        })
+
+Argument `where` of type UserWhereUniqueInput needs at least one of `id`, `regimentalNumber` or `email` arguments. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async Object.getMe (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:140:16)
+    at async me (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:47:16)
+[2026-05-16T21:39:45.417Z] PrismaClientValidationError: 
+Invalid `prisma.user.findUnique()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:140:34
+
+  137 }
+  138 
+  139 async function getMe(userId) {
+→ 140   const user = await prisma.user.findUnique({
+          where: {
+            id: undefined,
+        ?   regimentalNumber?: String,
+        ?   email?: String,
+        ?   AND?: UserWhereInput | UserWhereInput[],
+        ?   OR?: UserWhereInput[],
+        ?   NOT?: UserWhereInput | UserWhereInput[],
+        ?   name?: StringFilter | String,
+        ?   password?: StringFilter | String,
+        ?   role?: StringFilter | String,
+        ?   refreshToken?: StringNullableFilter | String | Null,
+        ?   batch?: StringNullableFilter | String | Null,
+        ?   isActive?: BoolFilter | Boolean,
+        ?   wing?: StringNullableFilter | String | Null,
+        ?   mobile?: StringNullableFilter | String | Null,
+        ?   yearOfStudy?: StringNullableFilter | String | Null,
+        ?   collegeCode?: StringNullableFilter | String | Null,
+        ?   attempts?: AttemptListRelationFilter,
+        ?   auditLogs?: AuditLogListRelationFilter,
+        ?   examsCreated?: ExamListRelationFilter,
+        ?   assignments?: ExamAssignmentListRelationFilter,
+        ?   examHeartbeats?: ExamHeartbeatListRelationFilter,
+        ?   examViolations?: ExamViolationListRelationFilter,
+        ?   materialsUploaded?: MaterialListRelationFilter,
+        ?   sentNotifications?: NotificationListRelationFilter,
+        ?   receivedNotifications?: NotificationListRelationFilter,
+        ?   passwordResetTokens?: PasswordResetTokenListRelationFilter,
+        ?   refreshTokens?: RefreshTokenListRelationFilter,
+        ?   results?: ResultListRelationFilter,
+        ?   college?: CollegeNullableScalarRelationFilter | CollegeWhereInput | Null
+          },
+          include: {
+            college: true
+          }
+        })
+
+Argument `where` of type UserWhereUniqueInput needs at least one of `id`, `regimentalNumber` or `email` arguments. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async Object.getMe (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:140:16)
+    at async me (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:47:16)
+[2026-05-16T21:39:45.423Z] PrismaClientValidationError: 
+Invalid `prisma.user.findUnique()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:140:34
+
+  137 }
+  138 
+  139 async function getMe(userId) {
+→ 140   const user = await prisma.user.findUnique({
+          where: {
+            id: undefined,
+        ?   regimentalNumber?: String,
+        ?   email?: String,
+        ?   AND?: UserWhereInput | UserWhereInput[],
+        ?   OR?: UserWhereInput[],
+        ?   NOT?: UserWhereInput | UserWhereInput[],
+        ?   name?: StringFilter | String,
+        ?   password?: StringFilter | String,
+        ?   role?: StringFilter | String,
+        ?   refreshToken?: StringNullableFilter | String | Null,
+        ?   batch?: StringNullableFilter | String | Null,
+        ?   isActive?: BoolFilter | Boolean,
+        ?   wing?: StringNullableFilter | String | Null,
+        ?   mobile?: StringNullableFilter | String | Null,
+        ?   yearOfStudy?: StringNullableFilter | String | Null,
+        ?   collegeCode?: StringNullableFilter | String | Null,
+        ?   attempts?: AttemptListRelationFilter,
+        ?   auditLogs?: AuditLogListRelationFilter,
+        ?   examsCreated?: ExamListRelationFilter,
+        ?   assignments?: ExamAssignmentListRelationFilter,
+        ?   examHeartbeats?: ExamHeartbeatListRelationFilter,
+        ?   examViolations?: ExamViolationListRelationFilter,
+        ?   materialsUploaded?: MaterialListRelationFilter,
+        ?   sentNotifications?: NotificationListRelationFilter,
+        ?   receivedNotifications?: NotificationListRelationFilter,
+        ?   passwordResetTokens?: PasswordResetTokenListRelationFilter,
+        ?   refreshTokens?: RefreshTokenListRelationFilter,
+        ?   results?: ResultListRelationFilter,
+        ?   college?: CollegeNullableScalarRelationFilter | CollegeWhereInput | Null
+          },
+          include: {
+            college: true
+          }
+        })
+
+Argument `where` of type UserWhereUniqueInput needs at least one of `id`, `regimentalNumber` or `email` arguments. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async Object.getMe (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:140:16)
+    at async me (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:47:16)
+[2026-05-16T21:39:45.428Z] PrismaClientValidationError: 
+Invalid `prisma.user.findUnique()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:140:34
+
+  137 }
+  138 
+  139 async function getMe(userId) {
+→ 140   const user = await prisma.user.findUnique({
+          where: {
+            id: undefined,
+        ?   regimentalNumber?: String,
+        ?   email?: String,
+        ?   AND?: UserWhereInput | UserWhereInput[],
+        ?   OR?: UserWhereInput[],
+        ?   NOT?: UserWhereInput | UserWhereInput[],
+        ?   name?: StringFilter | String,
+        ?   password?: StringFilter | String,
+        ?   role?: StringFilter | String,
+        ?   refreshToken?: StringNullableFilter | String | Null,
+        ?   batch?: StringNullableFilter | String | Null,
+        ?   isActive?: BoolFilter | Boolean,
+        ?   wing?: StringNullableFilter | String | Null,
+        ?   mobile?: StringNullableFilter | String | Null,
+        ?   yearOfStudy?: StringNullableFilter | String | Null,
+        ?   collegeCode?: StringNullableFilter | String | Null,
+        ?   attempts?: AttemptListRelationFilter,
+        ?   auditLogs?: AuditLogListRelationFilter,
+        ?   examsCreated?: ExamListRelationFilter,
+        ?   assignments?: ExamAssignmentListRelationFilter,
+        ?   examHeartbeats?: ExamHeartbeatListRelationFilter,
+        ?   examViolations?: ExamViolationListRelationFilter,
+        ?   materialsUploaded?: MaterialListRelationFilter,
+        ?   sentNotifications?: NotificationListRelationFilter,
+        ?   receivedNotifications?: NotificationListRelationFilter,
+        ?   passwordResetTokens?: PasswordResetTokenListRelationFilter,
+        ?   refreshTokens?: RefreshTokenListRelationFilter,
+        ?   results?: ResultListRelationFilter,
+        ?   college?: CollegeNullableScalarRelationFilter | CollegeWhereInput | Null
+          },
+          include: {
+            college: true
+          }
+        })
+
+Argument `where` of type UserWhereUniqueInput needs at least one of `id`, `regimentalNumber` or `email` arguments. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async Object.getMe (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:140:16)
+    at async me (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:47:16)
+[2026-05-16T21:39:45.433Z] PrismaClientValidationError: 
+Invalid `prisma.user.findUnique()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:140:34
+
+  137 }
+  138 
+  139 async function getMe(userId) {
+→ 140   const user = await prisma.user.findUnique({
+          where: {
+            id: undefined,
+        ?   regimentalNumber?: String,
+        ?   email?: String,
+        ?   AND?: UserWhereInput | UserWhereInput[],
+        ?   OR?: UserWhereInput[],
+        ?   NOT?: UserWhereInput | UserWhereInput[],
+        ?   name?: StringFilter | String,
+        ?   password?: StringFilter | String,
+        ?   role?: StringFilter | String,
+        ?   refreshToken?: StringNullableFilter | String | Null,
+        ?   batch?: StringNullableFilter | String | Null,
+        ?   isActive?: BoolFilter | Boolean,
+        ?   wing?: StringNullableFilter | String | Null,
+        ?   mobile?: StringNullableFilter | String | Null,
+        ?   yearOfStudy?: StringNullableFilter | String | Null,
+        ?   collegeCode?: StringNullableFilter | String | Null,
+        ?   attempts?: AttemptListRelationFilter,
+        ?   auditLogs?: AuditLogListRelationFilter,
+        ?   examsCreated?: ExamListRelationFilter,
+        ?   assignments?: ExamAssignmentListRelationFilter,
+        ?   examHeartbeats?: ExamHeartbeatListRelationFilter,
+        ?   examViolations?: ExamViolationListRelationFilter,
+        ?   materialsUploaded?: MaterialListRelationFilter,
+        ?   sentNotifications?: NotificationListRelationFilter,
+        ?   receivedNotifications?: NotificationListRelationFilter,
+        ?   passwordResetTokens?: PasswordResetTokenListRelationFilter,
+        ?   refreshTokens?: RefreshTokenListRelationFilter,
+        ?   results?: ResultListRelationFilter,
+        ?   college?: CollegeNullableScalarRelationFilter | CollegeWhereInput | Null
+          },
+          include: {
+            college: true
+          }
+        })
+
+Argument `where` of type UserWhereUniqueInput needs at least one of `id`, `regimentalNumber` or `email` arguments. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async Object.getMe (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:140:16)
+    at async me (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:47:16)
+[2026-05-16T21:39:45.438Z] PrismaClientValidationError: 
+Invalid `prisma.user.findUnique()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:140:34
+
+  137 }
+  138 
+  139 async function getMe(userId) {
+→ 140   const user = await prisma.user.findUnique({
+          where: {
+            id: undefined,
+        ?   regimentalNumber?: String,
+        ?   email?: String,
+        ?   AND?: UserWhereInput | UserWhereInput[],
+        ?   OR?: UserWhereInput[],
+        ?   NOT?: UserWhereInput | UserWhereInput[],
+        ?   name?: StringFilter | String,
+        ?   password?: StringFilter | String,
+        ?   role?: StringFilter | String,
+        ?   refreshToken?: StringNullableFilter | String | Null,
+        ?   batch?: StringNullableFilter | String | Null,
+        ?   isActive?: BoolFilter | Boolean,
+        ?   wing?: StringNullableFilter | String | Null,
+        ?   mobile?: StringNullableFilter | String | Null,
+        ?   yearOfStudy?: StringNullableFilter | String | Null,
+        ?   collegeCode?: StringNullableFilter | String | Null,
+        ?   attempts?: AttemptListRelationFilter,
+        ?   auditLogs?: AuditLogListRelationFilter,
+        ?   examsCreated?: ExamListRelationFilter,
+        ?   assignments?: ExamAssignmentListRelationFilter,
+        ?   examHeartbeats?: ExamHeartbeatListRelationFilter,
+        ?   examViolations?: ExamViolationListRelationFilter,
+        ?   materialsUploaded?: MaterialListRelationFilter,
+        ?   sentNotifications?: NotificationListRelationFilter,
+        ?   receivedNotifications?: NotificationListRelationFilter,
+        ?   passwordResetTokens?: PasswordResetTokenListRelationFilter,
+        ?   refreshTokens?: RefreshTokenListRelationFilter,
+        ?   results?: ResultListRelationFilter,
+        ?   college?: CollegeNullableScalarRelationFilter | CollegeWhereInput | Null
+          },
+          include: {
+            college: true
+          }
+        })
+
+Argument `where` of type UserWhereUniqueInput needs at least one of `id`, `regimentalNumber` or `email` arguments. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async Object.getMe (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:140:16)
+    at async me (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:47:16)
+[2026-05-16T21:39:45.441Z] PrismaClientValidationError: 
+Invalid `prisma.user.findUnique()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:140:34
+
+  137 }
+  138 
+  139 async function getMe(userId) {
+→ 140   const user = await prisma.user.findUnique({
+          where: {
+            id: undefined,
+        ?   regimentalNumber?: String,
+        ?   email?: String,
+        ?   AND?: UserWhereInput | UserWhereInput[],
+        ?   OR?: UserWhereInput[],
+        ?   NOT?: UserWhereInput | UserWhereInput[],
+        ?   name?: StringFilter | String,
+        ?   password?: StringFilter | String,
+        ?   role?: StringFilter | String,
+        ?   refreshToken?: StringNullableFilter | String | Null,
+        ?   batch?: StringNullableFilter | String | Null,
+        ?   isActive?: BoolFilter | Boolean,
+        ?   wing?: StringNullableFilter | String | Null,
+        ?   mobile?: StringNullableFilter | String | Null,
+        ?   yearOfStudy?: StringNullableFilter | String | Null,
+        ?   collegeCode?: StringNullableFilter | String | Null,
+        ?   attempts?: AttemptListRelationFilter,
+        ?   auditLogs?: AuditLogListRelationFilter,
+        ?   examsCreated?: ExamListRelationFilter,
+        ?   assignments?: ExamAssignmentListRelationFilter,
+        ?   examHeartbeats?: ExamHeartbeatListRelationFilter,
+        ?   examViolations?: ExamViolationListRelationFilter,
+        ?   materialsUploaded?: MaterialListRelationFilter,
+        ?   sentNotifications?: NotificationListRelationFilter,
+        ?   receivedNotifications?: NotificationListRelationFilter,
+        ?   passwordResetTokens?: PasswordResetTokenListRelationFilter,
+        ?   refreshTokens?: RefreshTokenListRelationFilter,
+        ?   results?: ResultListRelationFilter,
+        ?   college?: CollegeNullableScalarRelationFilter | CollegeWhereInput | Null
+          },
+          include: {
+            college: true
+          }
+        })
+
+Argument `where` of type UserWhereUniqueInput needs at least one of `id`, `regimentalNumber` or `email` arguments. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async Object.getMe (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:140:16)
+    at async me (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:47:16)
+[2026-05-16T21:39:45.446Z] PrismaClientValidationError: 
+Invalid `prisma.user.findUnique()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:140:34
+
+  137 }
+  138 
+  139 async function getMe(userId) {
+→ 140   const user = await prisma.user.findUnique({
+          where: {
+            id: undefined,
+        ?   regimentalNumber?: String,
+        ?   email?: String,
+        ?   AND?: UserWhereInput | UserWhereInput[],
+        ?   OR?: UserWhereInput[],
+        ?   NOT?: UserWhereInput | UserWhereInput[],
+        ?   name?: StringFilter | String,
+        ?   password?: StringFilter | String,
+        ?   role?: StringFilter | String,
+        ?   refreshToken?: StringNullableFilter | String | Null,
+        ?   batch?: StringNullableFilter | String | Null,
+        ?   isActive?: BoolFilter | Boolean,
+        ?   wing?: StringNullableFilter | String | Null,
+        ?   mobile?: StringNullableFilter | String | Null,
+        ?   yearOfStudy?: StringNullableFilter | String | Null,
+        ?   collegeCode?: StringNullableFilter | String | Null,
+        ?   attempts?: AttemptListRelationFilter,
+        ?   auditLogs?: AuditLogListRelationFilter,
+        ?   examsCreated?: ExamListRelationFilter,
+        ?   assignments?: ExamAssignmentListRelationFilter,
+        ?   examHeartbeats?: ExamHeartbeatListRelationFilter,
+        ?   examViolations?: ExamViolationListRelationFilter,
+        ?   materialsUploaded?: MaterialListRelationFilter,
+        ?   sentNotifications?: NotificationListRelationFilter,
+        ?   receivedNotifications?: NotificationListRelationFilter,
+        ?   passwordResetTokens?: PasswordResetTokenListRelationFilter,
+        ?   refreshTokens?: RefreshTokenListRelationFilter,
+        ?   results?: ResultListRelationFilter,
+        ?   college?: CollegeNullableScalarRelationFilter | CollegeWhereInput | Null
+          },
+          include: {
+            college: true
+          }
+        })
+
+Argument `where` of type UserWhereUniqueInput needs at least one of `id`, `regimentalNumber` or `email` arguments. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async Object.getMe (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:140:16)
+    at async me (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:47:16)
+[2026-05-16T21:39:45.451Z] PrismaClientValidationError: 
+Invalid `prisma.user.findUnique()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:140:34
+
+  137 }
+  138 
+  139 async function getMe(userId) {
+→ 140   const user = await prisma.user.findUnique({
+          where: {
+            id: undefined,
+        ?   regimentalNumber?: String,
+        ?   email?: String,
+        ?   AND?: UserWhereInput | UserWhereInput[],
+        ?   OR?: UserWhereInput[],
+        ?   NOT?: UserWhereInput | UserWhereInput[],
+        ?   name?: StringFilter | String,
+        ?   password?: StringFilter | String,
+        ?   role?: StringFilter | String,
+        ?   refreshToken?: StringNullableFilter | String | Null,
+        ?   batch?: StringNullableFilter | String | Null,
+        ?   isActive?: BoolFilter | Boolean,
+        ?   wing?: StringNullableFilter | String | Null,
+        ?   mobile?: StringNullableFilter | String | Null,
+        ?   yearOfStudy?: StringNullableFilter | String | Null,
+        ?   collegeCode?: StringNullableFilter | String | Null,
+        ?   attempts?: AttemptListRelationFilter,
+        ?   auditLogs?: AuditLogListRelationFilter,
+        ?   examsCreated?: ExamListRelationFilter,
+        ?   assignments?: ExamAssignmentListRelationFilter,
+        ?   examHeartbeats?: ExamHeartbeatListRelationFilter,
+        ?   examViolations?: ExamViolationListRelationFilter,
+        ?   materialsUploaded?: MaterialListRelationFilter,
+        ?   sentNotifications?: NotificationListRelationFilter,
+        ?   receivedNotifications?: NotificationListRelationFilter,
+        ?   passwordResetTokens?: PasswordResetTokenListRelationFilter,
+        ?   refreshTokens?: RefreshTokenListRelationFilter,
+        ?   results?: ResultListRelationFilter,
+        ?   college?: CollegeNullableScalarRelationFilter | CollegeWhereInput | Null
+          },
+          include: {
+            college: true
+          }
+        })
+
+Argument `where` of type UserWhereUniqueInput needs at least one of `id`, `regimentalNumber` or `email` arguments. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async Object.getMe (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:140:16)
+    at async me (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:47:16)
+[2026-05-16T21:39:45.455Z] PrismaClientValidationError: 
+Invalid `prisma.user.findUnique()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:140:34
+
+  137 }
+  138 
+  139 async function getMe(userId) {
+→ 140   const user = await prisma.user.findUnique({
+          where: {
+            id: undefined,
+        ?   regimentalNumber?: String,
+        ?   email?: String,
+        ?   AND?: UserWhereInput | UserWhereInput[],
+        ?   OR?: UserWhereInput[],
+        ?   NOT?: UserWhereInput | UserWhereInput[],
+        ?   name?: StringFilter | String,
+        ?   password?: StringFilter | String,
+        ?   role?: StringFilter | String,
+        ?   refreshToken?: StringNullableFilter | String | Null,
+        ?   batch?: StringNullableFilter | String | Null,
+        ?   isActive?: BoolFilter | Boolean,
+        ?   wing?: StringNullableFilter | String | Null,
+        ?   mobile?: StringNullableFilter | String | Null,
+        ?   yearOfStudy?: StringNullableFilter | String | Null,
+        ?   collegeCode?: StringNullableFilter | String | Null,
+        ?   attempts?: AttemptListRelationFilter,
+        ?   auditLogs?: AuditLogListRelationFilter,
+        ?   examsCreated?: ExamListRelationFilter,
+        ?   assignments?: ExamAssignmentListRelationFilter,
+        ?   examHeartbeats?: ExamHeartbeatListRelationFilter,
+        ?   examViolations?: ExamViolationListRelationFilter,
+        ?   materialsUploaded?: MaterialListRelationFilter,
+        ?   sentNotifications?: NotificationListRelationFilter,
+        ?   receivedNotifications?: NotificationListRelationFilter,
+        ?   passwordResetTokens?: PasswordResetTokenListRelationFilter,
+        ?   refreshTokens?: RefreshTokenListRelationFilter,
+        ?   results?: ResultListRelationFilter,
+        ?   college?: CollegeNullableScalarRelationFilter | CollegeWhereInput | Null
+          },
+          include: {
+            college: true
+          }
+        })
+
+Argument `where` of type UserWhereUniqueInput needs at least one of `id`, `regimentalNumber` or `email` arguments. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at Gr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at Gr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at Gr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6730)
+    at async Object.getMe (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:140:16)
+    at async me (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:47:16)
+[2026-05-17T07:05:54.178Z] PrismaClientKnownRequestError: 
+Invalid `prisma.examViolation.create()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\anti-cheat.service.js:22:26
+
+  19 }
+  20 
+  21 const [item] = await prisma.$transaction([
+→ 22   prisma.examViolation.create(
+Transaction API error: Unable to start a transaction in the given time.
+    at zr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:8286)
+    at zr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at zr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6862)
+[2026-05-17T07:17:56.091Z] PrismaClientKnownRequestError: 
+Invalid `prisma.material.findMany()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\materials.service.js:290:21
+
+  287 if (wing) where.wing = wing;
+  288 
+  289 const [rows, total] = await Promise.all([
+→ 290   prisma.material.findMany(
+
+    at zr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:8286)
+    at zr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at zr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6862)
+    at async Promise.all (index 0)
+    at async Object.listMaterials (C:\College Projects\ncc-exam-portal\backend\src\services\materials.service.js:289:25)
+    at async list (C:\College Projects\ncc-exam-portal\backend\src\controllers\materials.controller.js:10:16)
+[2026-05-17T07:17:56.241Z] PrismaClientKnownRequestError: 
+Invalid `prisma.result.count()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\results.service.js:218:19
+
+  215   skip,
+  216   take: limit,
+  217 }),
+→ 218 prisma.result.count(
+
+    at zr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:8286)
+    at zr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at zr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6862)
+    at async Promise.all (index 1)
+    at async Object.listForAdmin (C:\College Projects\ncc-exam-portal\backend\src\services\results.service.js:207:25)
+    at async listAdmin (C:\College Projects\ncc-exam-portal\backend\src\controllers\results.controller.js:14:16)
+[2026-05-17T07:17:56.319Z] PrismaClientKnownRequestError: 
+Invalid `prisma.exam.count()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:125:17
+
+  122   skip,
+  123   take: limit,
+  124 }),
+→ 125 prisma.exam.count(
+
+    at zr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:8286)
+    at zr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at zr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6862)
+    at async Promise.all (index 1)
+    at async Object.listExamsCatalog (C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:106:44)
+    at async listCatalog (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:58:16)
+[2026-05-17T07:17:56.506Z] PrismaClientKnownRequestError: 
+Invalid `prisma.college.findMany()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\colleges.service.js:73:41
+
+  70 
+  71 async function listCollegesAll() {
+  72   // For admin — includes inactive
+→ 73   const colleges = await prisma.college.findMany(
+
+    at zr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:8286)
+    at zr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at zr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6862)
+    at async Object.listCollegesAll (C:\College Projects\ncc-exam-portal\backend\src\services\colleges.service.js:73:20)
+    at async list (C:\College Projects\ncc-exam-portal\backend\src\controllers\colleges.controller.js:6:7)
+[2026-05-17T07:20:41.398Z] Error: Connection terminated unexpectedly
+    at C:\College Projects\ncc-exam-portal\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async PrismaPgAdapter.performIO (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\adapter-pg\dist\index.js:654:22)
+    at async PrismaPgAdapter.queryRaw (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\adapter-pg\dist\index.js:604:30)
+    at async o (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:26393)
+    at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:44621)
+    at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:45065)
+    at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:46285)
+    at async e.run (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:43335)
+    at async e.execute (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:57:815)
+[2026-05-17T07:26:43.819Z] PrismaClientKnownRequestError: 
+Invalid `prisma.examViolation.create()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\anti-cheat.service.js:22:26
+
+  19 }
+  20 
+  21 const [item] = await prisma.$transaction([
+→ 22   prisma.examViolation.create(
+Transaction API error: Unable to start a transaction in the given time.
+    at zr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:8286)
+    at zr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at zr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6862)
+[2026-05-17T07:26:59.509Z] PrismaClientKnownRequestError: 
+Invalid `prisma.examViolation.create()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\anti-cheat.service.js:22:26
+
+  19 }
+  20 
+  21 const [item] = await prisma.$transaction([
+→ 22   prisma.examViolation.create(
+Transaction API error: Unable to start a transaction in the given time.
+    at zr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:8286)
+    at zr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at zr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6862)
+[2026-05-17T07:40:11.792Z] Error: timeout exceeded when trying to connect
+    at C:\College Projects\ncc-exam-portal\backend\node_modules\pg-pool\index.js:45:11
+    at runNextTicks (node:internal/process/task_queues:65:5)
+    at listOnTimeout (node:internal/timers:549:9)
+    at process.processTimers (node:internal/timers:523:7)
+    at async PrismaPgAdapter.performIO (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\adapter-pg\dist\index.js:654:22)
+    at async PrismaPgAdapter.queryRaw (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\adapter-pg\dist\index.js:604:30)
+    at async o (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:26393)
+    at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:44621)
+    at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:45065)
+    at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:46285)
+[2026-05-17T07:40:37.259Z] Error: timeout exceeded when trying to connect
+    at C:\College Projects\ncc-exam-portal\backend\node_modules\pg-pool\index.js:45:11
+    at runNextTicks (node:internal/process/task_queues:65:5)
+    at listOnTimeout (node:internal/timers:549:9)
+    at process.processTimers (node:internal/timers:523:7)
+    at async PrismaPgAdapter.performIO (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\adapter-pg\dist\index.js:654:22)
+    at async PrismaPgAdapter.queryRaw (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\adapter-pg\dist\index.js:604:30)
+    at async o (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:26393)
+    at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:44621)
+    at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:45065)
+    at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:46285)
+[2026-05-17T07:53:19.404Z] Error: Connection terminated due to connection timeout
+    at C:\College Projects\ncc-exam-portal\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async PrismaPgAdapter.performIO (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\adapter-pg\dist\index.js:654:22)
+    at async PrismaPgAdapter.queryRaw (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\adapter-pg\dist\index.js:604:30)
+    at async o (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:26393)
+    at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:44621)
+    at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:43744)
+    at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:45065)
+    at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:46285)
+    at async e.run (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:43335)

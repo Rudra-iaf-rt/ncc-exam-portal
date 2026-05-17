@@ -13,8 +13,8 @@ async function send(req, res) {
 }
 
 async function list(req, res) {
-  const payload = await notificationsService.listNotifications(req.user.id);
-  res.json({ notifications: payload });
+  const data = await notificationsService.listNotifications(req.user.id, req.query);
+  res.json(data);
 }
 
 module.exports = {

@@ -1,4 +1,5 @@
 const { prisma } = require("../lib/prisma");
+const { redis } = require("../lib/redis");
 const { logger } = require("../utils/logger");
 const bcrypt = require("bcrypt");
 const csv = require("csv-parser");
@@ -19,6 +20,15 @@ const userSchema = z.object({
 });
 
 async function getStats(currentUser) {
+  const cacheKey = `stats:dashboard:${currentUser?.role || 'none'}:${currentUser?.id || 'none'}`;
+  
+  try {
+    const cached = await redis.get(cacheKey);
+    if (cached) return JSON.parse(cached);
+  } catch (err) {
+    console.error("[Redis] GET error in getStats", err);
+  }
+
   let userWhere = { role: "STUDENT" };
   let attemptWhere = { status: "IN_PROGRESS" };
   let resultWhere = {};
@@ -48,7 +58,7 @@ async function getStats(currentUser) {
     })
   ]);
 
-  return {
+  const result = {
     totalStudents,
     totalExams,
     activeExams: activeAttempts,
@@ -60,6 +70,15 @@ async function getStats(currentUser) {
       date: r.createdAt.toISOString()
     }))
   };
+
+  try {
+    // Dashboard stats cached for 30 seconds
+    await redis.setex(cacheKey, 30, JSON.stringify(result));
+  } catch (err) {
+    console.error("[Redis] SET error in getStats", err);
+  }
+
+  return result;
 }
 
 async function importUsers(fileBuffer, originalName, adminId) {
@@ -148,6 +167,19 @@ async function importUsers(fileBuffer, originalName, adminId) {
 }
 
 async function bulkAssign(examId, filters, userIds, currentUser) {
+  if (!examId) {
+    throw new HttpError(400, "Exam ID is required");
+  }
+
+  const examExists = await prisma.exam.findUnique({
+    where: { id: parseInt(examId) },
+    select: { id: true }
+  });
+
+  if (!examExists) {
+    throw new HttpError(404, `Exam with ID ${examId} not found`);
+  }
+
   let targetUserIds = [];
   const adminId = currentUser.id;
   let enforcedCollegeCode = undefined;

@@ -22,11 +22,11 @@ function authenticate(req, res, next) {
       return res.status(403).json({ error: "Access denied for this role" });
     }
 
-    const id = decoded.sub;
-    req.user = {
-      id: typeof id === "string" ? parseInt(id, 10) : id,
-      role,
-    };
+    const id = typeof decoded.sub === "string" ? parseInt(decoded.sub, 10) : decoded.sub;
+    if (id == null || isNaN(id)) {
+      throw new Error("Invalid user ID in token");
+    }
+    req.user = { id, role };
     next();
   } catch (err) {
     logger.warn('AUTH_FAILED', { reason: 'Token verification failed', error: err.message, path: req.path });

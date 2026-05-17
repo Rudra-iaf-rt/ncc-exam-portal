@@ -22,13 +22,34 @@ async function sendNotification(senderId, body = {}) {
   return item;
 }
 
-async function listNotifications(userId) {
-  return prisma.notification.findMany({
-    where: {
-      OR: [{ userId: null }, { userId }],
+async function listNotifications(userId, query = {}) {
+  const page = Math.max(1, parseInt(query.page || "1", 10));
+  const limit = Math.min(100, Math.max(1, parseInt(query.limit || "20", 10)));
+  const skip = (page - 1) * limit;
+
+  const where = {
+    OR: [{ userId: null }, { userId }],
+  };
+
+  const [items, total] = await Promise.all([
+    prisma.notification.findMany({
+      where,
+      orderBy: { id: "desc" },
+      skip,
+      take: limit,
+    }),
+    prisma.notification.count({ where }),
+  ]);
+
+  return {
+    notifications: items,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
     },
-    orderBy: { id: "desc" },
-  });
+  };
 }
 
 module.exports = {

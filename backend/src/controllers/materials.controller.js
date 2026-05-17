@@ -7,14 +7,11 @@ async function upload(req, res) {
 }
 
 async function list(req, res) {
-  const { subject, fileType, wing } = req.query;
-  const materials = await materialsService.listMaterials({ 
-    user: req.user,
-    subject,
-    fileType,
-    wing
+  const data = await materialsService.listMaterials({ 
+    ...req.query,
+    user: req.user
   });
-  res.json({ materials });
+  res.json(data);
 }
 
 async function download(req, res) {

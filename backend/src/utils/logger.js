@@ -1,4 +1,5 @@
 const fs = require('fs');
+const fsPromises = fs.promises;
 const path = require('path');
 
 const LOG_LEVELS = {
@@ -24,26 +25,32 @@ const formatLog = (level, action, data = {}, actor = 'SYSTEM') => {
   }) + '\n';
 };
 
+const writeLogAsync = (entry) => {
+  fsPromises.appendFile(logFile, entry).catch((err) => {
+    console.error("[LOGGER] Non-blocking file append failed:", err.message);
+  });
+};
+
 const logger = {
   info: (action, data, actor) => {
     const entry = formatLog(LOG_LEVELS.INFO, action, data, actor);
     console.log(entry.trim());
-    fs.appendFileSync(logFile, entry);
+    writeLogAsync(entry);
   },
   warn: (action, data, actor) => {
     const entry = formatLog(LOG_LEVELS.WARN, action, data, actor);
     console.warn(entry.trim());
-    fs.appendFileSync(logFile, entry);
+    writeLogAsync(entry);
   },
   error: (action, data, actor) => {
     const entry = formatLog(LOG_LEVELS.ERROR, action, data, actor);
     console.error(entry.trim());
-    fs.appendFileSync(logFile, entry);
+    writeLogAsync(entry);
   },
   audit: (action, data, actor) => {
     const entry = formatLog(LOG_LEVELS.AUDIT, action, data, actor);
     console.log(`[AUDIT] ${entry.trim()}`);
-    fs.appendFileSync(logFile, entry);
+    writeLogAsync(entry);
   }
 };
 

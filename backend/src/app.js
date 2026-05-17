@@ -12,6 +12,7 @@ const collegesRoutes = require('./routes/colleges.routes');
 const notificationsRoutes = require("./routes/notifications.routes");
 const antiCheatRoutes = require("./routes/anti-cheat.routes");
 const { requestContext, securityHeaders } = require("./middleware/security");
+const { telemetry } = require("./middleware/telemetry");
 const { notFoundHandler, errorHandler } = require("./middleware/error-handler");
 
 const app = express();
@@ -37,12 +38,9 @@ app.use(cors({
   credentials: true
 }));
 app.use(requestContext);
+app.use(telemetry);
 app.use(securityHeaders);
 app.use(express.json());
-app.use((req, res, next) => {
-  console.log(`${new Date().toISOString()} [DEBUG] ${req.method} ${req.url}`);
-  next();
-});
 
 app.get("/health", (_req, res) => {
   res.json({ ok: true });

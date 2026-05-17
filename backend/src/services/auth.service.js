@@ -137,8 +137,13 @@ async function loginStaff({ email, password }) {
 }
 
 async function getMe(userId) {
+  const parsedId = parseInt(userId, 10);
+  if (isNaN(parsedId)) {
+    throw new HttpError(401, "Authentication required");
+  }
+
   const user = await prisma.user.findUnique({
-    where: { id: userId },
+    where: { id: parsedId },
     include: { college: true }
   });
   if (!user) {
@@ -148,8 +153,13 @@ async function getMe(userId) {
 }
 
 async function refreshSession(userId) {
+  const parsedId = parseInt(userId, 10);
+  if (isNaN(parsedId)) {
+    throw new HttpError(401, "Authentication required");
+  }
+
   const user = await prisma.user.findUnique({
-    where: { id: userId },
+    where: { id: parsedId },
     include: { college: true }
   });
   if (!user) {
@@ -174,7 +184,11 @@ async function refreshSessionWithToken(rawRefreshToken) {
     throw new HttpError(401, "Invalid refresh token");
   }
   if (record.revokedAt) {
-    throw new HttpError(401, "Refresh token revoked");
+    const gracePeriodMs = 30 * 1000;
+    const isWithinGrace = (Date.now() - record.revokedAt.getTime()) < gracePeriodMs;
+    if (!isWithinGrace) {
+      throw new HttpError(401, "Refresh token revoked");
+    }
   }
   if (record.expiresAt.getTime() < Date.now()) {
     throw new HttpError(401, "Refresh token expired");

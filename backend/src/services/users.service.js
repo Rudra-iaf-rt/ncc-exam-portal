@@ -1,10 +1,22 @@
 const bcrypt = require("bcrypt");
 const { prisma } = require("../lib/prisma");
+const { redis } = require("../lib/redis");
 const { HttpError } = require("../utils/http-error");
 const { ROLES } = require("../middleware/roles");
 const { sanitizeUser } = require("./auth.service");
 
 const SALT_ROUNDS = 10;
+
+async function clearCollegesCache() {
+  try {
+    await Promise.all([
+      redis.del('cache:colleges:active'),
+      redis.del('cache:colleges:all')
+    ]);
+  } catch (err) {
+    console.error('[Redis Cache Del Error in users.service]', err);
+  }
+}
 
 function normalizeEmail(email) {
   return String(email || "").trim().toLowerCase();
@@ -75,6 +87,7 @@ async function createUser(body, currentUser, tx = prisma) {
     include: { college: true }
   });
 
+  await clearCollegesCache();
   return sanitizeUser(user);
 }
 
@@ -120,6 +133,7 @@ async function updateUser(idRaw, body, tx = prisma) {
     include: { college: true }
   });
 
+  await clearCollegesCache();
   return sanitizeUser(user);
 }
 
@@ -203,6 +217,10 @@ async function bulkImportCadets(cadetsArray, currentUser) {
         error: err.message 
       });
     }
+  }
+
+  if (results.success > 0) {
+    await clearCollegesCache();
   }
 
   return results;
@@ -313,6 +331,7 @@ async function deleteUserById(idRaw) {
     await tx.user.delete({ where: { id } });
   });
 
+  await clearCollegesCache();
   return { id };
 }
 

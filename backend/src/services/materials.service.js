@@ -1,6 +1,7 @@
 const path = require("path");
 const fs = require("fs");
 const { prisma } = require("../lib/prisma");
+const { redis } = require("../lib/redis");
 const { backendRoot } = require("../lib/load-env");
 const { HttpError } = require("../utils/http-error");
 
@@ -29,15 +30,73 @@ function extractDriveId(url) {
   return null;
 }
 
+class CircuitBreaker {
+  constructor(options = {}) {
+    this.failureThreshold = options.failureThreshold || 5; // 5 failures
+    this.cooldownPeriod = options.cooldownPeriod || 30000; // 30 seconds
+    this.state = "CLOSED"; // CLOSED, OPEN, HALF-OPEN
+    this.failureCount = 0;
+    this.lastFailureTime = null;
+    this.successCount = 0;
+  }
+
+  async execute(fn, fallbackValue) {
+    if (this.state === "OPEN") {
+      const now = Date.now();
+      if (now - this.lastFailureTime > this.cooldownPeriod) {
+        this.state = "HALF-OPEN";
+        this.successCount = 0;
+        console.warn("[CircuitBreaker] Transitioned to HALF-OPEN. Probing Google Drive API...");
+      } else {
+        console.warn("[CircuitBreaker] Circuit is OPEN. Returning cached/fallback drive validation status immediately.");
+        return fallbackValue;
+      }
+    }
+
+    try {
+      const result = await fn();
+      
+      if (this.state === "HALF-OPEN") {
+        this.successCount++;
+        if (this.successCount >= 2) {
+          this.state = "CLOSED";
+          this.failureCount = 0;
+          console.log("[CircuitBreaker] Transitioned to CLOSED. Google Drive connection fully restored.");
+        }
+      }
+      return result;
+    } catch (err) {
+      this.failureCount++;
+      this.lastFailureTime = Date.now();
+      
+      if (this.state === "CLOSED" && this.failureCount >= this.failureThreshold) {
+        this.state = "OPEN";
+        console.error(`[CircuitBreaker] Transitioned to OPEN after ${this.failureCount} consecutive failures.`);
+      } else if (this.state === "HALF-OPEN") {
+        this.state = "OPEN";
+        console.error("[CircuitBreaker] Half-open probe failed. Returning to OPEN state.");
+      }
+      
+      return fallbackValue;
+    }
+  }
+}
+
+const driveValidationBreaker = new CircuitBreaker();
+
 /**
- * Validate if a Google Drive file is publicly accessible
+ * Validate if a Google Drive file is publicly accessible with a strict timeout
  */
-async function validateDriveAccess(fileId) {
+async function validateDriveAccess(fileId, timeoutMs = 1000) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
+
   try {
     const url = `https://drive.google.com/file/d/${fileId}/preview`;
     const response = await fetch(url, {
       method: "GET",
       redirect: "manual", // Detect redirects to login page
+      signal: controller.signal,
     });
 
     const location = response.headers.get("location");
@@ -54,8 +113,14 @@ async function validateDriveAccess(fileId) {
 
     return "ERROR";
   } catch (err) {
+    if (err.name === "AbortError") {
+      console.warn(`[Drive Validation] Timeout of ${timeoutMs}ms exceeded for file: ${fileId}`);
+      throw new Error(`Google Drive validation timeout of ${timeoutMs}ms exceeded`);
+    }
     console.error("Drive validation failed:", err);
-    return "ERROR";
+    throw err;
+  } finally {
+    clearTimeout(timeoutId);
   }
 }
 
@@ -104,8 +169,7 @@ async function createMaterial(uploadedById, file, body, user) {
       throw new HttpError(400, "Invalid Google Drive URL");
     }
 
-    const accessStatus = await validateDriveAccess(driveFileId);
-
+    // Instantly save as PENDING to avoid slowing down HTTP response cycle
     const material = await prisma.material.create({
       data: {
         title: title || "Untitled Material",
@@ -116,16 +180,32 @@ async function createMaterial(uploadedById, file, body, user) {
         wing: wing || null,
         collegeId: user.role === "SUPER_ADMIN" ? (collegeId ? parseInt(collegeId, 10) : null) : user.collegeId,
         uploadedById,
-        accessStatus,
+        accessStatus: "PENDING",
       },
       include: {
         uploadedBy: { select: { id: true, name: true, role: true } },
       },
     });
 
+    // Fire off out-of-band background task to validate Drive accessibility via circuit breaker
+    driveValidationBreaker.execute(
+      () => validateDriveAccess(driveFileId, 1000),
+      "ERROR"
+    ).then(async (accessStatus) => {
+      try {
+        await prisma.material.update({
+          where: { id: material.id },
+          data: { accessStatus },
+        });
+        console.log(`[Drive Background Task] Material ${material.id} set to ${accessStatus}`);
+      } catch (dbErr) {
+        console.error(`[Drive Background Task] DB write failed for material ${material.id}:`, dbErr);
+      }
+    });
+
     return {
       material: mapMaterialRow(material),
-      warning: accessStatus === "RESTRICTED" ? "File appears to be private in Google Drive. Cadets won't see it until sharing is set to 'Anyone with link'." : null
+      warning: null
     };
   }
 
@@ -155,6 +235,21 @@ async function createMaterial(uploadedById, file, body, user) {
 
 async function listMaterials(filters = {}) {
   const { user, subject, fileType, wing } = filters;
+  
+  // Construct a cache key based on user role, context and filters
+  const page = Math.max(1, parseInt(filters.page || "1", 10));
+  const limit = Math.min(100, Math.max(1, parseInt(filters.limit || "20", 10)));
+  const skip = (page - 1) * limit;
+
+  // Construct a cache key based on user role, context, filters and pagination
+  const cacheKey = `materials:list:${user?.role || 'anon'}:${user?.collegeId || 'global'}:${subject || 'all'}:${fileType || 'all'}:${wing || 'all'}:p${page}:l${limit}`;
+
+  try {
+    const cached = await redis.get(cacheKey);
+    if (cached) return JSON.parse(cached);
+  } catch (err) {
+    console.error("[Redis] GET error in listMaterials", err);
+  }
 
   const where = {
     isActive: true,
@@ -191,14 +286,40 @@ async function listMaterials(filters = {}) {
   if (fileType) where.fileType = fileType;
   if (wing) where.wing = wing;
 
-  const rows = await prisma.material.findMany({
-    where,
-    orderBy: { createdAt: "desc" },
-    include: {
-      uploadedBy: { select: { id: true, name: true, role: true } },
+  const [rows, total] = await Promise.all([
+    prisma.material.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      include: {
+        college: { select: { id: true, name: true, code: true } },
+        uploadedBy: { select: { id: true, name: true, role: true } },
+      },
+      skip,
+      take: limit,
+    }),
+    prisma.material.count({ where }),
+  ]);
+
+  const finalMaterials = rows.map(mapMaterialRow);
+  const response = {
+    materials: finalMaterials,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
     },
-  });
-  return rows.map(mapMaterialRow);
+  };
+
+
+  try {
+    // Cache for 5 minutes (300 seconds) as materials don't change very frequently
+    await redis.setex(cacheKey, 300, JSON.stringify(response));
+  } catch (err) {
+    console.error("[Redis] SET error in listMaterials", err);
+  }
+
+  return response;
 }
 
 async function getMaterialForDownload(id) {
@@ -265,7 +386,10 @@ async function revalidateMaterial(id) {
   const material = await prisma.material.findUnique({ where: { id: parseInt(id, 10) } });
   if (!material || !material.driveFileId) return null;
 
-  const status = await validateDriveAccess(material.driveFileId);
+  const status = await driveValidationBreaker.execute(
+    () => validateDriveAccess(material.driveFileId, 1000),
+    "ERROR"
+  );
   const updated = await prisma.material.update({
     where: { id: material.id },
     data: { accessStatus: status },
@@ -284,7 +408,10 @@ async function revalidateAllMaterials() {
   console.log(`[Cron] Starting revalidation for ${materials.length} Drive materials...`);
   
   for (const m of materials) {
-    const status = await validateDriveAccess(m.driveFileId);
+    const status = await driveValidationBreaker.execute(
+      () => validateDriveAccess(m.driveFileId, 1000),
+      "ERROR"
+    );
     await prisma.material.update({
       where: { id: m.id },
       data: { accessStatus: status }

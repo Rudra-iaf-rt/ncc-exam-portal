@@ -3,22 +3,37 @@ const { HttpError } = require("../utils/http-error");
 
 async function recordAudit(req, details) {
   const payload = details ?? {};
-  await prisma.auditLog.create({
+
+  // Extract request context synchronously to protect against lifecycle hazard cleanup
+  const userId = req?.user?.id ?? null;
+  const method = req?.method ? String(req.method) : "UNKNOWN";
+  const path = req ? String(req.originalUrl || req.path || "") : "";
+  const ip = req?.ip ? String(req.ip) : null;
+  const userAgent = req?.headers?.["user-agent"] ? String(req.headers["user-agent"]) : null;
+  const requestId = req?.requestId ? String(req.requestId) : null;
+
+  // Execute database insert out-of-band (asynchronously) without awaiting it
+  prisma.auditLog.create({
     data: {
-      userId: req.user?.id ?? null,
+      userId,
       action: String(payload.action || "UNKNOWN_ACTION"),
       entityType: payload.entityType ? String(payload.entityType) : null,
-      entityId:
-        payload.entityId == null ? null : String(payload.entityId),
-      method: String(req.method || "UNKNOWN"),
-      path: String(req.originalUrl || req.path || ""),
-      statusCode:
-        Number.isFinite(Number(payload.statusCode)) ? Number(payload.statusCode) : 200,
-      ip: req.ip ? String(req.ip) : null,
-      userAgent: req.headers?.["user-agent"] ? String(req.headers["user-agent"]) : null,
-      requestId: req.requestId ? String(req.requestId) : null,
+      entityId: payload.entityId == null ? null : String(payload.entityId),
+      method,
+      path,
+      statusCode: Number.isFinite(Number(payload.statusCode)) ? Number(payload.statusCode) : 200,
+      ip,
+      userAgent,
+      requestId,
       metadata: payload.metadata ?? null,
     },
+  }).catch((err) => {
+    console.error("[AUDIT LOG ERROR]", {
+      action: payload.action,
+      userId,
+      requestId,
+      error: err.message
+    });
   });
 }
 
