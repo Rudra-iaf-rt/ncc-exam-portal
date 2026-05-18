@@ -5,6 +5,8 @@ import { toast } from 'sonner';
 import { useNavigate, Link } from 'react-router-dom';
 import { setToken, setRefreshToken, saveUser } from '../../lib/auth';
 
+const COOKIE_AUTH_ENABLED = String(import.meta.env.VITE_COOKIE_AUTH || 'false') === 'true';
+
 const CadetLogin = () => {
   const [regNo, setRegNo] = useState('');
   const [password, setPassword] = useState('');
@@ -19,8 +21,13 @@ const CadetLogin = () => {
       const { data } = await authApi.login({ regimentalNumber: regNo, password });
       setLoading(false);
       
-      if (data.token) setToken(data.token);
-      if (data.refreshToken) setRefreshToken(data.refreshToken);
+      if (!COOKIE_AUTH_ENABLED) {
+        if (data.token) setToken(data.token);
+        if (data.refreshToken) setRefreshToken(data.refreshToken);
+      } else if (data.token) {
+        // Keep backward compatibility while cookie rollout is in progress
+        setToken(data.token);
+      }
       if (data.user) saveUser(data.user);
 
       toast.success('Login successful. Welcome back!');

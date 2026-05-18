@@ -1,7 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { materialsApi, adminApi } from '../../api';
 import { toast } from 'sonner';
 import { PageHeader, StatCard } from '../components/Shared';
+import { invalidateCachedResource } from '../../lib/resourceCache';
+import { useCachedFetch } from '../../hooks/useCachedFetch';
 import { 
   Plus, 
   Search, 
@@ -22,10 +24,6 @@ import {
 } from 'lucide-react';
 
 export default function MaterialManagement() {
-  const [materials, setMaterials] = useState([]);
-  const [colleges, setColleges] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshKey, setRefreshKey] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -42,28 +40,25 @@ export default function MaterialManagement() {
     collegeId: ''
   });
 
-  const handleRefresh = () => setRefreshKey(prev => prev + 1);
+  const { data, loading, refetch } = useCachedFetch(
+    'admin-materials',
+    async () => {
+      const [mRes, cRes] = await Promise.all([
+        materialsApi.list(),
+        adminApi.getColleges()
+      ]);
+      return {
+        materials: mRes.data?.materials || [],
+        colleges: cRes.data?.colleges || [],
+      };
+    },
+    { staleTimeMs: 2 * 60 * 1000 }
+  );
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true);
-      try {
-        const [mRes, cRes] = await Promise.all([
-          materialsApi.list(),
-          adminApi.getColleges()
-        ]);
-        
-        if (mRes.data?.materials) setMaterials(mRes.data.materials);
-        if (cRes.data?.colleges) setColleges(cRes.data.colleges);
-      } catch (error) {
-        console.error('Failed to fetch materials data:', error);
-        toast.error('Failed to load records');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [refreshKey]);
+  const materials = data?.materials || [];
+  const colleges = data?.colleges || [];
+
+  const handleRefresh = () => refetch();
 
   const handleOpenModal = () => {
     setFormData({
@@ -88,6 +83,7 @@ export default function MaterialManagement() {
       } else {
         toast.success('Material added successfully');
       }
+      invalidateCachedResource('admin-materials');
       setIsModalOpen(false);
       handleRefresh();
     } catch (error) {
@@ -102,6 +98,7 @@ export default function MaterialManagement() {
     try {
       await materialsApi.delete(id);
       toast.success('Resource removed');
+      invalidateCachedResource('admin-materials');
       handleRefresh();
     } catch (error) {
       toast.error('Deletion failed');

@@ -3,6 +3,7 @@ const { prisma } = require("../lib/prisma");
 
 async function getStats(req, res) {
   try {
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
     const stats = await adminService.getStats(req.user);
     res.json(stats);
   } catch (error) {
@@ -66,8 +67,8 @@ async function listAssignments(req, res) {
     const flattened = assignments.map(a => ({
       ...a,
       user: {
-        ...a.user,
-        college: a.user.college?.name || a.user.collegeCode || 'N/A'
+        ...(a.user || {}),
+        college: a.user?.college?.name || a.user?.collegeCode || 'N/A'
       }
     }));
 

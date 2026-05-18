@@ -1,18 +1,22 @@
 const { verifyToken } = require("../utils/jwt");
 const { allowRole } = require("./roles");
 const { logger } = require("../utils/logger");
+const { prisma } = require("../lib/prisma");
+const { features } = require("../config/features");
 
 /**
  * Verifies Bearer JWT and attaches `req.user` with `id` and `role`.
  */
-function authenticate(req, res, next) {
+async function authenticate(req, res, next) {
   const authHeader = req.headers.authorization;
-  if (!authHeader?.startsWith("Bearer ")) {
+  const bearer = authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : null;
+  const cookieToken = features.cookieAuth ? req.cookies?.ncc_access_token : null;
+  const token = bearer || cookieToken;
+
+  if (!token) {
     logger.warn('AUTH_FAILED', { reason: 'Missing or malformed Authorization header', path: req.path });
     return res.status(401).json({ error: "Authentication required" });
   }
-
-  const token = authHeader.split(" ")[1];
   try {
     const decoded = verifyToken(token);
     const role = decoded.role;
@@ -26,7 +30,14 @@ function authenticate(req, res, next) {
     if (id == null || isNaN(id)) {
       throw new Error("Invalid user ID in token");
     }
-    req.user = { id, role };
+    const user = await prisma.user.findUnique({
+      where: { id },
+      select: { id: true, role: true, isActive: true },
+    });
+    if (!user || !user.isActive) {
+      return res.status(401).json({ error: "Account disabled or not found" });
+    }
+    req.user = { id: user.id, role: user.role };
     next();
   } catch (err) {
     logger.warn('AUTH_FAILED', { reason: 'Token verification failed', error: err.message, path: req.path });

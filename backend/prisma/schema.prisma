@@ -117,6 +117,8 @@ model Exam {
   id          Int              @id @default(autoincrement())
   title       String
   duration    Int
+  startAt     DateTime?
+  endAt       DateTime?
   createdBy   Int
   createdAt   DateTime         @default(now())
   status      String           @default("DRAFT")
@@ -164,6 +166,9 @@ model Attempt {
   createdAt            DateTime @default(now())
   answers              Json?    @default("{}")
   startedAt            DateTime @default(now())
+  expiresAt            DateTime?
+  lastSavedAt          DateTime?
+  sessionId            String?
   warningCount         Int      @default(0)
   currentQuestionIndex Int      @default(0)
   updatedAt            DateTime @default(now()) @updatedAt

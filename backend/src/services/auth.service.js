@@ -100,6 +100,9 @@ async function loginStudent({ regimentalNumber, password }) {
   if (!user) {
     throw new HttpError(401, "Invalid credentials");
   }
+  if (!user.isActive) {
+    throw new HttpError(403, "Account is disabled");
+  }
 
   const match = await bcrypt.compare(password, user.password);
   if (!match) {
@@ -127,6 +130,9 @@ async function loginStaff({ email, password }) {
   if (!user) {
     throw new HttpError(401, "Invalid credentials");
   }
+  if (!user.isActive) {
+    throw new HttpError(403, "Account is disabled");
+  }
 
   const match = await bcrypt.compare(password, user.password);
   if (!match) {
@@ -149,6 +155,9 @@ async function getMe(userId) {
   if (!user) {
     throw new HttpError(404, "User not found");
   }
+  if (!user.isActive) {
+    throw new HttpError(403, "Account is disabled");
+  }
   return sanitizeUser(user);
 }
 
@@ -164,6 +173,9 @@ async function refreshSession(userId) {
   });
   if (!user) {
     throw new HttpError(404, "User not found");
+  }
+  if (!user.isActive) {
+    throw new HttpError(403, "Account is disabled");
   }
   return issueSessionTokens(user);
 }
@@ -183,6 +195,9 @@ async function refreshSessionWithToken(rawRefreshToken) {
   if (!record || !record.user) {
     throw new HttpError(401, "Invalid refresh token");
   }
+  if (!record.user.isActive) {
+    throw new HttpError(403, "Account is disabled");
+  }
   if (record.revokedAt) {
     const gracePeriodMs = 30 * 1000;
     const isWithinGrace = (Date.now() - record.revokedAt.getTime()) < gracePeriodMs;
@@ -197,10 +212,60 @@ async function refreshSessionWithToken(rawRefreshToken) {
   return issueSessionTokens(record.user, { oldTokenHash: tokenHash });
 }
 
+async function registerStudent(body = {}) {
+  const {
+    name,
+    regimentalNumber,
+    email,
+    mobile,
+    college,
+    batch,
+    year,
+    password,
+  } = body;
+
+  if (!name || !regimentalNumber || !password) {
+    throw new HttpError(400, "name, regimentalNumber and password are required");
+  }
+  if (String(password).length < 6) {
+    throw new HttpError(400, "password must be at least 6 characters");
+  }
+
+  const existing = await prisma.user.findFirst({
+    where: {
+      OR: [
+        { regimentalNumber: String(regimentalNumber).trim() },
+        email ? { email: String(email).trim().toLowerCase() } : undefined,
+      ].filter(Boolean),
+    },
+  });
+  if (existing) {
+    throw new HttpError(409, "User already exists");
+  }
+
+  const hashed = await bcrypt.hash(String(password), SALT_ROUNDS);
+  const user = await prisma.user.create({
+    data: {
+      name: String(name).trim(),
+      regimentalNumber: String(regimentalNumber).trim(),
+      password: hashed,
+      role: ROLES.STUDENT,
+      email: email ? String(email).trim().toLowerCase() : null,
+      mobile: mobile ? String(mobile).trim() : null,
+      batch: batch ? String(batch).trim() : null,
+      yearOfStudy: year ? String(year).trim() : null,
+      collegeCode: college ? String(college).trim().toUpperCase() : null,
+      isActive: true,
+    },
+    include: { college: true },
+  });
+  return issueSessionTokens(user);
+}
+
 async function logoutWithRefreshToken(rawRefreshToken) {
   const refreshToken = String(rawRefreshToken || "").trim();
   if (!refreshToken) {
-    throw new HttpError(400, "refreshToken is required");
+    return { ok: true };
   }
   const tokenHash = sha256(refreshToken);
   await prisma.refreshToken.updateMany({
@@ -208,6 +273,18 @@ async function logoutWithRefreshToken(rawRefreshToken) {
       tokenHash,
       revokedAt: null,
     },
+    data: { revokedAt: new Date() },
+  });
+  return { ok: true };
+}
+
+async function logoutAllForUser(userIdRaw) {
+  const userId = Number(userIdRaw);
+  if (!Number.isFinite(userId)) {
+    return { ok: true };
+  }
+  await prisma.refreshToken.updateMany({
+    where: { userId, revokedAt: null },
     data: { revokedAt: new Date() },
   });
   return { ok: true };
@@ -337,6 +414,7 @@ async function changePassword({ userId, oldPassword, newPassword }) {
 }
 
 module.exports = {
+  registerStudent,
   sanitizeUser,
   loginStudent,
   loginStaff,
@@ -344,6 +422,7 @@ module.exports = {
   refreshSession,
   refreshSessionWithToken,
   logoutWithRefreshToken,
+  logoutAllForUser,
   requestPasswordReset,
   resetPassword,
   changePassword,

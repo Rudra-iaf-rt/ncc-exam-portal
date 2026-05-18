@@ -1,8 +1,11 @@
 import { Navigate, Outlet } from 'react-router-dom';
 import { useAdminAuth } from '../../contexts/AdminAuth';
+import { getSavedUser } from '../../lib/auth';
 
 export function RequireStaff() {
   const { user, isLoading } = useAdminAuth();
+  const savedUser = getSavedUser();
+  const effectiveUser = user || savedUser;
 
   if (isLoading) {
     return (
@@ -19,7 +22,7 @@ export function RequireStaff() {
     );
   }
 
-  if (!user || (user.role !== 'ADMIN' && user.role !== 'INSTRUCTOR')) {
+  if (!effectiveUser || (effectiveUser.role !== 'ADMIN' && effectiveUser.role !== 'INSTRUCTOR')) {
     return <Navigate to="/admin/login" replace />;
   }
 

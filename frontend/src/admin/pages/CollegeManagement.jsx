@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { adminApi } from '../../api';
 import { toast } from 'sonner';
 import { PageHeader } from '../components/Shared';
+import { invalidateCachedResource } from '../../lib/resourceCache';
+import { useCachedFetch } from '../../hooks/useCachedFetch';
 import { 
   Building2,
   Plus,
@@ -23,14 +25,10 @@ import {
 } from 'lucide-react';
 
 export default function CollegeManagement() {
-  const [colleges, setColleges] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshKey, setRefreshKey] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentCollege, setCurrentCollege] = useState(null);
-  const [instructors, setInstructors] = useState([]);
   const [oicType, setOicType] = useState('new'); // 'new' | 'existing'
 
   // Form State
@@ -46,27 +44,23 @@ export default function CollegeManagement() {
     nccContactPhone: ''
   });
 
-  const handleRefresh = () => setRefreshKey(prev => prev + 1);
+  const { data, loading } = useCachedFetch(
+    'admin-colleges',
+    async () => {
+      const [collegesRes, instructorsRes] = await Promise.all([
+        adminApi.getColleges(),
+        adminApi.getStaff()
+      ]);
+      return {
+        colleges: collegesRes.data?.colleges || [],
+        instructors: instructorsRes.data || [],
+      };
+    },
+    { staleTimeMs: 2 * 60 * 1000 }
+  );
+  const colleges = data?.colleges || [];
+  const instructors = data?.instructors || [];
 
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [collegesRes, instructorsRes] = await Promise.all([
-          adminApi.getColleges(),
-          adminApi.getStaff()
-        ]);
-        
-        if (collegesRes.data?.colleges) setColleges(collegesRes.data.colleges);
-        if (instructorsRes.data) setInstructors(instructorsRes.data);
-      } catch (error) {
-        console.error('Failed to fetch management data:', error);
-        toast.error('Failed to load records');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchData();
-  }, [refreshKey]);
 
   const handleOpenModal = (college = null) => {
     setOicType('new');
@@ -128,8 +122,9 @@ export default function CollegeManagement() {
         await adminApi.createCollege(payload);
         toast.success('College registered and OIC assigned');
       }
+      invalidateCachedResource('admin-colleges');
+      invalidateCachedResource('admin-colleges-list');
       setIsModalOpen(false);
-      handleRefresh();
     } catch (error) {
       toast.error(error.response?.data?.message || error.message);
     }
@@ -148,7 +143,8 @@ export default function CollegeManagement() {
         await adminApi.updateCollege(college.id, { isActive: true });
         toast.success('College reactivated');
       }
-      handleRefresh();
+      invalidateCachedResource('admin-colleges');
+      invalidateCachedResource('admin-colleges-list');
     } catch (error) {
       toast.error(error.message);
     }

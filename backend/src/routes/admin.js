@@ -76,13 +76,47 @@ router.get("/health", authenticate, requireAdmin, (req, res) => {
 // --- Generic Exam Dropdowns ---
 router.get("/exams", authenticate, requireStaff, async (req, res) => {
   try {
-    const exams = await prisma.exam.findMany({
-      orderBy: { id: 'desc' },
-      include: { 
-        _count: { select: { questions: true } },
-        creator: { select: { college: true } }
-      }
-    });
+    let exams = [];
+    try {
+      exams = await prisma.exam.findMany({
+        orderBy: { id: 'desc' },
+        include: {
+          _count: { select: { questions: true } },
+          creator: { select: { collegeCode: true, college: { select: { name: true } } } }
+        }
+      });
+    } catch (err) {
+      const message = String(err?.message || "");
+      const missingNewColumns = message.includes("Exam.startAt") || message.includes("Exam.endAt");
+      if (!missingNewColumns) throw err;
+
+      const legacyExams = await prisma.$queryRaw`
+        SELECT e.id, e.title, e.status, e.duration, e."createdAt", e."createdBy",
+               u."collegeCode" as "creatorCollegeCode", c.name as "creatorCollegeName"
+        FROM "Exam" e
+        LEFT JOIN "User" u ON u.id = e."createdBy"
+        LEFT JOIN "College" c ON c.code = u."collegeCode"
+        ORDER BY e.id DESC
+      `;
+      const questionCounts = await prisma.question.groupBy({
+        by: ["examId"],
+        _count: { _all: true },
+      });
+      const countMap = new Map(questionCounts.map((x) => [x.examId, x._count._all]));
+      exams = legacyExams.map((row) => ({
+        id: row.id,
+        title: row.title,
+        status: row.status,
+        duration: row.duration,
+        createdAt: row.createdAt,
+        _count: { questions: countMap.get(row.id) || 0 },
+        creator: {
+          collegeCode: row.creatorCollegeCode || null,
+          college: row.creatorCollegeName ? { name: row.creatorCollegeName } : null,
+        },
+      }));
+    }
+
     res.json({
       exams: exams.map(e => ({
         id: e.id,
@@ -90,11 +124,12 @@ router.get("/exams", authenticate, requireStaff, async (req, res) => {
         status: e.status,
         duration: e.duration,
         questionCount: e._count.questions,
-        college: e.creator?.college,
+        college: e.creator?.college?.name || e.creator?.collegeCode || 'N/A',
         createdAt: e.createdAt,
       }))
     });
-  } catch (_error) {
+  } catch (error) {
+    console.error("[Admin Exams Error]", error);
     res.status(500).json({ error: "Failed to fetch exams" });
   }
 });

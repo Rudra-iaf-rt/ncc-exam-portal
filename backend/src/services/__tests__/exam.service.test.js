@@ -306,6 +306,7 @@ describe("Exam Service Unit Tests", () => {
 
       expect(result.exams[0].completed).toBe(true);
       expect(result.exams[0].score).toBe(85);
+      expect(result.exams[0].status).toBe("LIVE");
       expect(redis.setex).toHaveBeenCalledWith(
         "exams:catalog:STUDENT:12:p1:l20",
         60,
@@ -615,6 +616,7 @@ describe("Exam Service Unit Tests", () => {
       prisma.exam.findUnique.mockResolvedValue({
         id: 10,
         status: "LIVE",
+        duration: 60,
         questions: [{ id: 50, question: "Q", options: ["A", "B"], answer: "A" }],
         assignments: [{ userId: studentId }],
       });
@@ -636,6 +638,9 @@ describe("Exam Service Unit Tests", () => {
           status: "IN_PROGRESS",
           answers: {},
           currentQuestionIndex: 0,
+          startedAt: expect.any(Date),
+          expiresAt: expect.any(Date),
+          lastSavedAt: expect.any(Date),
         },
       });
     });
@@ -645,6 +650,7 @@ describe("Exam Service Unit Tests", () => {
       prisma.exam.findUnique.mockResolvedValue({
         id: 10,
         status: "LIVE",
+        duration: 60,
         questions: [{ id: 50, question: "Q", options: ["A", "B"], answer: "A" }],
         assignments: [{ userId: studentId }],
       });

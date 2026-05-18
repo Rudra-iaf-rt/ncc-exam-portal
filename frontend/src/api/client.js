@@ -2,6 +2,7 @@ import axios from 'axios';
 import { getToken, setToken, clearAuth, getRefreshToken, setRefreshToken } from '../lib/auth';
 
 const API_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || '/api';
+const COOKIE_AUTH_ENABLED = String(import.meta.env.VITE_COOKIE_AUTH || 'false') === 'true';
 
 const apiClient = axios.create({
   baseURL: API_URL,
@@ -10,6 +11,14 @@ const apiClient = axios.create({
     'Content-Type': 'application/json',
   },
 });
+
+function readCsrfToken() {
+  if (typeof document === 'undefined') return null;
+  const match = document.cookie
+    .split('; ')
+    .find((entry) => entry.startsWith('ncc_csrf_token='));
+  return match ? decodeURIComponent(match.split('=')[1]) : null;
+}
 
 // Lightweight, ultra-efficient client-side cache for GET requests to prevent duplicate API calls on page navigation
 const apiCache = new Map();
@@ -108,8 +117,20 @@ const processQueue = (error, token = null) => {
 
 apiClient.interceptors.request.use(
   (config) => {
+    const method = String(config.method || 'get').toUpperCase();
+    if (!['GET', 'HEAD', 'OPTIONS'].includes(method)) {
+      const csrfToken = readCsrfToken();
+      if (csrfToken) {
+        if (config.headers.set) {
+          config.headers.set('X-CSRF-Token', csrfToken);
+        } else {
+          config.headers['X-CSRF-Token'] = csrfToken;
+        }
+      }
+    }
+
     const token = getToken();
-    if (token) {
+    if (token && !COOKIE_AUTH_ENABLED) {
       if (config.headers.set) {
         config.headers.set('Authorization', `Bearer ${token}`);
       } else {
@@ -125,6 +146,15 @@ apiClient.interceptors.response.use(
   (response) => response,
   async (error) => {
     const originalRequest = error.config;
+    const statusCode = error.response?.status || 0;
+    const method = String(originalRequest?.method || "get").toLowerCase();
+
+    // Transient upstream/proxy issue (common on free-tier cold wakes): retry idempotent GET once.
+    if (statusCode === 502 && method === "get" && !originalRequest?._gatewayRetry) {
+      originalRequest._gatewayRetry = true;
+      await new Promise((resolve) => setTimeout(resolve, 350));
+      return apiClient(originalRequest);
+    }
 
     if (
       error.response &&
@@ -159,28 +189,33 @@ apiClient.interceptors.response.use(
 
       try {
         const refreshToken = getRefreshToken();
-        if (!refreshToken) {
+        if (!COOKIE_AUTH_ENABLED && !refreshToken) {
           throw new Error('No refresh token available');
         }
 
-        const { data } = await axios.post(`${API_URL}/auth/refresh`, { refreshToken }, {
+        const csrfToken = readCsrfToken();
+        const headers = csrfToken ? { 'X-CSRF-Token': csrfToken } : {};
+        const { data } = await axios.post(`${API_URL}/auth/refresh`, COOKIE_AUTH_ENABLED ? {} : { refreshToken }, {
+          headers,
           withCredentials: true
         });
 
         const newToken = data.token;
         if (newToken) {
-          setToken(newToken);
-          if (data.refreshToken) {
-            setRefreshToken(data.refreshToken);
+          if (!COOKIE_AUTH_ENABLED) {
+            setToken(newToken);
+            if (data.refreshToken) {
+              setRefreshToken(data.refreshToken);
+            }
+            apiClient.defaults.headers.common.Authorization = `Bearer ${newToken}`;
           }
-          apiClient.defaults.headers.common.Authorization = `Bearer ${newToken}`;
           processQueue(null, newToken);
           
-          if (originalRequest.headers.set) {
-            originalRequest.headers.set('Authorization', `Bearer ${newToken}`);
-          } else {
-            originalRequest.headers.Authorization = `Bearer ${newToken}`;
-          }
+            if (!COOKIE_AUTH_ENABLED && originalRequest.headers.set) {
+              originalRequest.headers.set('Authorization', `Bearer ${newToken}`);
+            } else if (!COOKIE_AUTH_ENABLED) {
+              originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            }
           
           return apiClient(originalRequest);
         }

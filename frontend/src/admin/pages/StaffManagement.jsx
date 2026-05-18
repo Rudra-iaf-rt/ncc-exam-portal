@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { adminApi } from '../../api';
 import { toast } from 'sonner';
 import { PageHeader } from '../components/Shared';
@@ -15,32 +15,24 @@ import {
 } from 'lucide-react';
 import AddUserModal from '../components/AddUserModal';
 import EditUserModal from '../components/EditUserModal';
+import { invalidateCachedResource } from '../../lib/resourceCache';
+import { useCachedFetch } from '../../hooks/useCachedFetch';
 
 export default function StaffManagement() {
-  const [staff, setStaff] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshKey, setRefreshKey] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
 
-  const handleRefresh = () => setRefreshKey(prev => prev + 1);
-
-  useEffect(() => {
-    const fetchStaff = async () => {
-      try {
-        const { data } = await adminApi.getStaff();
-        if (data) setStaff(data);
-      } catch (error) {
-        console.error('Failed to fetch staff:', error);
-        toast.error('Failed to load instructor list');
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchStaff();
-  }, [refreshKey]);
+  const { data, loading } = useCachedFetch(
+    'admin-staff-list',
+    async () => {
+      const response = await adminApi.getStaff();
+      return { staff: response?.data || [] };
+    },
+    { staleTimeMs: 2 * 60 * 1000 }
+  );
+  const staff = data?.staff || [];
 
   const handleDelete = async (id, name) => {
     if (!window.confirm(`Are you sure you want to remove ${name} from the instructor list? They will lose all administrative access.`)) {
@@ -49,8 +41,8 @@ export default function StaffManagement() {
 
     try {
       await adminApi.deleteUser(id);
+      invalidateCachedResource('admin-staff-list');
       toast.success(`${name} has been removed.`);
-      handleRefresh();
     } catch (error) {
       toast.error(error.message);
     }
@@ -70,6 +62,10 @@ export default function StaffManagement() {
       email.toLowerCase().includes(searchTerm.toLowerCase()) ||
       college.toLowerCase().includes(searchTerm.toLowerCase());
   });
+
+  const handleRefresh = () => {
+    invalidateCachedResource('admin-staff-list');
+  };
 
   return (
     <div className="w-full pb-10">

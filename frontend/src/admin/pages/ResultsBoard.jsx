@@ -1,17 +1,17 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { adminApi, examApi } from '../../api';
 import { useAdminAuth } from '../../contexts/AdminAuth';
 import { toast } from 'sonner';
 import { PageHeader } from '../components/Shared';
 import { Download, Search, Edit3, XCircle, ShieldAlert } from 'lucide-react';
+import { invalidateCachedResource } from '../../lib/resourceCache';
+import { useCachedFetch } from '../../hooks/useCachedFetch';
 
 export default function ResultsBoard() {
   const { user } = useAdminAuth();
   const isAdmin = user?.role === 'ADMIN';
   const [searchParams] = useSearchParams();
-  const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [filters, setFilters] = useState({ 
     college: searchParams.get('college') || '', 
     exam: searchParams.get('exam') || '', 
@@ -23,21 +23,15 @@ export default function ResultsBoard() {
   const [overrideForm, setOverrideForm] = useState({ score: '', reason: '' });
   const [submitting, setSubmitting] = useState(false);
 
-  useEffect(() => {
-    fetchResults();
-  }, []);
-
-  const fetchResults = async () => {
-    try {
-      const { data } = await examApi.getResults();
-      if (data) setResults(data.results);
-    } catch (error) {
-      console.error('Failed to fetch results:', error);
-      toast.error("Could not retrieve student performance records.");
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data, loading } = useCachedFetch(
+    'admin-results-board',
+    async () => {
+      const response = await examApi.getResults();
+      return { results: response?.data?.results || [] };
+    },
+    { staleTimeMs: 2 * 60 * 1000 }
+  );
+  const results = data?.results || [];
 
   const handleOverride = async (e) => {
     e.preventDefault();
@@ -48,7 +42,7 @@ export default function ResultsBoard() {
         reason: overrideForm.reason 
       });
       toast.success('Score updated successfully.');
-      fetchResults();
+      invalidateCachedResource('admin-results-board'); // subscription auto-refetches
       setEditingResult(null);
       setOverrideForm({ score: '', reason: '' });
     } catch (err) {
@@ -92,7 +86,7 @@ export default function ResultsBoard() {
     a.click();
   };
 
-  if (loading) return <div className="p-10 text-ink-4 font-mono text-[13px]">Retrieving cadet performance records...</div>;
+  if (loading && results.length === 0) return <div className="p-10 text-ink-4 font-mono text-[13px]">Retrieving cadet performance records...</div>;
 
   return (
     <div>

@@ -11,6 +11,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { getCachedResource, getOrFetchResource } from '../../lib/resourceCache';
 
 const CadetMaterials = () => {
   const [materials, setMaterials] = useState([]);
@@ -18,17 +19,36 @@ const CadetMaterials = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetchMaterials();
+    let cancelled = false;
+    const cacheKey = 'cadet-materials';
+    const cached = getCachedResource(cacheKey);
+
+    if (cached) {
+      setMaterials(cached.materials || []);
+      setLoading(false);
+    }
+
+    fetchMaterials(() => cancelled, cacheKey);
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
-  const fetchMaterials = async () => {
+  const fetchMaterials = async (isCancelled = () => false, cacheKey = 'cadet-materials') => {
     try {
-      const { data } = await generalApi.getMaterials();
-      if (data) setMaterials(data.materials);
+      const data = await getOrFetchResource(
+        cacheKey,
+        async () => {
+          const response = await generalApi.getMaterials();
+          return { materials: response?.data?.materials || [] };
+        },
+        { staleTimeMs: 2 * 60 * 1000 }
+      );
+      if (!isCancelled()) setMaterials(data.materials || []);
     } catch (error) {
-      console.error('Failed to fetch materials:', error);
+      if (!isCancelled()) console.error('Failed to fetch materials:', error);
     } finally {
-      setLoading(false);
+      if (!isCancelled()) setLoading(false);
     }
   };
 

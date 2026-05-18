@@ -3,11 +3,14 @@ import { toast } from 'sonner';
 import { adminApi } from '../../api';
 import { X, ShieldCheck, User as UserIcon, Building2, Mail, Info, Search } from 'lucide-react';
 import { useAdminAuth } from '../../contexts/AdminAuth';
+import { invalidateCachedResource } from '../../lib/resourceCache';
+import { useCachedFetch } from '../../hooks/useCachedFetch';
 
 export default function AddUserModal({ isOpen, onClose, onRefresh, initialRole = 'STUDENT' }) {
   const { user: currentUser } = useAdminAuth();
   const isInstructor = currentUser?.role === 'INSTRUCTOR';
 
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
     regimentalNumber: '',
@@ -17,46 +20,26 @@ export default function AddUserModal({ isOpen, onClose, onRefresh, initialRole =
     wing: '',
     batch: ''
   });
-  const [colleges, setColleges] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [fetchingColleges, setFetchingColleges] = useState(false);
-  const [batches, setBatches] = useState([]);
-  const [fetchingBatches, setFetchingBatches] = useState(false);
+  const { data: collegesData, loading: fetchingColleges } = useCachedFetch(
+    'admin-colleges-list',
+    async () => {
+      const response = await adminApi.getColleges();
+      return { colleges: response?.data?.colleges || [] };
+    },
+    { staleTimeMs: 5 * 60 * 1000, enabled: isOpen && !isInstructor }
+  );
+  const colleges = collegesData?.colleges || [];
 
-  useEffect(() => {
-    if (isOpen && !isInstructor) {
-      const fetchColleges = async () => {
-        setFetchingColleges(true);
-        try {
-          const { data } = await adminApi.getColleges();
-          if (data?.colleges) setColleges(data.colleges);
-        } catch (error) {
-          console.error('Failed to fetch colleges:', error);
-          toast.error('Failed to load college list');
-        } finally {
-          setFetchingColleges(false);
-        }
-      };
-      fetchColleges();
-    }
-  }, [isOpen, isInstructor]);
-
-  useEffect(() => {
-    if (isOpen) {
-      const fetchBatches = async () => {
-        setFetchingBatches(true);
-        try {
-          const { data } = await adminApi.getBatches();
-          if (data) setBatches(data.filter(b => b.isActive));
-        } catch (error) {
-          console.error('Failed to fetch batches:', error);
-        } finally {
-          setFetchingBatches(false);
-        }
-      };
-      fetchBatches();
-    }
-  }, [isOpen]);
+  const { data: batchesData, loading: fetchingBatches } = useCachedFetch(
+    'admin-batches',
+    async () => {
+      const response = await adminApi.getBatches();
+      const allBatches = response?.data || [];
+      return { batches: allBatches.filter(b => b.isActive) };
+    },
+    { staleTimeMs: 5 * 60 * 1000, enabled: isOpen }
+  );
+  const batches = batchesData?.batches || [];
 
   // Sync role if initialRole changes
   useEffect(() => {
@@ -85,6 +68,12 @@ export default function AddUserModal({ isOpen, onClose, onRefresh, initialRole =
       await adminApi.createUser(payload);
       const label = payload.role === 'INSTRUCTOR' ? 'Instructor account created.' : 'Cadet enrolled successfully.';
       toast.success(label);
+      // Invalidate whichever list this user belongs to
+      if (payload.role === 'INSTRUCTOR' || payload.role === 'ADMIN') {
+        invalidateCachedResource('admin-staff-list');
+      } else {
+        invalidateCachedResource('admin-users-students');
+      }
       setFormData({
         name: '',
         regimentalNumber: '',
@@ -94,7 +83,7 @@ export default function AddUserModal({ isOpen, onClose, onRefresh, initialRole =
         wing: '',
         batch: ''
       });
-      onRefresh();
+      onRefresh?.();
       onClose();
     } catch (apiErr) {
       toast.error(apiErr.response?.data?.message || apiErr.message || 'Failed to create record.');

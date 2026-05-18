@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { examApi } from '../../api';
 import { toast } from 'sonner';
 import { PageHeader } from '../components/Shared';
+import { invalidateCachedResource } from '../../lib/resourceCache';
 import { 
   ArrowLeft, 
   ArrowRight, 
@@ -53,7 +54,11 @@ export default function ExamCreate() {
 
   const updateOption = (qIndex, oIndex, value) => {
     const newQuestions = [...questions];
+    const prevOptionValue = newQuestions[qIndex].options[oIndex];
     newQuestions[qIndex].options[oIndex] = value;
+    if (newQuestions[qIndex].answer === prevOptionValue) {
+      newQuestions[qIndex].answer = value;
+    }
     setQuestions(newQuestions);
   };
 
@@ -93,6 +98,7 @@ export default function ExamCreate() {
         file: excelFile
       });
       toast.success('Exam successfully created from file.');
+      invalidateCachedResource('admin-exam-list');
       navigate('/admin/exams');
     } catch (error) {
       toast.error(error.message || 'Could not create the exam from this file.');
@@ -116,6 +122,7 @@ export default function ExamCreate() {
         questions
       });
       toast.success('Examination successfully created.');
+      invalidateCachedResource('admin-exam-list');
       navigate('/admin/exams');
     } catch (error) {
       toast.error(error.message || 'Operational failure: Unable to create examination.');

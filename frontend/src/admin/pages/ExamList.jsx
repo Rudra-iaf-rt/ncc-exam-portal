@@ -1,36 +1,31 @@
-import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { NavLink } from 'react-router-dom';
 import { examApi } from '../../api';
 import { useAdminAuth } from '../../contexts/AdminAuth';
 import { PageHeader } from '../components/Shared';
 import { Plus, Eye, ShieldAlert, Edit3, Trash2, UserCheck } from 'lucide-react';
+import { invalidateCachedResource } from '../../lib/resourceCache';
+import { useCachedFetch } from '../../hooks/useCachedFetch';
+
 
 export default function ExamList() {
   const { user } = useAdminAuth();
   const isAdmin = user?.role === 'ADMIN';
-  const [exams, setExams] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchExams() {
-      try {
-        const { data } = await examApi.getExams();
-        if (data) setExams(data.exams);
-      } catch (error) {
-        console.error('Failed to fetch exams:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchExams();
-  }, []);
+  const { data, loading } = useCachedFetch(
+    'admin-exam-list',
+    async () => {
+      const response = await examApi.getExams();
+      return { exams: response?.data?.exams || [] };
+    },
+    { staleTimeMs: 2 * 60 * 1000 }
+  );
+  const exams = data?.exams || [];
 
   const handleStatusChange = async (id, newStatus) => {
     if (!isAdmin) return;
     try {
       await examApi.updateExamStatus(id, newStatus);
-      setExams(prev => prev.map(e => e.id === id ? { ...e, status: newStatus } : e));
+      invalidateCachedResource('admin-exam-list');
       toast.success(`Exam status updated to ${newStatus}`);
     } catch (err) {
       toast.error(err.message || "Failed to update exam status");
@@ -43,14 +38,14 @@ export default function ExamList() {
     
     try {
       await examApi.deleteExam(id);
-      setExams(prev => prev.filter(e => e.id !== id));
+      invalidateCachedResource('admin-exam-list');
       toast.success("Exam successfully deleted");
     } catch (err) {
       toast.error(err.message || "Failed to delete exam");
     }
   };
 
-  if (loading) {
+  if (loading && exams.length === 0) {
     return <div className="p-10 text-ink-4 font-mono text-[13px]">Accessing exam list...</div>;
   }
 

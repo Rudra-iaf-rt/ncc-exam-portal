@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { adminApi } from '../../api';
 import { PageHeader } from '../components/Shared';
+import { invalidateCachedResource } from '../../lib/resourceCache';
+import { useCachedFetch } from '../../hooks/useCachedFetch';
 import { 
   ShieldCheck, 
   Trash2, 
@@ -18,37 +20,30 @@ import {
 
 export default function Assignments() {
   const navigate = useNavigate();
-  const [assignments, setAssignments] = useState([]);
-  const [exams, setExams] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
 
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const fetchData = async () => {
-    setLoading(true);
-    try {
+  const { data, loading } = useCachedFetch(
+    'admin-assignments',
+    async () => {
       const [assignRes, examRes] = await Promise.all([
         adminApi.getAssignments(),
         adminApi.getExams()
       ]);
-      setAssignments(assignRes.data);
-      setExams(examRes.data.exams);
-    } catch (err) {
-      console.error("Fetch Assignments Error:", err);
-      toast.error("Failed to load exam assignments");
-    } finally {
-      setLoading(false);
-    }
-  };
+      return {
+        assignments: assignRes.data || [],
+        exams: examRes.data?.exams || [],
+      };
+    },
+    { staleTimeMs: 2 * 60 * 1000 }
+  );
+  const assignments = data?.assignments || [];
+  const exams = data?.exams || [];
 
   const handleDelete = async (id) => {
     if (!window.confirm("Revoke this examination authorization? The cadet will no longer be able to attempt this exam.")) return;
     try {
       await adminApi.deleteAssignment(id);
-      setAssignments(prev => prev.filter(a => a.id !== id));
+      invalidateCachedResource('admin-assignments');
       toast.success("Authorization revoked successfully.");
     } catch (err) {
       toast.error(err.message || "Failed to revoke authorization");

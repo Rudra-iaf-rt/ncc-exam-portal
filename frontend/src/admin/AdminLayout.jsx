@@ -25,6 +25,7 @@ function SidebarSection({ title, children, icon: SidebarIcon, defaultExpanded = 
   
   // Detect if any child link matches current path or its sub-paths
   const isPathActive = React.useMemo(() => {
+      
     const checkChildren = (nodes) => {
       return React.Children.toArray(nodes).some(child => {
         if (child.props?.to && (location.pathname === child.props.to || location.pathname.startsWith(child.props.to + '/'))) {
@@ -114,9 +115,9 @@ export function AdminLayout() {
     return () => document.body.classList.remove('bg-stone', 'text-ink');
   }, []);
 
-  const handleLogout = () => {
-    logout();
-    navigate('/admin/login');
+  const handleLogout = async () => {
+    await logout();
+    navigate('/admin/login', { replace: true });
   };
 
   const isAdmin = user?.role === 'ADMIN';

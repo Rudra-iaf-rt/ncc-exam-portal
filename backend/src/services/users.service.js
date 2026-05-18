@@ -4,6 +4,7 @@ const { redis } = require("../lib/redis");
 const { HttpError } = require("../utils/http-error");
 const { ROLES } = require("../middleware/roles");
 const { sanitizeUser } = require("./auth.service");
+const { features } = require("../config/features");
 
 const SALT_ROUNDS = 10;
 
@@ -134,6 +135,12 @@ async function updateUser(idRaw, body, tx = prisma) {
   });
 
   await clearCollegesCache();
+  if (updateData.isActive === false) {
+    await prisma.refreshToken.updateMany({
+      where: { userId: id, revokedAt: null },
+      data: { revokedAt: new Date() },
+    });
+  }
   return sanitizeUser(user);
 }
 
@@ -322,6 +329,21 @@ async function deleteUserById(idRaw) {
   const user = await prisma.user.findUnique({ where: { id } });
   if (!user) {
     throw new HttpError(404, "User not found");
+  }
+
+  if (features.softDeleteUsers) {
+    await prisma.$transaction(async (tx) => {
+      await tx.user.update({
+        where: { id },
+        data: { isActive: false },
+      });
+      await tx.refreshToken.updateMany({
+        where: { userId: id, revokedAt: null },
+        data: { revokedAt: new Date() },
+      });
+    });
+    await clearCollegesCache();
+    return { id, softDeleted: true };
   }
 
   await prisma.$transaction(async (tx) => {

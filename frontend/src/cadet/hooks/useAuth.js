@@ -2,6 +2,8 @@ import { useState, useCallback, useEffect } from 'react';
 import { authApi } from '../../api';
 import { getSavedUser, getRefreshToken, clearAuth } from '../../lib/auth';
 
+const COOKIE_AUTH_ENABLED = String(import.meta.env.VITE_COOKIE_AUTH || 'false') === 'true';
+
 export const useAuth = () => {
   const [user, setUser] = useState(() => getSavedUser());
 
@@ -17,7 +19,7 @@ export const useAuth = () => {
   const logout = useCallback(async () => {
     try {
       const refreshToken = getRefreshToken();
-      await authApi.logout({ refreshToken });
+      await authApi.logout(COOKIE_AUTH_ENABLED ? {} : { refreshToken });
     } catch (e) {
       // ignore logout failures
     } finally {

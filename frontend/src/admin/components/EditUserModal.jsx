@@ -2,8 +2,12 @@ import { Building2, Key, Mail, ShieldCheck, User as UserIcon, X, Search } from '
 import { useState, useEffect } from 'react';
 import { toast } from 'sonner';
 import { adminApi } from '../../api';
+import { invalidateCachedResource } from '../../lib/resourceCache';
+
+import { useCachedFetch } from '../../hooks/useCachedFetch';
 
 export default function EditUserModal({ isOpen, onClose, onRefresh, user }) {
+  const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: user?.name || '',
     regimentalNumber: user?.regimentalNumber || '',
@@ -15,11 +19,25 @@ export default function EditUserModal({ isOpen, onClose, onRefresh, user }) {
     isActive: user?.isActive ?? true,
     password: ''
   });
-  const [colleges, setColleges] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [fetchingColleges, setFetchingColleges] = useState(false);
-  const [batches, setBatches] = useState([]);
-  const [fetchingBatches, setFetchingBatches] = useState(false);
+  const { data: collegesData, loading: fetchingColleges } = useCachedFetch(
+    'admin-colleges',
+    async () => {
+      const response = await adminApi.getColleges();
+      return { colleges: response?.data?.colleges || [] };
+    },
+    { staleTimeMs: 5 * 60 * 1000, enabled: isOpen }
+  );
+  const colleges = collegesData?.colleges || [];
+
+  const { data: batchesData, loading: fetchingBatches } = useCachedFetch(
+    'admin-batches',
+    async () => {
+      const response = await adminApi.getBatches();
+      return { batches: response?.data || [] };
+    },
+    { staleTimeMs: 5 * 60 * 1000, enabled: isOpen }
+  );
+  const batches = batchesData?.batches || [];
 
   useEffect(() => {
     if (isOpen) {
@@ -34,33 +52,6 @@ export default function EditUserModal({ isOpen, onClose, onRefresh, user }) {
         isActive: user?.isActive ?? true,
         password: ''
       });
-
-      const fetchColleges = async () => {
-        setFetchingColleges(true);
-        try {
-          const { data } = await adminApi.getColleges();
-          if (data?.colleges) setColleges(data.colleges);
-        } catch (error) {
-          console.error('Failed to fetch colleges:', error);
-          toast.error('Failed to load college list');
-        } finally {
-          setFetchingColleges(false);
-        }
-      };
-      fetchColleges();
-
-      const fetchBatches = async () => {
-        setFetchingBatches(true);
-        try {
-          const { data } = await adminApi.getBatches();
-          if (data) setBatches(data); // Show all batches for editing existing records
-        } catch (error) {
-          console.error('Failed to fetch batches:', error);
-        } finally {
-          setFetchingBatches(false);
-        }
-      };
-      fetchBatches();
     }
   }, [isOpen, user]);
 
@@ -79,7 +70,10 @@ export default function EditUserModal({ isOpen, onClose, onRefresh, user }) {
     try {
       await adminApi.updateUser(user.id, payload);
       toast.success('Record updated successfully.');
-      onRefresh();
+      // Invalidate both caches — role change could move user between lists
+      invalidateCachedResource('admin-users-students');
+      invalidateCachedResource('admin-staff-list');
+      onRefresh?.();
       onClose();
     } catch (apiErr) {
       toast.error(apiErr.response?.data?.message || apiErr.message || 'Failed to update record.');

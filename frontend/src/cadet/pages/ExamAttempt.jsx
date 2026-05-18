@@ -38,7 +38,7 @@ const ExamAttempt = () => {
   
   // syncStatus: 'idle' | 'saving' | 'saved' | 'error'
   // Start as 'idle' so no badge shows before the first save attempt.
-  const { syncStatus, queueSave } = useExamAutoSave(attemptId);
+  const { syncStatus, queueSave } = useExamAutoSave(Number(id));
 
   const {
     isFullscreen,
@@ -105,7 +105,7 @@ const ExamAttempt = () => {
 
   const handleSelect = (questionId, option) => {
     setAnswers(prev => ({ ...prev, [questionId]: option }));
-    queueSave(questionId, option);
+    queueSave(questionId, option, currentQ);
   };
 
   const executeSubmit = async () => {
@@ -307,7 +307,8 @@ const ExamAttempt = () => {
                   <button
                     key={idx}
                     onClick={() => setCurrentQ(idx)}
-                    className={`aspect-square rounded-r border font-ui text-[13.5px] font-semibold transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-md cursor-pointer active:scale-95 flex items-center justify-center ${
+                    disabled={isSubmitting}
+                    className={`aspect-square rounded-r border font-ui text-[13.5px] font-semibold transition-all duration-200 transform hover:-translate-y-0.5 hover:shadow-md cursor-pointer active:scale-95 flex items-center justify-center disabled:opacity-50 disabled:pointer-events-none ${
                       isActive ? 'bg-white text-navy font-bold ring-2 ring-navy ring-offset-2 border-navy shadow-sm' : 
                       isAnswered ? 'bg-navy text-white font-bold border-navy' : 
                       'bg-stone-wash border-stone-deep text-ink-3 hover:bg-white hover:border-navy-pale'
@@ -367,7 +368,7 @@ const ExamAttempt = () => {
                     answers[q.id] === opt 
                       ? 'border-navy bg-navy-wash/75 shadow-sm' 
                       : 'border-stone-deep bg-white hover:border-navy-soft hover:bg-stone-wash'
-                  }`}
+                  } ${isSubmitting ? 'pointer-events-none opacity-60' : ''}`}
                 >
                   <input
                     type="radio"
@@ -376,6 +377,7 @@ const ExamAttempt = () => {
                     value={opt}
                     checked={answers[q.id] === opt}
                     onChange={() => handleSelect(q.id, opt)}
+                    disabled={isSubmitting}
                   />
                   <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border font-ui text-[13.5px] font-bold transition-all duration-200 ${
                     answers[q.id] === opt ? 'border-navy bg-navy text-[#F4F0E4] shadow-sm' : 'border-stone-deep bg-white text-ink-3'
@@ -391,14 +393,14 @@ const ExamAttempt = () => {
           {/* Previous / Next Actions */}
           <div className="mt-5 sm:mt-6 flex w-full justify-between gap-4">
             <button 
-              disabled={currentQ === 0}
+              disabled={currentQ === 0 || isSubmitting}
               onClick={() => setCurrentQ(prev => prev - 1)}
               className="flex items-center gap-2 rounded-r border border-stone-deep bg-white px-5 sm:px-8 py-3 font-ui text-[13px] sm:text-[14px] font-bold text-navy transition-all hover:bg-stone-wash active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
             >
               <ChevronLeft size={18} /> PREVIOUS
             </button>
             <button 
-              disabled={currentQ === exam.questions.length - 1}
+              disabled={currentQ === exam.questions.length - 1 || isSubmitting}
               onClick={() => setCurrentQ(prev => prev + 1)}
               className="flex items-center gap-2 rounded-r bg-navy px-6 sm:px-10 py-3 font-ui text-[13px] sm:text-[14px] font-bold text-[#F4F0E4] transition-all hover:bg-navy-mid active:scale-95 disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer"
             >
@@ -419,7 +421,8 @@ const ExamAttempt = () => {
         
         <button 
           onClick={() => setShowQuestionGridModal(true)}
-          className="flex items-center gap-2.5 rounded-r border border-stone-deep bg-stone-wash px-3.5 py-2 font-ui text-[13px] font-bold text-navy hover:bg-stone-deep/20 transition-all active:scale-95 cursor-pointer shadow-sm"
+          disabled={isSubmitting}
+          className="flex items-center gap-2.5 rounded-r border border-stone-deep bg-stone-wash px-3.5 py-2 font-ui text-[13px] font-bold text-navy hover:bg-stone-deep/20 transition-all active:scale-95 cursor-pointer shadow-sm disabled:opacity-50 disabled:pointer-events-none"
         >
           <span>Questions</span>
           <span className="flex items-center justify-center bg-navy text-white text-[11px] rounded-full h-5 px-2 min-w-[20px] font-ui font-semibold">
@@ -478,7 +481,8 @@ const ExamAttempt = () => {
                         setCurrentQ(idx);
                         setShowQuestionGridModal(false);
                       }}
-                      className={`aspect-square rounded-r border font-ui text-[14px] font-bold transition-all duration-200 flex items-center justify-center cursor-pointer active:scale-95 hover:-translate-y-0.5 hover:shadow-md ${
+                      disabled={isSubmitting}
+                      className={`aspect-square rounded-r border font-ui text-[14px] font-bold transition-all duration-200 flex items-center justify-center cursor-pointer active:scale-95 hover:-translate-y-0.5 hover:shadow-md disabled:opacity-50 disabled:pointer-events-none ${
                         isActive ? 'bg-white text-navy font-bold ring-2 ring-navy ring-offset-2 border-navy shadow-sm' : 
                         isAnswered ? 'bg-navy text-white font-bold border-navy shadow-sm' : 
                         'bg-stone-wash border-stone-deep text-ink-3 hover:bg-white hover:border-navy-pale'
@@ -509,15 +513,17 @@ const ExamAttempt = () => {
             <div className="flex gap-3">
               <button 
                 onClick={() => setShowConfirmModal(false)}
-                className="flex-1 rounded-r border border-stone-deep bg-white py-3 font-ui text-[13px] font-bold text-ink-3 transition-all hover:bg-stone-wash cursor-pointer"
+                disabled={isSubmitting}
+                className="flex-1 rounded-r border border-stone-deep bg-white py-3 font-ui text-[13px] font-bold text-ink-3 transition-all hover:bg-stone-wash cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
               >
                 Cancel
               </button>
               <button 
                 onClick={executeSubmit}
-                className="flex-1 rounded-r bg-navy py-3 font-ui text-[13px] font-bold text-white transition-all hover:bg-navy-mid cursor-pointer"
+                disabled={isSubmitting}
+                className="flex-1 rounded-r bg-navy py-3 font-ui text-[13px] font-bold text-white transition-all hover:bg-navy-mid cursor-pointer disabled:opacity-50 disabled:pointer-events-none"
               >
-                Yes, Submit
+                {isSubmitting ? 'Submitting...' : 'Yes, Submit'}
               </button>
             </div>
           </div>

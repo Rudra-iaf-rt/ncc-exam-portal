@@ -1,32 +1,24 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { adminApi } from '../../api';
+import { invalidateCachedResource } from '../../lib/resourceCache';
+import { useCachedFetch } from '../../hooks/useCachedFetch';
 import { X, Plus, Trash2, Calendar, Loader2, Check, AlertCircle } from 'lucide-react';
 
 export default function BatchManagementModal({ isOpen, onClose }) {
-  const [batches, setBatches] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [newBatchName, setNewBatchName] = useState('');
 
-  const fetchBatches = async () => {
-    setLoading(true);
-    try {
-      const { data } = await adminApi.getBatches();
-      setBatches(data || []);
-    } catch (error) {
-      console.error('Failed to fetch batches:', error);
-      toast.error('Failed to load batches');
-    } finally {
-      setLoading(false);
-    }
-  };
+  const { data, loading } = useCachedFetch(
+    'admin-batches',
+    async () => {
+      const response = await adminApi.getBatches();
+      return { batches: response?.data || [] };
+    },
+    { staleTimeMs: 2 * 60 * 1000, enabled: isOpen }
+  );
 
-  useEffect(() => {
-    if (isOpen) {
-      fetchBatches();
-    }
-  }, [isOpen]);
+  const batches = data?.batches || [];
 
   const handleAddBatch = async (e) => {
     e.preventDefault();
@@ -35,9 +27,10 @@ export default function BatchManagementModal({ isOpen, onClose }) {
     setSubmitting(true);
     try {
       await adminApi.createBatch({ name: newBatchName.trim() });
+      invalidateCachedResource('admin-batches');
+      invalidateCachedResource('admin-users-students');
       toast.success(`Batch ${newBatchName} created`);
       setNewBatchName('');
-      fetchBatches();
     } catch (error) {
       toast.error(error.response?.data?.error || 'Failed to create batch');
     } finally {
@@ -52,8 +45,9 @@ export default function BatchManagementModal({ isOpen, onClose }) {
 
     try {
       await adminApi.deleteBatch(id);
+      invalidateCachedResource('admin-batches');
+      invalidateCachedResource('admin-users-students');
       toast.success(`Batch ${name} deleted`);
-      fetchBatches();
     } catch (error) {
       toast.error('Failed to delete batch');
     }
@@ -62,7 +56,8 @@ export default function BatchManagementModal({ isOpen, onClose }) {
   const toggleBatchStatus = async (batch) => {
     try {
       await adminApi.updateBatch(batch.id, { isActive: !batch.isActive });
-      fetchBatches();
+      invalidateCachedResource('admin-batches');
+      invalidateCachedResource('admin-users-students');
     } catch (error) {
       toast.error('Failed to update batch status');
     }

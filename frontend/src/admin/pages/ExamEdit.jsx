@@ -3,6 +3,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { examApi } from '../../api';
 import { toast } from 'sonner';
 import { PageHeader } from '../components/Shared';
+import { invalidateCachedResource } from '../../lib/resourceCache';
 import { 
   ArrowLeft, 
   ArrowRight,
@@ -85,10 +86,14 @@ export default function ExamEdit() {
   };
 
   const updateOption = (qIndex, oIndex, value) => {
-    const newQuestions = [...questions];
-    newQuestions[qIndex].options[oIndex] = value;
-    setQuestions(newQuestions);
-  };
+     const newQuestions = [...questions];
+     const prevOptionValue = newQuestions[qIndex].options[oIndex];
+     newQuestions[qIndex].options[oIndex] = value;
+     if (newQuestions[qIndex].answer === prevOptionValue) {
+       newQuestions[qIndex].answer = value;
+     }
+     setQuestions(newQuestions);
+   };
 
   const validateStep1 = () => {
     if (!basicInfo.title.trim()) return 'Examination title is required.';
@@ -119,6 +124,7 @@ export default function ExamEdit() {
         title: basicInfo.title.trim(),
         duration: basicInfo.duration
       });
+      invalidateCachedResource('admin-exam-list');
       toast.success('Examination metadata updated successfully.');
       setStep(2); // Auto-advance to questions
     } catch (error) {
@@ -139,6 +145,7 @@ export default function ExamEdit() {
     try {
       await examApi.updateExamQuestions(id, { questions });
       toast.success('Examination intelligence blocks synchronized successfully.');
+      invalidateCachedResource('admin-exam-list');
       navigate('/admin/exams');
     } catch (error) {
       toast.error(error.message || 'Operational failure: Unable to update questions.');

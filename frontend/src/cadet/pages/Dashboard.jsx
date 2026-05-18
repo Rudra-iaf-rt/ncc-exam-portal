@@ -12,41 +12,81 @@ import {
 import { useAuth } from '../hooks/useAuth';
 import { examApi } from '../../api';
 import { toast } from 'sonner';
+import { getCachedResource, getOrFetchResource } from '../../lib/resourceCache';
 
 const CadetDashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [exams, setExams] = useState([]);
   const [results, setResults] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loadingExams, setLoadingExams] = useState(true);
+  const [loadingResults, setLoadingResults] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
+    if (!user) return;
+
+    let cancelled = false;
+    const userKey = user?.id || user?.regimentalNumber || user?.email || 'current';
+    const cacheKey = `cadet-dashboard:${userKey}`;
+
+    const cachedData = getCachedResource(cacheKey);
+    if (cachedData) {
+      setExams(cachedData.exams || []);
+      setResults(cachedData.results || []);
+      setLoadingExams(false);
+      setLoadingResults(false);
+    } else {
+      setLoadingExams(true);
+      setLoadingResults(true);
+    }
+
     const fetchData = async () => {
       try {
-        const [assignedExams, resultsRes] = await Promise.all([
-          examApi.getAssigned().catch(() => []),
-          examApi.getResults().catch(() => ({ data: { results: [] } }))
-        ]);
-        setExams(assignedExams || []);
-        if (resultsRes?.data) {
-          setResults(resultsRes.data.results || []);
-        }
+        const data = await getOrFetchResource(
+          cacheKey,
+          async () => {
+            const assignedExams = await examApi.getAssigned().catch(() => []);
+            setExams(assignedExams || []);
+            setLoadingExams(false);
+
+            const resultsRes = await examApi
+              .getResults()
+              .catch(() => ({ data: { results: [] } }));
+            return {
+              exams: assignedExams || [],
+              results: resultsRes?.data?.results || [],
+            };
+          },
+          { staleTimeMs: 2 * 60 * 1000 }
+        );
+
+        if (cancelled) return;
+        setExams(data.exams || []);
+        setResults(data.results || []);
+        setLoadingExams(false);
+        setLoadingResults(false);
       } catch (err) {
-        if (err.status !== 401) {
+        if (!cancelled && err.status !== 401) {
           toast.error('Failed to sync with unit servers.');
         }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoadingExams(false);
+          setLoadingResults(false);
+        }
       }
     };
 
-    if (user) {
-      fetchData();
-    }
+    fetchData();
+
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
 
   const calculatePerformance = () => {
+    if (loadingResults) return '--%';
     if (!results || results.length === 0) return '--%';
     const total = results.reduce((acc, r) => acc + (r.score || 0), 0);
     return `${Math.round(total / results.length)}%`;
@@ -121,7 +161,7 @@ const CadetDashboard = () => {
         </div>
 
         <div className="min-h-[300px]">
-          {loading ? (
+          {loadingExams ? (
             <div className="flex h-[300px] flex-col items-center justify-center gap-4">
               <div className="h-8 w-8 animate-spin rounded-full border-2 border-stone-deep border-t-navy"></div>
               <p className="font-mono text-[10px] uppercase tracking-widest text-ink-4">Retrieving assignments...</p>

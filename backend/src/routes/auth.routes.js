@@ -19,7 +19,7 @@ router.get("/me", authenticate, asyncHandler(authController.me));
 router.get("/refresh", authRateLimiter, authenticate, asyncHandler(authController.refresh));
 router.post("/refresh", authRateLimiter, asyncHandler(authController.refreshWithToken));
 router.post("/refresh-token", authRateLimiter, asyncHandler(authController.refreshWithToken));
-router.post("/logout", authenticate, asyncHandler(authController.logout));
+router.post("/logout", asyncHandler(authController.logout));
 router.post("/password/change", authenticate, asyncHandler(authController.changePassword));
 
 module.exports = router;

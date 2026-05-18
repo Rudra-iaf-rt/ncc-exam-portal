@@ -15,7 +15,7 @@ export default function AdminLogin() {
   useEffect(() => {
     // Both ADMIN and INSTRUCTOR are allowed in the staff portal
     if (!isLoading && user && (user.role === 'ADMIN' || user.role === 'INSTRUCTOR')) {
-      navigate('/admin/dashboard');
+      navigate('/admin/dashboard', { replace: true });
     }
   }, [user, isLoading, navigate]);
 
@@ -26,7 +26,6 @@ export default function AdminLogin() {
     const result = await login(email, password);
     if (result.success) {
       toast.success('Successfully authenticated.');
-      navigate('/admin/dashboard');
     } else {
       toast.error(result.error || 'Authentication failed. Please verify your credentials.');
     }

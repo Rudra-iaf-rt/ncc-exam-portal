@@ -55,6 +55,7 @@ async function createFromExcel(req, res) {
 }
 
 async function listCatalog(req, res) {
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
   const data = await examService.listExamsCatalog(req.user.id, req.user.role, req.query);
   res.json(data);
 }
@@ -72,7 +73,7 @@ async function getOneStaff(req, res) {
 }
 
 async function startAttempt(req, res) {
-  const result = await examService.startAttempt(req.user.id, req.body?.examId);
+  const result = await examService.startAttempt(req.user.id, req.body?.examId, req.body?.sessionId);
   res.status(result.status).json(result.body);
 }
 
@@ -136,7 +137,13 @@ async function replaceQuestions(req, res) {
 }
 
 async function publish(req, res) {
-  const exam = await examService.publishExamByCreator(req.user.id, req.params.id);
+  const status = req.body?.status;
+  let exam;
+  if (status && ["DRAFT", "LIVE", "ARCHIVED"].includes(String(status).toUpperCase())) {
+    exam = await examService.updateExamMetaByCreator(req.user.id, req.params.id, { status });
+  } else {
+    exam = await examService.publishExamByCreator(req.user.id, req.params.id);
+  }
   await auditLogService.recordAudit(req, {
     action: "EXAM_PUBLISH",
     entityType: "Exam",

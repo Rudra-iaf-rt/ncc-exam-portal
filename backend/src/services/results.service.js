@@ -1,5 +1,6 @@
 const { prisma } = require("../lib/prisma");
 const { redis } = require("../lib/redis");
+const { cacheGetJson, cacheSetJson } = require("../lib/cache");
 const { HttpError } = require("../utils/http-error");
 
 function mapResultRow(r) {
@@ -53,12 +54,8 @@ async function listForStudent(studentId, query) {
   const skip = (page - 1) * limit;
 
   const cacheKey = `results:student:${studentId}:${examId || 'all'}:p${page}:l${limit}`;
-  try {
-    const cached = await redis.get(cacheKey);
-    if (cached) return JSON.parse(cached);
-  } catch (err) {
-    console.error("[Redis] GET error in listForStudent", err);
-  }
+  const cached = await cacheGetJson(cacheKey);
+  if (cached) return cached;
 
   const [rows, total] = await Promise.all([
     prisma.result.findMany({
@@ -90,11 +87,7 @@ async function listForStudent(studentId, query) {
     },
   };
 
-  try {
-    await redis.setex(cacheKey, 60, JSON.stringify(response));
-  } catch (err) {
-    console.error("[Redis] SET error in listForStudent", err);
-  }
+  await cacheSetJson(cacheKey, 60, response);
 
   return response;
 }
@@ -197,12 +190,8 @@ async function listForAdmin(query) {
   const skip = (page - 1) * limit;
 
   const cacheKey = `results:admin:${examId || 'all'}:${collegeCode || 'all'}:p${page}:l${limit}`;
-  try {
-    const cached = await redis.get(cacheKey);
-    if (cached) return JSON.parse(cached);
-  } catch (err) {
-    console.error("[Redis] GET error in listForAdmin", err);
-  }
+  const cached = await cacheGetJson(cacheKey);
+  if (cached) return cached;
 
   const [rows, total] = await Promise.all([
     prisma.result.findMany({
@@ -234,11 +223,7 @@ async function listForAdmin(query) {
     },
   };
 
-  try {
-    await redis.setex(cacheKey, 30, JSON.stringify(response));
-  } catch (err) {
-    console.error("[Redis] SET error in listForAdmin", err);
-  }
+  await cacheSetJson(cacheKey, 30, response);
 
   return response;
 }

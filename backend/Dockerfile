@@ -1,32 +1,31 @@
-# Use Node.js 22 Alpine for a lightweight image
-FROM node:22-alpine
+FROM node:22-alpine AS build
 
-# Install build dependencies for native modules (like bcrypt if needed)
-RUN apk add --no-cache python3 make g++
-
-# Set working directory
 WORKDIR /app
 
-# Copy package files
+# Native modules (bcrypt) may require build toolchain on Alpine.
+RUN apk add --no-cache python3 make g++
+
 COPY package*.json ./
+RUN npm ci
 
-# Install dependencies
-RUN npm install
-
-# Copy Prisma schema and generate client
 COPY prisma ./prisma
 RUN npx prisma generate
 
-# Copy the rest of the application code
 COPY . .
+RUN npm prune --omit=dev
 
-# Expose the application port
-EXPOSE 3000
+FROM node:22-alpine AS runtime
 
-# Set environment to production
+WORKDIR /app
 ENV NODE_ENV=production
 
-# Start the application
-# Note: We use db:push or migrations in a real CI/CD pipeline, 
-# but for the container start, we just run the server.
+COPY --from=build /app/node_modules ./node_modules
+COPY --from=build /app/package*.json ./
+COPY --from=build /app/prisma ./prisma
+COPY --from=build /app/src ./src
+COPY --from=build /app/server.js ./server.js
+
+USER node
+EXPOSE 3000
+
 CMD ["npm", "start"]

@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { adminApi } from '../../api';
 import { useAdminAuth } from '../../contexts/AdminAuth';
 import { PageHeader, StatCard } from '../components/Shared';
@@ -11,34 +11,32 @@ import {
   AlertCircle 
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { useCachedFetch } from '../../hooks/useCachedFetch';
 
 export default function Dashboard() {
   const { user } = useAdminAuth();
   const isAdmin = user?.role === 'ADMIN';
-  const [stats, setStats] = useState({
-    totalStudents: 0,
-    activeExams: 0,
-    totalExams: 0,
-    averageScore: "0%",
-    recentActivity: []
-  });
-  const [loading, setLoading] = useState(true);
+  const userKey = user?.id || user?.email || user?.name || user?.role || 'current';
+  const cacheKey = user ? `admin-dashboard:${userKey}` : null;
 
-  useEffect(() => {
-    async function fetchStats() {
-      try {
-        const { data } = await adminApi.getStats();
-        if (data) setStats(data);
-      } catch (error) {
-        console.error('Failed to fetch stats:', error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchStats();
-  }, []);
+  const { data, loading } = useCachedFetch(
+    cacheKey,
+    async () => {
+      const response = await adminApi.getStats();
+      return response?.data || {
+        totalStudents: 0, activeExams: 0, totalExams: 0,
+        averageScore: '0%', recentActivity: [],
+      };
+    },
+    { staleTimeMs: 2 * 60 * 1000, enabled: !!user }
+  );
 
-  if (loading) return <div className="text-ink-4 p-10 font-mono text-[13px]">Establishing secure connection to Command Centre...</div>;
+  const stats = data || {
+    totalStudents: 0, activeExams: 0, totalExams: 0,
+    averageScore: '0%', recentActivity: [],
+  };
+
+  if (loading && stats.totalExams === 0 && stats.totalStudents === 0) return <div className="text-ink-4 p-10 font-mono text-[13px]">Establishing secure connection to Command Centre...</div>;
 
   return (
     <div>

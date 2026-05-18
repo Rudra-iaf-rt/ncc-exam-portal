@@ -1,6 +1,7 @@
 import { useState, useRef } from 'react';
 import { toast } from 'sonner';
 import { adminApi } from '../../api';
+import { invalidateCachedResource } from '../../lib/resourceCache';
 import { 
   FileUp, 
   Download, 
@@ -41,7 +42,10 @@ export default function BulkImport({ isOpen, onClose, onRefresh }) {
       setUploading(false);
       if (data) {
         setResult(data);
-        if (data.count > 0) onRefresh();
+        if (data.count > 0) {
+          invalidateCachedResource('admin-users-students');
+          onRefresh?.();
+        }
       }
     } catch (error) {
       setUploading(false);

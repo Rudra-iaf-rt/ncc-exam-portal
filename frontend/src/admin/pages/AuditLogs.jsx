@@ -1,38 +1,31 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { adminApi } from '../../api';
 import { Search, Clock, User, Activity, RefreshCw } from 'lucide-react';
 import { PageHeader } from '../components/Shared';
+import { invalidateCachedResource } from '../../lib/resourceCache';
+import { useCachedFetch } from '../../hooks/useCachedFetch';
 
 export default function AuditLogs() {
-  const [logs, setLogs] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState('');
 
-  useEffect(() => {
-    fetchLogs();
-  }, []);
-
-  const fetchLogs = async () => {
-    setLoading(true);
-    try {
+  const { data, loading, refetch } = useCachedFetch(
+    'admin-audit-logs',
+    async () => {
       const response = await adminApi.getLogs();
-      const data = response.data || response;
-      
-      // Handle both { logs: [...] } and raw [...] formats
-      if (data && data.logs && Array.isArray(data.logs)) {
-        setLogs(data.logs);
-      } else if (Array.isArray(data)) {
-        setLogs(data);
-      } else {
-        console.warn("Unexpected logs format:", data);
-        setLogs([]);
-      }
-    } catch (err) {
-      console.error("Fetch Logs Error:", err);
-      setLogs([]);
-    } finally {
-      setLoading(false);
-    }
+      const raw = response.data || response;
+      if (raw?.logs && Array.isArray(raw.logs)) return raw.logs;
+      if (Array.isArray(raw)) return raw;
+      console.warn('Unexpected logs format:', raw);
+      return [];
+    },
+    { staleTimeMs: 30 * 1000 }
+  );
+
+  const logs = data || [];
+
+  // Manual refresh button should bypass cache
+  const handleManualRefresh = () => {
+    invalidateCachedResource('admin-audit-logs');
   };
 
   const filteredLogs = (Array.isArray(logs) ? logs : []).filter(log => {
@@ -53,7 +46,7 @@ export default function AuditLogs() {
         title="System *Audit Logs*" 
         subtitle="Traceability record for all administrative actions and security events."
         action={
-          <button className="h-[36px] px-[18px] rounded-md font-ui text-[13px] font-medium flex items-center gap-2 transition-all bg-transparent border border-stone-deep text-ink-2 hover:bg-stone hover:text-navy" onClick={fetchLogs} disabled={loading}>
+          <button className="h-[36px] px-[18px] rounded-md font-ui text-[13px] font-medium flex items-center gap-2 transition-all bg-transparent border border-stone-deep text-ink-2 hover:bg-stone hover:text-navy" onClick={handleManualRefresh} disabled={loading}>
             <RefreshCw size={16} className={loading ? 'animate-spin' : ''} />
             <span>Refresh Logs</span>
           </button>

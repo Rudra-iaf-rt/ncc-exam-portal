@@ -2612,3 +2612,71 @@ Transaction API error: Unable to start a transaction in the given time.
     at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:45065)
     at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:46285)
     at async e.run (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:43335)
+[2026-05-18T06:56:44.373Z] PrismaClientKnownRequestError: 
+Invalid `prisma.exam.findMany()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:127:17
+
+  124   : {};
+  125 
+  126 const [exams, total, completedResults] = await Promise.all([
+→ 127   prisma.exam.findMany(
+The column `Exam.startAt` does not exist in the current database.
+    at zr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:8286)
+    at zr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at zr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6862)
+    at async Promise.all (index 0)
+    at async Object.listExamsCatalog (C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:126:44)
+    at async listCatalog (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:58:16)
+[2026-05-18T06:56:53.336Z] PrismaClientKnownRequestError: 
+Invalid `prisma.exam.findMany()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:127:17
+
+  124   : {};
+  125 
+  126 const [exams, total, completedResults] = await Promise.all([
+→ 127   prisma.exam.findMany(
+The column `Exam.startAt` does not exist in the current database.
+    at zr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:8286)
+    at zr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at zr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6862)
+    at async Promise.all (index 0)
+    at async Object.listExamsCatalog (C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:126:44)
+    at async listCatalog (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:58:16)
+[2026-05-18T07:08:18.553Z] PrismaClientKnownRequestError: 
+Invalid `prisma.exam.findMany()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:127:17
+
+  124   : {};
+  125 
+  126 const [exams, total, completedResults] = await Promise.all([
+→ 127   prisma.exam.findMany(
+The column `Exam.startAt` does not exist in the current database.
+    at zr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:8286)
+    at zr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at zr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6862)
+    at async Promise.all (index 0)
+    at async Object.listExamsCatalog (C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:126:44)
+    at async listCatalog (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:58:16)
+[2026-05-18T07:09:17.696Z] PrismaClientKnownRequestError: 
+Invalid `prisma.exam.findMany()` invocation in
+C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:127:17
+
+  124   : {};
+  125 
+  126 const [exams, total, completedResults] = await Promise.all([
+→ 127   prisma.exam.findMany(
+The column `Exam.startAt` does not exist in the current database.
+    at zr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:8286)
+    at zr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at zr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6862)
+    at async Promise.all (index 0)
+    at async Object.listExamsCatalog (C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:126:44)
+    at async listCatalog (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:58:16)

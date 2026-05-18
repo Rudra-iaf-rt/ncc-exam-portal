@@ -1,5 +1,38 @@
 const authService = require("../services/auth.service");
 const auditLogService = require("../services/audit-log.service");
+const { features } = require("../config/features");
+const { issueCsrfToken } = require("../middleware/csrf");
+
+function setAuthCookies(res, payload) {
+  const secure = process.env.NODE_ENV === "production";
+  const configuredSameSite = String(process.env.AUTH_COOKIE_SAMESITE || "").trim().toLowerCase();
+  const sameSite = configuredSameSite === "none" ? "none" : "lax";
+  const cookieSecure = sameSite === "none" ? true : secure;
+  res.cookie("ncc_access_token", payload.token, {
+    httpOnly: true,
+    sameSite,
+    secure: cookieSecure,
+    path: "/",
+    maxAge: 60 * 60 * 1000,
+  });
+  res.cookie("ncc_refresh_token", payload.refreshToken, {
+    httpOnly: true,
+    sameSite,
+    secure: cookieSecure,
+    path: "/api/auth",
+    maxAge: 30 * 24 * 60 * 60 * 1000,
+  });
+  issueCsrfToken(res);
+}
+
+function clearAuthCookies(res) {
+  const secure = process.env.NODE_ENV === "production";
+  const configuredSameSite = String(process.env.AUTH_COOKIE_SAMESITE || "").trim().toLowerCase();
+  const sameSite = configuredSameSite === "none" ? "none" : "lax";
+  const cookieSecure = sameSite === "none" ? true : secure;
+  res.clearCookie("ncc_access_token", { httpOnly: true, sameSite, secure: cookieSecure, path: "/" });
+  res.clearCookie("ncc_refresh_token", { httpOnly: true, sameSite, secure: cookieSecure, path: "/api/auth" });
+}
 
 async function register(req, res) {
   const payload = await authService.registerStudent(req.body ?? {});
@@ -9,6 +42,9 @@ async function register(req, res) {
     entityId: payload.user.id,
     statusCode: 201,
   });
+  if (features.cookieAuth) {
+    setAuthCookies(res, payload);
+  }
   res.status(201).json(payload);
 }
 
@@ -21,6 +57,9 @@ async function loginStudent(req, res) {
     entityId: payload.user.id,
     statusCode: 200,
   });
+  if (features.cookieAuth) {
+    setAuthCookies(res, payload);
+  }
   res.json(payload);
 }
 
@@ -36,6 +75,9 @@ async function loginStaff(req, res) {
       statusCode: 200,
     }).catch(err => console.error("[AUDIT] Record failed", err));
 
+    if (features.cookieAuth) {
+      setAuthCookies(res, payload);
+    }
     res.json(payload);
   } catch (error) {
     console.error("[AUTH] Login failed", { email: req.body?.email, error: error.message });
@@ -60,13 +102,17 @@ async function refresh(req, res) {
 }
 
 async function refreshWithToken(req, res) {
-  const payload = await authService.refreshSessionWithToken(req.body?.refreshToken);
+  const refreshToken = req.body?.refreshToken || req.cookies?.ncc_refresh_token;
+  const payload = await authService.refreshSessionWithToken(refreshToken);
   await auditLogService.recordAudit(req, {
     action: "AUTH_REFRESH_TOKEN_ROTATE",
     entityType: "User",
     entityId: payload.user.id,
     statusCode: 200,
   });
+  if (features.cookieAuth) {
+    setAuthCookies(res, payload);
+  }
   res.json(payload);
 }
 
@@ -93,13 +139,19 @@ async function resetPassword(req, res) {
 }
 
 async function logout(req, res) {
-  const payload = await authService.logoutWithRefreshToken(req.body?.refreshToken);
+  const refreshToken = req.body?.refreshToken || req.cookies?.ncc_refresh_token;
+  const payload = refreshToken
+    ? await authService.logoutWithRefreshToken(refreshToken)
+    : await authService.logoutAllForUser(req.user?.id);
   await auditLogService.recordAudit(req, {
     action: "AUTH_LOGOUT",
     entityType: "User",
     entityId: req.user?.id ?? null,
     statusCode: 200,
   });
+  if (features.cookieAuth) {
+    clearAuthCookies(res);
+  }
   res.json(payload);
 }
 async function changePassword(req, res) {

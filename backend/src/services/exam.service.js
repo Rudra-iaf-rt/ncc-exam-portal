@@ -1,6 +1,8 @@
 const { prisma } = require("../lib/prisma");
 const { redis } = require("../lib/redis");
+const { cacheGetJson, cacheSetJson, cacheDel, cacheDelPattern } = require("../lib/cache");
 const { HttpError } = require("../utils/http-error");
+const { features } = require("../config/features");
 const {
   normalizeAnswer,
   stripAnswersFromExam,
@@ -10,7 +12,7 @@ const { extractPdfText, buildQuestionsFromPdfText } = require("./exam-pdf.servic
 const { extractQuestionsFromExcelBuffer } = require("./exam-excel.service");
 
 async function createExam(creatorUserId, body) {
-  const { title, duration, questions } = body ?? {};
+  const { title, duration, questions, startAt, endAt } = body ?? {};
 
   if (!title || typeof title !== "string") {
     throw new HttpError(400, "title is required");
@@ -35,29 +37,51 @@ async function createExam(creatorUserId, body) {
       throw new HttpError(400, `questions[${i}].answer is required`);
     }
   }
+  const parsedStartAt = startAt ? new Date(startAt) : null;
+  const parsedEndAt = endAt ? new Date(endAt) : null;
+  if (parsedStartAt && Number.isNaN(parsedStartAt.getTime())) {
+    throw new HttpError(400, "startAt must be a valid datetime");
+  }
+  if (parsedEndAt && Number.isNaN(parsedEndAt.getTime())) {
+    throw new HttpError(400, "endAt must be a valid datetime");
+  }
+  if (parsedStartAt && parsedEndAt && parsedEndAt <= parsedStartAt) {
+    throw new HttpError(400, "endAt must be later than startAt");
+  }
+
+  const examData = {
+    title: title.trim(),
+    duration: Math.floor(durationMin),
+    createdBy: creatorUserId,
+    questions: {
+      create: questions.map((q) => ({
+        question: q.question.trim(),
+        options: q.options.map((o) => String(o)),
+        answer: normalizeAnswer(q.answer),
+      })),
+    },
+  };
+  if (parsedStartAt) examData.startAt = parsedStartAt;
+  if (parsedEndAt) examData.endAt = parsedEndAt;
 
   const exam = await prisma.exam.create({
     data: {
-      title: title.trim(),
-      duration: Math.floor(durationMin),
-      createdBy: creatorUserId,
-      questions: {
-        create: questions.map((q) => ({
-          question: q.question.trim(),
-          options: q.options.map((o) => String(o)),
-          answer: normalizeAnswer(q.answer),
-        })),
-      },
+      ...examData,
     },
     include: {
       questions: { orderBy: { id: "asc" } },
     },
   });
 
+  // Invalidate any cached catalog lists since a new exam has been created
+  await cacheDelPattern("exams:catalog:*");
+
   return {
     id: exam.id,
     title: exam.title,
     duration: exam.duration,
+    startAt: exam.startAt,
+    endAt: exam.endAt,
     createdBy: exam.createdBy,
     questions: exam.questions.map((q) => ({
       id: q.id,
@@ -86,13 +110,8 @@ async function listExamsCatalog(userId, role, query = {}) {
   const skip = (page - 1) * limit;
 
   const cacheKey = `exams:catalog:${role}:${userId}:p${page}:l${limit}`;
-  
-  try {
-    const cached = await redis.get(cacheKey);
-    if (cached) return JSON.parse(cached);
-  } catch (err) {
-    console.error("[Redis] GET error", err);
-  }
+  const cached = await cacheGetJson(cacheKey);
+  if (cached) return cached;
 
   const where = isStudent
     ? {
@@ -138,6 +157,7 @@ async function listExamsCatalog(userId, role, query = {}) {
     id: e.id,
     title: e.title,
     duration: e.duration,
+    status: e.status,
     published: e.status === "LIVE",
     publishedAt: e.publishedAt,
     questionCount: e._count.questions,
@@ -164,11 +184,7 @@ async function listExamsCatalog(userId, role, query = {}) {
     },
   };
 
-  try {
-    await redis.setex(cacheKey, 60, JSON.stringify(response));
-  } catch (err) {
-    console.error("[Redis] SET error", err);
-  }
+  await cacheSetJson(cacheKey, 60, response);
 
   return response;
 }
@@ -272,6 +288,29 @@ async function updateExamMetaByCreator(userId, examIdRaw, body) {
     }
     payload.duration = Math.floor(duration);
   }
+  if (body?.startAt !== undefined) {
+    if (body.startAt == null || body.startAt === "") {
+      payload.startAt = null;
+    } else {
+      const startAt = new Date(body.startAt);
+      if (Number.isNaN(startAt.getTime())) throw new HttpError(400, "Invalid startAt");
+      payload.startAt = startAt;
+    }
+  }
+  if (body?.endAt !== undefined) {
+    if (body.endAt == null || body.endAt === "") {
+      payload.endAt = null;
+    } else {
+      const endAt = new Date(body.endAt);
+      if (Number.isNaN(endAt.getTime())) throw new HttpError(400, "Invalid endAt");
+      payload.endAt = endAt;
+    }
+  }
+  const nextStart = payload.startAt !== undefined ? payload.startAt : exam.startAt;
+  const nextEnd = payload.endAt !== undefined ? payload.endAt : exam.endAt;
+  if (nextStart && nextEnd && nextEnd <= nextStart) {
+    throw new HttpError(400, "endAt must be later than startAt");
+  }
   if (body?.status != null) {
     const status = String(body.status).toUpperCase();
     if (!["DRAFT", "LIVE", "ARCHIVED"].includes(status)) {
@@ -292,6 +331,13 @@ async function updateExamMetaByCreator(userId, examIdRaw, body) {
       data: payload,
       include: { questions: { orderBy: { id: "asc" } } },
     });
+
+    // Invalidate caches:
+    // 1. Specific exam details cache
+    await cacheDel([`exams:details:${examId}`]);
+    // 2. Wildcard exams catalog caches (since meta/status changed)
+    await cacheDelPattern("exams:catalog:*");
+
     return updated;
   } catch (err) {
     console.error("Prisma update error in updateExamMetaByCreator:", err);
@@ -332,6 +378,13 @@ async function replaceExamQuestionsByCreator(userId, examIdRaw, body) {
       })),
     }),
   ]);
+
+  // Invalidate caches:
+  // 1. Specific exam details cache
+  await cacheDel([`exams:details:${examId}`]);
+  // 2. Wildcard exams catalog caches (since questionCount is updated)
+  await cacheDelPattern("exams:catalog:*");
+
   return prisma.exam.findUnique({
     where: { id: examId },
     include: { questions: { orderBy: { id: "asc" } } },
@@ -356,13 +409,21 @@ async function publishExamByCreator(userId, examIdRaw) {
   if (exam._count.questions === 0) {
     throw new HttpError(400, "Cannot publish exam with no questions");
   }
-  return prisma.exam.update({
+  const updated = await prisma.exam.update({
     where: { id: examId },
     data: {
       status: "LIVE",
       publishedAt: new Date(),
     },
   });
+
+  // Invalidate caches:
+  // 1. Specific exam details cache
+  await cacheDel([`exams:details:${examId}`]);
+  // 2. Wildcard exams catalog caches (since status changed)
+  await cacheDelPattern("exams:catalog:*");
+
+  return updated;
 }
 
 async function deleteExamByCreator(userId, examIdRaw) {
@@ -378,11 +439,19 @@ async function deleteExamByCreator(userId, examIdRaw) {
     throw new HttpError(403, "Only exam creator can delete this exam");
   }
   await prisma.exam.delete({ where: { id: examId } });
+
+  // Invalidate caches:
+  // 1. Specific exam details cache
+  await cacheDel([`exams:details:${examId}`]);
+  // 2. Wildcard exams catalog caches (since exam is deleted)
+  await cacheDelPattern("exams:catalog:*");
+
   return { id: examId };
 }
 
-async function startAttempt(studentId, examIdRaw) {
+async function startAttempt(studentId, examIdRaw, sessionIdRaw) {
   const examId = Number(examIdRaw);
+  const sessionId = sessionIdRaw ? String(sessionIdRaw).trim() : null;
   if (!Number.isFinite(examId)) {
     throw new HttpError(400, "examId is required");
   }
@@ -395,6 +464,9 @@ async function startAttempt(studentId, examIdRaw) {
 
   if (existing?.status === "SUBMITTED") {
     throw new HttpError(409, "This exam has already been submitted");
+  }
+  if (existing?.status === "TIMED_OUT") {
+    throw new HttpError(409, "This exam attempt is already timed out");
   }
 
   const exam = await prisma.exam.findUnique({
@@ -417,6 +489,13 @@ async function startAttempt(studentId, examIdRaw) {
     if (!exam.assignments || exam.assignments.length === 0) {
       throw new HttpError(403, "You are not assigned to this exam");
     }
+    const now = new Date();
+    if (exam.startAt && now < exam.startAt) {
+      throw new HttpError(403, "Exam has not started yet");
+    }
+    if (exam.endAt && now > exam.endAt) {
+      throw new HttpError(403, "Exam window has ended");
+    }
   }
 
   if (exam.questions.length === 0) {
@@ -424,6 +503,16 @@ async function startAttempt(studentId, examIdRaw) {
   }
 
   if (existing?.status === "IN_PROGRESS") {
+    if (features.strictExamSession && existing.expiresAt && new Date(existing.expiresAt) <= new Date()) {
+      await prisma.attempt.update({
+        where: { id: existing.id },
+        data: { status: "TIMED_OUT" },
+      });
+      throw new HttpError(409, "Attempt timed out");
+    }
+    if (features.strictExamSession && existing.sessionId && sessionId && existing.sessionId !== sessionId) {
+      throw new HttpError(409, "Attempt already active in another session");
+    }
     const answers = existing.answers && typeof existing.answers === "object"
       ? existing.answers
       : {};
@@ -434,10 +523,15 @@ async function startAttempt(studentId, examIdRaw) {
         exam: stripAnswersFromExam(exam),
         answers,
         currentQuestionIndex: existing.currentQuestionIndex ?? 0,
+        expiresAt: existing.expiresAt,
+        sessionId: existing.sessionId,
       },
     };
   }
 
+  const now = Date.now();
+  const durationMinutes = Number.isFinite(Number(exam.duration)) ? Number(exam.duration) : 0;
+  const expiresAt = durationMinutes > 0 ? new Date(now + durationMinutes * 60 * 1000) : null;
   try {
     const attempt = await prisma.attempt.create({
       data: {
@@ -446,6 +540,10 @@ async function startAttempt(studentId, examIdRaw) {
         status: "IN_PROGRESS",
         answers: {},
         currentQuestionIndex: 0,
+        ...(durationMinutes > 0
+          ? { startedAt: new Date(now), expiresAt, lastSavedAt: new Date(now) }
+          : {}),
+        ...(features.strictExamSession ? { sessionId } : {}),
       },
     });
 
@@ -456,6 +554,8 @@ async function startAttempt(studentId, examIdRaw) {
         exam: stripAnswersFromExam(exam),
         answers: {},
         currentQuestionIndex: 0,
+        expiresAt: attempt.expiresAt,
+        sessionId: attempt.sessionId,
       },
     };
   } catch (err) {
@@ -471,6 +571,8 @@ async function startAttempt(studentId, examIdRaw) {
             exam: stripAnswersFromExam(exam),
             answers: newlyCreated.answers || {},
             currentQuestionIndex: newlyCreated.currentQuestionIndex ?? 0,
+            expiresAt: newlyCreated.expiresAt,
+            sessionId: newlyCreated.sessionId,
           },
         };
       }
@@ -485,6 +587,7 @@ async function saveAttemptAnswer(studentId, body) {
   const questionId = Number(body?.questionId);
   const selectedAnswer = body?.selectedAnswer;
   const nextQuestionIndex = Number(body?.nextQuestionIndex);
+  const sessionId = body?.sessionId ? String(body.sessionId) : null;
 
   if (!Number.isFinite(examId)) {
     throw new HttpError(400, "examId is required");
@@ -503,6 +606,15 @@ async function saveAttemptAnswer(studentId, body) {
   }
   if (attempt.status !== "IN_PROGRESS") {
     throw new HttpError(409, "This attempt is already submitted");
+  }
+  if (features.strictExamSession && attempt.sessionId && sessionId && attempt.sessionId !== sessionId) {
+    throw new HttpError(409, "Attempt already active in another session");
+  }
+  if (features.strictExamSession && attempt.expiresAt && new Date(attempt.expiresAt) <= new Date()) {
+    if (features.timeoutAutoClose) {
+      await prisma.attempt.update({ where: { id: attempt.id }, data: { status: "TIMED_OUT" } });
+    }
+    throw new HttpError(403, "Time limit exceeded");
   }
 
   // 2. Fetch Exam details (Redis-cached)
@@ -536,7 +648,7 @@ async function saveAttemptAnswer(studentId, body) {
   }
 
   // 3. Time Limit Enforcement
-  const elapsedMinutes = (Date.now() - new Date(attempt.createdAt).getTime()) / 60000;
+  const elapsedMinutes = (Date.now() - new Date(attempt.startedAt || attempt.createdAt).getTime()) / 60000;
   const graceMinutes = 5;
   if (elapsedMinutes > cachedExam.duration + graceMinutes) {
     throw new HttpError(403, "Time limit exceeded. You can no longer save answers.");
@@ -564,6 +676,7 @@ async function saveAttemptAnswer(studentId, body) {
     UPDATE "Attempt" 
     SET "answers" = (CASE WHEN jsonb_typeof(COALESCE("answers", '{}'::jsonb)) = 'array' THEN '{}'::jsonb ELSE COALESCE("answers", '{}'::jsonb) END) || ${answerUpdate}::jsonb,
         "currentQuestionIndex" = ${boundedNext},
+        "lastSavedAt" = NOW(),
         "updatedAt" = NOW()
     WHERE "id" = ${attempt.id} AND "status" = 'IN_PROGRESS'
   `;
@@ -596,6 +709,7 @@ async function saveAttemptAnswer(studentId, body) {
 async function submitExam(studentId, body) {
   const examId = Number(body?.examId);
   const answers = body?.answers;
+  const sessionId = body?.sessionId ? String(body.sessionId) : null;
 
   if (!Number.isFinite(examId)) {
     throw new HttpError(400, "examId is required");
@@ -610,7 +724,19 @@ async function submitExam(studentId, body) {
     throw new HttpError(400, "Start the exam before submitting");
   }
   if (attempt.status === "SUBMITTED") {
+    const existingResult = await prisma.result.findUnique({
+      where: { studentId_examId: { studentId, examId } },
+    });
+    if (existingResult) {
+      return { score: existingResult.score, correct: null, total: null, alreadySubmitted: true };
+    }
     throw new HttpError(409, "Already submitted");
+  }
+  if (attempt.status === "TIMED_OUT") {
+    throw new HttpError(409, "Attempt already timed out");
+  }
+  if (features.strictExamSession && attempt.sessionId && sessionId && attempt.sessionId !== sessionId) {
+    throw new HttpError(409, "Attempt already active in another session");
   }
 
   const exam = await prisma.exam.findUnique({
@@ -622,7 +748,7 @@ async function submitExam(studentId, body) {
     throw new HttpError(404, "Exam not found");
   }
 
-  const elapsedMinutes = (Date.now() - new Date(attempt.createdAt).getTime()) / 60000;
+  const elapsedMinutes = (Date.now() - new Date(attempt.startedAt || attempt.createdAt).getTime()) / 60000;
   const graceMinutes = 5;
   const isLate = elapsedMinutes > exam.duration + graceMinutes;
 
@@ -643,7 +769,7 @@ async function submitExam(studentId, body) {
   await prisma.$transaction([
     prisma.attempt.update({
       where: { id: attempt.id },
-      data: { status: "SUBMITTED" },
+      data: { status: isLate ? "TIMED_OUT" : "SUBMITTED" },
     }),
     prisma.result.upsert({
       where: {
@@ -654,20 +780,16 @@ async function submitExam(studentId, body) {
     }),
   ]);
 
-  try {
-    // Invalidate results caches
-    await Promise.all([
-      redis.del(`results:student:${studentId}:all:p1:l20`),
-      redis.del(`results:student:${studentId}:${examId}:p1:l20`),
-      redis.del(`exams:catalog:STUDENT:${studentId}:p1:l20`),
-      redis.del(`results:admin:${examId}:all:p1:l20`),
-      redis.del(`results:admin:all:all:p1:l20`),
-      redis.del(`stats:dashboard:STUDENT:${studentId}`),
-      redis.del(`stats:dashboard:ADMIN:all`),
-    ]);
-  } catch (err) {
-    console.error("[Redis] DEL error in finishAttempt", err);
-  }
+  // Best-effort invalidation (should never block submit response path)
+  await cacheDel([
+    `results:student:${studentId}:all:p1:l20`,
+    `results:student:${studentId}:${examId}:p1:l20`,
+    `exams:catalog:STUDENT:${studentId}:p1:l20`,
+    `results:admin:${examId}:all:p1:l20`,
+    `results:admin:all:all:p1:l20`,
+    `stats:dashboard:STUDENT:${studentId}`,
+    `stats:dashboard:ADMIN:all`,
+  ]);
 
   return { score, correct, total };
 }
@@ -692,6 +814,8 @@ async function getAttemptStatus(studentId, examIdRaw) {
     examId: attempt.examId,
     status: attempt.status,
     currentQuestionIndex: attempt.currentQuestionIndex ?? 0,
+    expiresAt: attempt.expiresAt ?? null,
+    sessionId: attempt.sessionId ?? null,
     answeredCount: Object.keys(answers).length,
     totalQuestions: attempt.exam?._count?.questions ?? 0,
     updatedAt: attempt.updatedAt,
@@ -722,6 +846,8 @@ async function getAttemptDetails(studentId, attemptIdRaw) {
     examId: attempt.examId,
     status: attempt.status,
     currentQuestionIndex: attempt.currentQuestionIndex ?? 0,
+    expiresAt: attempt.expiresAt ?? null,
+    sessionId: attempt.sessionId ?? null,
     answers,
     exam: stripAnswersFromExam(attempt.exam),
     createdAt: attempt.createdAt,

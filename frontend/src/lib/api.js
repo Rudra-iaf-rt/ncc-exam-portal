@@ -1,5 +1,6 @@
 const API_ORIGIN = import.meta.env.VITE_API_URL || '';
 const API_PREFIX = import.meta.env.VITE_API_PREFIX || '/api';
+const COOKIE_AUTH_ENABLED = String(import.meta.env.VITE_COOKIE_AUTH || 'false') === 'true';
 
 function joinUrl(...parts) {
   return parts
@@ -25,15 +26,13 @@ function isAuthFlowEndpoint(endpoint) {
 }
 
 async function tryRefreshToken() {
-  const refreshToken = localStorage.getItem('ncc_refresh_token');
-  if (!refreshToken) return { status: 'NO_TOKEN' };
-
   try {
     const url = joinUrl(API_ORIGIN, API_PREFIX, '/auth/refresh');
     const response = await fetch(url, {
       method: 'POST',
+      credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ refreshToken }),
+      body: COOKIE_AUTH_ENABLED ? JSON.stringify({}) : JSON.stringify({ refreshToken: localStorage.getItem('ncc_refresh_token') }),
     });
     
     if (!response.ok) {
@@ -45,10 +44,12 @@ async function tryRefreshToken() {
       return { status: 'INVALID_RESPONSE' };
     }
 
-    localStorage.setItem('ncc_token', data.token);
-    localStorage.setItem('ncc_refresh_token', data.refreshToken);
-    if (data.user) {
-      localStorage.setItem('ncc_user', JSON.stringify(data.user));
+    if (!COOKIE_AUTH_ENABLED) {
+      localStorage.setItem('ncc_token', data.token);
+      localStorage.setItem('ncc_refresh_token', data.refreshToken);
+      if (data.user) {
+        localStorage.setItem('ncc_user', JSON.stringify(data.user));
+      }
     }
     return { status: 'SUCCESS', data };
   } catch (err) {
@@ -58,7 +59,7 @@ async function tryRefreshToken() {
 }
 
 export async function apiFetch(endpoint, options = {}, retrying = false) {
-  const token = localStorage.getItem('ncc_token');
+  const token = COOKIE_AUTH_ENABLED ? null : localStorage.getItem('ncc_token');
 
   const isFormData =
     typeof FormData !== 'undefined' && options.body instanceof FormData;
@@ -71,11 +72,19 @@ export async function apiFetch(endpoint, options = {}, retrying = false) {
   if (token) {
     headers['Authorization'] = `Bearer ${token}`;
   }
+  const csrfToken = typeof document !== 'undefined'
+    ? document.cookie.split('; ').find((x) => x.startsWith('ncc_csrf_token='))?.split('=')[1]
+    : null;
+  const method = String(options.method || 'GET').toUpperCase();
+  if (COOKIE_AUTH_ENABLED && csrfToken && !['GET', 'HEAD', 'OPTIONS'].includes(method)) {
+    headers['X-CSRF-Token'] = decodeURIComponent(csrfToken);
+  }
 
   try {
     const url = joinUrl(API_ORIGIN, API_PREFIX, endpoint);
     const response = await fetch(url, {
       ...options,
+      credentials: 'include',
       headers,
     });
 

@@ -1,6 +1,6 @@
 const { prisma } = require("../lib/prisma");
-const { redis } = require("../lib/redis");
 const { logger } = require("../utils/logger");
+const { cacheGetJson, cacheSetJson } = require("../lib/cache");
 const bcrypt = require("bcrypt");
 const csv = require("csv-parser");
 const { Readable } = require("stream");
@@ -21,13 +21,8 @@ const userSchema = z.object({
 
 async function getStats(currentUser) {
   const cacheKey = `stats:dashboard:${currentUser?.role || 'none'}:${currentUser?.id || 'none'}`;
-  
-  try {
-    const cached = await redis.get(cacheKey);
-    if (cached) return JSON.parse(cached);
-  } catch (err) {
-    console.error("[Redis] GET error in getStats", err);
-  }
+  const cached = await cacheGetJson(cacheKey);
+  if (cached) return cached;
 
   let userWhere = { role: "STUDENT" };
   let attemptWhere = { status: "IN_PROGRESS" };
@@ -71,12 +66,8 @@ async function getStats(currentUser) {
     }))
   };
 
-  try {
-    // Dashboard stats cached for 30 seconds
-    await redis.setex(cacheKey, 30, JSON.stringify(result));
-  } catch (err) {
-    console.error("[Redis] SET error in getStats", err);
-  }
+  // Dashboard stats cached for 30 seconds
+  await cacheSetJson(cacheKey, 30, result);
 
   return result;
 }

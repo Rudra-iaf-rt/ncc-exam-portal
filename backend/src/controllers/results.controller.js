@@ -31,6 +31,7 @@ async function exportCsv(req, res) {
 }
 
 async function listAll(req, res) {
+  res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
   const role = req.user.role;
   if (role === "STUDENT") {
     return listStudent(req, res);

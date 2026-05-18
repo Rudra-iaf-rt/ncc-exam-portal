@@ -10,6 +10,7 @@ import {
   Loader2
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { getCachedResource, getOrFetchResource } from '../../lib/resourceCache';
 
 import { useAuth } from '../hooks/useAuth';
 
@@ -20,21 +21,42 @@ const CadetResults = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (!user) return;
+
+    let cancelled = false;
+    const userKey = user?.id || user?.regimentalNumber || user?.email || 'current';
+    const cacheKey = `cadet-results:${userKey}`;
+    const cached = getCachedResource(cacheKey);
+
+    if (cached) {
+      setResults(cached.results || []);
+      setLoading(false);
+    }
+
     const fetchResults = async () => {
       try {
-        const { data } = await examApi.getResults();
-        if (data) setResults(data.results);
+        const data = await getOrFetchResource(
+          cacheKey,
+          async () => {
+            const response = await examApi.getResults();
+            return { results: response?.data?.results || [] };
+          },
+          { staleTimeMs: 2 * 60 * 1000 }
+        );
+        if (!cancelled) setResults(data.results || []);
       } catch (error) {
-        if (error.status !== 401) {
+        if (!cancelled && error.status !== 401) {
           console.error('Failed to fetch results:', error);
         }
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
-    if (user) {
-      fetchResults();
-    }
+
+    fetchResults();
+    return () => {
+      cancelled = true;
+    };
   }, [user]);
 
 

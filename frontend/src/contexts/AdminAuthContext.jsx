@@ -11,6 +11,8 @@ import {
 } from '../lib/auth';
 import { AdminAuthContext } from './AdminAuth';
 
+const COOKIE_AUTH_ENABLED = String(import.meta.env.VITE_COOKIE_AUTH || 'false') === 'true';
+
 export function AdminAuthProvider({ children }) {
   const [user, setUser] = useState(() => {
     const saved = getSavedUser();
@@ -21,28 +23,27 @@ export function AdminAuthProvider({ children }) {
 
   async function logout() {
     const refreshToken = getRefreshToken();
-    if (refreshToken) {
-      try {
-        await authApi.logout({ refreshToken });
-      } catch {
-        // Ignore logout errors
-      }
+    try {
+      await authApi.logout(COOKIE_AUTH_ENABLED ? {} : { refreshToken });
+    } catch {
+      // Ignore logout errors (session may already be expired or revoked)
     }
     clearAuth();
     setUser(null);
+    window.dispatchEvent(new Event('ncc_logout'));
   }
 
   useEffect(() => {
     async function rehydrate() {
       const token = getToken();
-      if (!token) {
+      if (!token && !COOKIE_AUTH_ENABLED) {
         setIsLoading(false);
         return;
       }
 
       // If the saved user is a STUDENT, do not perform staff rehydration or call logout()!
       const saved = getSavedUser();
-      if (saved && saved.role === 'STUDENT') {
+      if (saved && saved.role === 'STUDENT' && !COOKIE_AUTH_ENABLED) {
         setUser(null);
         setIsLoading(false);
         return;
@@ -92,9 +93,11 @@ export function AdminAuthProvider({ children }) {
       const { data } = await authApi.loginStaff({ email, password });
       const isStaff = data?.user?.role === 'ADMIN' || data?.user?.role === 'INSTRUCTOR';
 
-      if (data && data.token && isStaff) {
-        setToken(data.token);
-        if (data.refreshToken) setRefreshToken(data.refreshToken);
+      if (data && data.user && isStaff) {
+        if (!COOKIE_AUTH_ENABLED) {
+          if (data.token) setToken(data.token);
+          if (data.refreshToken) setRefreshToken(data.refreshToken);
+        }
         saveUser(data.user);
         setUser(data.user);
         return { success: true };

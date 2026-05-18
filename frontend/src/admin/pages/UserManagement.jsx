@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { adminApi } from '../../api';
 import { useAdminAuth } from '../../contexts/AdminAuth';
 import { toast } from 'sonner';
@@ -16,13 +16,12 @@ import AddUserModal from '../components/AddUserModal';
 import EditUserModal from '../components/EditUserModal';
 import BatchManagementModal from '../components/BatchManagementModal';
 import { Calendar } from 'lucide-react';
+import { invalidateCachedResource } from '../../lib/resourceCache';
+import { useCachedFetch } from '../../hooks/useCachedFetch';
 
 export default function UserManagement() {
   const { user } = useAdminAuth();
   const isAdmin = user?.role === 'ADMIN';
-  const [users, setUsers] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [refreshKey, setRefreshKey] = useState(0);
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -31,7 +30,15 @@ export default function UserManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [wingFilter, setWingFilter] = useState('ALL');
 
-  const handleRefresh = () => setRefreshKey(prev => prev + 1);
+  const { data, loading } = useCachedFetch(
+    'admin-users-students',
+    async () => {
+      const response = await adminApi.getUsers({ role: 'STUDENT' });
+      return { users: response?.data || [] };
+    },
+    { staleTimeMs: 2 * 60 * 1000 }
+  );
+  const users = data?.users || [];
 
   const handleDelete = async (id, name) => {
     if (!isAdmin) return;
@@ -41,8 +48,8 @@ export default function UserManagement() {
 
     try {
       await adminApi.deleteUser(id);
+      invalidateCachedResource('admin-users-students');
       toast.success(`${name} has been permanently removed.`);
-      handleRefresh();
     } catch (error) {
       toast.error(error.message);
     }
@@ -68,19 +75,9 @@ export default function UserManagement() {
     return matchesSearch && matchesWing;
   });
 
-  useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        const { data } = await adminApi.getUsers({ role: 'STUDENT' });
-        if (data) setUsers(data);
-      } catch (error) {
-        console.error('Failed to fetch users:', error);
-      } finally {
-        setLoading(false);
-      }
-    };
-    fetchUsers();
-  }, [refreshKey]);
+  const handleRefresh = () => {
+    invalidateCachedResource('admin-users-students');
+  };
 
   return (
     <div className="w-full pb-10">

@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
-import { adminApi } from '../../api';
+import { adminApi, examApi } from '../../api';
 import { PageHeader } from '../components/Shared';
+import { invalidateCachedResource } from '../../lib/resourceCache';
+import { useCachedFetch } from '../../hooks/useCachedFetch';
 import { 
   ShieldCheck, 
   Search, 
@@ -111,12 +113,10 @@ export default function ScheduleExam() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
-  const [exams, setExams] = useState([]);
-  const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [filterOptions, setFilterOptions] = useState({ wings: [], colleges: [], batches: [] });
 
-  // Form State
+  // Form State — declared before useEffects that reference these values
   const [form, setForm] = useState({
     examId: '',
     wing: '',
@@ -124,24 +124,40 @@ export default function ScheduleExam() {
     batch: '',
     query: ''
   });
-
   const [previewResults, setPreviewResults] = useState([]);
   const [selectedUsers, setSelectedUsers] = useState(new Map());
   const [searching, setSearching] = useState(false);
 
+  // Reactive exam list via shared cache — auto-updates when exams are created/edited/deleted
+  const { data: examsData, loading } = useCachedFetch(
+    'admin-exam-list',
+    async () => {
+      const { data } = await examApi.getExams();
+      return { exams: (data?.exams || []).filter(e => e.status !== 'ARCHIVED') };
+    },
+    { staleTimeMs: 2 * 60 * 1000 }
+  );
+  const exams = examsData?.exams || [];
+
+  const fetchFilters = async () => {
+    try {
+      const { data } = await adminApi.getFilters();
+      setFilterOptions(data);
+    } catch (err) {
+      console.error("Fetch Filters Error:", err);
+    }
+  };
+
   useEffect(() => {
-    fetchExams();
     fetchFilters();
   }, []);
 
   // Live search when on Step 2
   useEffect(() => {
     if (currentStep !== 2) return;
-    
     const timeoutId = setTimeout(() => {
       handlePreview();
     }, 400); // 400ms debounce
-    
     return () => clearTimeout(timeoutId);
   }, [form.wing, form.college, form.batch, form.query, currentStep]);
 
@@ -152,26 +168,6 @@ export default function ScheduleExam() {
       setCurrentStep(2);
     }
   }, [searchParams, exams]);
-
-  const fetchExams = async () => {
-    try {
-      const { data } = await adminApi.getExams();
-      setExams(data.exams.filter(e => e.status !== 'ARCHIVED'));
-    } catch (err) {
-      toast.error("Failed to fetch available exams");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const fetchFilters = async () => {
-    try {
-      const { data } = await adminApi.getFilters();
-      setFilterOptions(data);
-    } catch (err) {
-      console.error("Fetch Filters Error:", err);
-    }
-  };
 
   const handlePreview = async () => {
     setSearching(true);
@@ -220,6 +216,7 @@ export default function ScheduleExam() {
         userIds: Array.from(selectedUsers.keys())
       };
       const { data } = await adminApi.createAssignments(payload);
+      invalidateCachedResource('admin-assignments');
       toast.success(`Successfully scheduled exams for ${data.count || selectedUsers.size} cadets.`);
       navigate('/admin/assignments');
     } catch (err) {
@@ -436,6 +433,7 @@ export default function ScheduleExam() {
                       </p>
                     </div>
                   ) : previewResults.length > 0 && (
+                      <div className="overflow-x-auto w-full">
                         <table className="w-full text-left text-[13px] border-collapse">
                           <thead className="bg-stone/50 text-ink-4 border-b border-stone-deep sticky top-0 z-10">
                             <tr>
@@ -493,7 +491,8 @@ export default function ScheduleExam() {
                             ))}
                           </tbody>
                         </table>
-                      )}
+                      </div>
+                    )}
                     </div>
               </div>
             </div>
@@ -563,40 +562,42 @@ export default function ScheduleExam() {
 
               {/* Roster Table */}
               <div className="flex-1 overflow-y-auto max-h-[460px] bg-white">
-                <table className="w-full text-left text-[13px] border-collapse">
-                  <thead className="bg-stone-wash/50 text-ink-4 border-b border-stone-deep sticky top-0 z-10">
-                    <tr>
-                      <th className="p-3 pl-6 font-semibold uppercase tracking-wider text-[9px]">Cadet Name & ID</th>
-                      <th className="p-3 font-semibold uppercase tracking-wider text-[9px]">Unit</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-stone">
-                    {Array.from(selectedUsers.values()).map(u => (
-                      <tr key={u.id} className="hover:bg-stone-wash/50">
-                        <td className="p-3 pl-6">
-                          <div className="font-bold text-navy">{u.name}</div>
-                          <div className="font-mono text-[10px] text-ink-4 mt-0.5 uppercase">{u.regimentalNumber}</div>
-                        </td>
-                        <td className="p-3">
-                          <div className="flex items-center gap-1.5 text-ink-3 text-[11px] mb-1">
-                            <Building2 size={11} className="opacity-40" />
-                            <span className="truncate max-w-[200px]">{u.college}</span>
-                          </div>
-                          <div className="flex gap-1.5">
-                            <span className={`text-[8px] px-1.5 py-0.5 rounded-sm font-black tracking-widest border ${
-                              u.wing?.toUpperCase() === 'ARMY' ? 'bg-[#ef444410] text-[#b91c1c] border-[#b91c1c20]' :
-                              u.wing?.toUpperCase() === 'NAVY' ? 'bg-[#3b82f610] text-[#1d4ed8] border-[#1d4ed820]' :
-                              'bg-[#06b6d410] text-[#0891b2] border-[#0891b220]'
-                            }`}>
-                              {u.wing}
-                            </span>
-                            {u.batch && <span className="text-[8px] px-1.5 py-0.5 bg-stone-deep text-ink-4 rounded-sm font-bold uppercase">{u.batch}</span>}
-                          </div>
-                        </td>
+                <div className="overflow-x-auto w-full">
+                  <table className="w-full text-left text-[13px] border-collapse">
+                    <thead className="bg-stone-wash/50 text-ink-4 border-b border-stone-deep sticky top-0 z-10">
+                      <tr>
+                        <th className="p-3 pl-6 font-semibold uppercase tracking-wider text-[9px]">Cadet Name & ID</th>
+                        <th className="p-3 font-semibold uppercase tracking-wider text-[9px]">Unit</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
+                    </thead>
+                    <tbody className="divide-y divide-stone">
+                      {Array.from(selectedUsers.values()).map(u => (
+                        <tr key={u.id} className="hover:bg-stone-wash/50">
+                          <td className="p-3 pl-6">
+                            <div className="font-bold text-navy">{u.name}</div>
+                            <div className="font-mono text-[10px] text-ink-4 mt-0.5 uppercase">{u.regimentalNumber}</div>
+                          </td>
+                          <td className="p-3">
+                            <div className="flex items-center gap-1.5 text-ink-3 text-[11px] mb-1">
+                              <Building2 size={11} className="opacity-40" />
+                              <span className="truncate max-w-[200px]">{u.college}</span>
+                            </div>
+                            <div className="flex gap-1.5">
+                              <span className={`text-[8px] px-1.5 py-0.5 rounded-sm font-black tracking-widest border ${
+                                u.wing?.toUpperCase() === 'ARMY' ? 'bg-[#ef444410] text-[#b91c1c] border-[#b91c1c20]' :
+                                u.wing?.toUpperCase() === 'NAVY' ? 'bg-[#3b82f610] text-[#1d4ed8] border-[#1d4ed820]' :
+                                'bg-[#06b6d410] text-[#0891b2] border-[#0891b220]'
+                              }`}>
+                                {u.wing}
+                              </span>
+                              {u.batch && <span className="text-[8px] px-1.5 py-0.5 bg-stone-deep text-ink-4 rounded-sm font-bold uppercase">{u.batch}</span>}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </div>
               </div>
 
               <div className="p-6 bg-stone border-t border-stone flex justify-between items-center">
