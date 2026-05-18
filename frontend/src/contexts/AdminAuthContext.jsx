@@ -97,6 +97,10 @@ export function AdminAuthProvider({ children }) {
         if (!COOKIE_AUTH_ENABLED) {
           if (data.token) setToken(data.token);
           if (data.refreshToken) setRefreshToken(data.refreshToken);
+        } else {
+          // Always save tokens in localStorage as fallback for mobile/cross-origin devices
+          if (data.token) setToken(data.token);
+          if (data.refreshToken) setRefreshToken(data.refreshToken);
         }
         saveUser(data.user);
         setUser(data.user);

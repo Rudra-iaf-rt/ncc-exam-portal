@@ -24,9 +24,10 @@ const CadetLogin = () => {
       if (!COOKIE_AUTH_ENABLED) {
         if (data.token) setToken(data.token);
         if (data.refreshToken) setRefreshToken(data.refreshToken);
-      } else if (data.token) {
-        // Keep backward compatibility while cookie rollout is in progress
-        setToken(data.token);
+      } else {
+        // Keep fallback tokens in localStorage for reliability on mobile/cross-origin devices
+        if (data.token) setToken(data.token);
+        if (data.refreshToken) setRefreshToken(data.refreshToken);
       }
       if (data.user) saveUser(data.user);
 

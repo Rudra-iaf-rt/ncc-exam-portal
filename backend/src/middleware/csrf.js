@@ -17,6 +17,10 @@ function issueCsrfToken(res) {
 }
 
 function csrfGuard(req, res, next) {
+  const authHeader = req.headers.authorization;
+  const bearer = authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : null;
+  if (bearer) return next();
+
   if (!features.cookieAuth) return next();
   if (SAFE_METHODS.has(req.method)) return next();
   const path = String(req.originalUrl || req.path || "");
