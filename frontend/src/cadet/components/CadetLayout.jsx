@@ -156,7 +156,7 @@ export const CadetLayout = () => {
             <div className="font-display text-[22px] text-[#E8E4D4] leading-none italic tracking-tighter font-black">NCC TIRUPATI</div>
             <div className="font-ui text-[9px] text-gold/30 tracking-[0.3em] uppercase font-black flex items-center justify-center gap-2">
               <span className="w-3 h-px bg-gold/20" />
-              29 Andhra Bn
+              11(A) AIR SQN(T) NCC
               <span className="w-3 h-px bg-gold/20" />
             </div>
           </div>
