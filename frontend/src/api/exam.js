@@ -31,6 +31,7 @@ export const examApi = {
   // Results
   getResults: (params) => apiClient.get('/results', { params }),
   getAdminResults: (params) => apiClient.get('/results/admin', { params }),
+  getResultReview: (examId) => apiClient.get(`/results/review/${examId}`),
 };
 
 export default examApi;

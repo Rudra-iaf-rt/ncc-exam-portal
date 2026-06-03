@@ -6,6 +6,7 @@ import AdminLogin from './admin/pages/AdminLogin'
 import CadetLogin from './cadet/pages/Login'
 import CadetDashboard from './cadet/pages/Dashboard'
 import ExamAttempt from './cadet/pages/ExamAttempt'
+import ExamReview from './cadet/pages/ExamReview'
 import CadetResults from './cadet/pages/Results'
 import CadetMaterials from './cadet/pages/Materials'
 import { RequireCadet } from './cadet/guards/RequireCadet'
@@ -71,8 +72,9 @@ function App() {
             <Route path="/results" element={<Navigate to="/cadet/results" replace />} />
             <Route path="/materials" element={<Navigate to="/cadet/materials" replace />} />
           </Route>
-          {/* ExamAttempt is outside CadetLayout so it can be full screen without navigation */}
+          {/* ExamAttempt & ExamReview are outside CadetLayout to allow full-screen / immersive layout */}
           <Route path="/exam/:id" element={<ExamAttempt />} />
+          <Route path="/exam/review/:examId" element={<ExamReview />} />
         </Route>
 
         {/* Admin Portal */}

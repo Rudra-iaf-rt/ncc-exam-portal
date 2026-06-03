@@ -296,6 +296,107 @@ async function exportExamResultsCsv(examIdRaw) {
   return [header.join(","), ...dataRows].join("\n");
 }
 
+async function getReviewForStudent(studentId, examIdRaw) {
+  const examId = Number(examIdRaw);
+  if (!Number.isFinite(examId)) {
+    throw new HttpError(400, "Invalid examId");
+  }
+
+  const cacheKey = `resultreview:${studentId}:${examId}`;
+  const cached = await cacheGetJson(cacheKey);
+  if (cached) return cached;
+
+  // 1. Verify the attempt exists and belongs to this student
+  const attempt = await prisma.attempt.findUnique({
+    where: { studentId_examId: { studentId, examId } },
+    select: { status: true, answers: true, updatedAt: true },
+  });
+
+  if (!attempt) {
+    throw new HttpError(404, "No attempt found for this exam");
+  }
+
+  // 2. Hard gate — correct answers must never be returned for in-progress exams
+  if (attempt.status !== "SUBMITTED") {
+    throw new HttpError(403, "Exam review is only available after submission");
+  }
+
+  // 3. Fetch the result (score) and exam with all questions (including answer field)
+  const [result, exam] = await Promise.all([
+    prisma.result.findUnique({
+      where: { studentId_examId: { studentId, examId } },
+      select: { score: true, createdAt: true },
+    }),
+    prisma.exam.findUnique({
+      where: { id: examId },
+      include: {
+        questions: {
+          select: { id: true, question: true, options: true, answer: true },
+          orderBy: { id: "asc" },
+        },
+      },
+    }),
+  ]);
+
+  if (!exam) {
+    throw new HttpError(404, "Exam not found");
+  }
+
+  // 4. Build the student answer map from the JSONB blob
+  const studentAnswers =
+    attempt.answers && typeof attempt.answers === "object"
+      ? attempt.answers
+      : {};
+
+  // 5. Compute per-question review — pure, no I/O
+  let correct = 0;
+  let skipped = 0;
+
+  const { normalizeAnswer } = require("./exam-scoring.service");
+
+  const questions = exam.questions.map((q) => {
+    const studentAnswer = studentAnswers[String(q.id)] ?? null;
+    const correctAnswer = normalizeAnswer(q.answer);
+    const normalizedStudent = studentAnswer ? normalizeAnswer(studentAnswer) : null;
+
+    const isSkipped = normalizedStudent === null || normalizedStudent === "";
+    const isCorrect = !isSkipped && normalizedStudent === correctAnswer;
+
+    if (isCorrect) correct++;
+    if (isSkipped) skipped++;
+
+    return {
+      questionId: q.id,
+      question: q.question,
+      options: q.options,
+      correctAnswer,
+      studentAnswer: normalizedStudent,
+      isCorrect,
+      isSkipped,
+    };
+  });
+
+  const total = exam.questions.length;
+  const incorrect = total - correct - skipped;
+
+  const response = {
+    examId,
+    examTitle: exam.title,
+    score: result?.score ?? 0,
+    correct,
+    incorrect,
+    skipped,
+    total,
+    submittedAt: result?.createdAt ?? attempt.updatedAt,
+    questions,
+  };
+
+  // 6. Cache for 5 minutes — data is immutable after submission
+  await cacheSetJson(cacheKey, 300, response);
+
+  return response;
+}
+
 module.exports = {
   mapResultRow,
   listForStudent,
@@ -303,4 +404,5 @@ module.exports = {
   listForAdmin,
   examSummary,
   exportExamResultsCsv,
+  getReviewForStudent,
 };

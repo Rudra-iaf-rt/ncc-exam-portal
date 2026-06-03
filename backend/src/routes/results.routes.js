@@ -38,6 +38,15 @@ router.get(
   asyncHandler(resultsController.listAdmin)
 );
 
+// Review endpoint: returns per-question correctness data for a submitted attempt
+// MUST be declared before /results/summary/:examId to avoid route shadowing
+router.get(
+  "/results/review/:examId",
+  authenticate,
+  requireStudent,
+  asyncHandler(resultsController.getReview)
+);
+
 router.get(
   "/results/summary/:examId",
   authenticate,

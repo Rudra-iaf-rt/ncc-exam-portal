@@ -120,7 +120,8 @@ const ExamAttempt = () => {
     try {
       await examApi.submitAttempt({ examId: Number(id), answers: answerList });
       toast.success('Exam submitted successfully.');
-      navigate('/results');
+      // Redirect to review page for immediate per-question feedback
+      navigate(`/exam/review/${id}`);
     } catch (error) {
       toast.error(error.message || 'Critical error during exam submission');
       setIsSubmitting(false);

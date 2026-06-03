@@ -43,6 +43,11 @@ async function listAll(req, res) {
   res.status(403).json({ error: "Unauthorized role" });
 }
 
+async function getReview(req, res) {
+  const data = await resultsService.getReviewForStudent(req.user.id, req.params.examId);
+  res.json(data);
+}
+
 module.exports = {
   listStudent,
   listInstructor,
@@ -50,4 +55,5 @@ module.exports = {
   summary,
   exportCsv,
   listAll,
+  getReview,
 };
