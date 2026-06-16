@@ -241,7 +241,7 @@ apiClient.interceptors.response.use(
     }
 
     const customError = {
-      message: error.response?.data?.error || error.message || 'An unexpected error occurred',
+      message: error.response?.data?.message || error.response?.data?.error || error.message || 'An unexpected error occurred',
       status: error.response?.status || 0,
       data: error.response?.data || null
     };

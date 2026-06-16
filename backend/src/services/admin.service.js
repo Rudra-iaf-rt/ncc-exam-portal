@@ -100,8 +100,12 @@ async function importUsers(fileBuffer, originalName, adminId) {
   });
   const existingRegNos = new Set(existingUsers.map(u => u.regimentalNumber).filter(Boolean));
 
-  // Fetch all batches to validate against
-  const batches = await prisma.batch.findMany({ select: { name: true } });
+  // Fetch all colleges and batches to validate against
+  const [colleges, batches] = await Promise.all([
+    prisma.college.findMany({ select: { code: true } }),
+    prisma.batch.findMany({ select: { name: true } })
+  ]);
+  const validCollegeCodes = new Set(colleges.map(c => c.code.toUpperCase()));
   const validBatchNames = new Set(batches.map(b => b.name));
 
   for (let i = 0; i < results.length; i++) {
@@ -124,6 +128,11 @@ async function importUsers(fileBuffer, originalName, adminId) {
 
     if (existingRegNos.has(parsed.data.regimentalNumber)) {
       errors.push({ row: i + 1, regNo: parsed.data.regimentalNumber, error: "Already exists" });
+      continue;
+    }
+
+    if (rawData.collegeCode && !validCollegeCodes.has(rawData.collegeCode)) {
+      errors.push({ row: i + 1, error: `Invalid College Code: "${rawData.collegeCode}". Please check available College Codes.` });
       continue;
     }
 
