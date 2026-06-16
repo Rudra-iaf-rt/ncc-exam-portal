@@ -130,7 +130,7 @@ async function listForInstructor(instructorId, query) {
     }
   }
 
-  const cacheKey = `results:instructor:${instructorId}:${collegeCode}:${examId || 'all'}:p${page}:l${limit}`;
+  const cacheKey = `results:instructor:${instructorId}:${collegeCode}:${examId || 'all'}:${query.search || 'none'}:p${page}:l${limit}`;
   try {
     const cached = await redis.get(cacheKey);
     if (cached) return JSON.parse(cached);
@@ -138,22 +138,32 @@ async function listForInstructor(instructorId, query) {
     console.error("[Redis] GET error in listForInstructor", err);
   }
 
+  const where = {
+    student: { collegeCode: collegeCode === "NONE" ? null : collegeCode },
+    ...(examId != null ? { examId } : {}),
+  };
+
+  if (query.search && String(query.search).trim() !== "") {
+    const term = String(query.search).trim();
+    where.student = {
+      ...where.student,
+      OR: [
+        { name: { contains: term, mode: "insensitive" } },
+        { regimentalNumber: { contains: term, mode: "insensitive" } }
+      ]
+    };
+  }
+
   const [rows, total] = await Promise.all([
     prisma.result.findMany({
-      where: {
-        student: { collegeCode: collegeCode === "NONE" ? null : collegeCode },
-        ...(examId != null ? { examId } : {}),
-      },
+      where,
       orderBy: { id: "desc" },
       include: resultInclude,
       skip,
       take: limit,
     }),
     prisma.result.count({
-      where: {
-        student: { collegeCode: collegeCode === "NONE" ? null : collegeCode },
-        ...(examId != null ? { examId } : {}),
-      },
+      where,
     }),
   ]);
 
@@ -189,26 +199,36 @@ async function listForAdmin(query) {
   const limit = Math.min(100, Math.max(1, parseInt(query.limit || "20", 10)));
   const skip = (page - 1) * limit;
 
-  const cacheKey = `results:admin:${examId || 'all'}:${collegeCode || 'all'}:p${page}:l${limit}`;
+  const cacheKey = `results:admin:${examId || 'all'}:${collegeCode || 'all'}:${query.search || 'none'}:p${page}:l${limit}`;
   const cached = await cacheGetJson(cacheKey);
   if (cached) return cached;
 
+  const where = {
+    ...(examId != null ? { examId } : {}),
+    ...(collegeCode != null ? { student: { collegeCode } } : {}),
+  };
+
+  if (query.search && String(query.search).trim() !== "") {
+    const term = String(query.search).trim();
+    where.student = {
+      ...where.student,
+      OR: [
+        { name: { contains: term, mode: "insensitive" } },
+        { regimentalNumber: { contains: term, mode: "insensitive" } }
+      ]
+    };
+  }
+
   const [rows, total] = await Promise.all([
     prisma.result.findMany({
-      where: {
-        ...(examId != null ? { examId } : {}),
-        ...(collegeCode != null ? { student: { collegeCode } } : {}),
-      },
+      where,
       orderBy: { id: "desc" },
       include: resultInclude,
       skip,
       take: limit,
     }),
     prisma.result.count({
-      where: {
-        ...(examId != null ? { examId } : {}),
-        ...(collegeCode != null ? { student: { collegeCode } } : {}),
-      },
+      where,
     }),
   ]);
 

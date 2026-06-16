@@ -12,10 +12,13 @@ import {
 import { useNavigate } from 'react-router-dom';
 import { getCachedResource, getOrFetchResource } from '../../lib/resourceCache';
 import { useAuth } from '../hooks/useAuth';
+import { Pagination } from '../../admin/components/Shared';
 
 const CadetResults = () => {
   const { user } = useAuth();
   const [results, setResults] = useState([]);
+  const [page, setPage] = useState(1);
+  const [pagination, setPagination] = useState({ totalPages: 1 });
   const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
@@ -24,12 +27,15 @@ const CadetResults = () => {
 
     let cancelled = false;
     const userKey = user?.id || user?.regimentalNumber || user?.email || 'current';
-    const cacheKey = `cadet-results:${userKey}`;
+    const cacheKey = `cadet-results:${userKey}:p${page}`;
     const cached = getCachedResource(cacheKey);
 
     if (cached) {
       setResults(cached.results || []);
+      setPagination(cached.pagination || { totalPages: 1 });
       setLoading(false);
+    } else {
+      setLoading(true);
     }
 
     const fetchResults = async () => {
@@ -37,12 +43,18 @@ const CadetResults = () => {
         const data = await getOrFetchResource(
           cacheKey,
           async () => {
-            const response = await examApi.getResults();
-            return { results: response?.data?.results || [] };
+            const response = await examApi.getResults({ page, limit: 20 });
+            return { 
+              results: response?.data?.results || [],
+              pagination: response?.data?.pagination || { totalPages: 1 }
+            };
           },
           { staleTimeMs: 2 * 60 * 1000 }
         );
-        if (!cancelled) setResults(data.results || []);
+        if (!cancelled) {
+          setResults(data.results || []);
+          setPagination(data.pagination || { totalPages: 1 });
+        }
       } catch (error) {
         if (!cancelled && error.status !== 401) {
           console.error('Failed to fetch results:', error);
@@ -54,7 +66,7 @@ const CadetResults = () => {
 
     fetchResults();
     return () => { cancelled = true; };
-  }, [user]);
+  }, [user, page]);
 
   const getPerformanceTag = (score) => {
     if (score >= 80) return { label: 'Distinction', class: 'distinction' };
@@ -243,6 +255,12 @@ const CadetResults = () => {
             </p>
           </div>
         )}
+        <Pagination 
+          currentPage={page} 
+          totalPages={pagination.totalPages} 
+          onPageChange={setPage} 
+          loading={loading} 
+        />
       </section>
     </>
   );

@@ -1,7 +1,3 @@
-/**
- * NCC Exam API — entrypoint.
- * Loads env from backend/.env then starts Express (see src/app.js).
- */
 require("./src/lib/load-env");
 
 const { app } = require("./src/app");

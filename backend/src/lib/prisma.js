@@ -15,7 +15,7 @@ const pool = new Pool({
   ssl: {
     rejectUnauthorized: false, 
   },
-  max: 4, 
+  max: Number(process.env.DB_POOL_SIZE) || 10, 
   idleTimeoutMillis: 10000,      // Close idle connections after 10 seconds to stay ahead of Neon's timeout
   connectionTimeoutMillis: 15000, // Timeout after 15 seconds if database is unreachable (gives Neon cold-start head room)
   keepAlive: true,                // Enable TCP Keep-Alive to prevent socket idle drops

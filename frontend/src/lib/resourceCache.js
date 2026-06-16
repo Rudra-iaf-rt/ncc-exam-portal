@@ -35,6 +35,19 @@ export function invalidateCachedResource(key) {
 }
 
 /**
+ * Delete cache entries matching a prefix pattern and notify subscribers
+ */
+export function invalidateCachedResourcePattern(prefix) {
+  if (!prefix) return;
+  for (const key of cache.keys()) {
+    if (key.startsWith(prefix)) {
+      cache.delete(key);
+      _notify(key, null);
+    }
+  }
+}
+
+/**
  * Fetch-or-cache with stale-while-revalidate.
  * - Fresh hit  → return cached data immediately, no network call
  * - Stale/miss → fetch, cache result, return it

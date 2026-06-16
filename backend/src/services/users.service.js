@@ -155,16 +155,55 @@ async function listUsers(query = {}, currentUser) {
     }
   }
 
-  const rows = await prisma.user.findMany({
-    where,
-    orderBy: { name: "asc" },
-    select: safeUserSelect(),
-  });
-  
-  return rows.map(u => ({
+  // Search & Filters
+  if (query.search && String(query.search).trim() !== "") {
+    const term = String(query.search).trim();
+    where.AND = [
+      ...(where.AND || []),
+      {
+        OR: [
+          { name: { contains: term, mode: "insensitive" } },
+          { regimentalNumber: { contains: term, mode: "insensitive" } },
+          { email: { contains: term, mode: "insensitive" } }
+        ]
+      }
+    ];
+  }
+
+  if (query.wing && query.wing !== "ALL") {
+    where.wing = query.wing;
+  }
+
+  // Pagination
+  const page = Math.max(1, parseInt(query.page || "1", 10));
+  const limit = Math.min(100, Math.max(1, parseInt(query.limit || "20", 10)));
+  const skip = (page - 1) * limit;
+
+  const [rows, total] = await Promise.all([
+    prisma.user.findMany({
+      where,
+      orderBy: { name: "asc" },
+      select: safeUserSelect(),
+      skip,
+      take: limit,
+    }),
+    prisma.user.count({ where }),
+  ]);
+
+  const users = rows.map(u => ({
     ...sanitizeUser(u),
     college: u.college?.name || u.collegeCode || 'N/A'
   }));
+
+  return {
+    users,
+    pagination: {
+      total,
+      page,
+      limit,
+      totalPages: Math.ceil(total / limit),
+    }
+  };
 }
 
 async function listInstructors() {

@@ -1,31 +1,38 @@
+import { useState } from 'react';
 import { toast } from 'sonner';
 import { NavLink } from 'react-router-dom';
 import { examApi } from '../../api';
 import { useAdminAuth } from '../../contexts/AdminAuth';
-import { PageHeader } from '../components/Shared';
+import { PageHeader, Pagination } from '../components/Shared';
 import { Plus, Eye, ShieldAlert, Edit3, Trash2, UserCheck } from 'lucide-react';
-import { invalidateCachedResource } from '../../lib/resourceCache';
+import { invalidateCachedResourcePattern } from '../../lib/resourceCache';
 import { useCachedFetch } from '../../hooks/useCachedFetch';
-
 
 export default function ExamList() {
   const { user } = useAdminAuth();
   const isAdmin = user?.role === 'ADMIN';
+  const [page, setPage] = useState(1);
+  const limit = 20;
+
   const { data, loading } = useCachedFetch(
-    'admin-exam-list',
+    `admin-exam-list:p${page}`,
     async () => {
-      const response = await examApi.getExams();
-      return { exams: response?.data?.exams || [] };
+      const response = await examApi.getExams({ page, limit });
+      return { 
+        exams: response?.data?.exams || [],
+        pagination: response?.data?.pagination || { totalPages: 1 }
+      };
     },
     { staleTimeMs: 2 * 60 * 1000 }
   );
   const exams = data?.exams || [];
+  const pagination = data?.pagination || { totalPages: 1 };
 
   const handleStatusChange = async (id, newStatus) => {
     if (!isAdmin) return;
     try {
       await examApi.updateExamStatus(id, newStatus);
-      invalidateCachedResource('admin-exam-list');
+      invalidateCachedResourcePattern('admin-exam-list');
       toast.success(`Exam status updated to ${newStatus}`);
     } catch (err) {
       toast.error(err.message || "Failed to update exam status");
@@ -38,7 +45,7 @@ export default function ExamList() {
     
     try {
       await examApi.deleteExam(id);
-      invalidateCachedResource('admin-exam-list');
+      invalidateCachedResourcePattern('admin-exam-list');
       toast.success("Exam successfully deleted");
     } catch (err) {
       toast.error(err.message || "Failed to delete exam");
@@ -169,6 +176,12 @@ export default function ExamList() {
             </tbody>
           </table>
         </div>
+        <Pagination 
+          currentPage={page} 
+          totalPages={pagination.totalPages} 
+          onPageChange={setPage} 
+          loading={loading} 
+        />
       </div>
     </div>
   );

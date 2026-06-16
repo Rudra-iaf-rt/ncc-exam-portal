@@ -1,8 +1,8 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { adminApi } from '../../api';
 import { useAdminAuth } from '../../contexts/AdminAuth';
 import { toast } from 'sonner';
-import { PageHeader } from '../components/Shared';
+import { PageHeader, Pagination } from '../components/Shared';
 import { 
   UserPlus,
   FileUp,
@@ -16,7 +16,7 @@ import AddUserModal from '../components/AddUserModal';
 import EditUserModal from '../components/EditUserModal';
 import BatchManagementModal from '../components/BatchManagementModal';
 import { Calendar } from 'lucide-react';
-import { invalidateCachedResource } from '../../lib/resourceCache';
+import { invalidateCachedResourcePattern } from '../../lib/resourceCache';
 import { useCachedFetch } from '../../hooks/useCachedFetch';
 
 export default function UserManagement() {
@@ -27,18 +27,46 @@ export default function UserManagement() {
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [isBatchOpen, setIsBatchOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  
+  // Pagination & Filtering States
+  const [page, setPage] = useState(1);
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
   const [wingFilter, setWingFilter] = useState('ALL');
 
+  // 300ms Debounce on Search Term
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+      setPage(1); // Reset to page 1 on new search
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [searchTerm]);
+
+
+
+  const limit = 20;
+
   const { data, loading } = useCachedFetch(
-    'admin-users-students',
+    `admin-users-students:p${page}:s${debouncedSearch}:w${wingFilter}`,
     async () => {
-      const response = await adminApi.getUsers({ role: 'STUDENT' });
-      return { users: response?.data || [] };
+      const response = await adminApi.getUsers({
+        role: 'STUDENT',
+        page,
+        limit,
+        search: debouncedSearch,
+        wing: wingFilter
+      });
+      return {
+        users: response?.data?.users || [],
+        pagination: response?.data?.pagination || { totalPages: 1 }
+      };
     },
     { staleTimeMs: 2 * 60 * 1000 }
   );
+
   const users = data?.users || [];
+  const pagination = data?.pagination || { totalPages: 1 };
 
   const handleDelete = async (id, name) => {
     if (!isAdmin) return;
@@ -48,7 +76,7 @@ export default function UserManagement() {
 
     try {
       await adminApi.deleteUser(id);
-      invalidateCachedResource('admin-users-students');
+      invalidateCachedResourcePattern('admin-users-students');
       toast.success(`${name} has been permanently removed.`);
     } catch (error) {
       toast.error(error.message);
@@ -61,22 +89,8 @@ export default function UserManagement() {
     setIsEditOpen(true);
   };
 
-  const filteredUsers = users.filter(u => {
-    const name = u.name || '';
-    const regNo = u.regimentalNumber || '';
-    const email = u.email || '';
-    
-    const matchesSearch = name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      regNo.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      email.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesWing = wingFilter === 'ALL' || (u.wing && u.wing === wingFilter);
-    
-    return matchesSearch && matchesWing;
-  });
-
   const handleRefresh = () => {
-    invalidateCachedResource('admin-users-students');
+    invalidateCachedResourcePattern('admin-users-students');
   };
 
   return (
@@ -156,7 +170,10 @@ export default function UserManagement() {
         </div>
         <select 
           value={wingFilter}
-          onChange={(e) => setWingFilter(e.target.value)}
+          onChange={(e) => {
+            setWingFilter(e.target.value);
+            setPage(1);
+          }}
           className="px-4 rounded-xl border border-stone-3 bg-white font-ui text-[14px] min-w-[140px] h-[46px] flex-none outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all text-ink"
         >
           <option value="ALL">All Wings</option>
@@ -195,7 +212,7 @@ export default function UserManagement() {
             </thead>
             <tbody className="font-ui text-[13.5px] text-ink-2">
               {!loading ? (
-                filteredUsers.map((user) => (
+                users.map((user) => (
                   <tr key={user.id} className="border-b border-stone-mid hover:bg-stone-wash transition-colors last:border-b-0">
                     <td className="px-4 py-3">
                       <div className="font-medium text-navy">{user.name}</div>
@@ -258,7 +275,7 @@ export default function UserManagement() {
                   </td>
                 </tr>
               )}
-              {!loading && filteredUsers.length === 0 && users.length > 0 && (
+              {!loading && users.length === 0 && (
                 <tr>
                   <td colSpan="6" className="text-center p-10 text-ink-4 font-ui">
                     No records matching search criteria.
@@ -268,6 +285,12 @@ export default function UserManagement() {
             </tbody>
           </table>
         </div>
+        <Pagination 
+          currentPage={page} 
+          totalPages={pagination.totalPages} 
+          onPageChange={setPage} 
+          loading={loading} 
+        />
       </div>
     </div>
   );

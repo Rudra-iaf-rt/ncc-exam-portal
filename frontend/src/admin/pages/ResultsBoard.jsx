@@ -1,22 +1,56 @@
-import { useState, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { adminApi, examApi } from '../../api';
 import { useAdminAuth } from '../../contexts/AdminAuth';
 import { toast } from 'sonner';
-import { PageHeader } from '../components/Shared';
+import { PageHeader, Pagination } from '../components/Shared';
 import { Download, Search, Edit3, XCircle, ShieldAlert } from 'lucide-react';
-import { invalidateCachedResource } from '../../lib/resourceCache';
+import { invalidateCachedResourcePattern } from '../../lib/resourceCache';
 import { useCachedFetch } from '../../hooks/useCachedFetch';
 
 export default function ResultsBoard() {
   const { user } = useAdminAuth();
   const isAdmin = user?.role === 'ADMIN';
   const [searchParams] = useSearchParams();
+  
+  // Pagination & Filtering States
+  const [page, setPage] = useState(1);
   const [filters, setFilters] = useState({ 
     college: searchParams.get('college') || '', 
     exam: searchParams.get('exam') || '', 
     search: searchParams.get('search') || '' 
   });
+
+  const [debouncedSearch, setDebouncedSearch] = useState(filters.search);
+  
+  // Dropdowns lists (loaded from DB once)
+  const [collegesList, setCollegesList] = useState([]);
+  const [examsList, setExamsList] = useState([]);
+
+  // Fetch dropdowns list
+  useEffect(() => {
+    adminApi.getColleges().then(res => {
+      setCollegesList(res.data?.colleges || []);
+    }).catch(err => console.error("Failed to load colleges", err));
+
+    adminApi.getExams().then(res => {
+      setExamsList(res.data?.exams || []);
+    }).catch(err => console.error("Failed to load exams", err));
+  }, []);
+
+  // 300ms Debounce on search query
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(filters.search);
+      setPage(1);
+    }, 300);
+    return () => clearTimeout(handler);
+  }, [filters.search]);
+
+  // Reset page when dropdown filters change
+  useEffect(() => {
+    setPage(1);
+  }, [filters.college, filters.exam]);
   
   // Override State
   const [editingResult, setEditingResult] = useState(null);
@@ -24,14 +58,27 @@ export default function ResultsBoard() {
   const [submitting, setSubmitting] = useState(false);
 
   const { data, loading } = useCachedFetch(
-    'admin-results-board',
+    `admin-results-board:p${page}:c${filters.college}:e${filters.exam}:s${debouncedSearch}`,
     async () => {
-      const response = await examApi.getResults();
-      return { results: response?.data?.results || [] };
+      const params = {
+        page,
+        limit: 20,
+        search: debouncedSearch,
+      };
+      if (filters.college) params.collegeCode = filters.college;
+      if (filters.exam) params.examId = Number(filters.exam);
+
+      const response = await examApi.getResults(params);
+      return { 
+        results: response?.data?.results || [],
+        pagination: response?.data?.pagination || { totalPages: 1 }
+      };
     },
     { staleTimeMs: 2 * 60 * 1000 }
   );
+
   const results = data?.results || [];
+  const pagination = data?.pagination || { totalPages: 1 };
 
   const handleOverride = async (e) => {
     e.preventDefault();
@@ -42,7 +89,7 @@ export default function ResultsBoard() {
         reason: overrideForm.reason 
       });
       toast.success('Score updated successfully.');
-      invalidateCachedResource('admin-results-board'); // subscription auto-refetches
+      invalidateCachedResourcePattern('admin-results-board'); // subscription auto-refetches
       setEditingResult(null);
       setOverrideForm({ score: '', reason: '' });
     } catch (err) {
@@ -52,20 +99,7 @@ export default function ResultsBoard() {
     }
   };
 
-  // Filter options
-  const colleges = useMemo(() => [...new Set(results.map(r => r.college))].sort(), [results]);
-  const exams = useMemo(() => [...new Set(results.map(r => r.examTitle))].sort(), [results]);
-
-  const filteredResults = useMemo(() => {
-    return results.filter(r => {
-      const matchesCollege = !filters.college || r.college === filters.college;
-      const matchesExam = !filters.exam || r.examTitle === filters.exam;
-      const matchesSearch = !filters.search || 
-        r.studentName.toLowerCase().includes(filters.search.toLowerCase()) ||
-        r.regimentalNumber.toLowerCase().includes(filters.search.toLowerCase());
-      return matchesCollege && matchesExam && matchesSearch;
-    });
-  }, [results, filters]);
+  const filteredResults = results;
 
   const exportCSV = () => {
     const headers = ['Student Name', 'Regimental No', 'College', 'Exam', 'Score (%)', 'Status'];
@@ -112,7 +146,7 @@ export default function ResultsBoard() {
               onChange={(e) => setFilters({ ...filters, college: e.target.value })}
             >
               <option value="">All affiliated colleges</option>
-              {colleges.map(c => <option key={c} value={c}>{c}</option>)}
+              {collegesList.map(c => <option key={c.id || c.code} value={c.code}>{c.name}</option>)}
             </select>
           </div>
         </div>
@@ -124,7 +158,7 @@ export default function ResultsBoard() {
             onChange={(e) => setFilters({ ...filters, exam: e.target.value })}
           >
             <option value="">All active examinations</option>
-            {exams.map(e => <option key={e} value={e}>{e}</option>)}
+            {examsList.map(e => <option key={e.id} value={e.id}>{e.title}</option>)}
           </select>
         </div>
         <div>
@@ -201,6 +235,12 @@ export default function ResultsBoard() {
             </tbody>
           </table>
         </div>
+        <Pagination 
+          currentPage={page} 
+          totalPages={pagination.totalPages} 
+          onPageChange={setPage} 
+          loading={loading} 
+        />
       </div>
 
       {/* Override Modal */}

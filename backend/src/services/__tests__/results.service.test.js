@@ -109,7 +109,7 @@ describe("Results Service Unit Tests", () => {
       const res = await resultsService.listForInstructor(instructorId, query);
 
       expect(redis.get).toHaveBeenNthCalledWith(1, "user:metadata:2");
-      expect(redis.get).toHaveBeenNthCalledWith(2, "results:instructor:2:MIT:all:p1:l10");
+      expect(redis.get).toHaveBeenNthCalledWith(2, "results:instructor:2:MIT:all:none:p1:l10");
       expect(prisma.user.findUnique).not.toHaveBeenCalled();
       expect(res.results[0].score).toBe(95);
     });
@@ -128,7 +128,7 @@ describe("Results Service Unit Tests", () => {
       });
       expect(redis.setex).toHaveBeenCalledWith("user:metadata:2", 300, "MIT");
       expect(redis.setex).toHaveBeenCalledWith(
-        "results:instructor:2:MIT:all:p1:l10",
+        "results:instructor:2:MIT:all:none:p1:l10",
         30,
         expect.any(String)
       );

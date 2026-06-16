@@ -781,15 +781,18 @@ async function submitExam(studentId, body) {
   ]);
 
   // Best-effort invalidation (should never block submit response path)
-  await cacheDel([
-    `results:student:${studentId}:all:p1:l20`,
-    `results:student:${studentId}:${examId}:p1:l20`,
-    `exams:catalog:STUDENT:${studentId}:p1:l20`,
-    `results:admin:${examId}:all:p1:l20`,
-    `results:admin:all:all:p1:l20`,
-    `stats:dashboard:STUDENT:${studentId}`,
-    `stats:dashboard:ADMIN:all`,
-  ]);
+  await Promise.all([
+    cacheDelPattern(`results:student:${studentId}:*`),
+    cacheDelPattern(`results:admin:*`),
+    cacheDelPattern(`results:instructor:*`),
+    cacheDelPattern(`exams:catalog:STUDENT:${studentId}:*`),
+    cacheDel([
+      `stats:dashboard:STUDENT:${studentId}`,
+      `stats:dashboard:ADMIN:all`,
+    ]),
+  ]).catch((err) => {
+    console.error("[Redis Cache Invalidation Failure]", err.message);
+  });
 
   return { score, correct, total };
 }

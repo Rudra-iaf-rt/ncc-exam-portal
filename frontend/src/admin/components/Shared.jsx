@@ -36,3 +36,132 @@ export function PageHeader({ title, subtitle, action }) {
     </div>
   );
 }
+
+export function Pagination({ currentPage, totalPages, onPageChange, loading }) {
+  if (totalPages <= 1) return null;
+
+  return (
+    <div className="flex items-center justify-between border-t border-stone-deep bg-stone-wash px-4 py-3.5 sm:px-6">
+      {/* Mobile view */}
+      <div className="flex flex-1 justify-between sm:hidden">
+        <button
+          onClick={() => onPageChange(currentPage - 1)}
+          disabled={currentPage <= 1 || loading}
+          className="relative inline-flex items-center rounded-md border border-stone-deep bg-white px-4 py-2 text-sm font-semibold text-ink-2 hover:bg-stone disabled:opacity-40 transition-colors"
+        >
+          Previous
+        </button>
+        <button
+          onClick={() => onPageChange(currentPage + 1)}
+          disabled={currentPage >= totalPages || loading}
+          className="relative ml-3 inline-flex items-center rounded-md border border-stone-deep bg-white px-4 py-2 text-sm font-semibold text-ink-2 hover:bg-stone disabled:opacity-40 transition-colors"
+        >
+          Next
+        </button>
+      </div>
+      
+      {/* Desktop view */}
+      <div className="hidden sm:flex sm:flex-1 sm:items-center sm:justify-between">
+        <div>
+          <p className="text-[13px] text-ink-3 font-ui">
+            Showing Page <span className="font-semibold text-navy">{currentPage}</span> of{' '}
+            <span className="font-semibold text-navy">{totalPages}</span>
+          </p>
+        </div>
+        <div>
+          <nav className="isolate inline-flex -space-x-px rounded-md" aria-label="Pagination">
+            <button
+              onClick={() => onPageChange(currentPage - 1)}
+              disabled={currentPage <= 1 || loading}
+              className="relative inline-flex items-center rounded-l-md border border-stone-deep bg-white px-3 py-2 text-[13px] font-semibold text-ink-2 hover:bg-stone disabled:opacity-30 disabled:pointer-events-none transition-colors"
+            >
+              &larr; Prev
+            </button>
+            
+            {(() => {
+              const pages = [];
+              const start = Math.max(1, currentPage - 2);
+              const end = Math.min(totalPages, currentPage + 2);
+
+              if (start > 1) {
+                pages.push(
+                  <button
+                    key={1}
+                    onClick={() => onPageChange(1)}
+                    disabled={loading}
+                    className={`relative inline-flex items-center px-3 py-2 text-[13px] font-semibold border ${
+                      currentPage === 1
+                        ? 'z-10 bg-navy text-[#F4F0E4] border-navy'
+                        : 'border-stone-deep bg-white text-ink-2 hover:bg-stone'
+                    } transition-all`}
+                  >
+                    1
+                  </button>
+                );
+                if (start > 2) {
+                  pages.push(
+                    <span key="dots-start" className="relative inline-flex items-center px-3 py-2 text-[13px] font-semibold text-ink-4 border border-stone-deep bg-white">
+                      ...
+                    </span>
+                  );
+                }
+              }
+
+              for (let page = start; page <= end; page++) {
+                const isCurrent = page === currentPage;
+                pages.push(
+                  <button
+                    key={page}
+                    onClick={() => onPageChange(page)}
+                    disabled={loading}
+                    className={`relative inline-flex items-center px-3.5 py-2 text-[13px] font-semibold border ${
+                      isCurrent
+                        ? 'z-10 bg-navy text-[#F4F0E4] border-navy'
+                        : 'border-stone-deep bg-white text-ink-2 hover:bg-stone'
+                    } transition-all`}
+                  >
+                    {page}
+                  </button>
+                );
+              }
+
+              if (end < totalPages) {
+                if (end < totalPages - 1) {
+                  pages.push(
+                    <span key="dots-end" className="relative inline-flex items-center px-3 py-2 text-[13px] font-semibold text-ink-4 border border-stone-deep bg-white">
+                      ...
+                    </span>
+                  );
+                }
+                pages.push(
+                  <button
+                    key={totalPages}
+                    onClick={() => onPageChange(totalPages)}
+                    disabled={loading}
+                    className={`relative inline-flex items-center px-3 py-2 text-[13px] font-semibold border ${
+                      currentPage === totalPages
+                        ? 'z-10 bg-navy text-[#F4F0E4] border-navy'
+                        : 'border-stone-deep bg-white text-ink-2 hover:bg-stone'
+                    } transition-all`}
+                  >
+                    {totalPages}
+                  </button>
+                );
+              }
+
+              return pages;
+            })()}
+
+            <button
+              onClick={() => onPageChange(currentPage + 1)}
+              disabled={currentPage >= totalPages || loading}
+              className="relative inline-flex items-center rounded-r-md border border-stone-deep bg-white px-3 py-2 text-[13px] font-semibold text-ink-2 hover:bg-stone disabled:opacity-30 disabled:pointer-events-none transition-colors"
+            >
+              Next &rarr;
+            </button>
+          </nav>
+        </div>
+      </div>
+    </div>
+  );
+}

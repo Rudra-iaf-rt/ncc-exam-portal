@@ -17,12 +17,14 @@ import {
   Monitor
 } from 'lucide-react';
 import { useProctoring } from '../hooks/useProctoring';
+import { useAuth } from '../hooks/useAuth';
+import { invalidateCachedResourcePattern } from '../../lib/resourceCache';
 
 const ExamAttempt = () => {
+  const { user } = useAuth();
   const { id } = useParams();
   const navigate = useNavigate();
   const [exam, setExam] = useState(null);
-  const [attemptId, setAttemptId] = useState(null);
   const [answers, setAnswers] = useState({});
   const [loading, setLoading] = useState(true);
   const [timeLeft, setTimeLeft] = useState(0);
@@ -68,7 +70,6 @@ const ExamAttempt = () => {
       const { data } = await examApi.startAttempt(id);
       if (data) {
         setExam(data.exam);
-        setAttemptId(data.attemptId);
         setProctoringExamId(Number(id)); 
         setTimeLeft(data.remainingSeconds ?? data.exam.duration * 60);
 
@@ -119,6 +120,11 @@ const ExamAttempt = () => {
 
     try {
       await examApi.submitAttempt({ examId: Number(id), answers: answerList });
+      
+      const userKey = user?.id || user?.regimentalNumber || user?.email || 'current';
+      invalidateCachedResourcePattern(`cadet-dashboard:${userKey}`);
+      invalidateCachedResourcePattern(`cadet-results:${userKey}`);
+
       toast.success('Exam submitted successfully.');
       // Redirect to review page for immediate per-question feedback
       navigate(`/exam/review/${id}`);
