@@ -63,7 +63,7 @@ const ExamAttempt = () => {
     onSecurityBreach: (terminate) => {
       if (terminate) {
         toast.error('Session Terminated: Multiple security breaches detected.');
-        executeSubmit();
+        // executeSubmit(); // Disabled temporarily as requested
       }
     }
   });
