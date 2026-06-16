@@ -15,7 +15,7 @@ function errorHandler(err, req, res, next) {
     return next(err);
   }
 
-  const status =
+  let status =
     err instanceof HttpError
       ? err.status
       : typeof err.status === "number"
@@ -24,7 +24,23 @@ function errorHandler(err, req, res, next) {
           ? err.statusCode
           : 500;
 
-  const message = err.message || "Internal Server Error";
+  let message = err.message || "Internal Server Error";
+
+  // Handle Database Errors (Prisma)
+  if (err.constructor.name === "PrismaClientKnownRequestError") {
+    if (err.code === "P2002") {
+      status = 409;
+      message = `A record with this ${err.meta?.target || "information"} already exists.`;
+      err.code = "DB_003";
+    } else {
+      status = 400;
+      err.code = "DB_001";
+    }
+  } else if (err.constructor.name === "PrismaClientValidationError") {
+    status = 400;
+    message = "Database validation failed. Invalid data format.";
+    err.code = "VAL_002";
+  }
 
   // Handle CORS errors specifically
   if (message === "Not allowed by CORS") {

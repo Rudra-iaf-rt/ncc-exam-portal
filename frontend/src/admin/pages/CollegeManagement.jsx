@@ -30,6 +30,7 @@ export default function CollegeManagement() {
   const [isEditing, setIsEditing] = useState(false);
   const [currentCollege, setCurrentCollege] = useState(null);
   const [oicType, setOicType] = useState('new'); // 'new' | 'existing'
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Form State
   const [formData, setFormData] = useState({
@@ -100,6 +101,7 @@ export default function CollegeManagement() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setIsSubmitting(true);
     try {
       const payload = { ...formData };
       
@@ -127,6 +129,8 @@ export default function CollegeManagement() {
       setIsModalOpen(false);
     } catch (error) {
       toast.error(error.response?.data?.message || error.message);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
@@ -492,9 +496,12 @@ export default function CollegeManagement() {
                 </button>
                 <button 
                   type="submit"
-                  className="flex-[2] h-[50px] rounded-xl font-ui text-[15px] font-bold bg-navy text-[#F4F0E4] hover:bg-navy-mid transition-all shadow-lg shadow-navy/20"
+                  disabled={isSubmitting}
+                  className="flex-[2] h-[50px] rounded-xl font-ui text-[15px] font-bold bg-navy text-[#F4F0E4] hover:bg-navy-mid transition-all shadow-lg shadow-navy/20 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {isEditing ? 'Update Records' : 'Register College'}
+                  {isSubmitting 
+                    ? (isEditing ? 'Updating...' : 'Registering...') 
+                    : (isEditing ? 'Update Records' : 'Register College')}
                 </button>
               </div>
             </form>
