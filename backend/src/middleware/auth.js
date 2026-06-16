@@ -18,7 +18,16 @@ async function authenticate(req, res, next) {
     return res.status(401).json({ error: "Authentication required" });
   }
   try {
-    const decoded = verifyToken(token);
+    const options = {};
+    if (
+      req.path.includes('/attempt/submit') || 
+      req.path.includes('/attempt/answer') || 
+      req.path.includes('/attempt/save-progress') || 
+      req.path.includes('/exams/submit')
+    ) {
+      options.ignoreExpiration = true;
+    }
+    const decoded = verifyToken(token, options);
     const role = decoded.role;
 
     if (!allowRole(role)) {

@@ -2680,3 +2680,14 @@ The column `Exam.startAt` does not exist in the current database.
     at async Promise.all (index 0)
     at async Object.listExamsCatalog (C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:126:44)
     at async listCatalog (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:58:16)
+[2026-06-16T11:34:42.163Z] Error: Connection terminated due to connection timeout
+    at C:\College Projects\ncc-exam-portal\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async PrismaPgAdapter.performIO (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\adapter-pg\dist\index.js:654:22)
+    at async PrismaPgAdapter.queryRaw (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\adapter-pg\dist\index.js:604:30)
+    at async o (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:26393)
+    at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:44621)
+    at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:45065)
+    at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:43744)
+    at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:46285)
+    at async e.run (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:43335)

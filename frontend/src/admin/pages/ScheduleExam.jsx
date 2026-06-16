@@ -176,7 +176,8 @@ export default function ScheduleExam() {
         wing: form.wing,
         college: form.college,
         batch: form.batch,
-        query: form.query
+        query: form.query,
+        examId: form.examId
       });
       setPreviewResults(data);
       // Removed automatic overwrite of selected users to preserve manual selections across searches

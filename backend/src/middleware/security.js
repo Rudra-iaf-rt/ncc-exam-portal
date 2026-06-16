@@ -34,7 +34,7 @@ function createRateLimiter({ windowMs, max, keyFn, message }) {
       return res.status(429).json({ error: message || "Too many requests" });
     }
 
-    if (buckets.size > 5000) {
+    if (buckets.size > 15000) {
       for (const [k, b] of buckets.entries()) {
         if (b.resetAt <= now) buckets.delete(k);
       }

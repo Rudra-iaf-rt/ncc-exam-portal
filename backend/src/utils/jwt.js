@@ -18,8 +18,8 @@ function signRefreshToken(payload) {
   return jwt.sign(payload, JWT_REFRESH_SECRET, { expiresIn: REFRESH_TOKEN_EXPIRE });
 }
 
-function verifyToken(token) {
-  return jwt.verify(token, JWT_SECRET);
+function verifyToken(token, options = {}) {
+  return jwt.verify(token, JWT_SECRET, options);
 }
 
 function verifyRefreshToken(token) {

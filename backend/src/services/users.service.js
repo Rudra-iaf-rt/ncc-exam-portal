@@ -273,7 +273,7 @@ async function bulkImportCadets(cadetsArray, currentUser) {
 }
 
 async function searchUsers(filters = {}, currentUser) {
-  const { wing, batch, query } = filters;
+  const { wing, batch, query, examId } = filters;
   let collegeCode = filters.collegeCode;
 
   if (currentUser?.role === ROLES.INSTRUCTOR) {
@@ -296,11 +296,18 @@ async function searchUsers(filters = {}, currentUser) {
             { name: { contains: query, mode: 'insensitive' } },
             { regimentalNumber: { contains: query, mode: 'insensitive' } }
           ]
+        } : {},
+        examId ? {
+          assignments: {
+            none: {
+              examId: parseInt(examId)
+            }
+          }
         } : {}
       ]
     },
     select: safeUserSelect(),
-    take: 50
+    take: 3000
   });
 
   return rows.map(u => ({

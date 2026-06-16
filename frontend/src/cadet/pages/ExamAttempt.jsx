@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 import { useParams, useNavigate } from 'react-router-dom';
-import { examApi } from '../../api';
+import { examApi, authApi } from '../../api';
+import { setToken, setRefreshToken, saveUser } from '../../lib/auth';
 import { useExamAutoSave } from '../hooks/useExamAutoSave';
 import { 
   Clock, 
@@ -14,7 +15,9 @@ import {
   RefreshCw,
   AlertCircle,
   Maximize,
-  Monitor
+  Monitor,
+  Lock,
+  User
 } from 'lucide-react';
 import { useProctoring } from '../hooks/useProctoring';
 import { useAuth } from '../hooks/useAuth';
@@ -32,6 +35,10 @@ const ExamAttempt = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [showQuestionGridModal, setShowQuestionGridModal] = useState(false);
+  const [isSessionExpired, setIsSessionExpired] = useState(false);
+  const [recoveryRegNo, setRecoveryRegNo] = useState('');
+  const [recoveryPassword, setRecoveryPassword] = useState('');
+  const [isRecovering, setIsRecovering] = useState(false);
   const answersRef = useRef(answers);
 
   useEffect(() => {
@@ -60,6 +67,12 @@ const ExamAttempt = () => {
       }
     }
   });
+
+  useEffect(() => {
+    if (!user && !loading) {
+      setIsSessionExpired(true);
+    }
+  }, [user, loading]);
 
   useEffect(() => {
     startExam();
@@ -131,6 +144,37 @@ const ExamAttempt = () => {
     } catch (error) {
       toast.error(error.message || 'Critical error during exam submission');
       setIsSubmitting(false);
+    }
+  };
+
+  const handleRecoveryLogin = async (e) => {
+    e.preventDefault();
+    setIsRecovering(true);
+    try {
+      const { data } = await authApi.login({ regimentalNumber: recoveryRegNo, password: recoveryPassword });
+      
+      const COOKIE_AUTH_ENABLED = String(import.meta.env.VITE_COOKIE_AUTH || 'false') === 'true';
+      if (!COOKIE_AUTH_ENABLED) {
+        if (data.token) setToken(data.token);
+        if (data.refreshToken) setRefreshToken(data.refreshToken);
+      } else {
+        if (data.token) setToken(data.token);
+        if (data.refreshToken) setRefreshToken(data.refreshToken);
+      }
+      if (data.user) saveUser(data.user);
+
+      toast.success('Session restored! You can continue your exam.');
+      setIsSessionExpired(false);
+      setRecoveryPassword(''); // Clear password for security
+      
+      // Force an immediate sync of current answer to verify
+      if (answersRef.current[q?.id]) {
+        queueSave(q.id, answersRef.current[q.id], currentQ);
+      }
+    } catch (apiErr) {
+      toast.error(apiErr.message || 'Authentication failed. Please check your credentials.');
+    } finally {
+      setIsRecovering(false);
     }
   };
 
@@ -226,6 +270,60 @@ const ExamAttempt = () => {
         >
           Return to Exam
         </button>
+      </div>
+    </div>
+  );
+
+  if (isSessionExpired) return (
+    <div className="fixed inset-0 z-[4000] flex items-center justify-center bg-navy/95 backdrop-blur-md p-6">
+      <div className="w-full max-w-md rounded-md border border-white/20 bg-white p-8 text-center shadow-2xl">
+        <div className="w-16 h-16 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+          <Lock size={32} className="text-rose-500" />
+        </div>
+        <h2 className="mb-2 font-display text-2xl text-navy">Session Expired</h2>
+        <p className="mb-6 font-ui text-[14px] text-ink-3">
+          Your connection dropped or your session expired. To prevent losing your answers and avoid proctoring violations, please re-authenticate below.
+        </p>
+
+        <form onSubmit={handleRecoveryLogin} className="flex flex-col gap-4 text-left">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[11px] font-bold text-ink-3 uppercase tracking-wider ml-1">Regimental Number</label>
+            <div className="relative flex items-center">
+              <User size={16} className="absolute left-3 z-20 text-ink-4" />
+              <input
+                type="text"
+                placeholder="e.g. NCC/2024/123"
+                className="w-full bg-stone-wash border border-stone-deep rounded-sm py-2.5 pl-10 pr-4 font-ui text-[14px] transition-all focus:bg-white focus:border-navy focus:ring-2 focus:ring-navy-wash outline-none"
+                value={recoveryRegNo}
+                onChange={(e) => setRecoveryRegNo(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[11px] font-bold text-ink-3 uppercase tracking-wider ml-1">Password</label>
+            <div className="relative flex items-center">
+              <Lock size={16} className="absolute left-3 z-20 text-ink-4" />
+              <input
+                type="password"
+                placeholder="••••••••"
+                className="w-full bg-stone-wash border border-stone-deep rounded-sm py-2.5 pl-10 pr-4 font-ui text-[14px] transition-all focus:bg-white focus:border-navy focus:ring-2 focus:ring-navy-wash outline-none"
+                value={recoveryPassword}
+                onChange={(e) => setRecoveryPassword(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+
+          <button 
+            type="submit" 
+            className="mt-4 w-full rounded-r bg-navy py-3.5 font-ui font-bold text-white shadow-lg transition-all hover:bg-navy-mid active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
+            disabled={isRecovering}
+          >
+            {isRecovering ? 'AUTHENTICATING...' : 'RESUME EXAM'}
+          </button>
+        </form>
       </div>
     </div>
   );
