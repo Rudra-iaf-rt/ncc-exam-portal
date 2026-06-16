@@ -46,8 +46,11 @@ function createRateLimiter({ windowMs, max, keyFn, message }) {
 
 const authRateLimiter = createRateLimiter({
   windowMs: 60 * 1000,
-  max: 12,
-  keyFn: (req) => `${req.ip || "unknown"}:${String(req.path || "")}`,
+  max: 300,
+  keyFn: (req) => {
+    const identifier = req.body?.regimentalNumber || req.body?.email || req.ip || "unknown";
+    return `${identifier}:${String(req.path || "")}`;
+  },
   message: "Too many auth requests. Please try again shortly.",
 });
 

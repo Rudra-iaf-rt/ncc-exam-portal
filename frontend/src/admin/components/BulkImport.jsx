@@ -90,6 +90,7 @@ export default function BulkImport({ isOpen, onClose, onRefresh }) {
   const [result, setResult] = useState(null);
   const [collegesList, setCollegesList] = useState([]);
   const [batchesList, setBatchesList] = useState([]);
+  const [isLoadingRefs, setIsLoadingRefs] = useState(false);
   
   // Validation States
   const [parsedRows, setParsedRows] = useState([]);
@@ -108,19 +109,34 @@ export default function BulkImport({ isOpen, onClose, onRefresh }) {
   useEffect(() => {
     if (isOpen) {
       document.body.style.overflow = 'hidden';
-      adminApi.getColleges()
-        .then(res => {
-          setCollegesList(res.data?.colleges || []);
+      setIsLoadingRefs(true);
+      
+      Promise.all([
+        adminApi.getColleges().catch(err => {
+          console.error("Failed to load colleges", err);
+          return { data: { colleges: [] } };
+        }),
+        adminApi.getBatches().catch(err => {
+          console.error("Failed to load batches", err);
+          return { data: [] };
         })
-        .catch(err => console.error("Failed to load colleges", err));
-
-      adminApi.getBatches()
-        .then(res => {
-          setBatchesList(res.data || []);
-        })
-        .catch(err => console.error("Failed to load batches", err));
+      ]).then(([collegesRes, batchesRes]) => {
+        setCollegesList(collegesRes.data?.colleges || []);
+        setBatchesList(batchesRes.data || []);
+      }).finally(() => {
+        setIsLoadingRefs(false);
+      });
     } else {
       document.body.style.overflow = '';
+      setFile(null);
+      setParsedRows([]);
+      setValidationStats({ total: 0, valid: 0, invalid: 0 });
+      setSkipInvalid(false);
+      setResult(null);
+      setIsValidating(false);
+      setValidationProgress(0);
+      setActiveTab('all');
+      setCurrentPage(1);
     }
 
     return () => {
@@ -172,21 +188,8 @@ export default function BulkImport({ isOpen, onClose, onRefresh }) {
     processNextChunk();
   };
 
-  // Re-run validation if reference list loads after the file is parsed
-  useEffect(() => {
-    if (file && collegesList.length > 0 && !isValidating && parsedRows.length === 0) {
-      Papa.parse(file, {
-        header: true,
-        skipEmptyLines: true,
-        complete: (results) => {
-          startChunkedValidation(results.data, collegesList, batchesList);
-        },
-        error: (err) => {
-          toast.error("Failed to parse CSV file: " + err.message);
-        }
-      });
-    }
-  }, [collegesList, batchesList, file]);
+  // The buggy useEffect that attempted to re-run validation has been removed.
+  // Validation now only occurs when file is selected, and file selection is blocked until refs are loaded.
 
   if (!isOpen) return null;
 
@@ -324,7 +327,12 @@ export default function BulkImport({ isOpen, onClose, onRefresh }) {
 
         {/* Scrollable Content Area */}
         <div className="overflow-y-auto flex-grow p-6">
-          {!result ? (
+          {isLoadingRefs ? (
+            <div className="flex flex-col items-center justify-center min-h-[300px]">
+              <Loader2 className="animate-spin text-navy mb-4" size={32} />
+              <p className="text-navy font-medium">Loading reference data...</p>
+            </div>
+          ) : !result ? (
             <div>
               <input 
                 id="csv-upload"

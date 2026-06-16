@@ -28,7 +28,7 @@ export default function StaffManagement() {
     'admin-staff-list',
     async () => {
       const response = await adminApi.getStaff();
-      return { staff: response?.data || [] };
+      return { staff: response?.data?.users || [] };
     },
     { staleTimeMs: 2 * 60 * 1000 }
   );
