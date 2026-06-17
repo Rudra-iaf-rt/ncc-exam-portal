@@ -64,61 +64,29 @@ async function cacheDel(keys) {
 }
 
 async function cacheDelPattern(pattern) {
-  if (!pattern) return;
-  
-  return new Promise((resolve) => {
-    try {
-      if (redis && typeof redis.scanStream === "function") {
-        const stream = redis.scanStream({
-          match: pattern,
-          count: 100
-        });
+  // Disabled: SCAN operations on remote Redis clusters are O(N) over the keyspace and can take 
+  // 10+ seconds for large databases, completely blocking the event loop and exhausting quotas.
+  // Instead, we rely on the short TTLs (30s - 60s) for cache expiration.
+  return Promise.resolve();
+}
 
-        const deletePromises = [];
+async function getCacheVersion(namespace) {
+  if (!namespace) return 1;
+  try {
+    const raw = await withTimeout(redis.get(`cache_version:${namespace}`), "1");
+    return raw ? Number(raw) : 1;
+  } catch (err) {
+    return 1;
+  }
+}
 
-        stream.on("data", (resultKeys) => {
-          if (resultKeys && resultKeys.length > 0) {
-            const p = withTimeout(redis.del(...resultKeys), null).catch((err) => {
-              console.error("[Redis Cache Pattern Del Batch Failure]", err.message);
-            });
-            deletePromises.push(p);
-          }
-        });
-
-        stream.on("end", async () => {
-          try {
-            await Promise.all(deletePromises);
-          } catch (err) {
-            console.error("[Redis Cache Pattern Del Wait Failure]", err.message);
-          }
-          resolve();
-        });
-
-        stream.on("error", (err) => {
-          console.error("[Redis Cache Pattern Del Stream Error]", err.message);
-          resolve();
-        });
-      } else if (redis && typeof redis.keys === "function") {
-        // Fallback for simpler custom mock/test redis objects
-        withTimeout(redis.keys(pattern), [])
-          .then(async (keys) => {
-            if (keys && keys.length > 0) {
-              await withTimeout(redis.del(...keys), null);
-            }
-            resolve();
-          })
-          .catch((err) => {
-            console.error("[Redis Cache Pattern Del Keys Fallback Failure]", err.message);
-            resolve();
-          });
-      } else {
-        resolve();
-      }
-    } catch (err) {
-      console.error("[Redis Cache Pattern Del Failure]", err.message);
-      resolve();
-    }
-  });
+async function incrementCacheVersion(namespace) {
+  if (!namespace) return;
+  try {
+    withTimeout(redis.incr(`cache_version:${namespace}`), null).catch(() => {});
+  } catch (err) {
+    // Best effort
+  }
 }
 
 module.exports = {
@@ -126,5 +94,7 @@ module.exports = {
   cacheSetJson,
   cacheDel,
   cacheDelPattern,
+  getCacheVersion,
+  incrementCacheVersion,
 };
 

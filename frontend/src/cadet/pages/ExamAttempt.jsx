@@ -40,6 +40,7 @@ const ExamAttempt = () => {
   const [recoveryPassword, setRecoveryPassword] = useState('');
   const [isRecovering, setIsRecovering] = useState(false);
   const answersRef = useRef(answers);
+  const isSubmittingRef = useRef(false);
 
   useEffect(() => {
     answersRef.current = answers;
@@ -130,9 +131,10 @@ const ExamAttempt = () => {
   };
 
   const executeSubmit = async () => {
-    if (isSubmitting) return; // Prevent duplicate clicks
+    if (isSubmittingRef.current) return;
     
     setShowConfirmModal(false);
+    isSubmittingRef.current = true;
     setIsSubmitting(true);
     
     // Read from answersRef to get all merged answers, bypassing stale closures
@@ -160,6 +162,7 @@ const ExamAttempt = () => {
     } catch (error) {
       toast.error(error.message || 'Critical error during exam submission');
       setIsSubmitting(false);
+      isSubmittingRef.current = false;
     }
   };
 
@@ -370,19 +373,23 @@ const ExamAttempt = () => {
             {syncStatus && syncStatus !== 'idle' && (
               <div className={`flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold border transition-all duration-300 ${
                 syncStatus === 'saving' ? 'bg-amber-500/10 border-amber-500/25 text-amber-400' : 
+                syncStatus === 'queued' ? 'bg-sky-500/10 border-sky-500/25 text-sky-400' : 
                 syncStatus === 'saved' ? 'bg-emerald-500/10 border-emerald-500/25 text-emerald-400' : 
                 'bg-rose-500/10 border-rose-500/25 text-rose-400'
               }`}>
                 {syncStatus === 'saving' ? (
                   <RefreshCw size={10} className="animate-spin" />
+                ) : syncStatus === 'queued' ? (
+                  <Clock size={10} />
                 ) : syncStatus === 'saved' ? (
                   <ShieldCheck size={10} />
                 ) : (
                   <AlertTriangle size={10} />
                 )}
                 <span>
-                  {syncStatus === 'saving' ? 'Saving' : 
-                   syncStatus === 'saved' ? 'Saved' : 
+                  {syncStatus === 'saving' ? 'Saving to Cloud' : 
+                   syncStatus === 'queued' ? 'Saved Locally' : 
+                   syncStatus === 'saved' ? 'Cloud Saved' : 
                    'Sync Error'}
                 </span>
               </div>

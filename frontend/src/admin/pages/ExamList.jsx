@@ -4,15 +4,23 @@ import { NavLink } from 'react-router-dom';
 import { examApi } from '../../api';
 import { useAdminAuth } from '../../contexts/AdminAuth';
 import { PageHeader, Pagination } from '../components/Shared';
-import { Plus, Eye, ShieldAlert, Edit3, Trash2, UserCheck } from 'lucide-react';
-import { invalidateCachedResourcePattern } from '../../lib/resourceCache';
+import { Plus, Eye, ShieldAlert, Edit3, Trash2, UserCheck, Loader2 } from 'lucide-react';
+import { invalidateCachedResourcePattern, getCachedResource, setCachedResource } from '../../lib/resourceCache';
 import { useCachedFetch } from '../../hooks/useCachedFetch';
 
 export default function ExamList() {
   const { user } = useAdminAuth();
   const isAdmin = user?.role === 'ADMIN';
   const [page, setPage] = useState(1);
+  const [processingItems, setProcessingItems] = useState(new Set());
   const limit = 20;
+
+  const addProcessing = (key) => setProcessingItems(prev => new Set(prev).add(key));
+  const removeProcessing = (key) => setProcessingItems(prev => {
+    const next = new Set(prev);
+    next.delete(key);
+    return next;
+  });
 
   const { data, loading } = useCachedFetch(
     `admin-exam-list:p${page}`,
@@ -30,12 +38,30 @@ export default function ExamList() {
 
   const handleStatusChange = async (id, newStatus) => {
     if (!isAdmin) return;
+    
+    const procKey = `status-${id}`;
+    addProcessing(procKey);
+
+    // Optimistic Update
+    const cacheKey = `admin-exam-list:p${page}`;
+    const previousData = getCachedResource(cacheKey);
+    if (previousData && previousData.exams) {
+      const updatedExams = previousData.exams.map(e => e.id === id ? { ...e, status: newStatus } : e);
+      setCachedResource(cacheKey, { ...previousData, exams: updatedExams });
+    }
+
     try {
       await examApi.updateExamStatus(id, newStatus);
       invalidateCachedResourcePattern('admin-exam-list');
       toast.success(`Exam status updated to ${newStatus}`);
     } catch (err) {
+      // Revert if error
+      if (previousData) {
+        setCachedResource(cacheKey, previousData);
+      }
       toast.error(err.message || "Failed to update exam status");
+    } finally {
+      removeProcessing(procKey);
     }
   };
 
@@ -43,12 +69,29 @@ export default function ExamList() {
     if (!isAdmin) return;
     if (!window.confirm("Are you sure you want to publish results for this exam? This will allow all students to view their scores and detailed breakdown.")) return;
     
+    const procKey = `publish-${id}`;
+    addProcessing(procKey);
+
+    // Optimistic Update
+    const cacheKey = `admin-exam-list:p${page}`;
+    const previousData = getCachedResource(cacheKey);
+    if (previousData && previousData.exams) {
+      const updatedExams = previousData.exams.map(e => e.id === id ? { ...e, resultsPublished: true } : e);
+      setCachedResource(cacheKey, { ...previousData, exams: updatedExams });
+    }
+
     try {
       await examApi.publishResults(id);
       invalidateCachedResourcePattern('admin-exam-list');
       toast.success("Exam results successfully published!");
     } catch (err) {
+      // Revert if error
+      if (previousData) {
+        setCachedResource(cacheKey, previousData);
+      }
       toast.error(err.message || "Failed to publish results");
+    } finally {
+      removeProcessing(procKey);
     }
   };
 
@@ -56,12 +99,17 @@ export default function ExamList() {
     if (!isAdmin) return;
     if (!window.confirm("Are you sure you want to delete this exam? This will also purge all related student attempts and results. This action cannot be undone.")) return;
     
+    const procKey = `delete-${id}`;
+    addProcessing(procKey);
+
     try {
       await examApi.deleteExam(id);
       invalidateCachedResourcePattern('admin-exam-list');
       toast.success("Exam successfully deleted");
     } catch (err) {
       toast.error(err.message || "Failed to delete exam");
+    } finally {
+      removeProcessing(procKey);
     }
   };
 
@@ -114,20 +162,24 @@ export default function ExamList() {
                     <td className="px-4 py-3">{e.questionCount} Items</td>
                     <td className="px-4 py-3">
                       {isAdmin ? (
-                        <select 
-                          className={`font-mono text-[10px] tracking-[0.06em] py-1 px-2.5 rounded-full font-medium inline-flex border-none outline-none cursor-pointer appearance-none text-center ${
-                            e.status === 'LIVE' ? 'bg-[#10b98120] text-[#059669]' : 
-                            e.status === 'DRAFT' ? 'bg-[#f59e0b20] text-[#b45309]' : 
-                            'bg-stone-mid text-ink-3'
-                          }`}
-                          value={e.status}
-                          onChange={(ev) => handleStatusChange(e.id, ev.target.value)}
-                        >
-                          <option value="DRAFT">DRAFT</option>
-                          <option value="LIVE">LIVE</option>
-                          <option value="COMPLETED">COMPLETED</option>
-                          <option value="ARCHIVED">ARCHIVED</option>
-                        </select>
+                        <div className="flex items-center gap-2">
+                          <select 
+                            className={`font-mono text-[10px] tracking-[0.06em] py-1 px-2.5 rounded-full font-medium inline-flex border-none outline-none cursor-pointer appearance-none text-center ${
+                              e.status === 'LIVE' ? 'bg-[#10b98120] text-[#059669]' : 
+                              e.status === 'DRAFT' ? 'bg-[#f59e0b20] text-[#b45309]' : 
+                              'bg-stone-mid text-ink-3'
+                            } disabled:opacity-50`}
+                            value={e.status}
+                            disabled={processingItems.has(`status-${e.id}`)}
+                            onChange={(ev) => handleStatusChange(e.id, ev.target.value)}
+                          >
+                            <option value="DRAFT">DRAFT</option>
+                            <option value="LIVE">LIVE</option>
+                            <option value="COMPLETED">COMPLETED</option>
+                            <option value="ARCHIVED">ARCHIVED</option>
+                          </select>
+                          {processingItems.has(`status-${e.id}`) && <Loader2 size={14} className="animate-spin text-ink-4" />}
+                        </div>
                       ) : (
                         <span className={`font-mono text-[10px] tracking-[0.06em] py-1 px-2.5 rounded-full font-medium inline-flex border border-stone-deep text-center ${
                           e.status === 'LIVE' ? 'bg-[#10b98120] text-[#059669]' : 
@@ -169,10 +221,12 @@ export default function ExamList() {
                             {e.status === 'COMPLETED' && !e.resultsPublished && (
                               <button 
                                 onClick={() => handlePublishResults(e.id)}
-                                className="h-[28px] px-2.5 rounded bg-[#10b98120] text-[#059669] border border-[#10b98140] hover:bg-[#10b981] hover:text-white transition-all flex items-center gap-1.5 font-medium text-[11px]" 
+                                disabled={processingItems.has(`publish-${e.id}`)}
+                                className="h-[28px] px-2.5 rounded bg-[#10b98120] text-[#059669] border border-[#10b98140] hover:bg-[#10b981] hover:text-white transition-all flex items-center gap-1.5 font-medium text-[11px] disabled:opacity-50 disabled:cursor-not-allowed" 
                                 title="Publish Results"
                               >
-                                <span>Publish Results</span>
+                                {processingItems.has(`publish-${e.id}`) ? <Loader2 size={14} className="animate-spin" /> : null}
+                                <span>{processingItems.has(`publish-${e.id}`) ? 'Publishing...' : 'Publish Results'}</span>
                               </button>
                             )}
                             <NavLink 
@@ -183,11 +237,12 @@ export default function ExamList() {
                               <Edit3 size={16} strokeWidth={1.5} />
                             </NavLink>
                             <button 
-                              className="w-8 h-8 rounded-md flex items-center justify-center text-crimson hover:bg-crimson-wash transition-colors" 
+                              className="w-8 h-8 rounded-md flex items-center justify-center text-crimson hover:bg-crimson-wash transition-colors disabled:opacity-50 disabled:cursor-not-allowed" 
                               title="Delete Exam"
+                              disabled={processingItems.has(`delete-${e.id}`)}
                               onClick={() => handleDelete(e.id)}
                             >
-                              <Trash2 size={16} strokeWidth={1.5} />
+                              {processingItems.has(`delete-${e.id}`) ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} strokeWidth={1.5} />}
                             </button>
                           </>
                         )}

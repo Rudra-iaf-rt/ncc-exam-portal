@@ -18,7 +18,9 @@ export default function ResultsBoard() {
   const [filters, setFilters] = useState({ 
     college: searchParams.get('college') || '', 
     exam: searchParams.get('exam') || '', 
-    search: searchParams.get('search') || '' 
+    search: searchParams.get('search') || '',
+    status: searchParams.get('status') || 'all',
+    sort: searchParams.get('sort') || 'default'
   });
 
   const [debouncedSearch, setDebouncedSearch] = useState(filters.search);
@@ -50,7 +52,7 @@ export default function ResultsBoard() {
   // Reset page when dropdown filters change
   useEffect(() => {
     setPage(1);
-  }, [filters.college, filters.exam]);
+  }, [filters.college, filters.exam, filters.status, filters.sort]);
   
   // Override State
   const [editingResult, setEditingResult] = useState(null);
@@ -58,12 +60,14 @@ export default function ResultsBoard() {
   const [submitting, setSubmitting] = useState(false);
 
   const { data, loading } = useCachedFetch(
-    `admin-results-board:p${page}:c${filters.college}:e${filters.exam}:s${debouncedSearch}`,
+    `admin-results-board:p${page}:c${filters.college}:e${filters.exam}:s${debouncedSearch}:st${filters.status}:so${filters.sort}`,
     async () => {
       const params = {
         page,
         limit: 20,
         search: debouncedSearch,
+        status: filters.status,
+        sort: filters.sort,
       };
       if (filters.college) params.collegeCode = filters.college;
       if (filters.exam) params.examId = Number(filters.exam);
@@ -109,7 +113,7 @@ export default function ResultsBoard() {
       r.college, 
       r.examTitle, 
       r.score,
-      r.score >= 40 ? 'Qualified' : 'Not Clear'
+      r.score >= 70 ? 'Distinction' : r.score >= 40 ? 'Qualified' : 'Not Clear'
     ]);
     const content = [headers, ...rows].map(e => e.join(',')).join('\n');
     const blob = new Blob([content], { type: 'text/csv' });
@@ -173,6 +177,30 @@ export default function ResultsBoard() {
             <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-4" />
           </div>
         </div>
+        <div>
+          <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Sort & Order</label>
+          <select 
+            className="w-full h-[38px] px-3 border border-stone-deep rounded-md font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all" 
+            value={filters.sort}
+            onChange={(e) => setFilters({ ...filters, sort: e.target.value })}
+          >
+            <option value="default">Newest First</option>
+            <option value="score_desc">Score (High to Low)</option>
+          </select>
+        </div>
+        <div>
+          <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Filter by Status</label>
+          <select 
+            className="w-full h-[38px] px-3 border border-stone-deep rounded-md font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all" 
+            value={filters.status}
+            onChange={(e) => setFilters({ ...filters, status: e.target.value })}
+          >
+            <option value="all">All Statuses</option>
+            <option value="distinction">Distinction (&ge; 70%)</option>
+            <option value="qualified">Qualified (40% - 69%)</option>
+            <option value="not_clear">Not Clear (&lt; 40%)</option>
+          </select>
+        </div>
       </div>
 
       {/* Results Table */}
@@ -211,9 +239,19 @@ export default function ResultsBoard() {
                       {r.score}%
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`font-mono text-[10px] tracking-[0.06em] py-1 px-2.5 rounded-full font-medium inline-flex ${r.score >= 40 ? 'bg-[#10b98120] text-[#059669] border border-[#10b98130]' : 'bg-[#ef444420] text-[#b91c1c] border border-[#b91c1c30]'}`}>
-                        {r.score >= 40 ? 'Qualified' : 'Not Clear'}
-                      </span>
+                      {r.score >= 70 ? (
+                        <span className="font-mono text-[10px] tracking-[0.06em] py-1 px-2.5 rounded-full font-medium inline-flex bg-[#3b6d1120] text-[#3B6D11] border border-[#3b6d1130]">
+                          Distinction
+                        </span>
+                      ) : r.score >= 40 ? (
+                        <span className="font-mono text-[10px] tracking-[0.06em] py-1 px-2.5 rounded-full font-medium inline-flex bg-[#10b98120] text-[#059669] border border-[#10b98130]">
+                          Qualified
+                        </span>
+                      ) : (
+                        <span className="font-mono text-[10px] tracking-[0.06em] py-1 px-2.5 rounded-full font-medium inline-flex bg-[#ef444420] text-[#b91c1c] border border-[#b91c1c30]">
+                          Not Clear
+                        </span>
+                      )}
                     </td>
                     {isAdmin && (
                       <td className="px-4 py-3 text-right">

@@ -23,6 +23,58 @@ const CadetDashboard = () => {
   const [loadingResults, setLoadingResults] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
 
+  // Auto-recovery for any stuck/un-synced local answers
+  useEffect(() => {
+    if (!user) return;
+    
+    const recoverStrayAnswers = async () => {
+      const TWO_DAYS_MS = 2 * 24 * 60 * 60 * 1000;
+      const now = Date.now();
+
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.startsWith('ncc_exam_') && key.endsWith('_answers')) {
+          const examIdMatch = key.match(/ncc_exam_(\d+)_answers/);
+          if (examIdMatch) {
+            const examId = Number(examIdMatch[1]);
+            try {
+              const storedStr = localStorage.getItem(key);
+              if (!storedStr) continue;
+              
+              let storedData;
+              try {
+                storedData = JSON.parse(storedStr);
+              } catch (e) {
+                // Invalid JSON, safe to remove
+                localStorage.removeItem(key);
+                continue;
+              }
+
+              // Extract actual answers (handling the case where we might have wrapped it with a timestamp)
+              const answers = storedData.answers || storedData;
+              const timestamp = storedData.timestamp || now; // Default to now if no timestamp exists
+
+              // If it's older than 2 days, clean it up and skip sync
+              if (now - timestamp > TWO_DAYS_MS) {
+                localStorage.removeItem(key);
+                continue;
+              }
+
+              // Only sync if there are actual answers
+              if (Object.keys(answers).length > 0) {
+                await examApi.syncAnswers({ examId, answers }).catch(() => {});
+              }
+            } catch (err) {
+              console.error('Auto-recovery sync failed for exam', examId, err);
+            }
+          }
+        }
+      }
+    };
+
+    recoverStrayAnswers();
+  }, [user]);
+
   useEffect(() => {
     if (!user) return;
 

@@ -56,10 +56,13 @@ export const useExamAutoSave = (examId) => {
 
     // 2. Immediately save to LocalStorage (0 latency, crash safe)
     const updatedAnswers = { ...currentAnswers, [questionId]: selectedAnswer };
-    localStorage.setItem(storageKey, JSON.stringify(updatedAnswers));
+    localStorage.setItem(storageKey, JSON.stringify({
+      answers: updatedAnswers,
+      timestamp: Date.now()
+    }));
     
     // 3. Debounce the server sync to ensure DB is not overwhelmed 
-    setSyncStatus('saving');
+    setSyncStatus('queued');
     
     if (syncTimeoutRef.current) {
       clearTimeout(syncTimeoutRef.current);
@@ -78,7 +81,8 @@ export const useExamAutoSave = (examId) => {
         const stored = localStorage.getItem(storageKey);
         if (stored) {
           try {
-            const answers = JSON.parse(stored);
+            const storedData = JSON.parse(stored);
+            const answers = storedData.answers || storedData; // Backwards compatible
             if (Object.keys(answers).length > 0) {
               const token = localStorage.getItem('token');
               // Use keepalive fetch to ensure data sends even if tab is closing

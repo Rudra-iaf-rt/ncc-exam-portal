@@ -206,7 +206,10 @@ async function listForAdmin(query) {
   const limit = Math.min(100, Math.max(1, parseInt(query.limit || "20", 10)));
   const skip = (page - 1) * limit;
 
-  const cacheKey = `results:admin:${examId || 'all'}:${collegeCode || 'all'}:${query.search || 'none'}:p${page}:l${limit}`;
+  const sortParam = query.sort === "score_desc" ? "score_desc" : "default";
+  const statusParam = ["distinction", "qualified", "not_clear"].includes(query.status) ? query.status : "all";
+
+  const cacheKey = `results:admin:${examId || 'all'}:${collegeCode || 'all'}:${query.search || 'none'}:s${sortParam}:t${statusParam}:p${page}:l${limit}`;
   const cached = await cacheGetJson(cacheKey);
   if (cached) return cached;
 
@@ -214,6 +217,15 @@ async function listForAdmin(query) {
     ...(examId != null ? { examId } : {}),
     ...(collegeCode != null ? { student: { collegeCode } } : {}),
   };
+
+  if (statusParam === "distinction") {
+    where.score = { gte: 70 };
+  } else if (statusParam === "qualified") {
+    // 40 to 69
+    where.score = { gte: 40, lt: 70 };
+  } else if (statusParam === "not_clear") {
+    where.score = { lt: 40 };
+  }
 
   if (query.search && String(query.search).trim() !== "") {
     const term = String(query.search).trim();
@@ -226,10 +238,12 @@ async function listForAdmin(query) {
     };
   }
 
+  const orderBy = sortParam === "score_desc" ? { score: "desc" } : { id: "desc" };
+
   const [rows, total] = await Promise.all([
     prisma.result.findMany({
       where,
-      orderBy: { id: "desc" },
+      orderBy,
       include: resultInclude,
       skip,
       take: limit,

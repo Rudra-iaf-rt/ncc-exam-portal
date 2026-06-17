@@ -1,6 +1,6 @@
 const { prisma } = require("../lib/prisma");
 const { redis } = require("../lib/redis");
-const { cacheGetJson, cacheSetJson, cacheDel, cacheDelPattern } = require("../lib/cache");
+const { cacheGetJson, cacheSetJson, cacheDel, cacheDelPattern, getCacheVersion, incrementCacheVersion } = require("../lib/cache");
 const { HttpError } = require("../utils/http-error");
 const { features } = require("../config/features");
 const {
@@ -74,7 +74,7 @@ async function createExam(creatorUserId, body) {
   });
 
   // Invalidate any cached catalog lists since a new exam has been created
-  await cacheDelPattern("exams:catalog:*");
+  await incrementCacheVersion("exams:catalog:global");
 
   return {
     id: exam.id,
@@ -109,7 +109,9 @@ async function listExamsCatalog(userId, role, query = {}) {
   const limit = Math.min(100, Math.max(1, parseInt(query.limit || "20", 10)));
   const skip = (page - 1) * limit;
 
-  const cacheKey = `exams:catalog:${role}:${userId}:p${page}:l${limit}`;
+  const globalVer = await getCacheVersion("exams:catalog:global");
+  const userVer = await getCacheVersion(`exams:catalog:user:${userId}`);
+  const cacheKey = `exams:catalog:v${globalVer}:u${userVer}:${role}:${userId}:p${page}:l${limit}`;
   const cached = await cacheGetJson(cacheKey);
   if (cached) return cached;
 
@@ -337,7 +339,7 @@ async function updateExamMetaByCreator(userId, examIdRaw, body) {
     // 1. Specific exam details cache
     await cacheDel([`exams:details:${examId}`]);
     // 2. Wildcard exams catalog caches (since meta/status changed)
-    await cacheDelPattern("exams:catalog:*");
+    await incrementCacheVersion("exams:catalog:global");
 
     return updated;
   } catch (err) {
@@ -384,7 +386,7 @@ async function replaceExamQuestionsByCreator(userId, examIdRaw, body) {
   // 1. Specific exam details cache
   await cacheDel([`exams:details:${examId}`]);
   // 2. Wildcard exams catalog caches (since questionCount is updated)
-  await cacheDelPattern("exams:catalog:*");
+  await incrementCacheVersion("exams:catalog:global");
 
   return prisma.exam.findUnique({
     where: { id: examId },
@@ -422,7 +424,7 @@ async function publishExamByCreator(userId, examIdRaw) {
   // 1. Specific exam details cache
   await cacheDel([`exams:details:${examId}`]);
   // 2. Wildcard exams catalog caches (since status changed)
-  await cacheDelPattern("exams:catalog:*");
+  await incrementCacheVersion("exams:catalog:global");
 
   return updated;
 }
@@ -445,7 +447,7 @@ async function deleteExamByCreator(userId, examIdRaw) {
   // 1. Specific exam details cache
   await cacheDel([`exams:details:${examId}`]);
   // 2. Wildcard exams catalog caches (since exam is deleted)
-  await cacheDelPattern("exams:catalog:*");
+  await incrementCacheVersion("exams:catalog:global");
 
   return { id: examId };
 }
@@ -825,7 +827,7 @@ async function submitExam(studentId, body) {
     cacheDelPattern(`results:student:${studentId}:*`),
     cacheDelPattern(`results:admin:*`),
     cacheDelPattern(`results:instructor:*`),
-    cacheDelPattern(`exams:catalog:STUDENT:${studentId}:*`),
+    incrementCacheVersion(`exams:catalog:user:${studentId}`),
     cacheDel([
       `stats:dashboard:STUDENT:${studentId}`,
       `stats:dashboard:ADMIN:all`,
