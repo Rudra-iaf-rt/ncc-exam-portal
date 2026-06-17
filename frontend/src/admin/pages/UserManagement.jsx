@@ -288,6 +288,7 @@ export default function UserManagement() {
         <Pagination 
           currentPage={page} 
           totalPages={pagination.totalPages} 
+          totalItems={pagination.total}
           onPageChange={setPage} 
           loading={loading} 
         />

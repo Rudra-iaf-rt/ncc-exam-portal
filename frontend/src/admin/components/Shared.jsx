@@ -37,8 +37,8 @@ export function PageHeader({ title, subtitle, action }) {
   );
 }
 
-export function Pagination({ currentPage, totalPages, onPageChange, loading }) {
-  if (totalPages <= 1) return null;
+export function Pagination({ currentPage, totalPages, onPageChange, loading, totalItems }) {
+  if (totalPages <= 1 && totalItems === undefined) return null;
 
   return (
     <div className="flex items-center justify-between border-t border-stone-deep bg-stone-wash px-4 py-3.5 sm:px-6">
@@ -65,9 +65,16 @@ export function Pagination({ currentPage, totalPages, onPageChange, loading }) {
         <div>
           <p className="text-[13px] text-ink-3 font-ui">
             Showing Page <span className="font-semibold text-navy">{currentPage}</span> of{' '}
-            <span className="font-semibold text-navy">{totalPages}</span>
+            <span className="font-semibold text-navy">{Math.max(1, totalPages)}</span>
+            {totalItems !== undefined && (
+              <span className="ml-2 pl-2 border-l border-stone-deep text-ink-4">
+                Total:{' '}
+                <span className="font-semibold text-ink-2">{totalItems}</span>
+              </span>
+            )}
           </p>
         </div>
+        {totalPages > 1 && (
         <div>
           <nav className="isolate inline-flex -space-x-px rounded-md" aria-label="Pagination">
             <button
@@ -161,6 +168,7 @@ export function Pagination({ currentPage, totalPages, onPageChange, loading }) {
             </button>
           </nav>
         </div>
+        )}
       </div>
     </div>
   );

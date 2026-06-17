@@ -190,6 +190,7 @@ const ExamReview = () => {
   const [data,    setData]    = useState(null);
   const [loading, setLoading] = useState(true);
   const [error,   setError]   = useState(null);
+  const [filter,  setFilter]  = useState('all');
 
   useEffect(() => {
     let cancelled = false;
@@ -213,6 +214,21 @@ const ExamReview = () => {
   }, [examId]);
 
   const perf = useMemo(() => data ? getPerf(data.score) : null, [data]);
+
+  const questionsWithIndex = useMemo(() => {
+    if (!data?.questions) return [];
+    return data.questions.map((q, i) => ({ ...q, originalIndex: i }));
+  }, [data?.questions]);
+
+  const filteredQuestions = useMemo(() => {
+    return questionsWithIndex.filter(q => {
+      if (filter === 'all') return true;
+      if (filter === 'correct') return q.isCorrect;
+      if (filter === 'skipped') return q.isSkipped;
+      if (filter === 'incorrect') return !q.isCorrect && !q.isSkipped;
+      return true;
+    });
+  }, [questionsWithIndex, filter]);
 
   /* ── Loading ── */
   if (loading) {
@@ -286,7 +302,6 @@ const ExamReview = () => {
     );
   }
 
-  /* ── Main review ── */
   const { examTitle, score, correct, incorrect, skipped, total, submittedAt, questions } = data;
 
   return (
@@ -406,17 +421,52 @@ const ExamReview = () => {
 
         {/* ════ QUESTION BREAKDOWN ════ */}
         <section>
-          <div className="flex items-center gap-2.5 mb-3">
-            <div className="h-5 w-1 bg-navy rounded-full" />
-            <h2 className="font-display text-lg sm:text-xl text-navy">Question Breakdown</h2>
-            <span className="ml-auto font-mono text-[9px] sm:text-[10px] uppercase tracking-wider text-ink-4 bg-stone-wash border border-stone-deep rounded-full px-2 py-0.5">
-              {total} Qs
-            </span>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+            <div className="flex items-center gap-2.5">
+              <div className="h-5 w-1 bg-navy rounded-full" />
+              <h2 className="font-display text-lg sm:text-xl text-navy">Question Breakdown</h2>
+              <span className="font-mono text-[9px] sm:text-[10px] uppercase tracking-wider text-ink-4 bg-stone-wash border border-stone-deep rounded-full px-2 py-0.5">
+                {filteredQuestions.length} / {total} Qs
+              </span>
+            </div>
+            
+            <div className="flex bg-stone-wash p-1 rounded-lg border border-stone-deep inline-flex self-start sm:self-auto overflow-x-auto w-full sm:w-auto custom-scrollbar pb-1 sm:pb-0">
+              <button 
+                onClick={() => setFilter('all')}
+                className={`flex-1 sm:flex-none px-3 py-1.5 rounded-md text-[11px] font-bold font-mono transition-all ${filter === 'all' ? 'bg-white text-navy shadow-sm' : 'text-ink-4 hover:text-ink'}`}
+              >
+                ALL
+              </button>
+              <button 
+                onClick={() => setFilter('correct')}
+                className={`flex-1 sm:flex-none px-3 py-1.5 rounded-md text-[11px] font-bold font-mono transition-all ${filter === 'correct' ? 'bg-white text-emerald-700 shadow-sm border border-emerald-100' : 'text-ink-4 hover:text-ink'}`}
+              >
+                CORRECT
+              </button>
+              <button 
+                onClick={() => setFilter('incorrect')}
+                className={`flex-1 sm:flex-none px-3 py-1.5 rounded-md text-[11px] font-bold font-mono transition-all ${filter === 'incorrect' ? 'bg-white text-crimson shadow-sm border border-crimson/10' : 'text-ink-4 hover:text-ink'}`}
+              >
+                INCORRECT
+              </button>
+              <button 
+                onClick={() => setFilter('skipped')}
+                className={`flex-1 sm:flex-none px-3 py-1.5 rounded-md text-[11px] font-bold font-mono transition-all ${filter === 'skipped' ? 'bg-white text-ink-3 shadow-sm border border-stone-3' : 'text-ink-4 hover:text-ink'}`}
+              >
+                SKIPPED
+              </button>
+            </div>
           </div>
           <div className="space-y-3">
-            {questions.map((item, idx) => (
-              <QuestionCard key={item.questionId} item={item} index={idx} />
-            ))}
+            {filteredQuestions.length === 0 ? (
+              <div className="text-center p-8 bg-stone-wash border border-stone-deep rounded-xl font-ui text-[14px] text-ink-4">
+                No questions found matching this filter.
+              </div>
+            ) : (
+              filteredQuestions.map((item) => (
+                <QuestionCard key={item.questionId} item={item} index={item.originalIndex} />
+              ))
+            )}
           </div>
         </section>
 

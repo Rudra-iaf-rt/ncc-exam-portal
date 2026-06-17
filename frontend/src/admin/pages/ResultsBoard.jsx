@@ -276,6 +276,7 @@ export default function ResultsBoard() {
         <Pagination 
           currentPage={page} 
           totalPages={pagination.totalPages} 
+          totalItems={pagination.total}
           onPageChange={setPage} 
           loading={loading} 
         />
