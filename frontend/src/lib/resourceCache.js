@@ -39,11 +39,10 @@ export function invalidateCachedResource(key) {
  */
 export function invalidateCachedResourcePattern(prefix) {
   if (!prefix) return;
-  for (const key of cache.keys()) {
-    if (key.startsWith(prefix)) {
-      cache.delete(key);
-      _notify(key, null);
-    }
+  const keysToInvalidate = Array.from(cache.keys()).filter(key => key.startsWith(prefix));
+  for (const key of keysToInvalidate) {
+    cache.delete(key);
+    _notify(key, null);
   }
 }
 

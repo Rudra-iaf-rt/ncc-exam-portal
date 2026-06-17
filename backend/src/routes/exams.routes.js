@@ -125,6 +125,13 @@ router.patch(
   asyncHandler(examsController.publish)
 );
 
+router.patch(
+  "/exams/:id/publish-results",
+  authenticate,
+  requireExamCreator,
+  asyncHandler(examsController.publishResults)
+);
+
 router.delete(
   "/exams/:id",
   authenticate,

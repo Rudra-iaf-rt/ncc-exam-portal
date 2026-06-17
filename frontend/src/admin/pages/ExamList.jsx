@@ -39,6 +39,19 @@ export default function ExamList() {
     }
   };
 
+  const handlePublishResults = async (id) => {
+    if (!isAdmin) return;
+    if (!window.confirm("Are you sure you want to publish results for this exam? This will allow all students to view their scores and detailed breakdown.")) return;
+    
+    try {
+      await examApi.publishResults(id);
+      invalidateCachedResourcePattern('admin-exam-list');
+      toast.success("Exam results successfully published!");
+    } catch (err) {
+      toast.error(err.message || "Failed to publish results");
+    }
+  };
+
   const handleDelete = async (id) => {
     if (!isAdmin) return;
     if (!window.confirm("Are you sure you want to delete this exam? This will also purge all related student attempts and results. This action cannot be undone.")) return;
@@ -112,6 +125,7 @@ export default function ExamList() {
                         >
                           <option value="DRAFT">DRAFT</option>
                           <option value="LIVE">LIVE</option>
+                          <option value="COMPLETED">COMPLETED</option>
                           <option value="ARCHIVED">ARCHIVED</option>
                         </select>
                       ) : (
@@ -152,6 +166,15 @@ export default function ExamList() {
                               <UserCheck size={14} strokeWidth={2} />
                               <span>Schedule</span>
                             </NavLink>
+                            {e.status === 'COMPLETED' && !e.resultsPublished && (
+                              <button 
+                                onClick={() => handlePublishResults(e.id)}
+                                className="h-[28px] px-2.5 rounded bg-[#10b98120] text-[#059669] border border-[#10b98140] hover:bg-[#10b981] hover:text-white transition-all flex items-center gap-1.5 font-medium text-[11px]" 
+                                title="Publish Results"
+                              >
+                                <span>Publish Results</span>
+                              </button>
+                            )}
                             <NavLink 
                               to={`/admin/exams/edit/${e.id}`}
                               className="w-8 h-8 rounded-md flex items-center justify-center text-ink-3 hover:text-navy hover:bg-stone transition-colors" 

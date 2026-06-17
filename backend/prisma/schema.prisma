@@ -123,6 +123,7 @@ model Exam {
   createdAt   DateTime         @default(now())
   status      String           @default("DRAFT")
   publishedAt DateTime?
+  resultsPublished Boolean          @default(false)
   attempts    Attempt[]
   creator     User             @relation("ExamCreator", fields: [createdBy], references: [id])
   assignments ExamAssignment[]

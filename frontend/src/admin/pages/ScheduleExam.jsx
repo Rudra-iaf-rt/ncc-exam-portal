@@ -125,8 +125,11 @@ export default function ScheduleExam() {
     query: ''
   });
   const [previewResults, setPreviewResults] = useState([]);
+  const [previewPage, setPreviewPage] = useState(1);
   const [selectedUsers, setSelectedUsers] = useState(new Map());
+  const [reviewPage, setReviewPage] = useState(1);
   const [searching, setSearching] = useState(false);
+  const PAGE_SIZE = 50;
 
   // Reactive exam list via shared cache — auto-updates when exams are created/edited/deleted
   const { data: examsData, loading } = useCachedFetch(
@@ -152,7 +155,6 @@ export default function ScheduleExam() {
     fetchFilters();
   }, []);
 
-  // Live search when on Step 2
   useEffect(() => {
     if (currentStep !== 2) return;
     const timeoutId = setTimeout(() => {
@@ -160,6 +162,12 @@ export default function ScheduleExam() {
     }, 400); // 400ms debounce
     return () => clearTimeout(timeoutId);
   }, [form.wing, form.college, form.batch, form.query, currentStep]);
+
+  useEffect(() => {
+    if (currentStep === 3) {
+      setReviewPage(1);
+    }
+  }, [currentStep]);
 
   useEffect(() => {
     const preselectedExamId = searchParams.get('examId');
@@ -173,15 +181,15 @@ export default function ScheduleExam() {
     setSearching(true);
     try {
       const { data } = await adminApi.searchUsers({
-        wing: form.wing,
-        college: form.college,
-        batch: form.batch,
-        query: form.query,
+        ...form,
+        collegeCode: form.college,
         examId: form.examId
       });
       setPreviewResults(data);
+      setPreviewPage(1);
       // Removed automatic overwrite of selected users to preserve manual selections across searches
     } catch (err) {
+      console.log(err)
       toast.error("Failed to fetch cadet preview");
     } finally {
       setSearching(false);
@@ -451,7 +459,7 @@ export default function ScheduleExam() {
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-stone">
-                            {previewResults.map(u => (
+                            {previewResults.slice((previewPage - 1) * PAGE_SIZE, previewPage * PAGE_SIZE).map(u => (
                               <tr 
                                 key={u.id} 
                                 onClick={() => toggleSelect(u)}
@@ -494,7 +502,30 @@ export default function ScheduleExam() {
                         </table>
                       </div>
                     )}
+                </div>
+                {previewResults.length > PAGE_SIZE && (
+                  <div className="p-3 border-t border-stone flex justify-between items-center bg-white">
+                    <span className="text-[11px] text-ink-4 font-mono">
+                      Showing {(previewPage - 1) * PAGE_SIZE + 1} - {Math.min(previewPage * PAGE_SIZE, previewResults.length)} of {previewResults.length}
+                    </span>
+                    <div className="flex gap-2">
+                      <button 
+                        disabled={previewPage === 1}
+                        onClick={() => setPreviewPage(p => p - 1)}
+                        className="px-3 py-1 text-[11px] font-bold border border-stone-deep rounded hover:bg-stone disabled:opacity-30 transition-all"
+                      >
+                        Prev
+                      </button>
+                      <button 
+                        disabled={previewPage * PAGE_SIZE >= previewResults.length}
+                        onClick={() => setPreviewPage(p => p + 1)}
+                        className="px-3 py-1 text-[11px] font-bold border border-stone-deep rounded hover:bg-stone disabled:opacity-30 transition-all"
+                      >
+                        Next
+                      </button>
                     </div>
+                  </div>
+                )}
               </div>
             </div>
 
@@ -509,7 +540,10 @@ export default function ScheduleExam() {
               
               <button 
                 disabled={selectedUsers.size === 0}
-                onClick={() => setCurrentStep(3)}
+                onClick={() => {
+                  setReviewPage(1);
+                  setCurrentStep(3);
+                }}
                 className="h-[36px] px-[18px] rounded-md font-medium text-[13px] bg-navy text-[#F4F0E4] shadow-sm hover:bg-navy-mid transition-all disabled:opacity-30 flex items-center gap-2"
               >
                 Review Selection
@@ -572,7 +606,9 @@ export default function ScheduleExam() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-stone">
-                      {Array.from(selectedUsers.values()).map(u => (
+                      {Array.from(selectedUsers.values())
+                        .slice((reviewPage - 1) * PAGE_SIZE, reviewPage * PAGE_SIZE)
+                        .map(u => (
                         <tr key={u.id} className="hover:bg-stone-wash/50">
                           <td className="p-3 pl-6">
                             <div className="font-bold text-navy">{u.name}</div>
@@ -600,6 +636,29 @@ export default function ScheduleExam() {
                   </table>
                 </div>
               </div>
+              {selectedUsers.size > PAGE_SIZE && (
+                <div className="p-3 border-t border-stone-deep flex justify-between items-center bg-white">
+                  <span className="text-[11px] text-ink-4 font-mono">
+                    Showing {(reviewPage - 1) * PAGE_SIZE + 1} - {Math.min(reviewPage * PAGE_SIZE, selectedUsers.size)} of {selectedUsers.size}
+                  </span>
+                  <div className="flex gap-2">
+                    <button 
+                      disabled={reviewPage === 1}
+                      onClick={() => setReviewPage(p => p - 1)}
+                      className="px-3 py-1 text-[11px] font-bold border border-stone-deep rounded hover:bg-stone disabled:opacity-30 transition-all"
+                    >
+                      Prev
+                    </button>
+                    <button 
+                      disabled={reviewPage * PAGE_SIZE >= selectedUsers.size}
+                      onClick={() => setReviewPage(p => p + 1)}
+                      className="px-3 py-1 text-[11px] font-bold border border-stone-deep rounded hover:bg-stone disabled:opacity-30 transition-all"
+                    >
+                      Next
+                    </button>
+                  </div>
+                </div>
+              )}
 
               <div className="p-6 bg-stone border-t border-stone flex justify-between items-center">
                 <button 

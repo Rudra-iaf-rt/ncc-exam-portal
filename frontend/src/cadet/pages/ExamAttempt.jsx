@@ -135,9 +135,13 @@ const ExamAttempt = () => {
     setShowConfirmModal(false);
     setIsSubmitting(true);
     
-    // Always read from zero-latency local storage directly, bypassing React state
+    // Read from answersRef to get all merged answers, bypassing stale closures
+    const currentAnswers = answersRef.current || {};
+    // Fallback to local storage for latest delta just in case state is lagging
     const localAnswers = loadLocalAnswers() || {};
-    const answerList = Object.entries(localAnswers).map(([qId, val]) => ({
+    const finalMergedAnswers = { ...currentAnswers, ...localAnswers };
+
+    const answerList = Object.entries(finalMergedAnswers).map(([qId, val]) => ({
       questionId: Number(qId),
       selectedAnswer: val,
     }));

@@ -260,7 +260,7 @@ const ExamReview = () => {
           </h2>
           <p className="font-ui text-[13px] sm:text-[14px] text-ink-3 max-w-xs mb-6 leading-relaxed">
             {is403
-              ? 'The review is only accessible after you have submitted the exam.'
+              ? error.message || 'Results for this exam are not yet published.'
               : is404
               ? 'We could not locate this exam or your attempt.'
               : error.message}

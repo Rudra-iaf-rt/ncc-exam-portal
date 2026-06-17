@@ -15,6 +15,7 @@ function mapResultRow(r) {
     college: r.student?.college?.name || r.student?.collegeCode || null,
     createdAt: r.createdAt,
     exam: r.exam ?? null,
+    resultsPublished: r.exam?.resultsPublished ?? false,
   };
 }
 
@@ -31,7 +32,7 @@ function parseOptionalCollegeCode(query) {
 }
 
 const resultInclude = {
-  exam: { select: { id: true, title: true } },
+  exam: { select: { id: true, title: true, resultsPublished: true } },
   student: {
     select: {
       id: true,
@@ -76,7 +77,13 @@ async function listForStudent(studentId, query) {
     }),
   ]);
 
-  const finalResults = rows.map(mapResultRow);
+  const finalResults = rows.map((r) => {
+    const mapped = mapResultRow(r);
+    if (!mapped.resultsPublished) {
+      mapped.score = null;
+    }
+    return mapped;
+  });
   const response = {
     results: finalResults,
     pagination: {
@@ -341,13 +348,17 @@ async function getReviewForStudent(studentId, examIdRaw) {
     throw new HttpError(403, "Exam review is only available after submission");
   }
 
-  // 3. Fetch the result (score) and exam with all questions (including answer field)
-  const [result, exam] = await Promise.all([
-    prisma.result.findUnique({
-      where: { studentId_examId: { studentId, examId } },
-      select: { score: true, createdAt: true },
-    }),
-    prisma.exam.findUnique({
+  // 3. Fetch the student's result
+  const result = await prisma.result.findUnique({
+    where: { studentId_examId: { studentId, examId } },
+    select: { score: true, createdAt: true },
+  });
+
+  // 3.1 Fetch or cache the Exam + questions globally to prevent thundering herd
+  const examReviewCacheKey = `exam:review_data:${examId}`;
+  let exam = await cacheGetJson(examReviewCacheKey);
+  if (!exam) {
+    exam = await prisma.exam.findUnique({
       where: { id: examId },
       include: {
         questions: {
@@ -355,11 +366,18 @@ async function getReviewForStudent(studentId, examIdRaw) {
           orderBy: { id: "asc" },
         },
       },
-    }),
-  ]);
+    });
+    if (exam) {
+      await cacheSetJson(examReviewCacheKey, 3600, exam);
+    }
+  }
 
   if (!exam) {
     throw new HttpError(404, "Exam not found");
+  }
+
+  if (!exam.resultsPublished) {
+    throw new HttpError(403, "Results are not published yet");
   }
 
   // 4. Build the student answer map from the JSONB blob

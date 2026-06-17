@@ -164,6 +164,7 @@ async function listExamsCatalog(userId, role, query = {}) {
     createdBy: e.createdBy,
     completed: completedMap.has(e.id),
     score: completedMap.get(e.id) ?? null,
+    resultsPublished: e.resultsPublished,
     creator: e.creator
       ? {
           id: e.creator.id,
@@ -313,8 +314,8 @@ async function updateExamMetaByCreator(userId, examIdRaw, body) {
   }
   if (body?.status != null) {
     const status = String(body.status).toUpperCase();
-    if (!["DRAFT", "LIVE", "ARCHIVED"].includes(status)) {
-      throw new HttpError(400, "Invalid status. Must be DRAFT, LIVE, or ARCHIVED");
+    if (!["DRAFT", "LIVE", "COMPLETED", "ARCHIVED"].includes(status)) {
+      throw new HttpError(400, "Invalid status. Must be DRAFT, LIVE, COMPLETED, or ARCHIVED");
     }
     payload.status = status;
     if (status === "LIVE") {
@@ -788,21 +789,19 @@ async function submitExam(studentId, body) {
 
   let finalAnswers = attempt.answers && typeof attempt.answers === "object" ? attempt.answers : {};
 
-  let answersInput = [];
-  if (isLate || !Array.isArray(answers)) {
-    answersInput = Object.entries(finalAnswers).map(([qid, selectedAnswer]) => ({
-      questionId: Number(qid),
-      selectedAnswer: String(selectedAnswer ?? ""),
-    }));
-  } else {
-    answersInput = answers;
+  if (Array.isArray(answers)) {
     // Ensure frontend-provided answers are merged into final storage
-    answersInput.forEach(a => {
+    answers.forEach(a => {
       finalAnswers[a.questionId] = a.selectedAnswer;
     });
   }
 
-  const { score, correct, total } = scoreSubmission(exam.questions, answersInput);
+  const finalAnswersArray = Object.entries(finalAnswers).map(([qid, selectedAnswer]) => ({
+    questionId: Number(qid),
+    selectedAnswer: String(selectedAnswer ?? ""),
+  }));
+
+  const { score, correct, total } = scoreSubmission(exam.questions, finalAnswersArray);
 
   await prisma.$transaction([
     prisma.attempt.update({
@@ -903,7 +902,42 @@ async function getAttemptDetails(studentId, attemptIdRaw) {
   };
 }
 
+async function publishResults(userId, examIdRaw) {
+  const examId = Number(examIdRaw);
+  if (!Number.isFinite(examId)) {
+    throw new HttpError(400, "Invalid exam id");
+  }
+
+  const exam = await prisma.exam.findUnique({ where: { id: examId } });
+  if (!exam) {
+    throw new HttpError(404, "Exam not found");
+  }
+
+  if (exam.status !== "COMPLETED") {
+    throw new HttpError(400, "Cannot publish results for an exam that is not COMPLETED");
+  }
+
+  await prisma.exam.update({
+    where: { id: examId },
+    data: { resultsPublished: true },
+  });
+
+  // Clear related caches
+  try {
+    await cacheDelPattern(`results:admin:*`);
+    await cacheDelPattern(`results:student:*`);
+    await cacheDelPattern(`results:instructor:*`);
+    await cacheDelPattern(`exams:details:${examId}`);
+    await cacheDel([`exam:review_data:${examId}`]);
+  } catch (err) {
+    console.error("[Redis] Cache invalidation failed during publishResults", err);
+  }
+
+  return { success: true, message: "Results published successfully" };
+}
+
 module.exports = {
+  publishResults,
   createExam,
   createExamFromPdf,
   createExamFromExcel,

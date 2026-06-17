@@ -144,7 +144,7 @@ async function replaceQuestions(req, res) {
 async function publish(req, res) {
   const status = req.body?.status;
   let exam;
-  if (status && ["DRAFT", "LIVE", "ARCHIVED"].includes(String(status).toUpperCase())) {
+  if (status && ["DRAFT", "LIVE", "COMPLETED", "ARCHIVED"].includes(String(status).toUpperCase())) {
     exam = await examService.updateExamMetaByCreator(req.user.id, req.params.id, { status });
   } else {
     exam = await examService.publishExamByCreator(req.user.id, req.params.id);
@@ -169,7 +169,13 @@ async function remove(req, res) {
   res.json(payload);
 }
 
+async function publishResults(req, res) {
+  const result = await examService.publishResults(req.user.id, req.params.id);
+  res.json(result);
+}
+
 module.exports = {
+  publishResults,
   create,
   createFromPdf,
   createFromExcel,

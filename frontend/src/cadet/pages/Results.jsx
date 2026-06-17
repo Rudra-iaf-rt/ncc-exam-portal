@@ -99,8 +99,8 @@ const CadetResults = () => {
           <div className="text-center sm:text-left">
             <span className="block font-mono text-[8px] sm:text-[9px] font-bold tracking-widest text-ink-4 uppercase mb-0.5 sm:mb-1">Avg Score</span>
             <span className="font-display text-2xl sm:text-3xl font-medium text-ink leading-none">
-              {results.length > 0
-                ? Math.round(results.reduce((acc, r) => acc + r.score, 0) / results.length)
+              {results.filter(r => r.score !== null).length > 0
+                ? Math.round(results.filter(r => r.score !== null).reduce((acc, r) => acc + r.score, 0) / results.filter(r => r.score !== null).length)
                 : 0}%
             </span>
           </div>
@@ -125,7 +125,7 @@ const CadetResults = () => {
           <div className="text-center sm:text-left">
             <span className="block font-mono text-[8px] sm:text-[9px] font-bold tracking-widest text-ink-4 uppercase mb-0.5 sm:mb-1">Rank</span>
             <span className="font-display text-base sm:text-2xl font-medium text-ink leading-tight block">
-              {results.length > 0 ? getPerformanceTag(results[0]?.score || 0).label : 'Unranked'}
+              {results.filter(r => r.score !== null).length > 0 ? getPerformanceTag(results.filter(r => r.score !== null)[0]?.score || 0).label : 'Unranked'}
             </span>
           </div>
         </div>
@@ -179,21 +179,37 @@ const CadetResults = () => {
                           </div>
                         </td>
                         <td className="px-6 py-4">
-                          <span className="font-mono text-[14px] font-bold text-navy">{res.score}%</span>
+                          {res.score !== null ? (
+                            <span className="font-mono text-[14px] font-bold text-navy">{res.score}%</span>
+                          ) : (
+                            <span className="font-mono text-[11px] font-bold text-ink-4 uppercase tracking-widest">Pending</span>
+                          )}
                         </td>
                         <td className="px-6 py-4">
-                          <span className={`inline-flex items-center rounded-sm px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider border ${perfBadge(perf.class)}`}>
-                            {perf.label}
-                          </span>
+                          {res.score !== null ? (
+                            <span className={`inline-flex items-center rounded-sm px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider border ${perfBadge(perf.class)}`}>
+                              {perf.label}
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center rounded-sm px-2 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider border bg-stone-wash text-ink-4 border-stone-deep">
+                              Pending
+                            </span>
+                          )}
                         </td>
                         <td className="px-6 py-4">
-                          <button
-                            onClick={() => navigate(`/exam/review/${res.examId}`)}
-                            className="flex items-center gap-1.5 rounded-r border border-navy/30 bg-navy-wash px-3 py-1.5 font-ui text-[12px] font-bold text-navy hover:bg-navy hover:text-white active:scale-95 cursor-pointer transition-all whitespace-nowrap"
-                            id={`review-btn-${res.examId}`}
-                          >
-                            <ClipboardList size={12} /> Review
-                          </button>
+                          {res.score !== null ? (
+                            <button
+                              onClick={() => navigate(`/exam/review/${res.examId}`)}
+                              className="flex items-center gap-1.5 rounded-r border border-navy/30 bg-navy-wash px-3 py-1.5 font-ui text-[12px] font-bold text-navy hover:bg-navy hover:text-white active:scale-95 cursor-pointer transition-all whitespace-nowrap"
+                              id={`review-btn-${res.examId}`}
+                            >
+                              <ClipboardList size={12} /> Review
+                            </button>
+                          ) : (
+                            <div className="font-mono text-[10px] text-ink-4 italic">
+                              Results will be available soon
+                            </div>
+                          )}
                         </td>
                       </tr>
                     );
@@ -210,7 +226,11 @@ const CadetResults = () => {
                   <div key={res.id} className="px-4 py-4 flex items-center gap-3 hover:bg-stone-wash/40 transition-colors">
                     {/* Score circle */}
                     <div className="flex-shrink-0 flex flex-col items-center justify-center h-13 w-13 rounded-full border-2 border-navy-wash bg-navy/5 text-center" style={{ width: 52, height: 52 }}>
-                      <span className="font-mono text-[14px] font-bold text-navy leading-none">{res.score}%</span>
+                      {res.score !== null ? (
+                        <span className="font-mono text-[14px] font-bold text-navy leading-none">{res.score}%</span>
+                      ) : (
+                        <span className="font-mono text-[10px] font-bold text-ink-4 leading-none">TBD</span>
+                      )}
                     </div>
 
                     {/* Middle: title + date + badge */}
@@ -222,22 +242,34 @@ const CadetResults = () => {
                         <span className="font-mono text-[10px] text-ink-4">
                           {new Date(res.createdAt).toLocaleDateString(undefined, { dateStyle: 'medium' })}
                         </span>
-                        <span className={`inline-flex items-center rounded-sm px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider border ${perfBadge(perf.class)}`}>
-                          {perf.label}
-                        </span>
+                        {res.score !== null ? (
+                          <span className={`inline-flex items-center rounded-sm px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider border ${perfBadge(perf.class)}`}>
+                            {perf.label}
+                          </span>
+                        ) : (
+                          <span className="inline-flex items-center rounded-sm px-1.5 py-0.5 font-mono text-[9px] font-bold uppercase tracking-wider border bg-stone-wash text-ink-4 border-stone-deep">
+                            Pending
+                          </span>
+                        )}
                       </div>
                     </div>
 
                     {/* Review CTA — full tap area on right */}
-                    <button
-                      onClick={() => navigate(`/exam/review/${res.examId}`)}
-                      className="flex-shrink-0 flex items-center gap-1 rounded-r border border-navy/30 bg-navy-wash px-2.5 py-2 font-ui text-[11px] font-bold text-navy hover:bg-navy hover:text-white active:scale-95 cursor-pointer transition-all"
-                      id={`review-btn-mobile-${res.examId}`}
-                      style={{ minHeight: 40 }}
-                    >
-                      <ClipboardList size={13} />
-                      <ChevronRight size={12} />
-                    </button>
+                    {res.score !== null ? (
+                      <button
+                        onClick={() => navigate(`/exam/review/${res.examId}`)}
+                        className="flex-shrink-0 flex items-center gap-1 rounded-r border border-navy/30 bg-navy-wash px-2.5 py-2 font-ui text-[11px] font-bold text-navy hover:bg-navy hover:text-white active:scale-95 cursor-pointer transition-all"
+                        id={`review-btn-mobile-${res.examId}`}
+                        style={{ minHeight: 40 }}
+                      >
+                        <ClipboardList size={13} />
+                        <ChevronRight size={12} />
+                      </button>
+                    ) : (
+                      <div className="flex-shrink-0 font-mono text-[10px] text-ink-4 italic px-2">
+                        Soon
+                      </div>
+                    )}
                   </div>
                 );
               })}
