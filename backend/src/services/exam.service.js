@@ -513,16 +513,18 @@ async function startAttempt(studentId, examIdRaw, sessionIdRaw) {
     if (features.strictExamSession && existing.sessionId && sessionId && existing.sessionId !== sessionId) {
       throw new HttpError(409, "Attempt already active in another session");
     }
-    const answers = existing.answers && typeof existing.answers === "object"
+    let answers = existing.answers && typeof existing.answers === "object"
       ? existing.answers
       : {};
+    let currentQuestionIndex = existing.currentQuestionIndex ?? 0;
+
     return {
       status: 200,
       body: {
         attemptId: existing.id,
         exam: stripAnswersFromExam(exam),
         answers,
-        currentQuestionIndex: existing.currentQuestionIndex ?? 0,
+        currentQuestionIndex,
         expiresAt: existing.expiresAt,
         sessionId: existing.sessionId,
       },
@@ -666,44 +668,76 @@ async function saveAttemptAnswer(studentId, body) {
     Math.max(0, cachedExam.questions.length - 1)
   );
 
-  // 4. Concurrent-safe atomic update using JSONB merge operator
   const normalized = questionId ? normalizeAnswer(selectedAnswer) : null;
-  const answerUpdate = questionId && normalized != null 
-    ? JSON.stringify({ [String(questionId)]: normalized }) 
-    : '{}';
 
-  const updatedCount = await prisma.$executeRaw`
-    UPDATE "Attempt" 
-    SET "answers" = (CASE WHEN jsonb_typeof(COALESCE("answers", '{}'::jsonb)) = 'array' THEN '{}'::jsonb ELSE COALESCE("answers", '{}'::jsonb) END) || ${answerUpdate}::jsonb,
-        "currentQuestionIndex" = ${boundedNext},
-        "lastSavedAt" = NOW(),
-        "updatedAt" = NOW()
-    WHERE "id" = ${attempt.id} AND "status" = 'IN_PROGRESS'
-  `;
-
-  if (updatedCount === 0) {
-    const latest = await prisma.attempt.findUnique({
+  let currentAnswers = attempt.answers && typeof attempt.answers === "object" ? attempt.answers : {};
+  if (questionId && normalized != null) {
+    currentAnswers = { ...currentAnswers, [String(questionId)]: normalized };
+    await prisma.attempt.update({
       where: { id: attempt.id },
-      select: { status: true }
+      data: { answers: currentAnswers, currentQuestionIndex: boundedNext },
     });
-    if (latest && latest.status !== "IN_PROGRESS") {
-      throw new HttpError(409, "This attempt is already submitted");
-    }
-    throw new HttpError(400, "Failed to save answer due to concurrent modification");
+  } else {
+    await prisma.attempt.update({
+      where: { id: attempt.id },
+      data: { currentQuestionIndex: boundedNext },
+    });
   }
 
-  // 5. Refresh attempt data for response
-  const updated = await prisma.attempt.findUnique({
-    where: { id: attempt.id },
-    select: { answers: true, currentQuestionIndex: true }
-  });
+  const answeredCount = Object.keys(currentAnswers).filter(k => k !== "currentQuestionIndex").length;
 
   return {
-    answers: updated.answers ?? {},
-    currentQuestionIndex: updated.currentQuestionIndex ?? 0,
-    answeredCount: Object.keys(updated.answers ?? {}).length,
+    currentQuestionIndex: boundedNext,
+    answeredCount,
     totalQuestions: cachedExam.questions.length,
   };
+}
+
+async function syncAttemptAnswers(studentId, body) {
+  const examId = Number(body?.examId);
+  const answers = body?.answers; // Expecting an object of { questionId: selectedAnswer }
+  const sessionId = body?.sessionId ? String(body.sessionId) : null;
+
+  if (!Number.isFinite(examId)) {
+    throw new HttpError(400, "examId is required");
+  }
+
+  // 1. Fetch Attempt
+  const attempt = await prisma.attempt.findUnique({
+    where: { studentId_examId: { studentId, examId } },
+  });
+  if (!attempt) {
+    throw new HttpError(400, "Start the exam before saving answers");
+  }
+  if (attempt.status !== "IN_PROGRESS") {
+    throw new HttpError(409, "This attempt is already submitted");
+  }
+  if (features.strictExamSession && attempt.sessionId && sessionId && attempt.sessionId !== sessionId) {
+    throw new HttpError(409, "Attempt already active in another session");
+  }
+  if (features.strictExamSession && attempt.expiresAt && new Date(attempt.expiresAt) <= new Date()) {
+    if (features.timeoutAutoClose) {
+      await prisma.attempt.update({ where: { id: attempt.id }, data: { status: "TIMED_OUT" } });
+    }
+    throw new HttpError(403, "Time limit exceeded");
+  }
+
+  // 2. Sync to Postgres (Active State is debounced from frontend, so this is safe)
+  if (answers && typeof answers === "object") {
+    const currentAnswers = attempt.answers && typeof attempt.answers === "object" ? attempt.answers : {};
+    const mergedAnswers = { ...currentAnswers };
+    for (const [qid, ans] of Object.entries(answers)) {
+      if (ans != null) {
+        mergedAnswers[String(qid)] = normalizeAnswer(ans);
+      }
+    }
+    await prisma.attempt.update({
+      where: { id: attempt.id },
+      data: { answers: mergedAnswers },
+    });
+  }
+
+  return { success: true };
 }
 
 async function submitExam(studentId, body) {
@@ -752,16 +786,20 @@ async function submitExam(studentId, body) {
   const graceMinutes = 5;
   const isLate = elapsedMinutes > exam.duration + graceMinutes;
 
+  let finalAnswers = attempt.answers && typeof attempt.answers === "object" ? attempt.answers : {};
+
   let answersInput = [];
   if (isLate || !Array.isArray(answers)) {
-    if (attempt.answers && typeof attempt.answers === "object") {
-      answersInput = Object.entries(attempt.answers).map(([qid, selectedAnswer]) => ({
-        questionId: Number(qid),
-        selectedAnswer: String(selectedAnswer ?? ""),
-      }));
-    }
+    answersInput = Object.entries(finalAnswers).map(([qid, selectedAnswer]) => ({
+      questionId: Number(qid),
+      selectedAnswer: String(selectedAnswer ?? ""),
+    }));
   } else {
     answersInput = answers;
+    // Ensure frontend-provided answers are merged into final storage
+    answersInput.forEach(a => {
+      finalAnswers[a.questionId] = a.selectedAnswer;
+    });
   }
 
   const { score, correct, total } = scoreSubmission(exam.questions, answersInput);
@@ -769,7 +807,10 @@ async function submitExam(studentId, body) {
   await prisma.$transaction([
     prisma.attempt.update({
       where: { id: attempt.id },
-      data: { status: isLate ? "TIMED_OUT" : "SUBMITTED" },
+      data: { 
+        status: isLate ? "TIMED_OUT" : "SUBMITTED",
+        answers: finalAnswers // Persist final state to Postgres
+      },
     }),
     prisma.result.upsert({
       where: {
@@ -843,12 +884,16 @@ async function getAttemptDetails(studentId, attemptIdRaw) {
   if (!attempt || attempt.studentId !== studentId) {
     throw new HttpError(404, "Attempt not found");
   }
-  const answers = attempt.answers && typeof attempt.answers === "object" ? attempt.answers : {};
+  let answers = attempt.answers && typeof attempt.answers === "object" ? attempt.answers : {};
+  let currentQuestionIndex = attempt.currentQuestionIndex ?? 0;
+
+  // We no longer pull active state from Redis because active state is in Postgres.
+
   return {
     id: attempt.id,
     examId: attempt.examId,
     status: attempt.status,
-    currentQuestionIndex: attempt.currentQuestionIndex ?? 0,
+    currentQuestionIndex,
     expiresAt: attempt.expiresAt ?? null,
     sessionId: attempt.sessionId ?? null,
     answers,
@@ -871,6 +916,7 @@ module.exports = {
   deleteExamByCreator,
   startAttempt,
   saveAttemptAnswer,
+  syncAttemptAnswers,
   submitExam,
   getAttemptStatus,
   getAttemptDetails,

@@ -47,7 +47,7 @@ const ExamAttempt = () => {
   
   // syncStatus: 'idle' | 'saving' | 'saved' | 'error'
   // Start as 'idle' so no badge shows before the first save attempt.
-  const { syncStatus, queueSave } = useExamAutoSave(Number(id));
+  const { syncStatus, queueSave, loadLocalAnswers, clearLocalAnswers } = useExamAutoSave(Number(id));
 
   const {
     isFullscreen,
@@ -86,11 +86,18 @@ const ExamAttempt = () => {
         setProctoringExamId(Number(id)); 
         setTimeLeft(data.remainingSeconds ?? data.exam.duration * 60);
 
+        let ansMap = {};
         if (data.answers && data.answers.length > 0) {
-          const ansMap = {};
           data.answers.forEach(a => { ansMap[a.questionId] = a.selectedAnswer; });
-          setAnswers(ansMap);
         }
+        
+        // Merge with any unsynced answers in localStorage
+        const localAnswers = loadLocalAnswers();
+        if (localAnswers) {
+          ansMap = { ...ansMap, ...localAnswers };
+        }
+        
+        setAnswers(ansMap);
       }
     } catch (error) {
       toast.error(error.message || 'Failed to start exam session');
@@ -118,15 +125,19 @@ const ExamAttempt = () => {
   }, [loading, isFullscreen, isScreenSharing]);
 
   const handleSelect = (questionId, option) => {
+    queueSave(questionId, option); // Uses localStorage directly to avoid state lag
     setAnswers(prev => ({ ...prev, [questionId]: option }));
-    queueSave(questionId, option, currentQ);
   };
 
   const executeSubmit = async () => {
-    setShowConfirmModal(false);
+    if (isSubmitting) return; // Prevent duplicate clicks
     
+    setShowConfirmModal(false);
     setIsSubmitting(true);
-    const answerList = Object.entries(answersRef.current).map(([qId, val]) => ({
+    
+    // Always read from zero-latency local storage directly, bypassing React state
+    const localAnswers = loadLocalAnswers() || {};
+    const answerList = Object.entries(localAnswers).map(([qId, val]) => ({
       questionId: Number(qId),
       selectedAnswer: val,
     }));
@@ -138,6 +149,7 @@ const ExamAttempt = () => {
       invalidateCachedResourcePattern(`cadet-dashboard:${userKey}`);
       invalidateCachedResourcePattern(`cadet-results:${userKey}`);
 
+      clearLocalAnswers();
       toast.success('Exam submitted successfully.');
       // Redirect to review page for immediate per-question feedback
       navigate(`/exam/review/${id}`);
@@ -168,8 +180,8 @@ const ExamAttempt = () => {
       setRecoveryPassword(''); // Clear password for security
       
       // Force an immediate sync of current answer to verify
-      if (answersRef.current[q?.id]) {
-        queueSave(q.id, answersRef.current[q.id], currentQ);
+      if (answersRef.current[currentQ]) {
+        queueSave(currentQ, answersRef.current[currentQ]);
       }
     } catch (apiErr) {
       toast.error(apiErr.message || 'Authentication failed. Please check your credentials.');

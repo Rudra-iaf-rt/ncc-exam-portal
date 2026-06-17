@@ -197,7 +197,6 @@ apiClient.interceptors.response.use(
         const headers = csrfToken ? { 'X-CSRF-Token': csrfToken } : {};
         
         const payload = refreshToken ? { refreshToken } : {};
-        // Always pass refreshToken in the request body as a fallback so that the backend can resolve it if cookies are blocked
         const { data } = await axios.post(`${API_URL}/auth/refresh`, payload, {
           headers,
           withCredentials: true

@@ -56,7 +56,7 @@ const authRateLimiter = createRateLimiter({
 
 const attemptRateLimiter = createRateLimiter({
   windowMs: 60 * 1000,
-  max: 300,
+  max: process.env.LOAD_TEST === "true" ? 50000 : 300,
   keyFn: (req) =>
     `${req.ip || "unknown"}:${String(req.user?.id || "guest")}:attempt`,
   message: "Too many attempt actions. Please slow down.",

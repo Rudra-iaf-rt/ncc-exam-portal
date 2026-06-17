@@ -28,12 +28,26 @@ if (process.env.REDIS_URL) {
   }
   console.warn("[Redis] REDIS_URL is not set. Caching is currently disabled.");
   
-  // Provide a dummy implementation so the app doesn't crash when calling redis.get / redis.set
+  // Provide an in-memory dummy implementation so the app doesn't crash 
+  // and local development can still function without a Redis instance.
+  const memoryMap = new Map();
+  const hashObj = new Map();
+  
   redis = {
-    get: async () => null,
-    set: async () => "OK",
-    setex: async () => "OK",
-    del: async () => "OK",
+    get: async (k) => memoryMap.get(k) || null,
+    set: async (k, v) => { memoryMap.set(k, v); return "OK"; },
+    setex: async (k, s, v) => { memoryMap.set(k, v); return "OK"; },
+    del: async (k) => { memoryMap.delete(k); hashObj.delete(k); return 1; },
+    hset: async (k, f, v) => {
+      if (!hashObj.has(k)) hashObj.set(k, {});
+      hashObj.get(k)[f] = v;
+      return 1;
+    },
+    hgetall: async (k) => {
+      const obj = hashObj.get(k);
+      return obj ? { ...obj } : null;
+    },
+    expire: async () => 1,
   };
 }
 

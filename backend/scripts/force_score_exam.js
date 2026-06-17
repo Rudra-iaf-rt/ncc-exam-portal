@@ -1,7 +1,5 @@
-const { PrismaClient } = require("@prisma/client");
 const { scoreSubmission } = require("../src/services/exam-scoring.service");
-const prisma = new PrismaClient();
-
+const { prisma } = require("../src/lib/prisma");
 async function forceScoreExam() {
   const args = process.argv.slice(2);
   const examId = Number(args[0]);

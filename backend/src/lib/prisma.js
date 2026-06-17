@@ -39,8 +39,36 @@ const prisma =
         : ["error"],
   });
 
-if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.prisma = prisma;
+let finalPrisma = prisma;
+if (process.env.LOAD_TEST === "true") {
+  const fs = require("fs");
+  const path = require("path");
+  const logFile = path.join(__dirname, "..", "..", "scratch", "query_times.jsonl");
+  
+  finalPrisma = prisma.$extends({
+    query: {
+      $allModels: {
+        async $allOperations({ operation, model, args, query }) {
+          const start = performance.now();
+          const result = await query(args);
+          const end = performance.now();
+          const timeMs = end - start;
+          
+          fs.appendFile(
+            logFile,
+            JSON.stringify({ model, operation, timeMs, timestamp: new Date().toISOString() }) + "\n",
+            (err) => { if (err) console.error("Failed to write query log", err); }
+          );
+          
+          return result;
+        },
+      },
+    },
+  });
 }
 
-module.exports = { prisma };
+if (process.env.NODE_ENV !== "production") {
+  globalForPrisma.prisma = finalPrisma;
+}
+
+module.exports = { prisma: finalPrisma };

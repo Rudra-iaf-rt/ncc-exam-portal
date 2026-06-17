@@ -25,6 +25,7 @@ export const examApi = {
   // Attempts
   startAttempt: (examId) => apiClient.post('/attempt/start', { examId }),
   saveAnswer: (data) => apiClient.post('/attempt/answer', data),
+  syncAnswers: (data) => apiClient.post('/attempt/sync', data),
   saveViolation: (data) => apiClient.post('/exam/violation', data),
   submitAttempt: (data) => apiClient.post('/attempt/submit', data),
 

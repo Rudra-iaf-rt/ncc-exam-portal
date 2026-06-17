@@ -148,6 +148,14 @@ router.post(
 );
 
 router.post(
+  "/attempt/sync",
+  authenticate,
+  requireStudent,
+  attemptRateLimiter,
+  asyncHandler(examsController.syncAnswers)
+);
+
+router.post(
   "/attempt/save-progress",
   authenticate,
   requireStudent,

@@ -82,6 +82,11 @@ async function saveAnswer(req, res) {
   res.json(payload);
 }
 
+async function syncAnswers(req, res) {
+  const payload = await examService.syncAttemptAnswers(req.user.id, req.body ?? {});
+  res.json(payload);
+}
+
 async function submit(req, res) {
   const payload = await examService.submitExam(req.user.id, req.body ?? {});
   await auditLogService.recordAudit(req, {
@@ -173,6 +178,7 @@ module.exports = {
   getOneStaff,
   startAttempt,
   saveAnswer,
+  syncAnswers,
   submit,
   attemptStatus,
   attemptDetails,
