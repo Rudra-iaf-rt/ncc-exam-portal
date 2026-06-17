@@ -215,6 +215,7 @@ export default function ResultsBoard() {
                 <th className="font-normal px-4 py-3">Exam Name</th>
                 <th className="font-normal px-4 py-3">Score</th>
                 <th className="font-normal px-4 py-3">Status</th>
+                <th className="font-normal px-4 py-3">Violations</th>
                 {isAdmin && <th className="font-normal px-4 py-3 text-right">Action</th>}
               </tr>
             </thead>
@@ -251,6 +252,19 @@ export default function ResultsBoard() {
                         <span className="font-mono text-[10px] tracking-[0.06em] py-1 px-2.5 rounded-full font-medium inline-flex bg-[#ef444420] text-[#b91c1c] border border-[#b91c1c30]">
                           Not Clear
                         </span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      {r.violationCount > 0 ? (
+                        <span
+                          className="inline-flex items-center gap-1 font-mono text-[10px] tracking-[0.06em] py-1 px-2.5 rounded-full font-bold bg-rose-500/10 text-rose-600 border border-rose-500/25"
+                          title={`${r.violationCount} anti-cheat violation${r.violationCount > 1 ? 's' : ''} recorded`}
+                        >
+                          <ShieldAlert size={10} />
+                          {r.violationCount} Violation{r.violationCount > 1 ? 's' : ''}
+                        </span>
+                      ) : (
+                        <span className="font-mono text-[10px] text-ink-4">—</span>
                       )}
                     </td>
                     {isAdmin && (

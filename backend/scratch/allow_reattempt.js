@@ -2,8 +2,8 @@ const { prisma } = require("../src/lib/prisma");
 const { cacheDelPattern, cacheDel } = require("../src/lib/cache");
 
 async function allowReattempt() {
-  const regimentalNumbers = ["AP2025SWAF0490313", "AP2024SDAF0490051"];
-  const examTitleQuery = "AF_SOP_HH_1";
+  const regimentalNumbers = ["AP2025SDAF0490511"];
+  const examTitleQuery = "QP_2";
 
   console.log(`Looking for exam matching: ${examTitleQuery}...`);
   const exam = await prisma.exam.findFirst({

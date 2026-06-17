@@ -3,7 +3,7 @@ const { redis } = require("../lib/redis");
 const { cacheGetJson, cacheSetJson } = require("../lib/cache");
 const { HttpError } = require("../utils/http-error");
 
-function mapResultRow(r) {
+function mapResultRow(r, violationCountMap = {}) {
   return {
     id: r.id,
     score: r.score,
@@ -16,6 +16,7 @@ function mapResultRow(r) {
     createdAt: r.createdAt,
     exam: r.exam ?? null,
     resultsPublished: r.exam?.resultsPublished ?? false,
+    violationCount: violationCountMap[`${r.studentId}:${r.examId}`] ?? 0,
   };
 }
 
@@ -43,6 +44,27 @@ const resultInclude = {
     },
   },
 };
+
+/**
+ * Batch-fetch warningCount from Attempt for a list of result rows.
+ * Returns a map keyed by "studentId:examId".
+ */
+async function buildViolationCountMap(rows) {
+  if (!rows.length) return {};
+  const keys = rows.map(r => ({ studentId: r.studentId, examId: r.examId }));
+  // Fetch all relevant attempts in one query using OR
+  const attempts = await prisma.attempt.findMany({
+    where: {
+      OR: keys.map(k => ({ studentId: k.studentId, examId: k.examId })),
+    },
+    select: { studentId: true, examId: true, warningCount: true },
+  });
+  const map = {};
+  for (const a of attempts) {
+    map[`${a.studentId}:${a.examId}`] = a.warningCount ?? 0;
+  }
+  return map;
+}
 
 async function listForStudent(studentId, query) {
   const examId = parseOptionalExamId(query);
@@ -77,8 +99,10 @@ async function listForStudent(studentId, query) {
     }),
   ]);
 
+  const violationCountMap = await buildViolationCountMap(rows);
+
   const finalResults = rows.map((r) => {
-    const mapped = mapResultRow(r);
+    const mapped = mapResultRow(r, violationCountMap);
     if (!mapped.resultsPublished) {
       mapped.score = null;
     }
@@ -174,7 +198,8 @@ async function listForInstructor(instructorId, query) {
     }),
   ]);
 
-  const finalResults = rows.map(mapResultRow);
+  const violationCountMap = await buildViolationCountMap(rows);
+  const finalResults = rows.map(r => mapResultRow(r, violationCountMap));
   const response = {
     collegeCode: collegeCode === "NONE" ? null : collegeCode,
     results: finalResults,
@@ -253,7 +278,8 @@ async function listForAdmin(query) {
     }),
   ]);
 
-  const finalResults = rows.map(mapResultRow);
+  const violationCountMap = await buildViolationCountMap(rows);
+  const finalResults = rows.map(r => mapResultRow(r, violationCountMap));
   const response = {
     results: finalResults,
     pagination: {

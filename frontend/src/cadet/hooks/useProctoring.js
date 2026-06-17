@@ -11,6 +11,7 @@ export const useProctoring = ({ onSecurityBreach, maxWarnings = 3 }) => {
   const [isScreenSharing, setIsScreenSharing] = useState(false);
   const [warningCount, setWarningCount] = useState(0);
   const [showWarning, setShowWarning] = useState(false);
+  const [isTerminated, setIsTerminated] = useState(false);
   const [lastViolationType, setLastViolationType] = useState(null); // 'TAB_SWITCH' | 'FULLSCREEN_EXIT' | 'SCREEN_STOP'
   const [screenStream, setScreenStream] = useState(null);
 
@@ -53,6 +54,8 @@ export const useProctoring = ({ onSecurityBreach, maxWarnings = 3 }) => {
 
     setWarningCount(newCount);
     if (newCount >= maxWarnings) {
+      setIsTerminated(true);
+      setShowWarning(true); // Show the terminated modal
       onSecurityBreachRef.current?.(true);
     } else {
       setShowWarning(true);
@@ -208,9 +211,11 @@ export const useProctoring = ({ onSecurityBreach, maxWarnings = 3 }) => {
   }, [screenStream]);
 
   const dismissWarning = useCallback(() => {
-    setShowWarning(false);
-    isViolatingRef.current = false;
-  }, []);
+    if (!isTerminated) {
+      setShowWarning(false);
+      isViolatingRef.current = false;
+    }
+  }, [isTerminated]);
 
   return {
     isFullscreen,
@@ -218,6 +223,7 @@ export const useProctoring = ({ onSecurityBreach, maxWarnings = 3 }) => {
     warningCount,
     lastViolationType,
     showWarning,
+    isTerminated,
     setShowWarning: dismissWarning, // Replace with the lock-releasing version
     requestFullscreen,
     requestScreenShare,

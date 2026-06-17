@@ -603,12 +603,7 @@ async function saveAttemptAnswer(studentId, body) {
   }
 
   // 1. Fetch Attempt
-  const attempt = await prisma.attempt.findUnique({
-    where: { studentId_examId: { studentId, examId } },
-  });
-  if (!attempt) {
-    throw new HttpError(400, "Start the exam before saving answers");
-  }
+  const attempt = await getOrCreateAttempt(studentId, examId, "saving answers");
   if (attempt.status !== "IN_PROGRESS") {
     throw new HttpError(409, "This attempt is already submitted");
   }
@@ -706,12 +701,7 @@ async function syncAttemptAnswers(studentId, body) {
   }
 
   // 1. Fetch Attempt
-  const attempt = await prisma.attempt.findUnique({
-    where: { studentId_examId: { studentId, examId } },
-  });
-  if (!attempt) {
-    throw new HttpError(400, "Start the exam before saving answers");
-  }
+  const attempt = await getOrCreateAttempt(studentId, examId, "saving answers");
   if (attempt.status !== "IN_PROGRESS") {
     throw new HttpError(409, "This attempt is already submitted");
   }
@@ -751,15 +741,7 @@ async function submitExam(studentId, body) {
   if (!Number.isFinite(examId)) {
     throw new HttpError(400, "examId is required");
   }
-  const attempt = await prisma.attempt.findUnique({
-    where: {
-      studentId_examId: { studentId, examId },
-    },
-  });
-
-  if (!attempt) {
-    throw new HttpError(400, "Start the exam before submitting");
-  }
+  const attempt = await getOrCreateAttempt(studentId, examId, "submitting");
   if (attempt.status === "SUBMITTED") {
     const existingResult = await prisma.result.findUnique({
       where: { studentId_examId: { studentId, examId } },
@@ -936,6 +918,38 @@ async function publishResults(userId, examIdRaw) {
   }
 
   return { success: true, message: "Results published successfully" };
+}
+
+async function getOrCreateAttempt(studentId, examId, actionLabel) {
+  let attempt = await prisma.attempt.findUnique({
+    where: { studentId_examId: { studentId, examId } },
+  });
+  if (!attempt) {
+    const exam = await prisma.exam.findUnique({
+      where: { id: examId },
+      include: { assignments: { where: { userId: studentId } } }
+    });
+    if (!exam || exam.status !== "LIVE" || !exam.assignments || exam.assignments.length === 0) {
+      throw new HttpError(400, `Start the exam before ${actionLabel}`);
+    }
+    const now = new Date();
+    if ((exam.startAt && now < exam.startAt) || (exam.endAt && now > exam.endAt)) {
+      throw new HttpError(400, `Start the exam before ${actionLabel}`);
+    }
+    const durationMinutes = Number.isFinite(Number(exam.duration)) ? Number(exam.duration) : 0;
+    const expiresAt = durationMinutes > 0 ? new Date(now.getTime() + durationMinutes * 60 * 1000) : null;
+    attempt = await prisma.attempt.create({
+      data: {
+        studentId,
+        examId,
+        status: "IN_PROGRESS",
+        answers: {},
+        currentQuestionIndex: 0,
+        ...(durationMinutes > 0 ? { startedAt: new Date(now), expiresAt, lastSavedAt: new Date(now) } : {}),
+      }
+    });
+  }
+  return attempt;
 }
 
 module.exports = {

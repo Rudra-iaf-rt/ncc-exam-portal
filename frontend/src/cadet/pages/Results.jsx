@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   ClipboardList,
   ChevronRight,
+  ShieldAlert,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getCachedResource, getOrFetchResource } from '../../lib/resourceCache';
@@ -171,6 +172,14 @@ const CadetResults = () => {
                             <FileText size={15} className="text-ink-4 shrink-0" />
                             <span className="truncate max-w-[220px]">{res.exam?.title ?? res.examTitle ?? 'Untitled Exam'}</span>
                           </div>
+                          {res.violationCount > 0 && (
+                            <div className="flex items-center gap-1 mt-1 ml-6">
+                              <span className="inline-flex items-center gap-1 font-mono text-[9px] tracking-wider py-0.5 px-1.5 rounded-full font-bold bg-rose-500/10 text-rose-600 border border-rose-500/20">
+                                <ShieldAlert size={9} />
+                                {res.violationCount} Violation{res.violationCount > 1 ? 's' : ''} Recorded
+                              </span>
+                            </div>
+                          )}
                         </td>
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-2 font-mono text-[11px] text-ink-3 whitespace-nowrap">
@@ -238,6 +247,12 @@ const CadetResults = () => {
                       <p className="font-ui text-[14px] font-semibold text-ink truncate">
                         {res.exam?.title ?? res.examTitle ?? 'Untitled Exam'}
                       </p>
+                      {res.violationCount > 0 && (
+                        <span className="inline-flex items-center gap-1 font-mono text-[9px] tracking-wider py-0.5 px-1.5 rounded-full font-bold bg-rose-500/10 text-rose-600 border border-rose-500/20 mt-0.5">
+                          <ShieldAlert size={9} />
+                          {res.violationCount} Violation{res.violationCount > 1 ? 's' : ''}
+                        </span>
+                      )}
                       <div className="flex items-center gap-2 mt-0.5 flex-wrap">
                         <span className="font-mono text-[10px] text-ink-4">
                           {new Date(res.createdAt).toLocaleDateString(undefined, { dateStyle: 'medium' })}

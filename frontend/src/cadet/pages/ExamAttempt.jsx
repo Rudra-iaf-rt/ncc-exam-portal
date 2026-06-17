@@ -49,6 +49,10 @@ const ExamAttempt = () => {
   // syncStatus: 'idle' | 'saving' | 'saved' | 'error'
   // Start as 'idle' so no badge shows before the first save attempt.
   const { syncStatus, queueSave, loadLocalAnswers, clearLocalAnswers } = useExamAutoSave(Number(id));
+  
+  // Ref so the onSecurityBreach callback (stable closure in useProctoring)
+  // always calls the latest version of the auto-terminate handler.
+  const autoTerminateRef = useRef(null);
 
   const {
     isFullscreen,
@@ -56,6 +60,7 @@ const ExamAttempt = () => {
     warningCount,
     lastViolationType,
     showWarning,
+    isTerminated,
     setShowWarning,
     requestFullscreen,
     requestScreenShare,
@@ -63,8 +68,8 @@ const ExamAttempt = () => {
   } = useProctoring({
     onSecurityBreach: (terminate) => {
       if (terminate) {
-        toast.error('Session Terminated: Multiple security breaches detected.');
-        // executeSubmit(); // Disabled temporarily as requested
+        toast.error('Exam Terminated: 3 security violations detected. Your answers have been auto-submitted.');
+        autoTerminateRef.current?.();
       }
     }
   });
@@ -129,6 +134,44 @@ const ExamAttempt = () => {
     queueSave(questionId, option); // Uses localStorage directly to avoid state lag
     setAnswers(prev => ({ ...prev, [questionId]: option }));
   };
+
+  // Keep the ref up-to-date so the useProctoring callback always uses the latest closure
+  // (avoids stale captures of navigate, user, id, etc.)
+  const executeSubmitAndRedirectToDashboard = async () => {
+    if (isSubmittingRef.current) return;
+
+    setShowConfirmModal(false);
+    isSubmittingRef.current = true;
+    setIsSubmitting(true);
+
+    const currentAnswers = answersRef.current || {};
+    const localAnswers = loadLocalAnswers() || {};
+    const finalMergedAnswers = { ...currentAnswers, ...localAnswers };
+
+    const answerList = Object.entries(finalMergedAnswers).map(([qId, val]) => ({
+      questionId: Number(qId),
+      selectedAnswer: val,
+    }));
+
+    try {
+      await examApi.submitAttempt({ examId: Number(id), answers: answerList });
+
+      const userKey = user?.id || user?.regimentalNumber || user?.email || 'current';
+      invalidateCachedResourcePattern(`cadet-dashboard:${userKey}`);
+      invalidateCachedResourcePattern(`cadet-results:${userKey}`);
+
+      clearLocalAnswers();
+      // Navigate to dashboard (not review) on violation-triggered submission
+      navigate('/cadet/dashboard');
+    } catch (error) {
+      // Even if the submit call fails, the backend already auto-submitted server-side
+      // on the 3rd violation — still navigate away.
+      clearLocalAnswers();
+      navigate('/cadet/dashboard');
+    }
+  };
+  // Wire the ref every render so onSecurityBreach always calls the fresh closure
+  autoTerminateRef.current = executeSubmitAndRedirectToDashboard;
 
   const executeSubmit = async () => {
     if (isSubmittingRef.current) return;
@@ -247,24 +290,36 @@ const ExamAttempt = () => {
   if (showWarning) return (
     <div className="fixed inset-0 z-[2000] flex items-center justify-center bg-navy/80 backdrop-blur-sm p-4 sm:p-6 text-ink animate-in fade-in duration-200">
       <div className="w-full max-w-md rounded-rl border border-stone-deep bg-white p-6 sm:p-10 text-center shadow-2xl animate-in zoom-in-95 duration-250">
-        <div className="w-16 h-16 rounded-full bg-rose-500/10 flex items-center justify-center mx-auto mb-6 text-rose-500 animate-bounce">
+        <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 ${
+          isTerminated ? 'bg-rose-600/15 text-rose-600' : 'bg-rose-500/10 text-rose-500 animate-bounce'
+        }`}>
           <AlertCircle size={32} />
         </div>
         
-        <h2 className="mb-3 font-display text-2xl text-navy font-bold">Stay in the Exam Window</h2>
-        
-        <p className="mb-6 font-ui text-[14.5px] leading-relaxed text-ink-2">
-          {lastViolationType === 'TAB_SWITCH' && "You switched to another window or tab. The system noticed you navigated away."}
-          {lastViolationType === 'FULLSCREEN_EXIT' && "You exited fullscreen mode. The exam requires fullscreen to continue."}
-          {lastViolationType === 'SCREEN_STOP' && "You stopped sharing your screen. Screen sharing is required to proctor the exam."}
-          {lastViolationType === 'FOCUS_LOSS' && "The exam window lost focus. This happens when you click outside the exam."}
-          {lastViolationType === 'MOUSE_LEAVE' && "Your cursor moved outside the secure exam area."}
-          {!lastViolationType && "A system violation was detected."}
-          {" To ensure fairness, please keep your focus solely on the exam."}
-        </p>
+        {isTerminated ? (
+          <>
+            <h2 className="mb-3 font-display text-2xl text-rose-600 font-bold">Exam Terminated</h2>
+            <p className="mb-6 font-ui text-[14.5px] leading-relaxed text-ink-2">
+              You have accumulated <strong>3 security violations</strong>. Your exam has been automatically submitted. You will be redirected to your dashboard.
+            </p>
+          </>
+        ) : (
+          <>
+            <h2 className="mb-3 font-display text-2xl text-navy font-bold">Stay in the Exam Window</h2>
+            <p className="mb-6 font-ui text-[14.5px] leading-relaxed text-ink-2">
+              {lastViolationType === 'TAB_SWITCH' && "You switched to another window or tab. The system noticed you navigated away."}
+              {lastViolationType === 'FULLSCREEN_EXIT' && "You exited fullscreen mode. The exam requires fullscreen to continue."}
+              {lastViolationType === 'SCREEN_STOP' && "You stopped sharing your screen. Screen sharing is required to proctor the exam."}
+              {lastViolationType === 'FOCUS_LOSS' && "The exam window lost focus. This happens when you click outside the exam."}
+              {lastViolationType === 'MOUSE_LEAVE' && "Your cursor moved outside the secure exam area."}
+              {!lastViolationType && "A system violation was detected."}
+              {" To ensure fairness, please keep your focus solely on the exam."}
+            </p>
+          </>
+        )}
 
         <div className="mb-8 flex flex-col items-center justify-center rounded-r bg-stone-wash p-4 border border-stone-deep">
-          <span className="font-mono text-[10px] uppercase tracking-wider text-ink-3 mb-2">Current Warnings</span>
+          <span className="font-mono text-[10px] uppercase tracking-wider text-ink-3 mb-2">Security Violations</span>
           <div className="flex gap-2">
             {[1, 2, 3].map((num) => (
               <div 
@@ -276,19 +331,21 @@ const ExamAttempt = () => {
             ))}
           </div>
           <span className="mt-2.5 font-ui text-sm font-bold text-rose-500">
-            {warningCount === 0 ? '0 of 3 Warnings' : `${warningCount} of 3 Warnings`}
+            {warningCount === 0 ? '0 of 3 Violations' : `${warningCount} of 3 Violations`}
           </span>
           <span className="mt-1 font-ui text-[11px] text-ink-4">
-            At 3 warnings, your exam is auto-submitted.
+            {isTerminated ? 'Exam has been auto-submitted.' : 'At 3 violations, your exam is auto-submitted.'}
           </span>
         </div>
 
-        <button 
-          onClick={() => setShowWarning(false)}
-          className="w-full rounded-r bg-navy py-3.5 font-ui font-bold text-[#F4F0E4] shadow-lg transition-all hover:bg-navy-mid active:scale-95 cursor-pointer"
-        >
-          Return to Exam
-        </button>
+        {!isTerminated && (
+          <button 
+            onClick={() => setShowWarning(false)}
+            className="w-full rounded-r bg-navy py-3.5 font-ui font-bold text-[#F4F0E4] shadow-lg transition-all hover:bg-navy-mid active:scale-95 cursor-pointer"
+          >
+            Return to Exam
+          </button>
+        )}
       </div>
     </div>
   );
