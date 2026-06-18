@@ -13669,3 +13669,25 @@ The column `Exam.startAt` does not exist in the current database.
     at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:46285)
     at async e.run (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:43335)
     at async e.execute (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:57:815)
+[2026-06-18T11:24:42.765Z] Error: Connection terminated due to connection timeout
+    at C:\College Projects\ncc-exam-portal\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async PrismaPgAdapter.performIO (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\adapter-pg\dist\index.js:654:22)
+    at async PrismaPgAdapter.queryRaw (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\adapter-pg\dist\index.js:604:30)
+    at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:44621)
+    at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:45065)
+    at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:43744)
+    at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:46285)
+    at async e.run (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:43335)
+    at async e.execute (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:57:815)
+[2026-06-18T11:25:16.028Z] Error: Connection terminated due to connection timeout
+    at C:\College Projects\ncc-exam-portal\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async PrismaPgAdapter.performIO (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\adapter-pg\dist\index.js:654:22)
+    at async PrismaPgAdapter.queryRaw (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\adapter-pg\dist\index.js:604:30)
+    at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:44621)
+    at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:45065)
+    at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:43744)
+    at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:46285)
+    at async e.run (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:43335)
+    at async e.execute (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:57:815)

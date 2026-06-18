@@ -32,11 +32,9 @@ const ExamAttempt = () => {
   // Standardize user identity for hashing, caching, and auto-save
   const userKey = user?.id || user?.regimentalNumber || user?.email || 'unknown';
 
-  useEffect(() => {
-    if (userKey === 'unknown' && !loading) {
-      console.warn('Exam session using fallback "unknown" - user identity unavailable. This may compromise shuffle fairness.');
-    }
-  }, [userKey, loading]);
+  // --- ALL STATE DECLARATIONS MUST COME BEFORE ANY useEffect THAT REFERENCES THEM ---
+  // (Placing a useState below a useEffect that uses it in a dep-array causes a TDZ
+  // ReferenceError in the minified bundle: "Cannot access 'x' before initialization")
   const [exam, setExam] = useState(null);
   const [answers, setAnswers] = useState({});
   const [loading, setLoading] = useState(true);
@@ -55,6 +53,12 @@ const ExamAttempt = () => {
   useEffect(() => {
     answersRef.current = answers;
   }, [answers]);
+
+  useEffect(() => {
+    if (userKey === 'unknown' && !loading) {
+      console.warn('Exam session using fallback "unknown" - user identity unavailable. This may compromise shuffle fairness.');
+    }
+  }, [userKey, loading]);
   
   // syncStatus: 'idle' | 'saving' | 'saved' | 'error'
   // Start as 'idle' so no badge shows before the first save attempt.

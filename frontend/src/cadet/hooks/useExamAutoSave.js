@@ -89,7 +89,7 @@ export const useExamAutoSave = (examId, userId) => {
             const storedData = JSON.parse(stored);
             const answers = storedData.answers || storedData; // Backwards compatible
             if (Object.keys(answers).length > 0) {
-              const token = localStorage.getItem('token');
+              const token = localStorage.getItem('ncc_token'); // must match key used in auth.js
               // Use keepalive fetch to ensure data sends even if tab is closing
               fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:5000/api'}/exams/attempt/sync`, {
                 method: 'POST',
