@@ -1,12 +1,12 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { examApi } from '../../api';
 
-export const useExamAutoSave = (examId) => {
+export const useExamAutoSave = (examId, userId) => {
   const [syncStatus, setSyncStatus] = useState('idle'); // 'idle' | 'saving' | 'saved' | 'error'
   const syncTimeoutRef = useRef(null);
 
   // The local storage key format for this exam
-  const storageKey = `ncc_exam_${examId}_answers`;
+  const storageKey = `ncc_exam_${examId}_student_${userId}_answers`;
 
   // Provide a method to load initially
   const loadLocalAnswers = useCallback(() => {
