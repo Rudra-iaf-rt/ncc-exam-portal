@@ -63,7 +63,7 @@ const CadetMaterials = () => {
         <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between border-b border-stone-mid pb-4">
           <div>
             <h2 className="font-display text-3xl text-ink font-medium">Field Manuals</h2>
-            <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.12em] text-ink-4">Documentation & Manuals</p>
+            <p className="mt-1 font-mono text-[10px] uppercase tracking-[0.12em] text-ink-4">Documentation &amp; Manuals</p>
           </div>
           
           <div className="relative w-full sm:w-auto">
@@ -84,40 +84,53 @@ const CadetMaterials = () => {
              </div>
           ) : materials.length > 0 ? (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {materials.map(item => (
-                <div key={item.id} className="group relative flex flex-col gap-6 rounded-xl border border-stone-deep bg-white p-6 transition-all hover:-translate-y-1 hover:border-navy-pale hover:shadow-[0_4px_16px_rgba(26,39,68,0.06)]">
-                   <div className="flex items-start justify-between">
-                     <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-sm bg-stone-wash text-navy transition-colors group-hover:bg-navy-wash">
-                        <FileText size={24} strokeWidth={1.5} />
-                     </div>
-                     <a 
-                        href={item.url} 
-                        target="_blank" 
-                        rel="noreferrer" 
-                        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-stone-wash text-ink-3 transition-all hover:bg-navy hover:text-white"
-                        title={item.url.includes('http') ? 'View Source' : 'Download Document'}
-                      >
-                         {item.url.includes('http') ? <ExternalLink size={18} /> : <Download size={18} />}
-                      </a>
-                   </div>
-                   
-                   <div className="flex flex-1 flex-col">
-                      <h3 className="mb-2 font-display text-xl text-ink group-hover:text-navy transition-colors">{item.title}</h3>
-                      {item.description && <p className="mb-4 line-clamp-2 font-ui text-[14px] text-ink-3">{item.description}</p>}
-                      <div className="mt-auto flex flex-wrap items-center gap-3 border-t border-stone-wash pt-4">
-                         {item.exam && (
-                           <div className="flex items-center gap-1.5 font-mono text-[11px] text-ink-3">
-                              <Tag size={12} className="text-ink-4" />
-                              <span>{item.exam.title}</span>
-                           </div>
-                         )}
-                         <span className="rounded-sm bg-stone-wash px-2 py-1 font-mono text-[10px] font-medium uppercase tracking-wider text-ink-3">
-                           {item.type}
+              {materials.map(item => {
+                // Guard: url may be null/undefined from the API
+                const url = item.url || '';
+                const isExternal = url.includes('http');
+                return (
+                  <div key={item.id} className="group relative flex flex-col gap-6 rounded-xl border border-stone-deep bg-white p-6 transition-all hover:-translate-y-1 hover:border-navy-pale hover:shadow-[0_4px_16px_rgba(26,39,68,0.06)]">
+                     <div className="flex items-start justify-between">
+                       <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-sm bg-stone-wash text-navy transition-colors group-hover:bg-navy-wash">
+                          <FileText size={24} strokeWidth={1.5} />
+                       </div>
+                       {url ? (
+                         <a 
+                            href={url} 
+                            target="_blank" 
+                            rel="noreferrer" 
+                            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-stone-wash text-ink-3 transition-all hover:bg-navy hover:text-white"
+                            title={isExternal ? 'View Source' : 'Download Document'}
+                          >
+                            {isExternal ? <ExternalLink size={18} /> : <Download size={18} />}
+                         </a>
+                       ) : (
+                         <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-stone-wash text-ink-4" title="No link available">
+                           <FileText size={18} />
                          </span>
-                      </div>
-                   </div>
-                </div>
-              ))}
+                       )}
+                     </div>
+                     
+                     <div className="flex flex-1 flex-col">
+                        <h3 className="mb-2 font-display text-xl text-ink group-hover:text-navy transition-colors">{item.title}</h3>
+                        {item.description && <p className="mb-4 line-clamp-2 font-ui text-[14px] text-ink-3">{item.description}</p>}
+                        <div className="mt-auto flex flex-wrap items-center gap-3 border-t border-stone-wash pt-4">
+                           {item.exam && (
+                             <div className="flex items-center gap-1.5 font-mono text-[11px] text-ink-3">
+                                <Tag size={12} className="text-ink-4" />
+                                <span>{item.exam.title}</span>
+                             </div>
+                           )}
+                           {item.type && (
+                             <span className="rounded-sm bg-stone-wash px-2 py-1 font-mono text-[10px] font-medium uppercase tracking-wider text-ink-3">
+                               {item.type}
+                             </span>
+                           )}
+                        </div>
+                     </div>
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <div className="flex h-[300px] flex-col items-center justify-center text-center rounded-xl border border-dashed border-stone-deep bg-white/50">
