@@ -215,7 +215,7 @@ export default function ResultsBoard() {
                 <th className="font-normal px-4 py-3">Exam Name</th>
                 <th className="font-normal px-4 py-3">Score</th>
                 <th className="font-normal px-4 py-3">Status</th>
-                <th className="font-normal px-4 py-3">Violations</th>
+                <th className="font-normal px-2 py-1">Violations</th>
                 {isAdmin && <th className="font-normal px-4 py-3 text-right">Action</th>}
               </tr>
             </thead>

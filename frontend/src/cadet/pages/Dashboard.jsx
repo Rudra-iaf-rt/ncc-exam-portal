@@ -33,8 +33,8 @@ const CadetDashboard = () => {
 
       for (let i = 0; i < localStorage.length; i++) {
         const key = localStorage.key(i);
-        if (key && key.startsWith('ncc_exam_') && key.endsWith('_answers')) {
-          const examIdMatch = key.match(/ncc_exam_(\d+)_answers/);
+        if (key && key.startsWith('ncc_exam_') && key.includes(`_student_${user.id}_answers`)) {
+          const examIdMatch = key.match(/ncc_exam_(\d+)_student_/);
           if (examIdMatch) {
             const examId = Number(examIdMatch[1]);
             try {

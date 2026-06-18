@@ -48,7 +48,7 @@ const ExamAttempt = () => {
   
   // syncStatus: 'idle' | 'saving' | 'saved' | 'error'
   // Start as 'idle' so no badge shows before the first save attempt.
-  const { syncStatus, queueSave, loadLocalAnswers, clearLocalAnswers } = useExamAutoSave(Number(id));
+  const { syncStatus, queueSave, loadLocalAnswers, clearLocalAnswers } = useExamAutoSave(Number(id), user?.id || 'unknown');
   
   // Ref so the onSecurityBreach callback (stable closure in useProctoring)
   // always calls the latest version of the auto-terminate handler.
