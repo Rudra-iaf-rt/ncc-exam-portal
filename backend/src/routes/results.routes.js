@@ -61,4 +61,11 @@ router.get(
   asyncHandler(resultsController.exportCsv)
 );
 
+router.get(
+  "/results/export-bulk",
+  authenticate,
+  requireStaff,
+  asyncHandler(resultsController.exportBulkCsv)
+);
+
 module.exports = router;

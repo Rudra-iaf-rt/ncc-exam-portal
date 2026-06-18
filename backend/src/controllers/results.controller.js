@@ -30,6 +30,17 @@ async function exportCsv(req, res) {
   res.send(csv);
 }
 
+async function exportBulkCsv(req, res) {
+  // Pass query parameters (filters) to the bulk export service
+  const csv = await resultsService.exportBulkExamResultsCsv(req.user, req.query);
+  res.setHeader("Content-Type", "text/csv; charset=utf-8");
+  res.setHeader(
+    "Content-Disposition",
+    `attachment; filename="ncc-results-export-${new Date().toISOString().split('T')[0]}.csv"`
+  );
+  res.send(csv);
+}
+
 async function listAll(req, res) {
   res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
   const role = req.user.role;
@@ -54,6 +65,7 @@ module.exports = {
   listAdmin,
   summary,
   exportCsv,
+  exportBulkCsv,
   listAll,
   getReview,
 };

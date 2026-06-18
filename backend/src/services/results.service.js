@@ -26,10 +26,24 @@ function parseOptionalExamId(query) {
   return Number.isFinite(n) ? n : NaN;
 }
 
+function parseOptionalExamIds(query) {
+  if (query.examIds == null || query.examIds === "") return null;
+  let ids = Array.isArray(query.examIds) ? query.examIds : String(query.examIds).split(',');
+  const parsedIds = ids.map(id => Number(id)).filter(n => Number.isFinite(n));
+  return parsedIds.length > 0 ? parsedIds : null;
+}
+
 function parseOptionalCollegeCode(query) {
   if (typeof query.collegeCode !== "string") return null;
   const t = query.collegeCode.trim();
   return t === "" ? null : t;
+}
+
+function parseOptionalCollegeCodes(query) {
+  if (query.collegeCodes == null || query.collegeCodes === "") return null;
+  let codes = Array.isArray(query.collegeCodes) ? query.collegeCodes : String(query.collegeCodes).split(',');
+  const parsedCodes = codes.map(c => String(c).trim()).filter(c => c !== "");
+  return parsedCodes.length > 0 ? parsedCodes : null;
 }
 
 const resultInclude = {
@@ -125,6 +139,7 @@ async function listForStudent(studentId, query) {
 
 async function listForInstructor(instructorId, query) {
   const examId = parseOptionalExamId(query);
+  const examIds = parseOptionalExamIds(query);
   if (Number.isNaN(examId)) {
     throw new HttpError(400, "Invalid examId query");
   }
@@ -171,7 +186,7 @@ async function listForInstructor(instructorId, query) {
 
   const where = {
     student: { collegeCode: collegeCode === "NONE" ? null : collegeCode },
-    ...(examId != null ? { examId } : {}),
+    ...(examIds ? { examId: { in: examIds } } : examId != null ? { examId } : {}),
   };
 
   if (query.search && String(query.search).trim() !== "") {
@@ -222,10 +237,12 @@ async function listForInstructor(instructorId, query) {
 
 async function listForAdmin(query) {
   const examId = parseOptionalExamId(query);
+  const examIds = parseOptionalExamIds(query);
   if (Number.isNaN(examId)) {
     throw new HttpError(400, "Invalid examId query");
   }
   const collegeCode = parseOptionalCollegeCode(query);
+  const collegeCodes = parseOptionalCollegeCodes(query);
 
   const page = Math.max(1, parseInt(query.page || "1", 10));
   const limit = Math.min(100, Math.max(1, parseInt(query.limit || "20", 10)));
@@ -234,13 +251,16 @@ async function listForAdmin(query) {
   const sortParam = query.sort === "score_desc" ? "score_desc" : "default";
   const statusParam = ["distinction", "qualified", "not_clear"].includes(query.status) ? query.status : "all";
 
-  const cacheKey = `results:admin:${examId || 'all'}:${collegeCode || 'all'}:${query.search || 'none'}:s${sortParam}:t${statusParam}:p${page}:l${limit}`;
+  // Cache key must include ALL filter dimensions — including multi-select arrays
+  const examKeyPart = examIds ? examIds.join('+') : (examId != null ? String(examId) : 'all');
+  const collegeKeyPart = collegeCodes ? collegeCodes.join('+') : (collegeCode || 'all');
+  const cacheKey = `results:admin:e${examKeyPart}:c${collegeKeyPart}:q${query.search || 'none'}:s${sortParam}:t${statusParam}:p${page}:l${limit}`;
   const cached = await cacheGetJson(cacheKey);
   if (cached) return cached;
 
   const where = {
-    ...(examId != null ? { examId } : {}),
-    ...(collegeCode != null ? { student: { collegeCode } } : {}),
+    ...(examIds ? { examId: { in: examIds } } : examId != null ? { examId } : {}),
+    ...(collegeCodes ? { student: { collegeCode: { in: collegeCodes } } } : collegeCode != null ? { student: { collegeCode } } : {}),
   };
 
   if (statusParam === "distinction") {
@@ -475,6 +495,142 @@ async function getReviewForStudent(studentId, examIdRaw) {
   return response;
 }
 
+async function exportBulkExamResultsCsv(user, query) {
+  const examId = parseOptionalExamId(query);
+  const examIds = parseOptionalExamIds(query);
+  const collegeCode = parseOptionalCollegeCode(query);
+  const collegeCodes = parseOptionalCollegeCodes(query);
+  const statusParam = ["distinction", "qualified", "not_clear"].includes(query.status) ? query.status : "all";
+
+  const includeAverage = query.includeAverage === "true";
+  const sortBy = query.sortBy || "Name";
+  const sortOrder = query.sortOrder || "asc";
+
+  let userCollegeCode = null;
+  if (user.role === "INSTRUCTOR") {
+    const me = await prisma.user.findUnique({ where: { id: user.id }, select: { collegeCode: true } });
+    userCollegeCode = me?.collegeCode || null;
+  }
+
+  const where = {};
+  
+  if (user.role === "INSTRUCTOR") {
+    where.student = { collegeCode: userCollegeCode };
+  } else if (user.role === "ADMIN") {
+    if (collegeCodes) {
+      where.student = { collegeCode: { in: collegeCodes } };
+    } else if (collegeCode) {
+      where.student = { collegeCode };
+    }
+  } else {
+    throw new HttpError(403, "Unauthorized role");
+  }
+
+  if (examIds) {
+    where.examId = { in: examIds };
+  } else if (examId != null) {
+    where.examId = examId;
+  }
+
+  if (statusParam === "distinction") {
+    where.score = { gte: 70 };
+  } else if (statusParam === "qualified") {
+    where.score = { gte: 40, lt: 70 };
+  } else if (statusParam === "not_clear") {
+    where.score = { lt: 40 };
+  }
+
+  if (query.search && String(query.search).trim() !== "") {
+    const term = String(query.search).trim();
+    where.student = {
+      ...where.student,
+      OR: [
+        { name: { contains: term, mode: "insensitive" } },
+        { regimentalNumber: { contains: term, mode: "insensitive" } }
+      ]
+    };
+  }
+
+  const rows = await prisma.result.findMany({
+    where,
+    include: resultInclude,
+    orderBy: { id: "asc" },
+  });
+
+  const violationCountMap = await buildViolationCountMap(rows);
+  const mappedResults = rows.map(r => mapResultRow(r, violationCountMap));
+  
+  const studentMap = {};
+  const allExams = new Set();
+  const examTitles = {};
+
+  for (const r of mappedResults) {
+    if (!r.studentId) continue;
+    if (!studentMap[r.studentId]) {
+      studentMap[r.studentId] = {
+        studentName: r.studentName ?? "",
+        regimentalNumber: r.regimentalNumber ?? "",
+        college: r.college ?? "",
+        scores: {},
+      };
+    }
+    studentMap[r.studentId].scores[r.examId] = r.score;
+    allExams.add(r.examId);
+    examTitles[r.examId] = r.examTitle || `Exam ${r.examId}`;
+  }
+
+  const examIdList = Array.from(allExams).sort((a, b) => a - b);
+  
+  const studentRows = Object.values(studentMap).map(student => {
+    let totalScore = 0;
+    let examsTaken = 0;
+    for (const eid of examIdList) {
+      if (student.scores[eid] !== undefined && student.scores[eid] !== null) {
+        totalScore += student.scores[eid];
+        examsTaken++;
+      }
+    }
+    student.averageScore = examsTaken > 0 ? Number((totalScore / examsTaken).toFixed(2)) : 0;
+    return student;
+  });
+
+  studentRows.sort((a, b) => {
+    let valA, valB;
+    if (sortBy === "Average") {
+      valA = a.averageScore;
+      valB = b.averageScore;
+    } else {
+      valA = (a.studentName || '').toLowerCase();
+      valB = (b.studentName || '').toLowerCase();
+    }
+    
+    if (valA < valB) return sortOrder === "asc" ? -1 : 1;
+    if (valA > valB) return sortOrder === "asc" ? 1 : -1;
+    return 0;
+  });
+
+  const header = [
+    "Student Name",
+    "Regimental Number",
+    "College",
+    ...examIdList.map(id => examTitles[id]),
+  ];
+  if (includeAverage) header.push("Average Score");
+
+  const dataRows = studentRows.map(student => {
+    const row = [
+      student.studentName,
+      student.regimentalNumber,
+      student.college,
+      ...examIdList.map(id => student.scores[id] !== undefined && student.scores[id] !== null ? student.scores[id] : "N/A")
+    ];
+    if (includeAverage) row.push(student.averageScore);
+    return row.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",");
+  });
+
+  return [header.map(h => `"${String(h).replace(/"/g, '""')}"`).join(","), ...dataRows].join("\n");
+}
+
 module.exports = {
   mapResultRow,
   listForStudent,
@@ -482,5 +638,6 @@ module.exports = {
   listForAdmin,
   examSummary,
   exportExamResultsCsv,
+  exportBulkExamResultsCsv,
   getReviewForStudent,
 };

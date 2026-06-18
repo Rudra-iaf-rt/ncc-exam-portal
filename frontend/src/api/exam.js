@@ -34,6 +34,10 @@ export const examApi = {
   getResults: (params) => apiClient.get('/results', { params }),
   getAdminResults: (params) => apiClient.get('/results/admin', { params }),
   getResultReview: (examId) => apiClient.get(`/results/review/${examId}`),
+  exportBulkAdminResults: (params) => apiClient.get('/results/export-bulk', { 
+    params,
+    responseType: 'blob' 
+  }),
 };
 
 export default examApi;
