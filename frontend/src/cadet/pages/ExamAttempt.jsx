@@ -3,6 +3,7 @@ import { toast } from 'sonner';
 import { useParams, useNavigate } from 'react-router-dom';
 import { examApi, authApi } from '../../api';
 import { setToken, setRefreshToken, saveUser } from '../../lib/auth';
+import { seededShuffle } from '../../lib/randomization';
 import { useExamAutoSave } from '../hooks/useExamAutoSave';
 import { 
   Clock, 
@@ -27,6 +28,15 @@ const ExamAttempt = () => {
   const { user } = useAuth();
   const { id } = useParams();
   const navigate = useNavigate();
+
+  // Standardize user identity for hashing, caching, and auto-save
+  const userKey = user?.id || user?.regimentalNumber || user?.email || 'unknown';
+
+  useEffect(() => {
+    if (userKey === 'unknown' && !loading) {
+      console.warn('Exam session using fallback "unknown" - user identity unavailable. This may compromise shuffle fairness.');
+    }
+  }, [userKey, loading]);
   const [exam, setExam] = useState(null);
   const [answers, setAnswers] = useState({});
   const [loading, setLoading] = useState(true);
@@ -48,7 +58,7 @@ const ExamAttempt = () => {
   
   // syncStatus: 'idle' | 'saving' | 'saved' | 'error'
   // Start as 'idle' so no badge shows before the first save attempt.
-  const { syncStatus, queueSave, loadLocalAnswers, clearLocalAnswers } = useExamAutoSave(Number(id), user?.id || 'unknown');
+  const { syncStatus, queueSave, loadLocalAnswers, clearLocalAnswers } = useExamAutoSave(Number(id), userKey);
   
   // Ref so the onSecurityBreach callback (stable closure in useProctoring)
   // always calls the latest version of the auto-terminate handler.
@@ -88,7 +98,19 @@ const ExamAttempt = () => {
     try {
       const { data } = await examApi.startAttempt(id);
       if (data) {
-        setExam(data.exam);
+        // Create deterministic seed for this user and exam combination
+        const sessionSeed = `${userKey}-${data.exam.id}`;
+        
+        // Shuffle questions deterministically
+        const shuffledQuestions = seededShuffle(data.exam.questions || [], sessionSeed);
+        
+        // Shuffle options deterministically
+        const randomizedQuestions = shuffledQuestions.map(q => ({
+          ...q,
+          options: seededShuffle(q.options || [], `${sessionSeed}-${q.id}`)
+        }));
+
+        setExam({ ...data.exam, questions: randomizedQuestions });
         setProctoringExamId(Number(id)); 
         setTimeLeft(data.remainingSeconds ?? data.exam.duration * 60);
 
@@ -156,7 +178,6 @@ const ExamAttempt = () => {
     try {
       await examApi.submitAttempt({ examId: Number(id), answers: answerList });
 
-      const userKey = user?.id || user?.regimentalNumber || user?.email || 'current';
       invalidateCachedResourcePattern(`cadet-dashboard:${userKey}`);
       invalidateCachedResourcePattern(`cadet-results:${userKey}`);
 
@@ -194,7 +215,6 @@ const ExamAttempt = () => {
     try {
       await examApi.submitAttempt({ examId: Number(id), answers: answerList });
       
-      const userKey = user?.id || user?.regimentalNumber || user?.email || 'current';
       invalidateCachedResourcePattern(`cadet-dashboard:${userKey}`);
       invalidateCachedResourcePattern(`cadet-results:${userKey}`);
 

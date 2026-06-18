@@ -12,7 +12,9 @@ export const useExamAutoSave = (examId, userId) => {
   const loadLocalAnswers = useCallback(() => {
     try {
       const stored = localStorage.getItem(storageKey);
-      return stored ? JSON.parse(stored) : null;
+      if (!stored) return null;
+      const parsed = JSON.parse(stored);
+      return parsed.answers || parsed;
     } catch (e) {
       console.error("Failed to parse local answers:", e);
       return null;
@@ -46,7 +48,10 @@ export const useExamAutoSave = (examId, userId) => {
     let currentAnswers = {};
     try {
       const stored = localStorage.getItem(storageKey);
-      if (stored) currentAnswers = JSON.parse(stored);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        currentAnswers = parsed.answers || parsed;
+      }
     } catch (e) {}
 
     // Ignore duplicate clicks on the same answer
