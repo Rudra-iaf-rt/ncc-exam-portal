@@ -62,6 +62,7 @@ export default function ExamEdit() {
         })));
       }
     } catch (error) {
+      console.log(error)
       toast.error('Failed to load examination details.');
       navigate('/admin/exams');
     } finally {
@@ -126,7 +127,7 @@ export default function ExamEdit() {
       });
       invalidateCachedResource('admin-exam-list');
       toast.success('Examination metadata updated successfully.');
-      setStep(2); // Auto-advance to questions
+      setStep(2); 
     } catch (error) {
       toast.error(error.message || 'Operational failure: Unable to update metadata.');
     } finally {
@@ -143,7 +144,7 @@ export default function ExamEdit() {
 
     setIsSubmittingQuestions(true);
     try {
-      await examApi.updateExamQuestions(id, { questions });
+      await examApi.updateExamQuestions(id, questions);
       toast.success('Examination intelligence blocks synchronized successfully.');
       invalidateCachedResource('admin-exam-list');
       navigate('/admin/exams');

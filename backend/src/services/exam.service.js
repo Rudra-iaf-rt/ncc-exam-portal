@@ -370,22 +370,105 @@ async function replaceExamQuestionsByCreator(userId, examIdRaw, body) {
       throw new HttpError(400, `Invalid question at index ${i}`);
     }
   }
-  await prisma.$transaction([
-    prisma.question.deleteMany({ where: { examId } }),
-    prisma.question.createMany({
-      data: questions.map((q) => ({
-        examId,
-        question: String(q.question).trim(),
-        options: q.options.map((o) => String(o)),
-        answer: normalizeAnswer(q.answer),
-      })),
-    }),
-  ]);
+  // Step 1: Replace questions inside a transaction by updating in-place to preserve IDs.
+  // The frontend doesn't send IDs back, but it preserves order.
+  const existingQuestions = await prisma.question.findMany({
+    where: { examId },
+    orderBy: { id: "asc" },
+  });
 
-  // Invalidate caches:
-  // 1. Specific exam details cache
+  const ops = [];
+  const maxLen = Math.max(questions.length, existingQuestions.length);
+  
+  for (let i = 0; i < maxLen; i++) {
+    const q = questions[i];
+    const ex = existingQuestions[i];
+
+    if (q && ex) {
+      // Update existing question, keeping its original ID
+      ops.push(
+        prisma.question.update({
+          where: { id: ex.id },
+          data: {
+            question: String(q.question).trim(),
+            options: q.options.map((o) => String(o)),
+            answer: normalizeAnswer(q.answer),
+          },
+        })
+      );
+    } else if (q && !ex) {
+      // Create new question appended to the end
+      ops.push(
+        prisma.question.create({
+          data: {
+            examId,
+            question: String(q.question).trim(),
+            options: q.options.map((o) => String(o)),
+            answer: normalizeAnswer(q.answer),
+          },
+        })
+      );
+    } else if (!q && ex) {
+      // Delete trailing question if the exam shrank
+      ops.push(
+        prisma.question.delete({
+          where: { id: ex.id },
+        })
+      );
+    }
+  }
+
+  await prisma.$transaction(ops);
+
+  // Step 2: Fetch the freshly-written questions (needed for rescoring)
+  const newQuestions = await prisma.question.findMany({
+    where: { examId },
+    orderBy: { id: "asc" },
+  });
+
+  // Step 3: Recalculate scores for every SUBMITTED attempt on this exam.
+  // Answers are stored as { [questionId]: selectedAnswer } in Attempt.answers (JSONB).
+  const submittedAttempts = await prisma.attempt.findMany({
+    where: { examId, status: "SUBMITTED" },
+    select: { studentId: true, answers: true },
+  });
+
+  if (submittedAttempts.length > 0) {
+    // Score every submitted attempt in memory (pure CPU, no I/O).
+    const scoredUpdates = submittedAttempts.map((attempt) => {
+      const studentAnswers =
+        attempt.answers && typeof attempt.answers === "object" ? attempt.answers : {};
+      const answersArray = Object.entries(studentAnswers).map(([qid, ans]) => ({
+        questionId: Number(qid),
+        selectedAnswer: String(ans ?? ""),
+      }));
+      const { score } = scoreSubmission(newQuestions, answersArray);
+      return { studentId: attempt.studentId, score };
+    });
+
+    // Each update targets a unique studentId_examId row — no cross-row conflicts,
+    // so no transaction needed. Promise.all fires all updates concurrently without
+    // holding an open interactive transaction, avoiding the 5 000 ms timeout.
+    await Promise.all(
+      scoredUpdates.map(({ studentId, score }) =>
+        prisma.result.update({
+          where: { studentId_examId: { studentId, examId } },
+          data: { score },
+        })
+      )
+    );
+
+    // Invalidate per-student review caches so the review page shows updated data
+    const reviewCacheKeys = submittedAttempts.map(
+      (a) => `resultreview:${a.studentId}:${examId}`
+    );
+    await cacheDel(reviewCacheKeys);
+    // Also bust the shared exam review data cache
+    await cacheDel([`exam:review_data:${examId}`]);
+  }
+
+  // Step 4: Invalidate shared exam caches
   await cacheDel([`exams:details:${examId}`]);
-  // 2. Wildcard exams catalog caches (since questionCount is updated)
   await incrementCacheVersion("exams:catalog:global");
 
   return prisma.exam.findUnique({
