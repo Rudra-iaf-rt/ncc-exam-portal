@@ -10,10 +10,14 @@ jest.mock("../../lib/prisma", () => {
   const mockExam = {
     findUnique: jest.fn(),
   };
+  const mockAttempt = {
+    findMany: jest.fn(),
+  };
   const mockPrisma = {
     result: mockResult,
     user: mockUser,
     exam: mockExam,
+    attempt: mockAttempt,
   };
   return { prisma: mockPrisma };
 });
@@ -60,6 +64,7 @@ describe("Results Service Unit Tests", () => {
 
     it("should query DB, set Redis cache and return data on cache miss", async () => {
       redis.get.mockResolvedValue(null);
+      prisma.attempt.findMany.mockResolvedValue([]);
       prisma.result.findMany.mockResolvedValue([
         {
           id: 1,

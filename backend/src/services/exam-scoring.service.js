@@ -50,8 +50,10 @@ function scoreSubmission(questions, answersInput) {
     }
   }
 
-  const rawScore = correct - wrong;
-  const score = total === 0 ? 0 : Math.round((rawScore / total) * 100);
+  const penalty = wrong / 3;
+  const rawScore = correct - penalty;
+  let score = total === 0 ? 0 : Math.round((rawScore / total) * 100);
+  if (score < 0) score = 0;
   return { score, correct, total };
 }
 

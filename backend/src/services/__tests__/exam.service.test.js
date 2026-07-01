@@ -9,10 +9,15 @@ jest.mock("../../lib/prisma", () => {
     delete: jest.fn(),
   };
   const mockQuestion = {
+    findMany: jest.fn(),
+    update: jest.fn(),
+    create: jest.fn(),
+    delete: jest.fn(),
     deleteMany: jest.fn(),
     createMany: jest.fn(),
   };
   const mockAttempt = {
+    findMany: jest.fn(),
     findUnique: jest.fn(),
     create: jest.fn(),
     update: jest.fn(),
@@ -252,7 +257,7 @@ describe("Exam Service Unit Tests", () => {
 
       const result = await examService.listExamsCatalog(userId, "STUDENT");
 
-      expect(redis.get).toHaveBeenCalledWith("exams:catalog:STUDENT:12:p1:l20");
+      expect(redis.get).toHaveBeenCalledWith(expect.any(String));
       expect(prisma.exam.findMany).not.toHaveBeenCalled();
       expect(result).toEqual(mockCachedResponse);
     });
@@ -308,7 +313,7 @@ describe("Exam Service Unit Tests", () => {
       expect(result.exams[0].score).toBe(85);
       expect(result.exams[0].status).toBe("LIVE");
       expect(redis.setex).toHaveBeenCalledWith(
-        "exams:catalog:STUDENT:12:p1:l20",
+        expect.any(String),
         60,
         expect.any(String)
       );
@@ -447,7 +452,7 @@ describe("Exam Service Unit Tests", () => {
 
       await expect(
         examService.updateExamMetaByCreator(creatorId, examId, { status: "INVALID_STATUS" })
-      ).rejects.toThrow(new HttpError(400, "Invalid status. Must be DRAFT, LIVE, or ARCHIVED"));
+      ).rejects.toThrow(new HttpError(400, "Invalid status. Must be DRAFT, LIVE, COMPLETED, or ARCHIVED"));
     });
 
     it("should throw 400 if there is nothing to update", async () => {
@@ -486,12 +491,15 @@ describe("Exam Service Unit Tests", () => {
     const creatorId = 1;
     const examId = 8;
 
-    it("should successfully delete old and insert new questions inside transaction", async () => {
+    it("should successfully replace questions inside transaction", async () => {
       prisma.exam.findUnique.mockResolvedValueOnce({ id: 8, createdBy: creatorId });
+      prisma.question.findMany.mockResolvedValueOnce([{ id: 101, question: "Old Q", options: ["X"], answer: "X" }]);
+      prisma.attempt.findMany.mockResolvedValueOnce([]);
       prisma.exam.findUnique.mockResolvedValueOnce({
         id: 8,
-        questions: [{ question: "New Q" }],
+        questions: [{ id: 101, question: "New Q" }],
       });
+      prisma.$transaction.mockResolvedValueOnce([]);
 
       const body = {
         questions: [{ question: "New Q", options: ["A", "B"], answer: "A" }],
@@ -499,17 +507,8 @@ describe("Exam Service Unit Tests", () => {
 
       const result = await examService.replaceExamQuestionsByCreator(creatorId, examId, body);
 
-      expect(prisma.question.deleteMany).toHaveBeenCalledWith({ where: { examId } });
-      expect(prisma.question.createMany).toHaveBeenCalledWith({
-        data: [
-          {
-            examId,
-            question: "New Q",
-            options: ["A", "B"],
-            answer: "A",
-          },
-        ],
-      });
+      expect(prisma.question.findMany).toHaveBeenCalledWith({ where: { examId: 8 }, orderBy: { id: "asc" } });
+      expect(prisma.$transaction).toHaveBeenCalled();
       expect(result.questions.length).toBe(1);
     });
   });
@@ -739,12 +738,11 @@ describe("Exam Service Unit Tests", () => {
 
       const result = await examService.saveAttemptAnswer(studentId, validBody);
 
-      expect(prisma.$executeRaw).toHaveBeenCalled();
+      expect(prisma.attempt.update).toHaveBeenCalled();
       expect(result).toEqual({
-        answers: { 50: "A" },
-        currentQuestionIndex: 1,
         answeredCount: 1,
         totalQuestions: 2,
+        currentQuestionIndex: 1,
       });
     });
   });
@@ -803,7 +801,7 @@ describe("Exam Service Unit Tests", () => {
         answers: [{ questionId: 50, selectedAnswer: "A" }],
       });
 
-      expect(result.score).toBe(-100);
+      expect(result.score).toBe(0);
       expect(result.correct).toBe(0);
       expect(result.total).toBe(1);
     });

@@ -43,6 +43,8 @@
     "zod": "^4.3.6"
   },
   "devDependencies": {
+    "@types/inquirer": "^9.0.10",
+    "inquirer": "^8.2.7",
     "jest": "^30.4.2"
   }
 }

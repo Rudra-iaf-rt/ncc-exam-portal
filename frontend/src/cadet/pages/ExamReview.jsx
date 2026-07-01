@@ -427,7 +427,7 @@ const ExamReview = () => {
               <div className="mt-4 bg-crimson-wash border border-crimson/20 rounded-lg p-3 flex items-start gap-2.5">
                 <AlertCircle size={16} className="text-crimson shrink-0 mt-0.5" />
                 <p className="font-ui text-[12px] sm:text-[13px] text-crimson leading-snug">
-                  <strong>Negative Marking Applied:</strong> {incorrect} incorrect answer{incorrect > 1 ? 's' : ''} resulted in a penalty of {incorrect} mark{incorrect > 1 ? 's' : ''} deducted from your raw score.
+                  <strong>Negative Marking Applied:</strong> {incorrect} incorrect answer{incorrect > 1 ? 's' : ''} resulted in a 1/3 mark penalty each, deducted from your original score.
                 </p>
               </div>
             )}
