@@ -856,7 +856,7 @@ async function submitExam(studentId, body) {
 
   let finalAnswers = attempt.answers && typeof attempt.answers === "object" ? attempt.answers : {};
 
-  if (Array.isArray(answers)) {
+  if (!isLate && Array.isArray(answers)) {
     // Ensure frontend-provided answers are merged into final storage
     answers.forEach(a => {
       finalAnswers[a.questionId] = a.selectedAnswer;

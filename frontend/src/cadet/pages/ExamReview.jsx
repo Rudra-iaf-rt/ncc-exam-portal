@@ -175,6 +175,7 @@ function QuestionCard({ item, index }) {
 function StatCard({ icon: Icon, count, label, bg, border, iconCls, textCls }) {
   return (
     <div className={`flex flex-col items-center justify-center gap-1.5 rounded-xl border ${border} ${bg} py-4 px-1 sm:py-5 sm:px-2 text-center`}>
+      {/* eslint-disable-next-line react/jsx-pascal-case */}
       <Icon size={20} className={`sm:w-[22px] sm:h-[22px] ${iconCls}`} />
       <span className={`font-mono text-xl sm:text-2xl font-bold leading-none ${textCls}`}>{count}</span>
       <span className={`font-ui text-[9px] sm:text-[10px] font-bold uppercase tracking-wider ${iconCls} opacity-80`}>{label}</span>
@@ -302,7 +303,7 @@ const ExamReview = () => {
     );
   }
 
-  const { examTitle, score, correct, incorrect, skipped, total, submittedAt, questions } = data;
+  const { examTitle, score, correct, incorrect, skipped, total, submittedAt } = data;
 
   return (
     <div className="min-h-screen bg-stone-wash flex flex-col">

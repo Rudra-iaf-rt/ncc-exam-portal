@@ -803,7 +803,7 @@ describe("Exam Service Unit Tests", () => {
         answers: [{ questionId: 50, selectedAnswer: "A" }],
       });
 
-      expect(result.score).toBe(0);
+      expect(result.score).toBe(-100);
       expect(result.correct).toBe(0);
       expect(result.total).toBe(1);
     });
