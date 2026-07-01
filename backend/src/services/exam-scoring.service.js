@@ -36,16 +36,22 @@ function scoreSubmission(questions, answersInput) {
   }
 
   let correct = 0;
+  let wrong = 0;
   const total = questions.length;
 
   for (const q of questions) {
     const selected = answerMap.get(q.id);
-    if (selected !== undefined && selected === normalizeAnswer(q.answer)) {
-      correct++;
+    if (selected !== undefined && selected !== "") {
+      if (selected === normalizeAnswer(q.answer)) {
+        correct++;
+      } else {
+        wrong++;
+      }
     }
   }
 
-  const score = total === 0 ? 0 : Math.round((correct / total) * 100);
+  const rawScore = correct - wrong;
+  const score = total === 0 ? 0 : Math.round((rawScore / total) * 100);
   return { score, correct, total };
 }
 

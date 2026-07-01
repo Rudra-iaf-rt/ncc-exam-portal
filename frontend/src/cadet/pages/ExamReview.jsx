@@ -48,7 +48,7 @@ function ScoreRing({ score, size = 136 }) {
           fontFamily: 'Noto Sans Mono, monospace',
           fontSize: size * 0.225, fontWeight: 700, color: ringColor, lineHeight: 1,
         }}>
-          {clamped}%
+          {score}%
         </span>
         <span style={{
           fontFamily: 'Noto Sans, sans-serif',
@@ -95,10 +95,10 @@ function QuestionCard({ item, index }) {
   const { question, options, correctAnswer, studentAnswer, isCorrect, isSkipped } = item;
 
   const statusConfig = isCorrect
-    ? { label: 'Correct',   bg: 'bg-emerald-50',   border: 'border-emerald-200', iconClass: 'text-emerald-600', chipBg: 'bg-emerald-100 text-emerald-700 border-emerald-200' }
+    ? { label: 'Correct (+1)',   bg: 'bg-emerald-50',   border: 'border-emerald-200', iconClass: 'text-emerald-600', chipBg: 'bg-emerald-100 text-emerald-700 border-emerald-200' }
     : isSkipped
-    ? { label: 'Skipped',   bg: 'bg-stone-wash',   border: 'border-stone-deep',  iconClass: 'text-ink-4',       chipBg: 'bg-stone-mid text-ink-3 border-stone-deep' }
-    : { label: 'Incorrect', bg: 'bg-crimson-wash',  border: 'border-crimson/20', iconClass: 'text-crimson',     chipBg: 'bg-crimson-wash text-crimson border-crimson/30' };
+    ? { label: 'Skipped (0)',   bg: 'bg-stone-wash',   border: 'border-stone-deep',  iconClass: 'text-ink-4',       chipBg: 'bg-stone-mid text-ink-3 border-stone-deep' }
+    : { label: 'Incorrect (-1)', bg: 'bg-crimson-wash',  border: 'border-crimson/20', iconClass: 'text-crimson',     chipBg: 'bg-crimson-wash text-crimson border-crimson/30' };
 
   const StatusIcon = isCorrect ? CheckCircle2 : isSkipped ? MinusCircle : XCircle;
 
@@ -379,8 +379,8 @@ const ExamReview = () => {
               </div>
             </div>
 
-            {/* 3 stat cards */}
-            <div className="grid grid-cols-3 gap-2 sm:gap-3 mb-4">
+            {/* 4 stat cards */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-4">
               <StatCard
                 icon={CheckCircle2} count={correct}   label="Correct"
                 bg="bg-emerald-50"   border="border-emerald-200"
@@ -395,6 +395,11 @@ const ExamReview = () => {
                 icon={MinusCircle}  count={skipped}   label="Skipped"
                 bg="bg-stone-wash"  border="border-stone-deep"
                 iconCls="text-ink-4"       textCls="text-ink-3"
+              />
+              <StatCard
+                icon={AlertCircle}  count={incorrect > 0 ? `-${incorrect}` : "0"} label="-ve Marks"
+                bg="bg-orange-50"  border="border-orange-200"
+                iconCls="text-orange-600"       textCls="text-orange-700"
               />
             </div>
 
@@ -415,6 +420,16 @@ const ExamReview = () => {
                 <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-stone-deep  inline-block" />Skipped</span>
               </div>
             </div>
+
+            {/* Penalty Explanation */}
+            {incorrect > 0 && (
+              <div className="mt-4 bg-crimson-wash border border-crimson/20 rounded-lg p-3 flex items-start gap-2.5">
+                <AlertCircle size={16} className="text-crimson shrink-0 mt-0.5" />
+                <p className="font-ui text-[12px] sm:text-[13px] text-crimson leading-snug">
+                  <strong>Negative Marking Applied:</strong> {incorrect} incorrect answer{incorrect > 1 ? 's' : ''} resulted in a penalty of {incorrect} mark{incorrect > 1 ? 's' : ''} deducted from your raw score.
+                </p>
+              </div>
+            )}
 
           </div>
         </section>

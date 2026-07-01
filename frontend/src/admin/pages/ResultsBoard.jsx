@@ -624,7 +624,7 @@ export default function ResultsBoard() {
                 <input
                   type="number"
                   className="w-full h-[38px] px-3 border border-stone-deep rounded-md font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all"
-                  min="0" max="100" required
+                  min="-100" max="100" required
                   value={overrideForm.score}
                   onChange={e => setOverrideForm(f => ({ ...f, score: e.target.value }))}
                 />
