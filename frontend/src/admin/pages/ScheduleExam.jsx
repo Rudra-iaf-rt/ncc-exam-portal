@@ -3,6 +3,7 @@ import { useSearchParams, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { adminApi, examApi } from '../../api';
 import { PageHeader } from '../components/Shared';
+import PageLoader from '../../components/PageLoader';
 import { invalidateCachedResource } from '../../lib/resourceCache';
 import { useCachedFetch } from '../../hooks/useCachedFetch';
 import { 
@@ -237,9 +238,7 @@ export default function ScheduleExam() {
 
   const selectedExam = exams.find(e => e.id.toString() === form.examId.toString());
 
-  if (loading) {
-    return <div className="p-12 text-center text-ink-4 font-mono text-[13px] animate-pulse">Loading exams...</div>;
-  }
+  const isInitialLoading = loading && exams.length === 0;
 
   return (
     <div className="w-full pb-10">
@@ -265,8 +264,12 @@ export default function ScheduleExam() {
 
       <StepIndicator currentStep={currentStep} />
 
-      {/* Step 1: Select Exam */}
-      {currentStep === 1 && (
+      {isInitialLoading ? (
+        <PageLoader text="Loading exams..." />
+      ) : (
+        <>
+          {/* Step 1: Select Exam */}
+          {currentStep === 1 && (
         <div className="animate-in fade-in duration-300">
           <div className="bg-white border border-stone-deep rounded-md shadow-sm overflow-hidden">
             <div className="p-6 border-b border-stone bg-stone-wash/50">
@@ -683,6 +686,8 @@ export default function ScheduleExam() {
             </div>
           </div>
         </div>
+      )}
+      </>
       )}
     </div>
   );

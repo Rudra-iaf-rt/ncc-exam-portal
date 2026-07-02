@@ -124,6 +124,9 @@ model Exam {
   status      String           @default("DRAFT")
   publishedAt DateTime?
   resultsPublished Boolean          @default(false)
+  negativeMarking  Boolean          @default(false)
+  positiveMarks    Int              @default(4)
+  negativeMarks    Float            @default(1.0)
   attempts    Attempt[]
   creator     User             @relation("ExamCreator", fields: [createdBy], references: [id])
   assignments ExamAssignment[]
@@ -154,6 +157,9 @@ model Question {
   question String
   options  String[]
   answer   String
+  type     String   @default("MCQ")
+  topic    String?
+  marks    Int      @default(4)
   exam     Exam     @relation(fields: [examId], references: [id], onDelete: Cascade)
 
   @@index([examId])

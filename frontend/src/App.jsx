@@ -23,6 +23,8 @@ import MaterialManagement from './admin/pages/MaterialManagement'
 
 import Assignments from './admin/pages/Assignments'
 import ScheduleExam from './admin/pages/ScheduleExam'
+import MonitorWall from './admin/pages/MonitorWall'
+import ExamAnalytics from './admin/pages/ExamAnalytics'
 import AuditLogs from './admin/pages/AuditLogs'
 import ForgotPassword from './auth/ForgotPassword'
 import ResetPassword from './auth/ResetPassword'
@@ -94,6 +96,8 @@ function App() {
               <Route path="exams/create" element={<ExamCreate />} />
               <Route path="exams/edit/:id" element={<ExamEdit />} />
               <Route path="exams/schedule" element={<ScheduleExam />} />
+              <Route path="exams/:id/monitor" element={<MonitorWall />} />
+              <Route path="exams/:id/analytics" element={<ExamAnalytics />} />
               <Route path="assignments" element={<Assignments />} />
               <Route path="materials" element={<MaterialManagement />} />
               <Route path="staff" element={<StaffManagement />} />

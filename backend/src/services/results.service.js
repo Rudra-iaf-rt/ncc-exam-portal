@@ -422,7 +422,7 @@ async function getReviewForStudent(studentId, examIdRaw) {
       where: { id: examId },
       include: {
         questions: {
-          select: { id: true, question: true, options: true, answer: true },
+          select: { id: true, question: true, options: true, answer: true, topic: true },
           orderBy: { id: "asc" },
         },
       },
@@ -466,6 +466,7 @@ async function getReviewForStudent(studentId, examIdRaw) {
     return {
       questionId: q.id,
       question: q.question,
+      topic: q.topic || "General",
       options: q.options,
       correctAnswer,
       studentAnswer: normalizedStudent,
@@ -487,6 +488,11 @@ async function getReviewForStudent(studentId, examIdRaw) {
     total,
     submittedAt: result?.createdAt ?? attempt.updatedAt,
     questions,
+    scoringScheme: {
+      negativeMarking: exam.negativeMarking ?? false,
+      positiveMarks: exam.positiveMarks ?? 4,
+      negativeMarks: exam.negativeMarks ?? 1.0,
+    },
   };
 
   // 6. Cache for 5 minutes — data is immutable after submission

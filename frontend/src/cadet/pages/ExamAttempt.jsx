@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
+import GlobalLoader from '../../components/GlobalLoader';
 import { toast } from 'sonner';
 import { useParams, useNavigate } from 'react-router-dom';
 import { examApi, authApi } from '../../api';
@@ -100,7 +101,13 @@ const ExamAttempt = () => {
 
   const startExam = async () => {
     try {
-      const { data } = await examApi.startAttempt(id);
+      const sessionKey = `examSessionId_${id}`;
+      let sessionId = localStorage.getItem(sessionKey);
+      if (!sessionId) {
+        sessionId = Math.random().toString(36).substring(2, 15);
+        localStorage.setItem(sessionKey, sessionId);
+      }
+      const { data } = await examApi.startAttempt(id, sessionId);
       if (data) {
         // Create deterministic seed for this user and exam combination
         const sessionSeed = `${userKey}-${data.exam.id}`;
@@ -132,12 +139,44 @@ const ExamAttempt = () => {
         setAnswers(ansMap);
       }
     } catch (error) {
-      toast.error(error.message || 'Failed to start exam session');
+      if (error.response?.status === 409) {
+        toast.error(error.response?.data?.error || 'Exam already active on another device or timed out.');
+      } else {
+        toast.error(error.message || 'Failed to start exam session');
+      }
       navigate('/cadet/dashboard');
     } finally {
       setLoading(false);
     }
   };
+
+  // Heartbeat polling
+  useEffect(() => {
+    if (loading || !exam) return;
+    
+    let isMounted = true;
+    const sendHeartbeat = async () => {
+      try {
+        const { data } = await examApi.sendHeartbeat({ examId: id, activeQuestionIndex: currentQ });
+        if (isMounted && data?.expiresAt) {
+          const newExpiresAt = new Date(data.expiresAt);
+          const newTimeLeft = Math.max(0, Math.floor((newExpiresAt.getTime() - Date.now()) / 1000));
+          // Only update if difference is more than 5 seconds to avoid jitter
+          setTimeLeft(prev => Math.abs(prev - newTimeLeft) > 5 ? newTimeLeft : prev);
+        }
+      } catch (err) {
+        console.error('Heartbeat failed', err);
+      }
+    };
+
+    const interval = setInterval(sendHeartbeat, 30000); // 30 seconds
+    sendHeartbeat(); // Fire immediately once
+    
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [id, currentQ, loading, exam]);
 
   useEffect(() => {
     if (loading || !isFullscreen || !isScreenSharing) return;
@@ -270,12 +309,7 @@ const ExamAttempt = () => {
     return `${m}:${s.toString().padStart(2, '0')}`;
   };
 
-  if (loading) return (
-    <div className="flex h-screen flex-col items-center justify-center bg-stone text-navy">
-      <Loader2 className="mb-6 animate-spin" size={48} />
-      <p className="font-mono text-sm uppercase tracking-widest">Initializing Secure Session...</p>
-    </div>
-  );
+  if (loading) return <GlobalLoader text="Initializing Secure Session..." />;
 
   // STEP 1: Screen Share (Transmission)
   if (!isScreenSharing) return (
@@ -568,9 +602,9 @@ const ExamAttempt = () => {
               {q.question}
             </p>
 
-            {/* Answer Options */}
+            {/* Answer Options or Input based on type */}
             <div className="flex flex-col gap-3.5">
-              {q.options.map((opt, i) => (
+              {(!q.type || q.type === 'MCQ') && q.options?.map((opt, i) => (
                 <label 
                   key={i} 
                   className={`flex cursor-pointer items-center gap-4 rounded-r border p-4 transition-all duration-200 transform hover:translate-x-0.5 ${
@@ -596,6 +630,32 @@ const ExamAttempt = () => {
                   <span className="font-ui text-[16px] text-ink-2 font-medium">{opt}</span>
                 </label>
               ))}
+
+              {q.type === 'FILL_IN_THE_BLANK' && (
+                <div className="mt-2">
+                  <input
+                    type="text"
+                    placeholder="Type your answer here..."
+                    className="w-full h-12 px-4 border border-stone-deep rounded-md font-ui text-[15px] focus:outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all disabled:opacity-50 bg-white"
+                    value={answers[q.id] || ""}
+                    onChange={(e) => handleSelect(q.id, e.target.value)}
+                    disabled={isSubmitting}
+                  />
+                </div>
+              )}
+
+              {q.type === 'SUBJECTIVE' && (
+                <div className="mt-2">
+                  <textarea
+                    placeholder="Write your answer here..."
+                    rows={8}
+                    className="w-full p-4 border border-stone-deep rounded-md font-ui text-[15px] focus:outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all disabled:opacity-50 resize-y bg-white"
+                    value={answers[q.id] || ""}
+                    onChange={(e) => handleSelect(q.id, e.target.value)}
+                    disabled={isSubmitting}
+                  />
+                </div>
+              )}
             </div>
           </div>
 

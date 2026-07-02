@@ -33,6 +33,9 @@ export const adminApi = {
   updateResult: (id, data) => apiClient.patch(`/admin/results/${id}`, data),
   searchUsers: (params) => apiClient.get('/admin/users/search', { params }),
   getFilters: () => apiClient.get('/admin/users/filters'),
+  
+  getLiveMonitor: (examId) => apiClient.get(`/admin/exams/${examId}/live-monitor`),
+  getExamAnalytics: (examId) => apiClient.get(`/admin/exams/${examId}/analytics`),
 };
 
 export default adminApi;

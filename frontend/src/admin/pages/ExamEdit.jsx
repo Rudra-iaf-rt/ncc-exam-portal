@@ -4,16 +4,8 @@ import { examApi } from '../../api';
 import { toast } from 'sonner';
 import { PageHeader } from '../components/Shared';
 import { invalidateCachedResource } from '../../lib/resourceCache';
-import { 
-  ArrowLeft, 
-  ArrowRight,
-  Plus, 
-  Trash2, 
-  ShieldCheck, 
-  AlertCircle,
-  Clock,
-  CheckCircle2
-} from 'lucide-react';
+import { Search, Info, Check, Trash2, ArrowLeft, GripVertical, AlertCircle, Save, Plus, Clock, CheckCircle2, ShieldCheck, ArrowRight } from 'lucide-react';
+import PageLoader from '../../components/PageLoader';
 
 export default function ExamEdit() {
   const { id } = useParams();
@@ -29,7 +21,10 @@ export default function ExamEdit() {
   // Step 1: Basic Info
   const [basicInfo, setBasicInfo] = useState({
     title: '',
-    duration: 60
+    duration: 60,
+    negativeMarking: false,
+    positiveMarks: 4,
+    negativeMarks: 1.0
   });
 
   // Step 2: Questions
@@ -50,7 +45,10 @@ export default function ExamEdit() {
       
       setBasicInfo({
         title: exam.title || '',
-        duration: exam.duration || 60
+        duration: exam.duration || 60,
+        negativeMarking: exam.negativeMarking ?? false,
+        positiveMarks: exam.positiveMarks ?? 4,
+        negativeMarks: exam.negativeMarks ?? 1.0,
       });
       setExamStatus(exam.status);
       
@@ -58,7 +56,10 @@ export default function ExamEdit() {
         setQuestions(exam.questions.map(q => ({
           question: q.question || '',
           options: q.options || ['', '', '', ''],
-          answer: q.answer || ''
+          answer: q.answer || '',
+          type: q.type || 'MCQ',
+          topic: q.topic || '',
+          marks: q.marks ?? 4
         })));
       }
     } catch (error) {
@@ -71,7 +72,7 @@ export default function ExamEdit() {
   };
 
   const addQuestion = () => {
-    setQuestions([...questions, { question: '', options: ['', '', '', ''], answer: '' }]);
+    setQuestions([...questions, { question: '', options: ['', '', '', ''], answer: '', type: 'MCQ', topic: '', marks: 4 }]);
   };
 
   const removeQuestion = (index) => {
@@ -105,9 +106,14 @@ export default function ExamEdit() {
   const validateQuestions = () => {
     for (let i = 0; i < questions.length; i++) {
       const q = questions[i];
-      if (!q.question.trim()) return `Intelligence block #${i + 1} is empty.`;
-      if (q.options.some(o => !o.trim())) return `Intelligence block #${i + 1} has incomplete options.`;
-      if (!q.answer) return `Intelligence block #${i + 1} requires a designated correct answer.`;
+      if (!q.question.trim()) return `Question Block #${i + 1} is empty.`;
+      if (!q.type) q.type = 'MCQ';
+      if (q.type === 'MCQ') {
+        if (q.options.some(o => !o.trim())) return `Question Block #${i + 1} has incomplete options.`;
+        if (!q.answer) return `Question Block #${i + 1} requires a designated correct answer.`;
+      } else if (q.type === 'FILL_IN_THE_BLANK') {
+        if (!q.answer) return `Question Block #${i + 1} requires a correct answer.`;
+      }
     }
     return null;
   };
@@ -123,7 +129,10 @@ export default function ExamEdit() {
     try {
       await examApi.updateExamMeta(id, {
         title: basicInfo.title.trim(),
-        duration: basicInfo.duration
+        duration: basicInfo.duration,
+        negativeMarking: basicInfo.negativeMarking,
+        positiveMarks: basicInfo.positiveMarks,
+        negativeMarks: basicInfo.negativeMarks
       });
       invalidateCachedResource('admin-exam-list');
       toast.success('Examination metadata updated successfully.');
@@ -145,7 +154,7 @@ export default function ExamEdit() {
     setIsSubmittingQuestions(true);
     try {
       await examApi.updateExamQuestions(id, questions);
-      toast.success('Examination intelligence blocks synchronized successfully.');
+      toast.success('Examination Question Blocks synchronized successfully.');
       invalidateCachedResource('admin-exam-list');
       navigate('/admin/exams');
     } catch (error) {
@@ -154,15 +163,6 @@ export default function ExamEdit() {
       setIsSubmittingQuestions(false);
     }
   };
-
-  if (isLoading) {
-    return (
-      <div className="flex justify-center items-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-navy"></div>
-      </div>
-    );
-  }
-
   return (
     <div className="max-w-[900px] mx-auto pb-12">
       <div className="mb-6 flex items-center gap-3">
@@ -177,12 +177,16 @@ export default function ExamEdit() {
           subtitle={
             step === 1
               ? 'Step 1: Exam Settings'
-              : `Step 2: Questions & Answers (${questions.length} Blocks)`
+              : `Step 2: Questions & Answers (${questions?.length || 0} Blocks)`
           }
         />
       </div>
 
-      {examStatus === 'LIVE' && (
+      {isLoading ? (
+        <PageLoader text="Loading exam details..." />
+      ) : (
+        <>
+          {examStatus === 'LIVE' && (
         <div className="bg-gold-wash border border-gold/30 rounded-md mb-6 p-4 flex gap-3 shadow-sm">
           <AlertCircle size={20} className="text-gold shrink-0 mt-0.5" />
           <div>
@@ -233,6 +237,48 @@ export default function ExamEdit() {
             </div>
           </div>
           
+          <div className="mt-6 p-5 bg-stone border border-stone-deep rounded-md">
+            <div className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                id="negativeMarkingEdit"
+                checked={basicInfo.negativeMarking}
+                onChange={(e) => setBasicInfo({ ...basicInfo, negativeMarking: e.target.checked })}
+                className="w-4 h-4 text-navy accent-navy bg-white border-stone-deep rounded focus:ring-navy-wash focus:ring-2"
+              />
+              <label htmlFor="negativeMarkingEdit" className="font-mono text-[11px] tracking-[0.05em] uppercase text-ink-2 cursor-pointer">
+                Enable Negative Marking
+              </label>
+            </div>
+            {basicInfo.negativeMarking && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 mt-4 border-t border-stone-deep/50">
+                <div>
+                  <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Marks for Correct Answer</label>
+                  <input
+                    type="number"
+                    className="w-full h-[38px] px-3 border border-stone-deep rounded-md font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all"
+                    value={basicInfo.positiveMarks}
+                    min={1}
+                    onChange={(e) => setBasicInfo({ ...basicInfo, positiveMarks: parseFloat(e.target.value) || 0 })}
+                    onFocus={(e) => e.target.select()}
+                  />
+                </div>
+                <div>
+                  <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Marks Deducted for Incorrect</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    className="w-full h-[38px] px-3 border border-stone-deep rounded-md font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all"
+                    value={basicInfo.negativeMarks}
+                    min={0}
+                    onChange={(e) => setBasicInfo({ ...basicInfo, negativeMarks: parseFloat(e.target.value) || 0 })}
+                    onFocus={(e) => e.target.select()}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+          
           <div className="flex justify-between items-center mt-8 pt-6 border-t border-stone-deep">
             <button 
               className="h-[36px] px-[18px] rounded-md font-ui text-[13px] font-medium flex items-center justify-center gap-2 bg-transparent text-ink-3 hover:bg-stone hover:text-navy transition-all" 
@@ -272,6 +318,49 @@ export default function ExamEdit() {
                 )}
               </div>
 
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-5">
+                <div>
+                  <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Type</label>
+                  <select
+                    className="w-full h-[38px] px-3 border border-stone-deep rounded-md font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all"
+                    value={q.type || 'MCQ'}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      updateQuestion(qIndex, 'type', val);
+                      if (val === 'SUBJECTIVE') {
+                        updateQuestion(qIndex, 'answer', 'Manual Grading');
+                      } else if (val === 'FILL_IN_THE_BLANK') {
+                        updateQuestion(qIndex, 'answer', '');
+                      }
+                    }}
+                  >
+                    <option value="MCQ">Multiple Choice</option>
+                    <option value="FILL_IN_THE_BLANK">Fill in the Blank</option>
+                    <option value="SUBJECTIVE">Subjective / Essay</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Topic</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. History"
+                    className="w-full h-[38px] px-3 border border-stone-deep rounded-md font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all"
+                    value={q.topic || ''}
+                    onChange={(e) => updateQuestion(qIndex, 'topic', e.target.value)}
+                  />
+                </div>
+                <div>
+                  <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Marks</label>
+                  <input
+                    type="number"
+                    min="1"
+                    className="w-full h-[38px] px-3 border border-stone-deep rounded-md font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all"
+                    value={q.marks ?? 4}
+                    onChange={(e) => updateQuestion(qIndex, 'marks', parseFloat(e.target.value) || 0)}
+                  />
+                </div>
+              </div>
+
               <div className="mb-5">
                 <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Question Content</label>
                 <textarea 
@@ -282,31 +371,46 @@ export default function ExamEdit() {
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                {q.options.map((opt, oIndex) => (
-                  <div key={oIndex}>
-                    <div className="flex justify-between items-center mb-2">
-                      <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3">Option {String.fromCharCode(65 + oIndex)}</label>
-                      <label className={`flex items-center gap-1.5 cursor-pointer text-[11px] font-medium ${q.answer === opt && opt !== '' ? 'text-[#3B6D11]' : 'text-ink-4'}`}>
-                        <input 
-                          type="radio" 
-                          name={`q-${qIndex}-ans`}
-                          checked={q.answer === opt && opt !== ''}
-                          onChange={() => updateQuestion(qIndex, 'answer', opt)}
-                          className="accent-[#3B6D11]"
-                        />
-                        {q.answer === opt && opt !== '' ? 'Correct' : 'Mark Correct'}
-                      </label>
+              {(!q.type || q.type === 'MCQ') && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                  {q.options.map((opt, oIndex) => (
+                    <div key={oIndex}>
+                      <div className="flex justify-between items-center mb-2">
+                        <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3">Option {String.fromCharCode(65 + oIndex)}</label>
+                        <label className={`flex items-center gap-1.5 cursor-pointer text-[11px] font-medium ${q.answer === opt && opt !== '' ? 'text-[#3B6D11]' : 'text-ink-4'}`}>
+                          <input 
+                            type="radio" 
+                            name={`q-${qIndex}-ans`}
+                            checked={q.answer === opt && opt !== ''}
+                            onChange={() => updateQuestion(qIndex, 'answer', opt)}
+                            className="accent-[#3B6D11]"
+                          />
+                          {q.answer === opt && opt !== '' ? 'Correct' : 'Mark Correct'}
+                        </label>
+                      </div>
+                      <input 
+                        className={`w-full h-[38px] px-3 border rounded-md font-ui text-[14px] text-ink outline-none transition-all ${q.answer === opt && opt !== '' ? 'border-[#3B6D11] bg-[#556B2F08] focus:ring-[#556B2F30]' : 'border-stone-deep bg-white focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash'}`} 
+                        placeholder={`Choice ${oIndex + 1}`}
+                        value={opt}
+                        onChange={(e) => updateOption(qIndex, oIndex, e.target.value)}
+                      />
                     </div>
-                    <input 
-                      className={`w-full h-[38px] px-3 border rounded-md font-ui text-[14px] text-ink outline-none transition-all ${q.answer === opt && opt !== '' ? 'border-[#3B6D11] bg-[#556B2F08] focus:ring-[#556B2F30]' : 'border-stone-deep bg-white focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash'}`} 
-                      placeholder={`Choice ${oIndex + 1}`}
-                      value={opt}
-                      onChange={(e) => updateOption(qIndex, oIndex, e.target.value)}
-                    />
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
+
+              {q.type === 'FILL_IN_THE_BLANK' && (
+                <div className="mb-5">
+                  <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Correct Answer</label>
+                  <input 
+                    type="text"
+                    className="w-full h-[38px] px-3 border border-stone-deep rounded-md font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all"
+                    placeholder="Enter the correct answer for the blank"
+                    value={q.answer}
+                    onChange={(e) => updateQuestion(qIndex, 'answer', e.target.value)}
+                  />
+                </div>
+              )}
             </div>
           ))}
 
@@ -331,6 +435,8 @@ export default function ExamEdit() {
             </div>
           </div>
         </div>
+      )}
+      </>
       )}
     </div>
   );

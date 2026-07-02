@@ -13691,3 +13691,69 @@ The column `Exam.startAt` does not exist in the current database.
     at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:46285)
     at async e.run (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:43335)
     at async e.execute (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:57:815)
+[2026-07-02T10:38:25.118Z] ReferenceError: attempts is not defined
+    at Object.listExamsCatalog (C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:163:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async listCatalog (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:59:16)
+[2026-07-02T10:43:42.466Z] ReferenceError: attempts is not defined
+    at Object.listExamsCatalog (C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:163:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async listCatalog (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:59:16)
+[2026-07-02T10:45:53.766Z] ReferenceError: attempts is not defined
+    at Object.listExamsCatalog (C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:163:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async listCatalog (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:59:16)
+[2026-07-02T10:46:32.077Z] ReferenceError: attempts is not defined
+    at Object.listExamsCatalog (C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:163:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async listCatalog (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:59:16)
+[2026-07-02T10:46:45.693Z] ReferenceError: attempts is not defined
+    at Object.listExamsCatalog (C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:163:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async listCatalog (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:59:16)
+[2026-07-02T10:47:24.364Z] ReferenceError: attempts is not defined
+    at Object.listExamsCatalog (C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:163:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async listCatalog (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:59:16)
+[2026-07-02T10:47:46.813Z] ReferenceError: attempts is not defined
+    at Object.listExamsCatalog (C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:163:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async listCatalog (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:59:16)
+[2026-07-02T10:50:11.543Z] ReferenceError: attempts is not defined
+    at Object.listExamsCatalog (C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:163:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async listCatalog (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:59:16)
+[2026-07-02T10:55:20.727Z] ReferenceError: attempts is not defined
+    at Object.listExamsCatalog (C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:163:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async listCatalog (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:59:16)
+[2026-07-02T11:15:54.905Z] ReferenceError: attempts is not defined
+    at Object.listExamsCatalog (C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:163:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async listCatalog (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:59:16)
+[2026-07-02T11:16:02.421Z] ReferenceError: attempts is not defined
+    at Object.listExamsCatalog (C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:163:30)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async listCatalog (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:59:16)
+[2026-07-02T12:39:16.992Z] Error: Connection terminated due to connection timeout
+    at C:\College Projects\ncc-exam-portal\backend\node_modules\pg-pool\index.js:45:11
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async PrismaPgAdapter.performIO (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\adapter-pg\dist\index.js:654:22)
+    at async PrismaPgAdapter.queryRaw (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\adapter-pg\dist\index.js:604:30)
+    at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:44621)
+    at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:45065)
+    at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:43744)
+    at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:46285)
+    at async e.run (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:43335)
+    at async e.execute (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:57:815)
+[2026-07-02T13:03:05.693Z] Error: timeout exceeded when trying to connect
+    at C:\College Projects\ncc-exam-portal\backend\node_modules\pg-pool\index.js:45:11
+    at runNextTicks (node:internal/process/task_queues:65:5)
+    at listOnTimeout (node:internal/timers:549:9)
+    at process.processTimers (node:internal/timers:523:7)
+    at async PrismaPgAdapter.performIO (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\adapter-pg\dist\index.js:654:22)
+    at async PrismaPgAdapter.queryRaw (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\adapter-pg\dist\index.js:604:30)
+    at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:44621)
+    at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:45065)
+    at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:46285)
+    at async e.run (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:43335)

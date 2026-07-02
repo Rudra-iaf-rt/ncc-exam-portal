@@ -14,6 +14,26 @@ import { examApi } from '../../api';
 import { toast } from 'sonner';
 import { getCachedResource, getOrFetchResource } from '../../lib/resourceCache';
 
+const CountdownTimer = ({ expiresAt }) => {
+  const [timeLeft, setTimeLeft] = useState(
+    Math.max(0, Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000))
+  );
+
+  useEffect(() => {
+    if (timeLeft <= 0) return;
+    const interval = setInterval(() => {
+      setTimeLeft(Math.max(0, Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000)));
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [expiresAt, timeLeft]);
+
+  if (timeLeft <= 0) return <span>Expired</span>;
+
+  const mins = Math.floor(timeLeft / 60);
+  const secs = timeLeft % 60;
+  return <span>{mins}:{secs.toString().padStart(2, '0')}</span>;
+};
+
 const CadetDashboard = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -251,11 +271,23 @@ const CadetDashboard = () => {
                     </div>
                   </div>
 
-                  {exam.completed ? (
+                  {exam.completed || exam.attemptStatus === 'SUBMITTED' || (exam.attemptStatus === 'TIMED_OUT' || (exam.expiresAt && new Date(exam.expiresAt) <= new Date())) ? (
                     <div className="flex items-center justify-between rounded-md bg-olive-wash border border-olive-pale px-4 py-3">
                       <span className="font-mono text-[11px] uppercase tracking-wider text-olive-mid">Completed</span>
                       <span className="font-display text-2xl font-semibold text-olive-mid">{exam.score ?? '--'}%</span>
                     </div>
+                  ) : exam.attemptStatus === 'IN_PROGRESS' && exam.expiresAt && new Date(exam.expiresAt) > new Date() ? (
+                    <button
+                      onClick={() => navigate(`/exam/${exam.id}`)}
+                      className="flex w-full items-center justify-between rounded-md bg-amber-600 py-[10px] px-4 font-ui text-[13px] font-medium text-white transition-all hover:bg-amber-700 hover:shadow-md active:scale-[0.98]"
+                    >
+                      <span className="flex items-center gap-2">
+                        RESUME EXAMINATION
+                      </span>
+                      <span className="font-mono bg-white/20 px-2 py-0.5 rounded text-xs">
+                        <CountdownTimer expiresAt={exam.expiresAt} />
+                      </span>
+                    </button>
                   ) : (
                     <button
                       onClick={() => navigate(`/exam/${exam.id}`)}

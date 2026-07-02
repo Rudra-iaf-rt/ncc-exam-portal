@@ -7,16 +7,21 @@ export const examApi = {
   updateExamMeta: (id, data) => apiClient.patch(`/exams/${id}`, data),
   updateExamQuestions: (id, questions) => apiClient.put(`/exams/${id}/questions`, { questions }),
   deleteExam: (id) => apiClient.delete(`/exams/${id}`),
+  extendTime: (data) => apiClient.post(`/staff/exams/${data.examId}/extend-time`, data),
+  terminateSession: (data) => apiClient.post(`/staff/exams/${data.examId}/terminate-session`, data),
+  resetAttempt: (data) => apiClient.post(`/staff/exams/${data.examId}/reset-attempt`, data),
 
   // Cadet Exam Actions
   getExams: (params) => apiClient.get('/exams', { params }),
   getAssigned: () => apiClient.get('/exams').then(res => res.data.exams),
   getExamDetails: (id) => apiClient.get(`/staff/exams/${id}`), // Using the staff endpoint to get full details including questions
   createExam: (data) => apiClient.post('/exams/create', data),
-  createExamFromExcel: ({ title, duration, file }) => {
+  createExamFromExcel: ({ title, duration, negativeMarking, negativeMarks, file }) => {
     const form = new FormData();
     form.append('title', String(title ?? ''));
     form.append('duration', String(duration ?? ''));
+    if (negativeMarking !== undefined) form.append('negativeMarking', String(negativeMarking));
+    if (negativeMarks !== undefined) form.append('negativeMarks', String(negativeMarks));
     form.append('file', file);
     return apiClient.post('/exams/create-from-excel', form, {
       headers: { 'Content-Type': 'multipart/form-data' },
@@ -24,10 +29,11 @@ export const examApi = {
   },
   
   // Attempts
-  startAttempt: (examId) => apiClient.post('/attempt/start', { examId }),
+  startAttempt: (examId, sessionId) => apiClient.post('/attempt/start', { examId, sessionId }),
   saveAnswer: (data) => apiClient.post('/attempt/answer', data),
   syncAnswers: (data) => apiClient.post('/attempt/sync', data),
   saveViolation: (data) => apiClient.post('/exam/violation', data),
+  sendHeartbeat: (data) => apiClient.post('/exam/heartbeat', data),
   submitAttempt: (data) => apiClient.post('/attempt/submit', data),
 
   // Results

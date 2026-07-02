@@ -47,7 +47,7 @@ async function autoSubmitOnViolation(studentId, examId) {
       })
     );
 
-    const { score } = scoreSubmission(exam.questions, finalAnswersArray);
+    const { score } = scoreSubmission(exam.questions, finalAnswersArray, exam);
 
     await prisma.$transaction([
       prisma.attempt.update({
@@ -145,7 +145,17 @@ async function heartbeat(studentId, body = {}) {
       activeQuestionIndex,
     },
   });
-  return payload;
+
+  const attempt = await prisma.attempt.findUnique({
+    where: { studentId_examId: { studentId, examId } },
+    select: { status: true, expiresAt: true },
+  });
+
+  return { 
+    ...payload, 
+    attemptStatus: attempt?.status, 
+    expiresAt: attempt?.expiresAt 
+  };
 }
 
 async function listFlagsByExam(examIdRaw) {

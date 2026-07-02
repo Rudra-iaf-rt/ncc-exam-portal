@@ -19,9 +19,14 @@ async function createFromPdf(req, res) {
   }
   const title = req.body?.title;
   const duration = req.body?.duration;
+  const negativeMarking = req.body?.negativeMarking === 'true' || req.body?.negativeMarking === true;
+  const negativeMarks = req.body?.negativeMarks !== undefined ? Number(req.body.negativeMarks) : undefined;
+  
   const exam = await examService.createExamFromPdf(req.user.id, {
     title,
     duration,
+    negativeMarking,
+    negativeMarks,
     pdfBuffer: file.buffer,
   });
   await auditLogService.recordAudit(req, {
@@ -40,9 +45,14 @@ async function createFromExcel(req, res) {
   }
   const title = req.body?.title;
   const duration = req.body?.duration;
+  const negativeMarking = req.body?.negativeMarking === 'true' || req.body?.negativeMarking === true;
+  const negativeMarks = req.body?.negativeMarks !== undefined ? Number(req.body.negativeMarks) : undefined;
+
   const exam = await examService.createExamFromExcel(req.user.id, {
     title,
     duration,
+    negativeMarking,
+    negativeMarks,
     excelBuffer: file.buffer,
   });
   await auditLogService.recordAudit(req, {
@@ -174,7 +184,36 @@ async function publishResults(req, res) {
   res.json(result);
 }
 
+async function extendTime(req, res) {
+  const result = await examService.extendTime(
+    req.body.studentId,
+    req.params.id,
+    req.body.extraMinutes
+  );
+  res.json(result);
+}
+
+async function terminateSession(req, res) {
+  const result = await examService.terminateSession(
+    req.user.id,
+    req.params.id,
+    req.body.studentId,
+    req.body.reason
+  );
+  res.json(result);
+}
+
+async function resetAttempt(req, res) {
+  const result = await examService.resetAttempt(
+    req.user.id,
+    req.params.id,
+    req.body.studentId
+  );
+  res.json(result);
+}
+
 module.exports = {
+  extendTime,
   publishResults,
   create,
   createFromPdf,
@@ -192,4 +231,6 @@ module.exports = {
   replaceQuestions,
   publish,
   remove,
+  terminateSession,
+  resetAttempt,
 };

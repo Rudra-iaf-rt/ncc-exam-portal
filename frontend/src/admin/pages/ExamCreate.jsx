@@ -28,16 +28,19 @@ export default function ExamCreate() {
   // Step 1: Basic Info
   const [basicInfo, setBasicInfo] = useState({
     title: '',
-    duration: 60
+    duration: 60,
+    negativeMarking: false,
+    positiveMarks: 4,
+    negativeMarks: 1.0
   });
 
   // Step 2: Questions (for manual mode)
   const [questions, setQuestions] = useState([
-    { question: '', options: ['', '', '', ''], answer: '' }
+    { question: '', options: ['', '', '', ''], answer: '', type: 'MCQ', topic: '', marks: 4 }
   ]);
 
   const addQuestion = () => {
-    setQuestions([...questions, { question: '', options: ['', '', '', ''], answer: '' }]);
+    setQuestions([...questions, { question: '', options: ['', '', '', ''], answer: '', type: 'MCQ', topic: '', marks: 4 }]);
   };
 
   const removeQuestion = (index) => {
@@ -71,9 +74,14 @@ export default function ExamCreate() {
   const validateQuestions = () => {
     for (let i = 0; i < questions.length; i++) {
       const q = questions[i];
-      if (!q.question.trim()) return `Intelligence block #${i + 1} is empty.`;
-      if (q.options.some(o => !o.trim())) return `Intelligence block #${i + 1} has incomplete options.`;
-      if (!q.answer) return `Intelligence block #${i + 1} requires a designated correct answer.`;
+      if (!q.question.trim()) return `Question Block #${i + 1} is empty.`;
+      if (!q.type) q.type = 'MCQ';
+      if (q.type === 'MCQ') {
+        if (q.options.some(o => !o.trim())) return `Question Block #${i + 1} has incomplete options.`;
+        if (!q.answer) return `Question Block #${i + 1} requires a designated correct answer.`;
+      } else if (q.type === 'FILL_IN_THE_BLANK') {
+        if (!q.answer) return `Question Block #${i + 1} requires a correct answer.`;
+      }
     }
     return null;
   };
@@ -95,6 +103,9 @@ export default function ExamCreate() {
       await examApi.createExamFromExcel({
         title: basicInfo.title.trim(),
         duration: basicInfo.duration,
+        negativeMarking: basicInfo.negativeMarking,
+        positiveMarks: basicInfo.positiveMarks,
+        negativeMarks: basicInfo.negativeMarks,
         file: excelFile
       });
       toast.success('Exam successfully created from file.');
@@ -111,7 +122,7 @@ export default function ExamCreate() {
     const vError = validateQuestions();
     if (vError) {
       toast.error(vError);
-      return;
+      return;p
     }
 
     setIsSubmitting(true);
@@ -186,6 +197,48 @@ export default function ExamCreate() {
                 onFocus={(e) => e.target.select()}
               />
             </div>
+          </div>
+
+          <div className="mb-6 p-5 bg-stone border border-stone-deep rounded-md">
+            <div className="flex items-center gap-3">
+              <input
+                type="checkbox"
+                id="negativeMarkingExcel"
+                checked={basicInfo.negativeMarking}
+                onChange={(e) => setBasicInfo({ ...basicInfo, negativeMarking: e.target.checked })}
+                className="w-4 h-4 text-navy accent-navy bg-white border-stone-deep rounded focus:ring-navy-wash focus:ring-2"
+              />
+              <label htmlFor="negativeMarkingExcel" className="font-mono text-[11px] tracking-[0.05em] uppercase text-ink-2 cursor-pointer">
+                Enable Negative Marking
+              </label>
+            </div>
+            {basicInfo.negativeMarking && (
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 mt-4 border-t border-stone-deep/50">
+                <div>
+                  <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Marks for Correct Answer</label>
+                  <input
+                    type="number"
+                    className="w-full h-[38px] px-3 border border-stone-deep rounded-md font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all"
+                    value={basicInfo.positiveMarks}
+                    min={1}
+                    onChange={(e) => setBasicInfo({ ...basicInfo, positiveMarks: parseFloat(e.target.value) || 0 })}
+                    onFocus={(e) => e.target.select()}
+                  />
+                </div>
+                <div>
+                  <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Marks Deducted for Incorrect</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    className="w-full h-[38px] px-3 border border-stone-deep rounded-md font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all"
+                    value={basicInfo.negativeMarks}
+                    min={0}
+                    onChange={(e) => setBasicInfo({ ...basicInfo, negativeMarks: parseFloat(e.target.value) || 0 })}
+                    onFocus={(e) => e.target.select()}
+                  />
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="mb-8">
@@ -276,6 +329,48 @@ export default function ExamCreate() {
                 </div>
               </div>
               
+              <div className="mt-6 p-5 bg-stone border border-stone-deep rounded-md">
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    id="negativeMarkingManual"
+                    checked={basicInfo.negativeMarking}
+                    onChange={(e) => setBasicInfo({ ...basicInfo, negativeMarking: e.target.checked })}
+                    className="w-4 h-4 text-navy accent-navy bg-white border-stone-deep rounded focus:ring-navy-wash focus:ring-2"
+                  />
+                  <label htmlFor="negativeMarkingManual" className="font-mono text-[11px] tracking-[0.05em] uppercase text-ink-2 cursor-pointer">
+                    Enable Negative Marking
+                  </label>
+                </div>
+                {basicInfo.negativeMarking && (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-4 mt-4 border-t border-stone-deep/50">
+                    <div>
+                      <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Marks for Correct Answer</label>
+                      <input
+                        type="number"
+                        className="w-full h-[38px] px-3 border border-stone-deep rounded-md font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all"
+                        value={basicInfo.positiveMarks}
+                        min={1}
+                        onChange={(e) => setBasicInfo({ ...basicInfo, positiveMarks: parseFloat(e.target.value) || 0 })}
+                        onFocus={(e) => e.target.select()}
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Marks Deducted for Incorrect</label>
+                      <input
+                        type="number"
+                        step="0.1"
+                        className="w-full h-[38px] px-3 border border-stone-deep rounded-md font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all"
+                        value={basicInfo.negativeMarks}
+                        min={0}
+                        onChange={(e) => setBasicInfo({ ...basicInfo, negativeMarks: parseFloat(e.target.value) || 0 })}
+                        onFocus={(e) => e.target.select()}
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+              
               <div className="flex justify-end mt-8 pt-6 border-t border-stone-deep">
                 <button 
                   className="h-[36px] px-[18px] rounded-md font-ui text-[13px] font-medium flex items-center justify-center gap-2 bg-navy text-[#F4F0E4] hover:bg-navy-mid transition-all" 
@@ -293,18 +388,61 @@ export default function ExamCreate() {
             <div>
               {questions.map((q, qIndex) => (
                 <div key={qIndex} className="bg-white border border-stone-deep p-6 rounded-md shadow-sm mb-6">
-                  <div className="flex justify-between items-center mb-5 pb-4 border-b border-stone-deep">
+                  <div className="flex justify-between items-center mb-5 pb-4 border-b border-stone-deep">  
                     <div className="flex items-center gap-2.5">
                       <div className="w-7 h-7 rounded-md bg-navy text-white flex items-center justify-center text-[12px] font-semibold">
                         {qIndex + 1}
                       </div>
-                      <span className="font-semibold text-navy text-[13px] tracking-[0.05em] uppercase">Intelligence Block</span>
+                      <span className="font-semibold text-navy text-[13px] tracking-[0.05em] uppercase">Question Block</span>
                     </div>
                     {questions.length > 1 && (
                       <button onClick={() => removeQuestion(qIndex)} className="p-1.5 text-crimson hover:bg-crimson-wash rounded-md transition-colors">
                         <Trash2 size={16} strokeWidth={1.5} />
                       </button>
                     )}
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-5">
+                    <div>
+                      <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Type</label>
+                      <select
+                        className="w-full h-[38px] px-3 border border-stone-deep rounded-md font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all"
+                        value={q.type || 'MCQ'}
+                        onChange={(e) => {
+                          const val = e.target.value;
+                          updateQuestion(qIndex, 'type', val);
+                          if (val === 'SUBJECTIVE') {
+                            updateQuestion(qIndex, 'answer', 'Manual Grading');
+                          } else if (val === 'FILL_IN_THE_BLANK') {
+                            updateQuestion(qIndex, 'answer', '');
+                          }
+                        }}
+                      >
+                        <option value="MCQ">Multiple Choice</option>
+                        <option value="FILL_IN_THE_BLANK">Fill in the Blank</option>
+                        <option value="SUBJECTIVE">Subjective / Essay</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Topic</label>
+                      <input
+                        type="text"
+                        placeholder="e.g. History"
+                        className="w-full h-[38px] px-3 border border-stone-deep rounded-md font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all"
+                        value={q.topic || ''}
+                        onChange={(e) => updateQuestion(qIndex, 'topic', e.target.value)}
+                      />
+                    </div>
+                    <div>
+                      <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Marks</label>
+                      <input
+                        type="number"
+                        min="1"
+                        className="w-full h-[38px] px-3 border border-stone-deep rounded-md font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all"
+                        value={q.marks ?? 4}
+                        onChange={(e) => updateQuestion(qIndex, 'marks', parseFloat(e.target.value) || 0)}
+                      />
+                    </div>
                   </div>
 
                   <div className="mb-5">
@@ -317,31 +455,46 @@ export default function ExamCreate() {
                     />
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-                    {q.options.map((opt, oIndex) => (
-                      <div key={oIndex}>
-                        <div className="flex justify-between items-center mb-2">
-                          <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3">Option {String.fromCharCode(65 + oIndex)}</label>
-                          <label className={`flex items-center gap-1.5 cursor-pointer text-[11px] font-medium ${q.answer === opt && opt !== '' ? 'text-[#3B6D11]' : 'text-ink-4'}`}>
-                            <input 
-                              type="radio" 
-                              name={`q-${qIndex}-ans`}
-                              checked={q.answer === opt && opt !== ''}
-                              onChange={() => updateQuestion(qIndex, 'answer', opt)}
-                              className="accent-[#3B6D11]"
-                            />
-                            {q.answer === opt && opt !== '' ? 'Correct' : 'Mark Correct'}
-                          </label>
+                  {(!q.type || q.type === 'MCQ') && (
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      {q.options.map((opt, oIndex) => (
+                        <div key={oIndex}>
+                          <div className="flex justify-between items-center mb-2">
+                            <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3">Option {String.fromCharCode(65 + oIndex)}</label>
+                            <label className={`flex items-center gap-1.5 cursor-pointer text-[11px] font-medium ${q.answer === opt && opt !== '' ? 'text-[#3B6D11]' : 'text-ink-4'}`}>
+                              <input 
+                                type="radio" 
+                                name={`q-${qIndex}-ans`}
+                                checked={q.answer === opt && opt !== ''}
+                                onChange={() => updateQuestion(qIndex, 'answer', opt)}
+                                className="accent-[#3B6D11]"
+                              />
+                              {q.answer === opt && opt !== '' ? 'Correct' : 'Mark Correct'}
+                            </label>
+                          </div>
+                          <input 
+                            className={`w-full h-[38px] px-3 border rounded-md font-ui text-[14px] text-ink outline-none transition-all ${q.answer === opt && opt !== '' ? 'border-[#3B6D11] bg-[#556B2F08] focus:ring-[#556B2F30]' : 'border-stone-deep bg-white focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash'}`} 
+                            placeholder={`Choice ${oIndex + 1}`}
+                            value={opt}
+                            onChange={(e) => updateOption(qIndex, oIndex, e.target.value)}
+                          />
                         </div>
-                        <input 
-                          className={`w-full h-[38px] px-3 border rounded-md font-ui text-[14px] text-ink outline-none transition-all ${q.answer === opt && opt !== '' ? 'border-[#3B6D11] bg-[#556B2F08] focus:ring-[#556B2F30]' : 'border-stone-deep bg-white focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash'}`} 
-                          placeholder={`Choice ${oIndex + 1}`}
-                          value={opt}
-                          onChange={(e) => updateOption(qIndex, oIndex, e.target.value)}
-                        />
-                      </div>
-                    ))}
-                  </div>
+                      ))}
+                    </div>
+                  )}
+
+                  {q.type === 'FILL_IN_THE_BLANK' && (
+                    <div className="mb-5">
+                      <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Correct Answer</label>
+                      <input 
+                        type="text"
+                        className="w-full h-[38px] px-3 border border-stone-deep rounded-md font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all"
+                        placeholder="Enter the correct answer for the blank"
+                        value={q.answer}
+                        onChange={(e) => updateQuestion(qIndex, 'answer', e.target.value)}
+                      />
+                    </div>
+                  )}
                 </div>
               ))}
 

@@ -91,14 +91,15 @@ function SkeletonCard() {
 }
 
 /* ─── Per-question card ──────────────────────────────────────────────────── */
-function QuestionCard({ item, index }) {
+function QuestionCard({ item, index, scoringScheme }) {
   const { question, options, correctAnswer, studentAnswer, isCorrect, isSkipped } = item;
+  const { negativeMarking = false, positiveMarks = 4, negativeMarks = 1.0 } = scoringScheme || {};
 
   const statusConfig = isCorrect
-    ? { label: 'Correct (+1)',   bg: 'bg-emerald-50',   border: 'border-emerald-200', iconClass: 'text-emerald-600', chipBg: 'bg-emerald-100 text-emerald-700 border-emerald-200' }
+    ? { label: `Correct (+${positiveMarks})`,   bg: 'bg-emerald-50',   border: 'border-emerald-200', iconClass: 'text-emerald-600', chipBg: 'bg-emerald-100 text-emerald-700 border-emerald-200' }
     : isSkipped
     ? { label: 'Skipped (0)',   bg: 'bg-stone-wash',   border: 'border-stone-deep',  iconClass: 'text-ink-4',       chipBg: 'bg-stone-mid text-ink-3 border-stone-deep' }
-    : { label: 'Incorrect (-1)', bg: 'bg-crimson-wash',  border: 'border-crimson/20', iconClass: 'text-crimson',     chipBg: 'bg-crimson-wash text-crimson border-crimson/30' };
+    : { label: `Incorrect (${negativeMarking ? `-${negativeMarks}` : 'no penalty'})`, bg: 'bg-crimson-wash',  border: 'border-crimson/20', iconClass: 'text-crimson',     chipBg: 'bg-crimson-wash text-crimson border-crimson/30' };
 
   const StatusIcon = isCorrect ? CheckCircle2 : isSkipped ? MinusCircle : XCircle;
 
@@ -128,7 +129,7 @@ function QuestionCard({ item, index }) {
 
       {/* ── Options ── */}
       <div className="flex flex-col gap-2 px-4 py-3 sm:px-5 sm:py-4">
-        {options.map((opt, i) => {
+        {(!item.type || item.type === 'MCQ') && options?.map((opt, i) => {
           const isTheCorrect  = opt === correctAnswer;
           const isStudentPick = opt === studentAnswer;
 
@@ -161,7 +162,45 @@ function QuestionCard({ item, index }) {
           );
         })}
 
-        {isSkipped && (
+        {item.type === 'FILL_IN_THE_BLANK' && (
+          <div className="flex flex-col gap-3">
+            <div className={`p-4 rounded-md border ${isCorrect ? 'border-emerald-400 bg-emerald-50' : 'border-crimson/40 bg-crimson-wash'} flex items-start gap-3`}>
+              {isCorrect ? <CheckCircle2 size={16} className="text-emerald-600 mt-0.5 shrink-0" /> : <XCircle size={16} className="text-crimson mt-0.5 shrink-0" />}
+              <div>
+                <div className="font-ui text-xs font-bold uppercase tracking-wide opacity-70 mb-1">Your Answer</div>
+                <div className="font-ui text-[14px] font-medium">{studentAnswer || <span className="italic opacity-50">No answer provided</span>}</div>
+              </div>
+            </div>
+            {!isCorrect && (
+              <div className="p-4 rounded-md border border-emerald-300 bg-emerald-50/70 flex items-start gap-3">
+                <CheckCircle2 size={16} className="text-emerald-500 mt-0.5 shrink-0" />
+                <div>
+                  <div className="font-ui text-xs font-bold uppercase tracking-wide text-emerald-700 mb-1">Correct Answer</div>
+                  <div className="font-ui text-[14px] font-medium text-emerald-800">{correctAnswer}</div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {item.type === 'SUBJECTIVE' && (
+          <div className="flex flex-col gap-3">
+            <div className="p-4 rounded-md border border-stone-deep bg-white flex items-start gap-3">
+              <div>
+                <div className="font-ui text-xs font-bold uppercase tracking-wide opacity-70 mb-1">Your Answer</div>
+                <div className="font-ui text-[14px] font-medium whitespace-pre-wrap">{studentAnswer || <span className="italic opacity-50">No answer provided</span>}</div>
+              </div>
+            </div>
+            <div className="p-4 rounded-md border border-blue-200 bg-blue-50/50 flex items-start gap-3">
+              <div>
+                <div className="font-ui text-xs font-bold uppercase tracking-wide text-blue-700 mb-1">Grading Note</div>
+                <div className="font-ui text-[13px] text-blue-800">This question requires manual grading by your instructor. It is not auto-scored.</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {isSkipped && (!item.type || item.type === 'MCQ') && (
           <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-ink-4 flex items-center gap-1.5">
             <MinusCircle size={10} /> You did not answer this question
           </p>
@@ -171,14 +210,15 @@ function QuestionCard({ item, index }) {
   );
 }
 
-/* ─── Stat mini-card ─────────────────────────────────────────────────────── */
-function StatCard({ icon: Icon, count, label, bg, border, iconCls, textCls }) {
+/* ─── Apple-style Stat Item ──────────────────────────────────────────────── */
+function StatCard({ icon: Icon, count, label, colorCls, bgCls = "bg-white", borderCls = "border-stone-200/50", className = "" }) {
   return (
-    <div className={`flex flex-col items-center justify-center gap-1.5 rounded-xl border ${border} ${bg} py-4 px-1 sm:py-5 sm:px-2 text-center`}>
-      {/* eslint-disable-next-line react/jsx-pascal-case */}
-      <Icon size={20} className={`sm:w-[22px] sm:h-[22px] ${iconCls}`} />
-      <span className={`font-mono text-xl sm:text-2xl font-bold leading-none ${textCls}`}>{count}</span>
-      <span className={`font-ui text-[9px] sm:text-[10px] font-bold uppercase tracking-wider ${iconCls} opacity-80`}>{label}</span>
+    <div className={`flex flex-col items-center justify-center py-5 px-3 rounded-2xl shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] border ${borderCls} transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 ${bgCls} ${className}`}>
+      <div className="flex items-center gap-1.5 mb-1.5">
+        <Icon size={15} className={colorCls} strokeWidth={2.5} />
+        <span className="font-ui text-[10px] sm:text-[11px] font-semibold uppercase tracking-widest text-ink-4">{label}</span>
+      </div>
+      <span className="font-display text-[26px] sm:text-[28px] font-medium tracking-tight text-ink leading-none">{count}</span>
     </div>
   );
 }
@@ -230,6 +270,23 @@ const ExamReview = () => {
       return true;
     });
   }, [questionsWithIndex, filter]);
+
+  // const topicPerformance = useMemo(() => {
+  //   if (!data?.questions) return [];
+  //   const topics = {};
+  //   data.questions.forEach(q => {
+  //     const t = q.topic || "General";
+  //     if (!topics[t]) topics[t] = { correct: 0, total: 0 };
+  //     topics[t].total++;
+  //     if (q.isCorrect) topics[t].correct++;
+  //   });
+  //   return Object.entries(topics).map(([topic, stats]) => ({
+  //     topic,
+  //     correct: stats.correct,
+  //     total: stats.total,
+  //     percentage: Math.round((stats.correct / stats.total) * 100)
+  //   })).sort((a, b) => b.percentage - a.percentage);
+  // }, [data?.questions]);
 
   /* ── Loading ── */
   if (loading) {
@@ -380,28 +437,42 @@ const ExamReview = () => {
               </div>
             </div>
 
-            {/* 4 stat cards */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3 mb-4">
-              <StatCard
-                icon={CheckCircle2} count={correct}   label="Correct"
-                bg="bg-emerald-50"   border="border-emerald-200"
-                iconCls="text-emerald-600" textCls="text-emerald-700"
-              />
-              <StatCard
-                icon={XCircle}      count={incorrect} label="Incorrect"
-                bg="bg-crimson-wash" border="border-crimson/20"
-                iconCls="text-crimson"     textCls="text-crimson"
-              />
-              <StatCard
-                icon={MinusCircle}  count={skipped}   label="Skipped"
-                bg="bg-stone-wash"  border="border-stone-deep"
-                iconCls="text-ink-4"       textCls="text-ink-3"
-              />
-              <StatCard
-                icon={AlertCircle}  count={incorrect > 0 ? `-${incorrect}` : "0"} label="-ve Marks"
-                bg="bg-orange-50"  border="border-orange-200"
-                iconCls="text-orange-600"       textCls="text-orange-700"
-              />
+            {/* Apple-Style Sleek Stats Container */}
+            <div className="mb-6">
+              {(() => {
+                const { negativeMarking = false, positiveMarks = 4, negativeMarks = 1.0 } = data?.scoringScheme || {};
+                const totalPenalty = negativeMarking ? incorrect * negativeMarks : 0;
+                const marksObtained = (correct * positiveMarks) - totalPenalty;
+                const maxMarks = total * positiveMarks;
+                return (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                    <StatCard
+                      icon={CheckCircle2} count={correct} label="Correct"
+                      colorCls="text-emerald-500"
+                      bgCls="bg-gradient-to-b from-emerald-50/60 to-white"
+                      borderCls="border-emerald-100"
+                    />
+                    <StatCard
+                      icon={XCircle} count={incorrect} label="Incorrect"
+                      colorCls="text-crimson"
+                      bgCls="bg-gradient-to-b from-rose-50/60 to-white"
+                      borderCls="border-rose-100"
+                    />
+                    <StatCard
+                      icon={MinusCircle} count={skipped} label="Skipped"
+                      colorCls="text-stone-500"
+                      bgCls="bg-gradient-to-b from-stone-100/60 to-white"
+                      borderCls="border-stone-200"
+                    />
+                    <StatCard
+                      icon={Award} count={`${marksObtained} / ${maxMarks}`} label="Marks"
+                      colorCls="text-indigo-500"
+                      bgCls="bg-gradient-to-b from-indigo-50/60 to-white"
+                      borderCls="border-indigo-100"
+                    />
+                  </div>
+                );
+              })()}
             </div>
 
             {/* Progress bar */}
@@ -423,11 +494,11 @@ const ExamReview = () => {
             </div>
 
             {/* Penalty Explanation */}
-            {incorrect > 0 && (
+            {incorrect > 0 && data?.scoringScheme?.negativeMarking && (
               <div className="mt-4 bg-crimson-wash border border-crimson/20 rounded-lg p-3 flex items-start gap-2.5">
                 <AlertCircle size={16} className="text-crimson shrink-0 mt-0.5" />
                 <p className="font-ui text-[12px] sm:text-[13px] text-crimson leading-snug">
-                  <strong>Negative Marking Applied:</strong> {incorrect} incorrect answer{incorrect > 1 ? 's' : ''} resulted in a 1/3 mark penalty each, deducted from your original score.
+                  <strong>Negative Marking Applied:</strong> {incorrect} incorrect answer{incorrect > 1 ? 's' : ''} resulted in a {data.scoringScheme.negativeMarks} mark penalty each, deducted from your original score.
                 </p>
               </div>
             )}
@@ -480,7 +551,7 @@ const ExamReview = () => {
               </div>
             ) : (
               filteredQuestions.map((item) => (
-                <QuestionCard key={item.questionId} item={item} index={item.originalIndex} />
+                <QuestionCard key={item.questionId} item={item} index={item.originalIndex} scoringScheme={data?.scoringScheme} />
               ))
             )}
           </div>

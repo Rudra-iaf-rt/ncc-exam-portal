@@ -5,7 +5,9 @@ const { authenticate } = require("../middleware/auth");
 const {
   requireStudent,
   requireExamCreator,
+  requireAdmin
 } = require("../middleware/roles");
+
 const { attemptRateLimiter } = require("../middleware/security");
 const { asyncHandler } = require("../middleware/error-handler");
 
@@ -132,11 +134,39 @@ router.patch(
   asyncHandler(examsController.publishResults)
 );
 
+router.post(
+  "/staff/exams/:id/extend-time",
+  authenticate,
+  requireExamCreator,
+  asyncHandler(examsController.extendTime)
+);
+
+router.post(
+  "/staff/exams/:id/terminate-session",
+  authenticate,
+  requireExamCreator,
+  asyncHandler(examsController.terminateSession)
+);
+
+router.post(
+  "/staff/exams/:id/reset-attempt",
+  authenticate,
+  requireExamCreator,
+  asyncHandler(examsController.resetAttempt)
+);
+
 router.delete(
   "/exams/:id",
   authenticate,
   requireExamCreator,
   asyncHandler(examsController.remove)
+);
+
+router.post(
+  "/exams/:id/extend-time",
+  authenticate,
+  requireAdmin,
+  asyncHandler(examsController.extendTime)
 );
 
 router.post(

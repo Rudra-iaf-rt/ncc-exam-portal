@@ -6,7 +6,7 @@ function asBool(value, defaultValue = false) {
 
 const features = {
   cookieAuth: asBool(process.env.FEATURE_COOKIE_AUTH, false),
-  strictExamSession: asBool(process.env.FEATURE_STRICT_EXAM_SESSION, false),
+  strictExamSession: asBool(process.env.FEATURE_STRICT_EXAM_SESSION, true),
   timeoutAutoClose: asBool(process.env.FEATURE_TIMEOUT_AUTO_CLOSE, false),
   softDeleteUsers: asBool(process.env.FEATURE_SOFT_DELETE_USERS, true),
 };

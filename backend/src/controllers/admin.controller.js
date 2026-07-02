@@ -1,4 +1,6 @@
 const adminService = require("../services/admin.service");
+const monitorService = require("../services/monitor.service");
+const analyticsService = require("../services/analytics.service");
 const { prisma } = require("../lib/prisma");
 
 async function getStats(req, res) {
@@ -208,6 +210,26 @@ async function deleteBatch(req, res) {
   }
 }
 
+async function liveMonitor(req, res) {
+  try {
+    const data = await monitorService.getLiveMonitorData(req.params.id);
+    res.json(data);
+  } catch (error) {
+    const status = error.status || 500;
+    res.status(status).json({ error: error.message || "Failed to fetch live monitor data" });
+  }
+}
+
+async function examAnalytics(req, res) {
+  try {
+    const data = await analyticsService.getExamAnalytics(req.params.id);
+    res.json(data);
+  } catch (error) {
+    const status = error.status || 500;
+    res.status(status).json({ error: error.message || "Failed to fetch analytics" });
+  }
+}
+
 module.exports = {
   getStats,
   importUsers,
@@ -218,5 +240,7 @@ module.exports = {
   listBatches,
   createBatch,
   updateBatch,
-  deleteBatch
+  deleteBatch,
+  liveMonitor,
+  examAnalytics
 };

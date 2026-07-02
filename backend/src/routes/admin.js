@@ -29,10 +29,13 @@ router.post("/batches", authenticate, requireAdmin, adminController.createBatch)
 router.patch("/batches/:id", authenticate, requireAdmin, adminController.updateBatch);
 router.delete("/batches/:id", authenticate, requireAdmin, adminController.deleteBatch);
 
-// --- Exam Assignments ---
+// --- Exam Assignments & Live Monitor & Analytics ---
 router.get("/assignments", authenticate, requireStaff, adminController.listAssignments);
 router.post("/assignments", authenticate, requireStaff, adminController.createAssignments);
 router.delete("/assignments/:id", authenticate, requireStaff, adminController.deleteAssignment);
+
+router.get("/exams/:id/live-monitor", authenticate, requireStaff, adminController.liveMonitor);
+router.get("/exams/:id/analytics", authenticate, requireStaff, adminController.examAnalytics);
 
 // --- Results & Overrides ---
 router.patch("/results/:id", authenticate, requireAdmin, adminController.overrideResult);

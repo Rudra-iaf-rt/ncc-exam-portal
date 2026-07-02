@@ -12,7 +12,7 @@ const { extractPdfText, buildQuestionsFromPdfText } = require("./exam-pdf.servic
 const { extractQuestionsFromExcelBuffer } = require("./exam-excel.service");
 
 async function createExam(creatorUserId, body) {
-  const { title, duration, questions, startAt, endAt } = body ?? {};
+  const { title, duration, negativeMarking, negativeMarks, questions, startAt, endAt } = body ?? {};
 
   if (!title || typeof title !== "string") {
     throw new HttpError(400, "title is required");
@@ -53,6 +53,7 @@ async function createExam(creatorUserId, body) {
     title: title.trim(),
     duration: Math.floor(durationMin),
     createdBy: creatorUserId,
+    negativeMarking: negativeMarking === true || negativeMarking === 'true',
     questions: {
       create: questions.map((q) => ({
         question: q.question.trim(),
@@ -61,6 +62,7 @@ async function createExam(creatorUserId, body) {
       })),
     },
   };
+  if (negativeMarks !== undefined) examData.negativeMarks = Number(negativeMarks);
   if (parsedStartAt) examData.startAt = parsedStartAt;
   if (parsedEndAt) examData.endAt = parsedEndAt;
 
@@ -92,15 +94,15 @@ async function createExam(creatorUserId, body) {
   };
 }
 
-async function createExamFromPdf(creatorUserId, { title, duration, pdfBuffer }) {
+async function createExamFromPdf(creatorUserId, { title, duration, negativeMarking, negativeMarks, pdfBuffer }) {
   const text = await extractPdfText(pdfBuffer);
   const questions = await buildQuestionsFromPdfText(text);
-  return createExam(creatorUserId, { title, duration, questions });
+  return createExam(creatorUserId, { title, duration, negativeMarking, negativeMarks, questions });
 }
 
-async function createExamFromExcel(creatorUserId, { title, duration, excelBuffer }) {
+async function createExamFromExcel(creatorUserId, { title, duration, negativeMarking, negativeMarks, excelBuffer }) {
   const questions = await extractQuestionsFromExcelBuffer(excelBuffer);
-  return createExam(creatorUserId, { title, duration, questions });
+  return createExam(creatorUserId, { title, duration, negativeMarking, negativeMarks, questions });
 }
 
 async function listExamsCatalog(userId, role, query = {}) {
@@ -124,7 +126,7 @@ async function listExamsCatalog(userId, role, query = {}) {
       }
     : {};
 
-  const [exams, total, completedResults] = await Promise.all([
+  const [exams, total, completedResults, attempts] = await Promise.all([
     prisma.exam.findMany({
       where,
       orderBy: { id: "desc" },
@@ -150,32 +152,44 @@ async function listExamsCatalog(userId, role, query = {}) {
           select: { examId: true, score: true },
         })
       : Promise.resolve([]),
+    isStudent
+      ? prisma.attempt.findMany({
+          where: { studentId: userId },
+          select: { examId: true, status: true, expiresAt: true },
+        })
+      : Promise.resolve([]),
   ]);
 
 
   const completedMap = new Map(completedResults.map((r) => [r.examId, r.score]));
+  const attemptMap = new Map(attempts.map((a) => [a.examId, a]));
 
-  const finalExams = exams.map((e) => ({
-    id: e.id,
-    title: e.title,
-    duration: e.duration,
-    status: e.status,
-    published: e.status === "LIVE",
-    publishedAt: e.publishedAt,
-    questionCount: e._count.questions,
-    createdBy: e.createdBy,
-    completed: completedMap.has(e.id),
-    score: completedMap.get(e.id) ?? null,
-    resultsPublished: e.resultsPublished,
-    creator: e.creator
-      ? {
-          id: e.creator.id,
-          name: e.creator.name,
-          role: e.creator.role,
-          college: e.creator.college?.name || e.creator.collegeCode || 'N/A'
-        }
-      : null,
-  }));
+  const finalExams = exams.map((e) => {
+    const attempt = attemptMap.get(e.id);
+    return {
+      id: e.id,
+      title: e.title,
+      duration: e.duration,
+      status: e.status,
+      published: e.status === "LIVE",
+      publishedAt: e.publishedAt,
+      questionCount: e._count.questions,
+      createdBy: e.createdBy,
+      completed: completedMap.has(e.id),
+      score: completedMap.get(e.id) ?? null,
+      attemptStatus: attempt ? attempt.status : null,
+      expiresAt: attempt ? attempt.expiresAt : null,
+      resultsPublished: e.resultsPublished,
+      creator: e.creator
+        ? {
+            id: e.creator.id,
+            name: e.creator.name,
+            role: e.creator.role,
+            college: e.creator.college?.name || e.creator.collegeCode || 'N/A'
+          }
+        : null,
+    };
+  });
 
   const response = {
     exams: finalExams,
@@ -308,6 +322,16 @@ async function updateExamMetaByCreator(userId, examIdRaw, body) {
       if (Number.isNaN(endAt.getTime())) throw new HttpError(400, "Invalid endAt");
       payload.endAt = endAt;
     }
+  }
+  if (body?.negativeMarking !== undefined) {
+    payload.negativeMarking = body.negativeMarking === true || body.negativeMarking === 'true';
+  }
+  if (body?.negativeMarks !== undefined) {
+    const marks = Number(body.negativeMarks);
+    if (!Number.isFinite(marks) || marks < 0) {
+      throw new HttpError(400, "negativeMarks must be a non-negative number");
+    }
+    payload.negativeMarks = marks;
   }
   const nextStart = payload.startAt !== undefined ? payload.startAt : exam.startAt;
   const nextEnd = payload.endAt !== undefined ? payload.endAt : exam.endAt;
@@ -442,7 +466,7 @@ async function replaceExamQuestionsByCreator(userId, examIdRaw, body) {
         questionId: Number(qid),
         selectedAnswer: String(ans ?? ""),
       }));
-      const { score } = scoreSubmission(newQuestions, answersArray);
+      const { score } = scoreSubmission(newQuestions, answersArray, exam);
       return { studentId: attempt.studentId, score };
     });
 
@@ -608,7 +632,7 @@ async function startAttempt(studentId, examIdRaw, sessionIdRaw) {
       status: 200,
       body: {
         attemptId: existing.id,
-        exam: stripAnswersFromExam(exam),
+        exam: stripAnswersFromExam(exam, studentId),
         answers,
         currentQuestionIndex,
         expiresAt: existing.expiresAt,
@@ -639,7 +663,7 @@ async function startAttempt(studentId, examIdRaw, sessionIdRaw) {
       status: 201,
       body: {
         attemptId: attempt.id,
-        exam: stripAnswersFromExam(exam),
+        exam: stripAnswersFromExam(exam, studentId),
         answers: {},
         currentQuestionIndex: 0,
         expiresAt: attempt.expiresAt,
@@ -656,7 +680,7 @@ async function startAttempt(studentId, examIdRaw, sessionIdRaw) {
           status: 200,
           body: {
             attemptId: newlyCreated.id,
-            exam: stripAnswersFromExam(exam),
+            exam: stripAnswersFromExam(exam, studentId),
             answers: newlyCreated.answers || {},
             currentQuestionIndex: newlyCreated.currentQuestionIndex ?? 0,
             expiresAt: newlyCreated.expiresAt,
@@ -868,7 +892,7 @@ async function submitExam(studentId, body) {
     selectedAnswer: String(selectedAnswer ?? ""),
   }));
 
-  const { score, correct, total } = scoreSubmission(exam.questions, finalAnswersArray);
+  const { score, correct, total } = scoreSubmission(exam.questions, finalAnswersArray, exam);
 
   await prisma.$transaction([
     prisma.attempt.update({
@@ -963,7 +987,7 @@ async function getAttemptDetails(studentId, attemptIdRaw) {
     expiresAt: attempt.expiresAt ?? null,
     sessionId: attempt.sessionId ?? null,
     answers,
-    exam: stripAnswersFromExam(attempt.exam),
+    exam: stripAnswersFromExam(attempt.exam, studentId),
     createdAt: attempt.createdAt,
     updatedAt: attempt.updatedAt,
   };
@@ -1034,8 +1058,107 @@ async function getOrCreateAttempt(studentId, examId, actionLabel) {
   }
   return attempt;
 }
+async function extendTime(studentId, examIdRaw, extraMinutesRaw) {
+  const examId = Number(examIdRaw);
+  const extraMinutes = Number(extraMinutesRaw);
+  if (!Number.isFinite(examId) || !studentId || !Number.isFinite(extraMinutes)) {
+    throw new HttpError(400, "Invalid parameters");
+  }
+
+  const attempt = await prisma.attempt.findUnique({
+    where: { studentId_examId: { studentId, examId } },
+  });
+
+  if (!attempt) {
+    throw new HttpError(404, "Attempt not found");
+  }
+
+  if (attempt.status !== "IN_PROGRESS" && attempt.status !== "TIMED_OUT") {
+    throw new HttpError(409, "Cannot extend time for an already submitted exam");
+  }
+
+  // Extend the time
+  const currentExpiresAt = attempt.expiresAt ? new Date(attempt.expiresAt) : new Date();
+  const newExpiresAt = new Date(currentExpiresAt.getTime() + extraMinutes * 60000);
+
+  const updated = await prisma.attempt.update({
+    where: { id: attempt.id },
+    data: { 
+      expiresAt: newExpiresAt,
+      status: "IN_PROGRESS" 
+    }
+  });
+
+  return updated;
+}
+
+async function terminateSession(staffId, examIdRaw, studentIdRaw, reason) {
+  const examId = Number(examIdRaw);
+  const studentId = Number(studentIdRaw);
+  if (!Number.isFinite(examId) || !Number.isFinite(studentId)) {
+    throw new HttpError(400, "Invalid parameters");
+  }
+
+  const attempt = await prisma.attempt.findUnique({
+    where: { studentId_examId: { studentId, examId } },
+  });
+
+  if (!attempt) {
+    throw new HttpError(404, "Attempt not found");
+  }
+
+  const updated = await prisma.attempt.update({
+    where: { id: attempt.id },
+    data: { 
+      status: "TERMINATED",
+      expiresAt: new Date()
+    }
+  });
+
+  await prisma.examViolation.create({
+    data: {
+      studentId,
+      examId,
+      type: "ADMIN_TERMINATION",
+      message: reason || "Exam session was terminated by an administrator.",
+    },
+  });
+
+  return { success: true, message: "Session terminated successfully", attempt: updated };
+}
+
+async function resetAttempt(staffId, examIdRaw, studentIdRaw) {
+  const examId = Number(examIdRaw);
+  const studentId = Number(studentIdRaw);
+  if (!Number.isFinite(examId) || !Number.isFinite(studentId)) {
+    throw new HttpError(400, "Invalid parameters");
+  }
+
+  // Delete Attempt
+  await prisma.attempt.deleteMany({
+    where: { studentId, examId },
+  });
+
+  // Delete Result if any
+  await prisma.result.deleteMany({
+    where: { studentId, examId },
+  });
+
+  // Delete Heartbeats
+  await prisma.examHeartbeat.deleteMany({
+    where: { studentId, examId },
+  });
+
+  // Delete Violations
+  await prisma.examViolation.deleteMany({
+    where: { studentId, examId },
+  });
+
+  return { success: true, message: "Attempt reset successfully" };
+}
 
 module.exports = {
+  extendTime,
   publishResults,
   createExam,
   createExamFromPdf,
@@ -1053,4 +1176,6 @@ module.exports = {
   submitExam,
   getAttemptStatus,
   getAttemptDetails,
+  terminateSession,
+  resetAttempt,
 };
