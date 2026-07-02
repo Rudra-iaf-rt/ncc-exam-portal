@@ -15,7 +15,7 @@ import { toast } from 'sonner';
 import { getCachedResource, getOrFetchResource } from '../../lib/resourceCache';
 
 const CountdownTimer = ({ expiresAt }) => {
-  const [timeLeft, setTimeLeft] = useState(
+  const [timeLeft, setTimeLeft] = useState(() =>
     Math.max(0, Math.floor((new Date(expiresAt).getTime() - Date.now()) / 1000))
   );
 

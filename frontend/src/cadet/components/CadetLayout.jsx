@@ -37,7 +37,8 @@ function SidebarSection({ title, children, icon: SidebarIcon, defaultExpanded = 
   // Sync manual toggle state if route changes
   useEffect(() => {
     if (isPathActive) {
-      setIsManuallyToggled(prev => prev || true);
+      // eslint-disable-next-line
+      setIsManuallyToggled(true);
     }
   }, [isPathActive]);
 

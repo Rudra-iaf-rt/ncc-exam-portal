@@ -122,7 +122,7 @@ export default function ExamCreate() {
     const vError = validateQuestions();
     if (vError) {
       toast.error(vError);
-      return;p
+      return;
     }
 
     setIsSubmitting(true);

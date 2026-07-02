@@ -159,6 +159,7 @@ describe("Exam Service Unit Tests", () => {
         data: {
           title: "NCC C-Certificate Exam 2026",
           duration: 60,
+          negativeMarking: false,
           createdBy: creatorUserId,
           questions: {
             create: [
@@ -637,6 +638,7 @@ describe("Exam Service Unit Tests", () => {
           status: "IN_PROGRESS",
           answers: {},
           currentQuestionIndex: 0,
+          sessionId: null,
           startedAt: expect.any(Date),
           expiresAt: expect.any(Date),
           lastSavedAt: expect.any(Date),

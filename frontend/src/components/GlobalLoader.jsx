@@ -1,17 +1,14 @@
 import React from 'react';
-import { Loader2 } from 'lucide-react';
 
-export default function GlobalLoader({ text = "Loading..." }) {
+export default function GlobalLoader({ text }) {
   return (
-    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white/80 backdrop-blur-sm text-ink overflow-hidden animate-in fade-in duration-300">
-      <div className="flex flex-col items-center gap-4">
-        <Loader2 size={28} className="animate-spin text-ink-3" strokeWidth={2.5} />
-        {text && (
-          <p className="text-[13px] font-medium text-ink-3">
-            {text}
-          </p>
-        )}
-      </div>
+    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-stone animate-in fade-in duration-500">
+      <div className="w-6 h-6 border-[2.5px] border-navy/10 border-t-navy/80 rounded-full animate-spin" />
+      {text && (
+        <p className="mt-4 text-[11px] font-medium text-navy/40 tracking-wide uppercase">
+          {text}
+        </p>
+      )}
     </div>
   );
 }

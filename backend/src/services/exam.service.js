@@ -162,7 +162,7 @@ async function listExamsCatalog(userId, role, query = {}) {
 
 
   const completedMap = new Map(completedResults.map((r) => [r.examId, r.score]));
-  const attemptMap = new Map(attempts.map((a) => [a.examId, a]));
+  const attemptMap = new Map((attempts || []).map((a) => [a.examId, a]));
 
   const finalExams = exams.map((e) => {
     const attempt = attemptMap.get(e.id);
