@@ -56,6 +56,7 @@ async function main() {
   if (selectedExamId !== "ALL") {
     where.examId = selectedExamId;
     console.log(`\nSelected Exam ID: ${selectedExamId}`);
+    console.log("Fetching the attempts")
   } else {
     console.log(`\nSelected ALL Exams`);
   }
