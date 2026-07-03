@@ -212,8 +212,8 @@ export default function MonitorWall() {
                         </span>
                       </td>
                       <td className="px-4 py-3">
-                        {session.currentQuestionIndex !== null ? (
-                          <span className="text-ink-3">#{session.currentQuestionIndex + 1}</span>
+                        {session.activeQuestionIndex != null ? (
+                          <span className="text-ink-3">#{session.activeQuestionIndex + 1}</span>
                         ) : (
                           <span className="text-ink-4 font-normal italic">N/A</span>
                         )}

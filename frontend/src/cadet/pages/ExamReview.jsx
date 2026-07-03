@@ -327,10 +327,10 @@ const ExamReview = () => {
         </header>
         <div className="flex flex-1 flex-col items-center justify-center p-6 text-center">
           <div className="rounded-full bg-crimson-wash p-5 mb-5 text-crimson">
-            <AlertCircle size={36} />
+            <ClipboardClock size={36} />
           </div>
           <h2 className="font-display text-xl sm:text-2xl text-ink font-bold mb-2">
-            {is403 ? 'Review Not Available' : is404 ? 'Exam Not Found' : 'Something Went Wrong'}
+            {is403 ? 'Review Not Available' : is404 ? 'Exam Not Found' : 'Soon'}
           </h2>
           <p className="font-ui text-[13px] sm:text-[14px] text-ink-3 max-w-xs mb-6 leading-relaxed">
             {is403

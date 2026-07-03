@@ -5,19 +5,6 @@ import {
   subscribeToCacheKey,
 } from '../lib/resourceCache';
 
-/**
- * useCachedFetch — reactive data fetching with automatic cache invalidation.
- *
- * Usage:
- *   const { data, loading, refetch } = useCachedFetch(
- *     'admin-exam-list',
- *     () => examApi.getExams().then(r => ({ exams: r.data.exams })),
- *     { staleTimeMs: 2 * 60 * 1000 }
- *   );
- *
- * When `invalidateCachedResource(cacheKey)` is called anywhere in the app,
- * this hook automatically re-fetches — no manual refreshKey or page reload.
- */
 export function useCachedFetch(cacheKey, fetcher, { staleTimeMs = 120_000, enabled = true } = {}) {
   const [data, setData] = useState(() => getCachedResource(cacheKey));
   const [loading, setLoading] = useState(!getCachedResource(cacheKey));
@@ -45,7 +32,6 @@ export function useCachedFetch(cacheKey, fetcher, { staleTimeMs = 120_000, enabl
     if (!enabled || !cacheKey) return;
     cancelled.current = false;
 
-    // Show cached data immediately if available
     const cached = getCachedResource(cacheKey);
     if (cached != null) {
       setData(cached);
@@ -54,20 +40,18 @@ export function useCachedFetch(cacheKey, fetcher, { staleTimeMs = 120_000, enabl
       setLoading(true);
     }
 
-    // Fetch (will be a no-op if cache is still fresh)
     fetch();
 
     // Subscribe: when this key is invalidated anywhere, immediately re-fetch
     const unsub = subscribeToCacheKey(cacheKey, (newData) => {
       if (cancelled.current) return;
-      if (newData === null) {
-        // Cache was invalidated — fetch fresh data
-        setLoading(true);
-        fetch();
-      } else {
+      if (newData !== null && newData !== undefined) {
         // Cache was updated (e.g. optimistic write) — reflect immediately
         setData(newData);
         setLoading(false);
+      } else {
+        setLoading(true);
+        fetch();
       }
     });
 

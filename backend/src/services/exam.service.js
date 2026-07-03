@@ -1020,6 +1020,8 @@ async function publishResults(userId, examIdRaw) {
     await cacheDelPattern(`results:instructor:*`);
     await cacheDelPattern(`exams:details:${examId}`);
     await cacheDel([`exam:review_data:${examId}`]);
+    // Wildcard exams catalog caches (since resultsPublished state changed)
+    await incrementCacheVersion("exams:catalog:global");
   } catch (err) {
     console.error("[Redis] Cache invalidation failed during publishResults", err);
   }
