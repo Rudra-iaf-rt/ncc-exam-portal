@@ -210,7 +210,6 @@ function QuestionCard({ item, index, scoringScheme }) {
   );
 }
 
-/* ─── Apple-style Stat Item ──────────────────────────────────────────────── */
 function StatCard({ icon: Icon, count, label, colorCls, bgCls = "bg-white", borderCls = "border-stone-200/50", className = "" }) {
   return (
     <div className={`flex flex-col items-center justify-center py-5 px-3 rounded-2xl shadow-[0_2px_12px_-4px_rgba(0,0,0,0.06)] border ${borderCls} transition-all duration-300 hover:shadow-md hover:-translate-y-0.5 ${bgCls} ${className}`}>
@@ -223,7 +222,6 @@ function StatCard({ icon: Icon, count, label, colorCls, bgCls = "bg-white", bord
   );
 }
 
-/* ─── Main ExamReview ────────────────────────────────────────────────────── */
 const ExamReview = () => {
   const { examId } = useParams();
   const navigate   = useNavigate();
@@ -271,6 +269,7 @@ const ExamReview = () => {
     });
   }, [questionsWithIndex, filter]);
 
+  // TOPIC PERFORMANCE 
   // const topicPerformance = useMemo(() => {
   //   if (!data?.questions) return [];
   //   const topics = {};
