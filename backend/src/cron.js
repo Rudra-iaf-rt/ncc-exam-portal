@@ -1,20 +1,14 @@
 const cron = require("node-cron");
-const materialsService = require("./services/materials.service");
 
 /**
- * Initialize all scheduled background tasks
+ * Initialize all scheduled background tasks.
+ * NOTE: The Google Drive nightly revalidation cron has been removed.
+ * B2 materials are always VERIFIED since we control the storage — no revalidation needed.
  */
 function initCron() {
   console.log("[Cron] Initializing scheduled tasks...");
-
-  // Nightly revalidation of Google Drive links at 02:00 AM
-  cron.schedule("0 2 * * *", () => {
-    materialsService.revalidateAllMaterials().catch(err => {
-      console.error("[Cron] Drive revalidation job failed:", err);
-    });
-  });
-
-  console.log("[Cron] Scheduled: Nightly Drive access revalidation at 02:00 AM.");
+  // Future cron jobs go here
+  console.log("[Cron] No scheduled tasks configured.");
 }
 
 module.exports = { initCron };

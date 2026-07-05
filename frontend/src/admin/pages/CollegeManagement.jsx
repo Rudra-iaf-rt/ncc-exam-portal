@@ -321,7 +321,7 @@ export default function CollegeManagement() {
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-8 max-h-[85vh] overflow-y-auto custom-scrollbar">
+            <form onSubmit={handleSubmit} className="p-4 sm:p-8 max-h-[85vh] overflow-y-auto custom-scrollbar">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="col-span-1 sm:col-span-2">
                   <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-2">College Full Name *</label>

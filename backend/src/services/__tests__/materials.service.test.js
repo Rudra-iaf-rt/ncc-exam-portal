@@ -1,267 +1,331 @@
-// Mock dependencies before importing the service to prevent hoisting initialization errors
-jest.mock("../../lib/prisma", () => {
-  const mockMaterial = {
-    create: jest.fn(),
-    findMany: jest.fn(),
-    findUnique: jest.fn(),
-    count: jest.fn(),
-    update: jest.fn(),
-  };
-  const mockPrisma = {
-    material: mockMaterial,
-  };
-  return { prisma: mockPrisma };
-});
+// Mock all external dependencies BEFORE importing the service
+jest.mock("../../lib/prisma", () => ({
+  prisma: {
+    material: {
+      create: jest.fn(),
+      findMany: jest.fn(),
+      findUnique: jest.fn(),
+      count: jest.fn(),
+      update: jest.fn(),
+    },
+  },
+}));
 
 jest.mock("../../lib/redis", () => ({
   redis: {
     get: jest.fn(),
     setex: jest.fn(),
+    scan: jest.fn().mockResolvedValue(["0", []]),
+    del: jest.fn(),
   },
+}));
+
+// Mock the B2 client — we never want real network calls in unit tests
+jest.mock("../../lib/b2", () => ({
+  b2Client: {},
+  B2_BUCKET_NAME: "test-bucket",
+}));
+
+// Mock @aws-sdk/lib-storage Upload
+jest.mock("@aws-sdk/lib-storage", () => ({
+  Upload: jest.fn().mockImplementation(() => ({
+    done: jest.fn().mockResolvedValue({}),
+  })),
+}));
+
+// Mock @aws-sdk/client-s3 send for DeleteObjectCommand
+jest.mock("@aws-sdk/client-s3", () => ({
+  S3Client: jest.fn(),
+  GetObjectCommand: jest.fn(),
+  DeleteObjectCommand: jest.fn(),
+}));
+
+// Mock pre-signed URL generator
+jest.mock("@aws-sdk/s3-request-presigner", () => ({
+  getSignedUrl: jest.fn().mockResolvedValue("https://b2.example.com/presigned-url?token=abc"),
 }));
 
 const materialsService = require("../materials.service");
 const { prisma } = require("../../lib/prisma");
 const { redis } = require("../../lib/redis");
+const { Upload } = require("@aws-sdk/lib-storage");
 const { HttpError } = require("../../utils/http-error");
 
-describe("Materials Service Unit Tests", () => {
-  let originalFetch;
+// ─── Test factories ───────────────────────────────────────────────────────────
 
-  beforeAll(() => {
-    originalFetch = global.fetch;
-  });
+function makeFile(overrides = {}) {
+  return {
+    originalname: "manual.pdf",
+    filename: "manual-stored.pdf",
+    mimetype: "application/pdf",
+    size: 102400,
+    buffer: Buffer.from("fake-pdf-content"),
+    ...overrides,
+  };
+}
 
-  afterAll(() => {
-    global.fetch = originalFetch;
-  });
+function makeMaterialRow(overrides = {}) {
+  return {
+    id: 1,
+    title: "Map Reading Manual",
+    subject: "Navigation",
+    description: null,
+    category: null,
+    fileType: "PDF",
+    wing: null,
+    accessStatus: "VERIFIED",
+    isActive: true,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    uploadedBy: { id: 5, name: "ANO Singh", role: "COLLEGE_ADMIN" },
+    fileUrl: "materials/uuid-1234.pdf",
+    originalName: "manual.pdf",
+    mimeType: "application/pdf",
+    sizeBytes: 102400,
+    storedName: "materials/uuid-1234.pdf",
+    driveFileId: null,
+    collegeId: 2,
+    ...overrides,
+  };
+}
 
+// ─── Tests ────────────────────────────────────────────────────────────────────
+
+describe("Materials Service — Backblaze B2 Storage", () => {
   beforeEach(() => {
     jest.clearAllMocks();
     jest.spyOn(console, "error").mockImplementation(() => {});
     jest.spyOn(console, "log").mockImplementation(() => {});
     jest.spyOn(console, "warn").mockImplementation(() => {});
-    global.fetch = jest.fn();
   });
 
   afterEach(() => {
     jest.restoreAllMocks();
   });
 
-  describe("extractDriveId", () => {
-    // Tests for extractDriveId indirectly via createMaterial driveUrl formats
-    it("should accept valid drive file sharing urls", async () => {
-      prisma.material.create.mockResolvedValue({
-        id: 1,
-        title: "Test",
-        driveFileId: "1A2B3C4D5E6F7G8H9I0J1K2L3M4N5O",
-        uploadedById: 10,
-        accessStatus: "PENDING",
-      });
+  // ── createMaterial ──────────────────────────────────────────────────────────
 
-      const user = { role: "CADET", collegeId: 1 };
-      const body = {
-        title: "Test",
-        driveUrl: "https://drive.google.com/file/d/1A2B3C4D5E6F7G8H9I0J1K2L3M4N5O/view?usp=sharing",
-        subject: "Military History",
-      };
+  describe("createMaterial", () => {
+    const user = { role: "COLLEGE_ADMIN", collegeId: 2 };
 
-      global.fetch.mockResolvedValue({
-        status: 200,
-        headers: { get: () => null },
-      });
+    it("should upload to B2 then persist DB row with VERIFIED status", async () => {
+      const mockRow = makeMaterialRow();
+      prisma.material.create.mockResolvedValue(mockRow);
 
-      const res = await materialsService.createMaterial(10, null, body, user);
-      expect(res.material.driveFileId).toBe("1A2B3C4D5E6F7G8H9I0J1K2L3M4N5O");
-      expect(res.material.isDrive).toBe(true);
-      expect(prisma.material.create).toHaveBeenCalled();
+      const result = await materialsService.createMaterial(
+        5,
+        makeFile(),
+        { title: "Map Reading Manual", subject: "Navigation", fileType: "PDF" },
+        user
+      );
+
+      // B2 Upload must have been called
+      expect(Upload).toHaveBeenCalledTimes(1);
+
+      // DB row should be created with VERIFIED status (not PENDING)
+      expect(prisma.material.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({
+            accessStatus: "VERIFIED",
+            uploadedById: 5,
+            collegeId: 2,
+          }),
+        })
+      );
+
+      expect(result.material.isB2).toBe(true);
+      expect(result.material.isDrive).toBe(false);
+      expect(result.material.downloadUrl).toBe("/api/materials/1/download");
     });
 
-    it("should throw HttpError 400 if drive url is malformed", async () => {
-      const user = { role: "CADET", collegeId: 1 };
-      const body = {
-        title: "Test",
-        driveUrl: "https://invalidurl.com/somefile",
-      };
+    it("should NOT create a DB row if B2 upload fails — no orphan records", async () => {
+      // Simulate B2 being unreachable
+      Upload.mockImplementationOnce(() => ({
+        done: jest.fn().mockRejectedValue(new Error("B2 network timeout")),
+      }));
 
       await expect(
-        materialsService.createMaterial(10, null, body, user)
-      ).rejects.toThrow(new HttpError(400, "Invalid Google Drive URL"));
-    });
-  });
+        materialsService.createMaterial(5, makeFile(), {}, user)
+      ).rejects.toThrow(HttpError);
 
-  describe("createMaterial (Drive)", () => {
-    const user = { role: "COLLEGE_ADMIN", collegeId: 2 };
-    const body = {
-      title: "Map Reading Manual",
-      subject: "Map Reading",
-      driveUrl: "https://drive.google.com/file/d/1234567890abcdefghijklmnopqrstuvw/view",
-    };
-
-    it("should instantly save material as PENDING and schedule drive verification out-of-band", async () => {
-      prisma.material.create.mockResolvedValue({
-        id: 100,
-        title: "Map Reading Manual",
-        subject: "Map Reading",
-        driveFileId: "1234567890abcdefghijklmnopqrstuvw",
-        uploadedById: 5,
-        accessStatus: "PENDING",
-      });
-
-      // Mock fetch return values to represent restricted google domain redirect
-      global.fetch.mockResolvedValue({
-        status: 302,
-        headers: {
-          get: (key) => (key === "location" ? "https://accounts.google.com/signin" : null),
-        },
-      });
-
-      prisma.material.update.mockResolvedValue({
-        id: 100,
-        accessStatus: "RESTRICTED",
-      });
-
-      const res = await materialsService.createMaterial(5, null, body, user);
-
-      // Asserts background verify scheduling happened without pausing execution
-      expect(res.material.accessStatus).toBe("PENDING");
-      expect(prisma.material.create).toHaveBeenCalled();
-
-      // Flush event queue to let driveValidationBreaker run its background update promise
-      await new Promise((resolve) => setTimeout(resolve, 10));
-
-      expect(global.fetch).toHaveBeenCalled();
-      expect(prisma.material.update).toHaveBeenCalledWith({
-        where: { id: 100 },
-        data: { accessStatus: "RESTRICTED" },
-      });
-    });
-  });
-
-  describe("createMaterial (Local file)", () => {
-    const user = { role: "COLLEGE_ADMIN", collegeId: 2 };
-    const body = { title: "Custom PDF", subject: "Military History" };
-    const mockFile = {
-      originalname: "history.pdf",
-      filename: "history-stored.pdf",
-      mimetype: "application/pdf",
-      size: 102400,
-    };
-
-    it("should upload file locally and persist details in Database", async () => {
-      prisma.material.create.mockResolvedValue({
-        id: 101,
-        title: "Custom PDF",
-        originalName: "history.pdf",
-        storedName: "history-stored.pdf",
-        mimeType: "application/pdf",
-        sizeBytes: 102400,
-        uploadedById: 5,
-        accessStatus: "VERIFIED",
-      });
-
-      const res = await materialsService.createMaterial(5, mockFile, body, user);
-
-      expect(res.material.isDrive).toBe(false);
-      expect(res.material.downloadUrl).toBe("/api/materials/101/download");
-      expect(prisma.material.create).toHaveBeenCalled();
+      // DB must NOT have been touched
+      expect(prisma.material.create).not.toHaveBeenCalled();
     });
 
-    it("should throw HttpError 400 if neither file nor driveUrl is supplied", async () => {
+    it("should throw 400 if no file is provided", async () => {
       await expect(
         materialsService.createMaterial(5, null, {}, user)
-      ).rejects.toThrow(new HttpError(400, "File or Drive URL is required"));
+      ).rejects.toThrow(new HttpError(400, "A file is required to upload a material."));
+    });
+
+    it("SUPER_ADMIN can upload with explicit collegeId or null (global)", async () => {
+      prisma.material.create.mockResolvedValue(
+        makeMaterialRow({ collegeId: null })
+      );
+      const superAdmin = { role: "SUPER_ADMIN", collegeId: null };
+
+      await materialsService.createMaterial(
+        1,
+        makeFile(),
+        { title: "Global Manual", collegeId: "" },
+        superAdmin
+      );
+
+      expect(prisma.material.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ collegeId: null }),
+        })
+      );
+    });
+
+    it("uses file.originalname as title fallback if title is not provided", async () => {
+      prisma.material.create.mockResolvedValue(makeMaterialRow({ title: "manual.pdf" }));
+
+      await materialsService.createMaterial(5, makeFile(), {}, user);
+
+      expect(prisma.material.create).toHaveBeenCalledWith(
+        expect.objectContaining({
+          data: expect.objectContaining({ title: "manual.pdf" }),
+        })
+      );
     });
   });
+
+  // ── getMaterialForDownload ──────────────────────────────────────────────────
+
+  describe("getMaterialForDownload", () => {
+    it("should return a B2 pre-signed URL for a B2 material", async () => {
+      prisma.material.findUnique.mockResolvedValue(
+        makeMaterialRow({ fileUrl: "materials/uuid-1234.pdf", driveFileId: null })
+      );
+
+      const result = await materialsService.getMaterialForDownload(1);
+
+      expect(result.isB2).toBe(true);
+      expect(result.url).toBe("https://b2.example.com/presigned-url?token=abc");
+    });
+
+    it("should return Drive URL for legacy Drive materials", async () => {
+      prisma.material.findUnique.mockResolvedValue(
+        makeMaterialRow({ fileUrl: null, driveFileId: "abc12345drive" })
+      );
+
+      const result = await materialsService.getMaterialForDownload(1);
+
+      expect(result.isDrive).toBe(true);
+      expect(result.url).toContain("drive.google.com");
+      expect(result.url).toContain("abc12345drive");
+    });
+
+    it("should throw 400 for non-numeric ID", async () => {
+      await expect(
+        materialsService.getMaterialForDownload("not-a-number")
+      ).rejects.toThrow(new HttpError(400, "Invalid id"));
+    });
+
+    it("should throw 404 if material does not exist", async () => {
+      prisma.material.findUnique.mockResolvedValue(null);
+      await expect(
+        materialsService.getMaterialForDownload(9999)
+      ).rejects.toThrow(new HttpError(404, "Not found"));
+    });
+  });
+
+  // ── deleteMaterialById ──────────────────────────────────────────────────────
+
+  describe("deleteMaterialById", () => {
+    it("should soft-delete in DB and fire B2 delete in background", async () => {
+      const mockRow = makeMaterialRow({ fileUrl: "materials/uuid-1234.pdf", driveFileId: null });
+      prisma.material.findUnique.mockResolvedValue(mockRow);
+      prisma.material.update.mockResolvedValue({ ...mockRow, isActive: false });
+
+      const result = await materialsService.deleteMaterialById(1);
+
+      expect(result.success).toBe(true);
+      expect(prisma.material.update).toHaveBeenCalledWith({
+        where: { id: 1 },
+        data: { isActive: false },
+      });
+    });
+
+    it("should still succeed even if the B2 delete fails (best-effort)", async () => {
+      const mockRow = makeMaterialRow({ fileUrl: "materials/uuid-1234.pdf", driveFileId: null });
+      prisma.material.findUnique.mockResolvedValue(mockRow);
+      prisma.material.update.mockResolvedValue({ ...mockRow, isActive: false });
+
+      // Simulate B2 delete failing — result should still be success
+      const { b2Client } = require("../../lib/b2");
+      b2Client.send = jest.fn().mockRejectedValue(new Error("B2 delete error"));
+
+      const result = await materialsService.deleteMaterialById(1);
+      expect(result.success).toBe(true);
+    });
+
+    it("should throw 404 if material does not exist", async () => {
+      prisma.material.findUnique.mockResolvedValue(null);
+      await expect(
+        materialsService.deleteMaterialById(9999)
+      ).rejects.toThrow(new HttpError(404, "Not found"));
+    });
+  });
+
+  // ── listMaterials ───────────────────────────────────────────────────────────
 
   describe("listMaterials", () => {
     const cadetUser = { role: "CADET", collegeId: 2, wing: "ARMY" };
 
-    it("should return cached list from Redis if hit", async () => {
-      const mockCachedResponse = {
-        materials: [{ id: 1, title: "Cached File" }],
+    it("should return cached list from Redis on cache hit", async () => {
+      const mockCached = {
+        materials: [{ id: 1, title: "Cached Material" }],
         pagination: { total: 1, page: 1, limit: 20, totalPages: 1 },
       };
-      redis.get.mockResolvedValue(JSON.stringify(mockCachedResponse));
+      redis.get.mockResolvedValue(JSON.stringify(mockCached));
 
-      const res = await materialsService.listMaterials({ user: cadetUser });
+      const result = await materialsService.listMaterials({ user: cadetUser });
 
-      expect(redis.get).toHaveBeenCalledWith(
-        "materials:list:CADET:2:all:all:all:p1:l20"
-      );
-      expect(res).toEqual(mockCachedResponse);
+      expect(result).toEqual(mockCached);
       expect(prisma.material.findMany).not.toHaveBeenCalled();
     });
 
-    it("should query DB, apply visibility filters, cache results and return data on cache miss", async () => {
+    it("should query DB with cadet visibility filters on cache miss", async () => {
       redis.get.mockResolvedValue(null);
-      prisma.material.findMany.mockResolvedValue([
-        {
-          id: 5,
-          title: "Syllabus Part 1",
-          driveFileId: "abcdef",
-          uploadedById: 3,
-          accessStatus: "VERIFIED",
-        },
-      ]);
+      prisma.material.findMany.mockResolvedValue([makeMaterialRow()]);
       prisma.material.count.mockResolvedValue(1);
 
-      const res = await materialsService.listMaterials({
-        user: cadetUser,
-        subject: "Infantry Tactics",
-      });
+      await materialsService.listMaterials({ user: cadetUser, subject: "Navigation" });
 
       expect(prisma.material.findMany).toHaveBeenCalledWith(
         expect.objectContaining({
           where: expect.objectContaining({
             isActive: true,
             accessStatus: "VERIFIED",
-            subject: "Infantry Tactics",
+            subject: "Navigation",
           }),
         })
       );
       expect(redis.setex).toHaveBeenCalled();
-      expect(res.materials).toHaveLength(1);
     });
   });
 
-  describe("getMaterialForDownload", () => {
-    it("should return drive view and download path if it is a Drive material", async () => {
-      prisma.material.findUnique.mockResolvedValue({
-        id: 10,
-        driveFileId: "abc12345",
-      });
+  // ── mapMaterialRow ──────────────────────────────────────────────────────────
 
-      const res = await materialsService.getMaterialForDownload(10);
-      expect(res.isDrive).toBe(true);
-      expect(res.url).toBe("https://drive.google.com/uc?export=download&id=abc12345");
+  describe("mapMaterialRow", () => {
+    it("maps a B2 row with isB2=true and correct downloadUrl", () => {
+      const row = makeMaterialRow();
+      const mapped = materialsService.mapMaterialRow(row);
+
+      expect(mapped.isB2).toBe(true);
+      expect(mapped.isDrive).toBe(false);
+      expect(mapped.downloadUrl).toBe("/api/materials/1/download");
     });
 
-    it("should throw HttpError 400 for invalid ID parameter", async () => {
-      await expect(
-        materialsService.getMaterialForDownload("invalid-id")
-      ).rejects.toThrow(new HttpError(400, "Invalid id"));
-    });
+    it("maps a legacy Drive row with isDrive=true and Drive URLs", () => {
+      const row = makeMaterialRow({ fileUrl: null, driveFileId: "DRIVEID123" });
+      const mapped = materialsService.mapMaterialRow(row);
 
-    it("should throw HttpError 404 if material does not exist in DB", async () => {
-      prisma.material.findUnique.mockResolvedValue(null);
-      await expect(
-        materialsService.getMaterialForDownload(999)
-      ).rejects.toThrow(new HttpError(404, "Not found"));
-    });
-  });
-
-  describe("deleteMaterialById", () => {
-    it("should execute soft-delete setting isActive to false", async () => {
-      prisma.material.findUnique.mockResolvedValue({ id: 10, isActive: true });
-      prisma.material.update.mockResolvedValue({ id: 10, isActive: false });
-
-      const res = await materialsService.deleteMaterialById(10);
-      expect(res.success).toBe(true);
-      expect(prisma.material.update).toHaveBeenCalledWith({
-        where: { id: 10 },
-        data: { isActive: false },
-      });
+      expect(mapped.isDrive).toBe(true);
+      expect(mapped.viewUrl).toContain("DRIVEID123");
+      expect(mapped.downloadUrl).toContain("DRIVEID123");
     });
   });
 });

@@ -12,26 +12,30 @@ const materialsApi = {
   getById: (id) => client.get(`/materials/${id}`),
 
   /**
-   * Upload a new material (either local file or Google Drive URL)
+   * Upload a new material to Backblaze B2.
+   * Sends as multipart/form-data. Supports onUploadProgress for progress bars.
+   *
+   * @param {object} data - { title, subject, description, fileType, wing, collegeId, file: File }
+   * @param {function} [onUploadProgress] - axios progress callback
    */
-  upload: (data) => {
-    // If it's a Drive URL, we can send it as JSON
-    if (data.driveUrl) {
-      return client.post('/material/upload', data);
-    }
-    
-    // Otherwise, handle as multipart form data for local file uploads
+  upload: (data, onUploadProgress) => {
     const formData = new FormData();
-    Object.keys(data).forEach(key => {
-      if (data[key] !== undefined && data[key] !== null) {
-        formData.append(key, data[key]);
+    Object.entries(data).forEach(([key, val]) => {
+      if (val !== undefined && val !== null && val !== '') {
+        formData.append(key, val);
       }
     });
-    
+
     return client.post('/material/upload', formData, {
-      headers: { 'Content-Type': 'multipart/form-data' }
+      headers: { 'Content-Type': 'multipart/form-data' },
+      onUploadProgress,
     });
   },
+
+  /**
+   * Update material metadata
+   */
+  update: (id, data) => client.patch(`/materials/${id}`, data),
 
   /**
    * Soft delete a material
@@ -39,16 +43,21 @@ const materialsApi = {
   delete: (id) => client.delete(`/materials/${id}`),
 
   /**
-   * Trigger manual revalidation of a Google Drive link
-   */
-  revalidate: (id) => client.post(`/materials/${id}/revalidate`),
-
-  /**
-   * Get the download URL for a material
+   * Get the authenticated download URL for a material.
+   * Backend will stream the file securely.
    */
   getDownloadUrl: (id) => {
-    const baseURL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
-    return `${baseURL}/materials/${id}/download`;
+    const token = localStorage.getItem('ncc_token');
+    return `/api/materials/${id}/download?token=${token}`;
+  },
+
+  /**
+   * Get the direct view URL for inline previewing.
+   * Backend will stream the file securely.
+   */
+  getViewUrl: (id) => {
+    const token = localStorage.getItem('ncc_token');
+    return `/api/materials/${id}/view?token=${token}`;
   }
 };
 

@@ -117,7 +117,7 @@ export default function AddUserModal({ isOpen, onClose, onRefresh, initialRole =
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-8">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="col-span-1">
               <label htmlFor="add-name" className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-2">Full Name *</label>

@@ -11,7 +11,8 @@ async function authenticate(req, res, next) {
   const authHeader = req.headers.authorization;
   const bearer = authHeader?.startsWith("Bearer ") ? authHeader.split(" ")[1] : null;
   const cookieToken = features.cookieAuth ? req.cookies?.ncc_access_token : null;
-  const token = bearer || cookieToken;
+  const queryToken = req.query.token;
+  const token = bearer || cookieToken || queryToken;
 
   if (!token) {
     logger.warn('AUTH_FAILED', { reason: 'Missing or malformed Authorization header', path: req.path });

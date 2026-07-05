@@ -169,7 +169,7 @@ const CadetResults = () => {
                             <span className="truncate max-w-[220px]">{res.exam?.title ?? res.examTitle ?? 'Untitled Exam'}</span>
                           </div>
                           {res.violationCount > 0 && (
-                            <div className="flex items-center gap-1 mt-1 ml-6">
+                            <div className="flex items-center g ap-1 mt-1 ml-6">
                               <span className="inline-flex items-center gap-1 font-mono text-[9px] tracking-wider py-0.5 px-1.5 rounded-full font-bold bg-rose-500/10 text-rose-600 border border-rose-500/20">
                                 <ShieldAlert size={9} />
                                 {res.violationCount} Violation{res.violationCount > 1 ? 's' : ''} Recorded

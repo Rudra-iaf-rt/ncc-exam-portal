@@ -55,3 +55,5 @@ node_modules/
 
 current_questions.json
 sample_attempt.json
+.agents/
+templates/
