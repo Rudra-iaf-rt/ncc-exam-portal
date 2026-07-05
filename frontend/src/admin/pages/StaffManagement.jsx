@@ -17,12 +17,14 @@ import AddUserModal from '../components/AddUserModal';
 import EditUserModal from '../components/EditUserModal';
 import { invalidateCachedResource } from '../../lib/resourceCache';
 import { useCachedFetch } from '../../hooks/useCachedFetch';
+import { useConfirm } from '../../contexts/ConfirmContext';
 
 export default function StaffManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
+  const confirm = useConfirm();
 
   const { data, loading } = useCachedFetch(
     'admin-staff-list',
@@ -35,9 +37,14 @@ export default function StaffManagement() {
   const staff = data?.staff || [];
 
   const handleDelete = async (id, name) => {
-    if (!window.confirm(`Are you sure you want to remove ${name} from the instructor list? They will lose all administrative access.`)) {
-      return;
-    }
+    const confirmed = await confirm({
+      title: 'Remove Instructor',
+      message: `Are you sure you want to remove ${name} from the instructor list? They will lose all administrative access.`,
+      confirmText: 'Remove',
+      isDanger: true
+    });
+    
+    if (!confirmed) return;
 
     try {
       await adminApi.deleteUser(id);
@@ -111,7 +118,7 @@ export default function StaffManagement() {
             placeholder="Search by name, email, or college code..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full py-3 pr-3 pl-10 rounded-xl border border-stone-3 bg-white font-ui text-[14px] outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all text-ink placeholder:text-ink-4"
+            className="w-full py-3 pr-3 pl-10 rounded-xl border border-stone-deep shadow-sm bg-white font-ui text-[14px] outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all text-ink placeholder:text-ink-4"
           />
         </div>
       </div>

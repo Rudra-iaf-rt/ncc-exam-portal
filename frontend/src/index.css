@@ -210,3 +210,30 @@ input, select, textarea {
 .animate-icon-sequence {
   animation: icon-sequence 3.0s ease-in-out infinite;
 }
+
+/* ─── Consistent Input Fields ──────────────────────────────────────────────────── */
+/* Enforce consistent borders and focus rings across the application */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="number"],
+input[type="search"],
+input[type="date"],
+input[type="datetime-local"],
+input[type="tel"] {
+  border-color: var(--stone-deep);
+  transition: all 0.2s ease-in-out;
+}
+
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="number"]:focus,
+input[type="search"]:focus,
+input[type="date"]:focus,
+input[type="datetime-local"]:focus,
+input[type="tel"]:focus {
+  border-color: var(--navy-soft) !important;
+  box-shadow: 0 0 0 3px var(--navy-wash) !important;
+  outline: none !important;
+}

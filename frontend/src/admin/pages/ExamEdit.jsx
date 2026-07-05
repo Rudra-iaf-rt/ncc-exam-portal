@@ -4,6 +4,7 @@ import { examApi } from '../../api';
 import { toast } from 'sonner';
 import { PageHeader } from '../components/Shared';
 import { invalidateCachedResource } from '../../lib/resourceCache';
+import CustomSelect from '../../components/CustomSelect';
 import { Search, Info, Check, Trash2, ArrowLeft, GripVertical, AlertCircle, Save, Plus, Clock, CheckCircle2, ShieldCheck, ArrowRight } from 'lucide-react';
 import PageLoader from '../../components/PageLoader';
 
@@ -321,11 +322,9 @@ export default function ExamEdit() {
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-5">
                 <div>
                   <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Type</label>
-                  <select
-                    className="w-full h-[38px] px-3 border border-stone-deep rounded-md font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all"
+                  <CustomSelect
                     value={q.type || 'MCQ'}
-                    onChange={(e) => {
-                      const val = e.target.value;
+                    onChange={(val) => {
                       updateQuestion(qIndex, 'type', val);
                       if (val === 'SUBJECTIVE') {
                         updateQuestion(qIndex, 'answer', 'Manual Grading');
@@ -333,11 +332,12 @@ export default function ExamEdit() {
                         updateQuestion(qIndex, 'answer', '');
                       }
                     }}
-                  >
-                    <option value="MCQ">Multiple Choice</option>
-                    <option value="FILL_IN_THE_BLANK">Fill in the Blank</option>
-                    <option value="SUBJECTIVE">Subjective / Essay</option>
-                  </select>
+                    options={[
+                      { value: "MCQ", label: "Multiple Choice" },
+                      { value: "FILL_IN_THE_BLANK", label: "Fill in the Blank" },
+                      { value: "SUBJECTIVE", label: "Subjective / Essay" }
+                    ]}
+                  />
                 </div>
                 <div>
                   <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Topic</label>

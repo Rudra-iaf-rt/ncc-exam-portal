@@ -3,6 +3,8 @@ import { adminApi } from '../../api';
 import { useAdminAuth } from '../../contexts/AdminAuth';
 import { toast } from 'sonner';
 import { PageHeader, Pagination } from '../components/Shared';
+import CustomSelect from '../../components/CustomSelect';
+import { useConfirm } from '../../contexts/ConfirmContext';
 import { 
   UserPlus,
   FileUp,
@@ -22,6 +24,7 @@ import { useCachedFetch } from '../../hooks/useCachedFetch';
 export default function UserManagement() {
   const { user } = useAdminAuth();
   const isAdmin = user?.role === 'ADMIN';
+  const confirm = useConfirm();
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
@@ -70,9 +73,14 @@ export default function UserManagement() {
 
   const handleDelete = async (id, name) => {
     if (!isAdmin) return;
-    if (!window.confirm(`Are you sure you want to permanently delete ${name}? All their exam attempts, results, and assignments will be purged.`)) {
-      return;
-    }
+    const confirmed = await confirm({
+      title: 'Delete Cadet',
+      message: `Are you sure you want to permanently delete ${name}? All their exam attempts, results, and assignments will be purged.`,
+      confirmText: 'Delete Permanently',
+      isDanger: true
+    });
+    
+    if (!confirmed) return;
 
     try {
       await adminApi.deleteUser(id);
@@ -165,22 +173,23 @@ export default function UserManagement() {
             placeholder="Search by name, regimental number, or email..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full py-3 pr-3 pl-10 rounded-xl border border-stone-3 bg-white font-ui text-[14px] outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all text-ink placeholder:text-ink-4"
+            className="w-full py-3 pr-3 pl-10 rounded-xl border border-stone-deep shadow-sm bg-white font-ui text-[14px] outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all text-ink placeholder:text-ink-4"
           />
         </div>
-        <select 
+        <CustomSelect 
           value={wingFilter}
-          onChange={(e) => {
-            setWingFilter(e.target.value);
+          onChange={(val) => {
+            setWingFilter(val);
             setPage(1);
           }}
-          className="px-4 rounded-xl border border-stone-3 bg-white font-ui text-[14px] min-w-[140px] h-[46px] flex-none outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all text-ink"
-        >
-          <option value="ALL">All Wings</option>
-          <option value="ARMY">Army Wing</option>
-          <option value="NAVY">Navy Wing</option>
-          <option value="AIR">Air Wing</option>
-        </select>
+          options={[
+            { value: "ALL", label: "All Wings" },
+            { value: "ARMY", label: "Army Wing" },
+            { value: "NAVY", label: "Navy Wing" },
+            { value: "AIR", label: "Air Wing" }
+          ]}
+          className="w-[140px] flex-none"
+        />
       </div>
 
       {users.length === 0 && !loading && (

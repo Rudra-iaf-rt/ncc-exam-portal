@@ -5,7 +5,10 @@ import { invalidateCachedResource } from '../../lib/resourceCache';
 import { useCachedFetch } from '../../hooks/useCachedFetch';
 import { X, Plus, Trash2, Calendar, Loader2, Check, AlertCircle } from 'lucide-react';
 
+import { useConfirm } from '../../contexts/ConfirmContext';
+
 export default function BatchManagementModal({ isOpen, onClose }) {
+  const confirm = useConfirm();
   const [submitting, setSubmitting] = useState(false);
   const [newBatchName, setNewBatchName] = useState('');
 
@@ -39,7 +42,13 @@ export default function BatchManagementModal({ isOpen, onClose }) {
   };
 
   const handleDeleteBatch = async (id, name) => {
-    if (!window.confirm(`Are you sure you want to delete batch ${name}? This will NOT delete cadets, but they will no longer be associated with this batch in the system.`)) {
+    const confirmed = await confirm({
+      title: 'Delete Batch',
+      message: `Are you sure you want to delete batch ${name}? This will NOT delete cadets, but they will no longer be associated with this batch in the system.`,
+      confirmText: 'Delete',
+      isDanger: true
+    });
+    if (!confirmed) {
       return;
     }
 

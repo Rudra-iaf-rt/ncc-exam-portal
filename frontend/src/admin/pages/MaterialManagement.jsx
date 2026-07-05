@@ -4,6 +4,8 @@ import { toast } from 'sonner';
 import { PageHeader, StatCard } from '../components/Shared';
 import { invalidateCachedResource } from '../../lib/resourceCache';
 import { useCachedFetch } from '../../hooks/useCachedFetch';
+import CustomSelect from '../../components/CustomSelect';
+import { useConfirm } from '../../contexts/ConfirmContext';
 import { 
   Plus, 
   Search, 
@@ -24,6 +26,7 @@ import {
 } from 'lucide-react';
 
 export default function MaterialManagement() {
+  const confirm = useConfirm();
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -94,7 +97,13 @@ export default function MaterialManagement() {
   };
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Are you sure you want to remove this academic resource?')) return;
+    const confirmed = await confirm({
+      title: 'Remove Resource',
+      message: 'Are you sure you want to remove this academic resource?',
+      confirmText: 'Remove',
+      isDanger: true
+    });
+    if (!confirmed) return;
     try {
       await materialsApi.delete(id);
       toast.success('Resource removed');
@@ -381,17 +390,15 @@ export default function MaterialManagement() {
 
                 <div className="col-span-1">
                   <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-2">Resource Type *</label>
-                  <select 
-                    required
-                    name="fileType"
+                  <CustomSelect 
                     value={formData.fileType}
-                    onChange={(e) => setFormData({...formData, fileType: e.target.value})}
-                    className="w-full h-[44px] px-4 rounded-xl border border-stone-deep bg-white font-ui text-[14px] outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all text-ink shadow-sm"
-                  >
-                    <option value="PDF">PDF Document</option>
-                    <option value="VIDEO">Video Lecture</option>
-                    <option value="DOCUMENT">Other Manual</option>
-                  </select>
+                    onChange={(val) => setFormData({...formData, fileType: val})}
+                    options={[
+                      { value: "PDF", label: "PDF Document" },
+                      { value: "VIDEO", label: "Video Lecture" },
+                      { value: "DOCUMENT", label: "Other Manual" }
+                    ]}
+                  />
                 </div>
 
                 <div className="col-span-1 sm:col-span-2">
@@ -416,32 +423,29 @@ export default function MaterialManagement() {
 
                 <div className="col-span-1">
                   <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-2">Wing Visibility</label>
-                  <select 
-                    name="wing"
+                  <CustomSelect 
                     value={formData.wing}
-                    onChange={(e) => setFormData({...formData, wing: e.target.value})}
-                    className="w-full h-[44px] px-4 rounded-xl border border-stone-deep bg-white font-ui text-[14px] outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all text-ink shadow-sm"
-                  >
-                    <option value="">All Wings</option>
-                    <option value="ARMY">Army</option>
-                    <option value="NAVY">Navy</option>
-                    <option value="AIR">Air Force</option>
-                  </select>
+                    onChange={(val) => setFormData({...formData, wing: val})}
+                    options={[
+                      { value: "", label: "All Wings" },
+                      { value: "ARMY", label: "Army" },
+                      { value: "NAVY", label: "Navy" },
+                      { value: "AIR", label: "Air Force" }
+                    ]}
+                  />
                 </div>
 
                 <div className="col-span-1">
                   <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-2">College Context</label>
-                  <select 
-                    name="collegeId"
+                  <CustomSelect 
                     value={formData.collegeId}
-                    onChange={(e) => setFormData({...formData, collegeId: e.target.value})}
-                    className="w-full h-[44px] px-4 rounded-xl border border-stone-deep bg-white font-ui text-[14px] outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all text-ink shadow-sm"
-                  >
-                    <option value="">Global (All Colleges)</option>
-                    {colleges.map(c => (
-                      <option key={c.id} value={c.id}>{c.name}</option>
-                    ))}
-                  </select>
+                    onChange={(val) => setFormData({...formData, collegeId: val})}
+                    searchable={true}
+                    options={[
+                      { value: "", label: "Global (All Colleges)" },
+                      ...colleges.map(c => ({ value: c.id, label: c.name }))
+                    ]}
+                  />
                 </div>
               </div>
 

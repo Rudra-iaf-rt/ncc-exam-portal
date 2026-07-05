@@ -23,8 +23,11 @@ import {
   UserPlus,
   Link2
 } from 'lucide-react';
+import CustomSelect from '../../components/CustomSelect';
+import { useConfirm } from '../../contexts/ConfirmContext';
 
 export default function CollegeManagement() {
+  const confirm = useConfirm();
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -135,7 +138,13 @@ export default function CollegeManagement() {
   };
 
   const handleDeactivate = async (college) => {
-    if (!window.confirm(`Are you sure you want to ${college.isActive ? 'deactivate' : 'reactivate'} ${college.name}?`)) {
+    const confirmed = await confirm({
+      title: college.isActive ? 'Deactivate College' : 'Reactivate College',
+      message: `Are you sure you want to ${college.isActive ? 'deactivate' : 'reactivate'} ${college.name}?`,
+      confirmText: college.isActive ? 'Deactivate' : 'Reactivate',
+      isDanger: college.isActive
+    });
+    if (!confirmed) {
       return;
     }
 
@@ -184,7 +193,7 @@ export default function CollegeManagement() {
             placeholder="Search by name, code, or city..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full py-3 pr-3 pl-10 rounded-xl border border-stone-3 bg-white font-ui text-[14px] outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all text-ink placeholder:text-ink-4"
+            className="w-full py-3 pr-3 pl-10 rounded-xl border border-stone-deep shadow-sm bg-white font-ui text-[14px] outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all text-ink placeholder:text-ink-4"
           />
         </div>
       </div>
@@ -418,23 +427,20 @@ export default function CollegeManagement() {
                       <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-2">Select Instructor Account</label>
                       <div className="relative">
                         <Users size={16} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-ink-4" />
-                        <select
-                          required
+                        <CustomSelect
                           value={formData.oicId}
-                          onChange={(e) => setFormData({...formData, oicId: e.target.value})}
-                          className="w-full h-[44px] pl-10 pr-10 rounded-xl border border-stone-deep bg-white font-ui text-[14px] outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all text-ink appearance-none shadow-sm"
-                        >
-                          <option value="">-- Choose available instructor --</option>
-                          {instructors
-                            .filter(inst => !inst.collegeCode || inst.collegeCode === currentCollege?.code)
-                            .map(inst => (
-                              <option key={inst.id} value={inst.id}>
-                                {inst.name} ({inst.email}) - {inst.college || 'No college'}
-                              </option>
-                            ))
-                          }
-                        </select>
-                        <ChevronDown size={16} className="absolute right-3.5 top-1/2 -translate-y-1/2 text-ink-4 pointer-events-none" />
+                          onChange={(val) => setFormData({...formData, oicId: val})}
+                          searchable={true}
+                          options={[
+                            { value: "", label: "-- Choose available instructor --" },
+                            ...instructors
+                              .filter(inst => !inst.collegeCode || inst.collegeCode === currentCollege?.code)
+                              .map(inst => ({
+                                value: inst.id,
+                                label: `${inst.name} (${inst.email}) - ${inst.college || 'No college'}`
+                              }))
+                          ]}
+                        />
                       </div>
                       <p className="mt-2 text-[11px] text-ink-4 italic">Only instructors without an assigned college are listed.</p>
                     </div>

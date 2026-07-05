@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { getCachedResource, getOrFetchResource } from '../../lib/resourceCache';
+import PageLoader from '../../components/PageLoader';
 
 const CadetMaterials = () => {
   const [materials, setMaterials] = useState([]);
@@ -78,11 +79,8 @@ const CadetMaterials = () => {
 
         <div className="min-h-[300px]">
           {loading ? (
-             <div className="flex h-[300px] flex-col items-center justify-center gap-4 text-ink-4">
-               <Loader2 className="mb-4 animate-spin" size={40} />
-               <span className="font-mono text-sm uppercase tracking-widest">Syncing Library...</span>
-             </div>
-          ) : materials.length > 0 ? (
+             <PageLoader text="Syncing Library..." className="min-h-[300px]" />
+           ) : materials.length > 0 ? (
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
               {materials.map(item => {
                 // Guard: url may be null/undefined from the API

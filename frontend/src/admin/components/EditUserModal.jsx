@@ -5,6 +5,7 @@ import { adminApi } from '../../api';
 import { invalidateCachedResource } from '../../lib/resourceCache';
 
 import { useCachedFetch } from '../../hooks/useCachedFetch';
+import CustomSelect from '../../components/CustomSelect';
 
 export default function EditUserModal({ isOpen, onClose, onRefresh, user }) {
   const [loading, setLoading] = useState(false);
@@ -138,22 +139,15 @@ export default function EditUserModal({ isOpen, onClose, onRefresh, user }) {
               <label htmlFor="edit-college" className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-2">Assigned College / Unit *</label>
               <div className="relative">
                 <Building2 size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-4 z-10" />
-                <select
-                  required
-                  id="edit-college"
+                <CustomSelect
                   value={formData.college}
-                  onChange={(e) => setFormData({ ...formData, college: e.target.value })}
-                  className="w-full h-[42px] pl-10 pr-3 border border-stone-deep rounded-xl font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all appearance-none shadow-sm"
-                  disabled={fetchingColleges}
-                >
-                  <option value="">{fetchingColleges ? 'Loading...' : 'Select College'}</option>
-                  {colleges.map(c => (
-                    <option key={c.id} value={c.code}>{c.name} ({c.code})</option>
-                  ))}
-                </select>
-                <div className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-ink-4">
-                  <Search size={14} />
-                </div>
+                  onChange={(val) => setFormData({ ...formData, college: val })}
+                  searchable={true}
+                  options={[
+                    { value: "", label: fetchingColleges ? 'Loading Colleges...' : 'Select College' },
+                    ...colleges.map(c => ({ value: c.code, label: `${c.name} (${c.code})` }))
+                  ]}
+                />
               </div>
             </div>
 
@@ -174,16 +168,15 @@ export default function EditUserModal({ isOpen, onClose, onRefresh, user }) {
 
             <div className="col-span-1">
               <label htmlFor="edit-role" className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-2">Access Level (Role)</label>
-              <select
-                id="edit-role"
-                className="w-full h-[42px] px-4 border border-stone-deep rounded-xl font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all shadow-sm"
+              <CustomSelect
                 value={formData.role}
-                onChange={(e) => setFormData({ ...formData, role: e.target.value })}
-              >
-                <option value="STUDENT">STUDENT (Cadet)</option>
-                <option value="INSTRUCTOR">INSTRUCTOR (Staff)</option>
-                <option value="ADMIN">ADMIN (Controller)</option>
-              </select>
+                onChange={(val) => setFormData({ ...formData, role: val })}
+                options={[
+                  { value: "STUDENT", label: "STUDENT (Cadet)" },
+                  { value: "INSTRUCTOR", label: "INSTRUCTOR (Staff)" },
+                  { value: "ADMIN", label: "ADMIN (Controller)" }
+                ]}
+              />
             </div>
 
             <div className="col-span-1">
@@ -205,33 +198,28 @@ export default function EditUserModal({ isOpen, onClose, onRefresh, user }) {
               <>
                 <div className="col-span-1">
                   <label htmlFor="edit-wing" className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-2">NCC Wing</label>
-                  <select
-                    id="edit-wing"
-                    className="w-full h-[42px] px-4 border border-stone-deep rounded-xl font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all shadow-sm"
+                  <CustomSelect
                     value={formData.wing}
-                    onChange={(e) => setFormData({ ...formData, wing: e.target.value })}
-                  >
-                    <option value="">Select Wing</option>
-                    <option value="ARMY">Army Wing</option>
-                    <option value="NAVY">Navy Wing</option>
-                    <option value="AIR">Air Wing</option>
-                  </select>
+                    onChange={(val) => setFormData({ ...formData, wing: val })}
+                    options={[
+                      { value: "", label: "Select Wing" },
+                      { value: "ARMY", label: "Army Wing" },
+                      { value: "NAVY", label: "Navy Wing" },
+                      { value: "AIR", label: "Air Wing" }
+                    ]}
+                  />
                 </div>
 
                 <div className="col-span-1">
                   <label htmlFor="edit-batch" className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-2">Batch / Year *</label>
-                  <select
-                    id="edit-batch"
-                    required
-                    className="w-full h-[42px] px-4 border border-stone-deep rounded-xl font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all shadow-sm"
+                  <CustomSelect
                     value={formData.batch}
-                    onChange={(e) => setFormData({ ...formData, batch: e.target.value })}
-                  >
-                    <option value="">{fetchingBatches ? 'Loading Batches...' : 'Select Batch'}</option>
-                    {batches.map(b => (
-                      <option key={b.id} value={b.name}>{b.name} {!b.isActive && '(Archived)'}</option>
-                    ))}
-                  </select>
+                    onChange={(val) => setFormData({ ...formData, batch: val })}
+                    options={[
+                      { value: "", label: fetchingBatches ? 'Loading Batches...' : 'Select Batch' },
+                      ...batches.map(b => ({ value: b.name, label: `${b.name} ${!b.isActive ? '(Archived)' : ''}` }))
+                    ]}
+                  />
                 </div>
               </>
             )}

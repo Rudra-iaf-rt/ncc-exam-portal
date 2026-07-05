@@ -13,6 +13,7 @@ import { useAuth } from '../hooks/useAuth';
 import { examApi } from '../../api';
 import { toast } from 'sonner';
 import { getCachedResource, getOrFetchResource } from '../../lib/resourceCache';
+import PageLoader from '../../components/PageLoader';
 
 const CountdownTimer = ({ expiresAt }) => {
   const [timeLeft, setTimeLeft] = useState(() =>
@@ -234,10 +235,7 @@ const CadetDashboard = () => {
 
         <div className="min-h-[300px]">
           {loadingExams ? (
-            <div className="flex h-[300px] flex-col items-center justify-center gap-4">
-              <div className="h-8 w-8 animate-spin rounded-full border-2 border-stone-deep border-t-navy"></div>
-              <p className="font-mono text-[10px] uppercase tracking-widest text-ink-4">Retrieving assignments...</p>
-            </div>
+            <PageLoader text="Retrieving assignments..." className="min-h-[300px]" />
           ) : filteredExams.length > 0 ? (
             <div className="grid grid-cols-1 gap-5 md:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
               {filteredExams.map((exam) => (

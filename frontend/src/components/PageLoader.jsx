@@ -1,9 +1,9 @@
 import React from 'react';
 import { Shield, Anchor, Plane } from 'lucide-react';
 
-export default function PageLoader({ text }) {
+export default function PageLoader({ text, className }) {
   return (
-    <div className="w-full h-full flex-1 min-h-[70vh] flex flex-col items-center justify-center animate-in fade-in duration-700">
+    <div className={`w-full h-full flex-1 flex flex-col items-center justify-center animate-in fade-in duration-700 ${className || 'min-h-[70vh]'}`}>
       <div className="relative w-16 h-16 flex items-center justify-center mb-2">
         <Shield 
           size={40} 

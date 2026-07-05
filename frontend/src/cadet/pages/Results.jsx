@@ -14,6 +14,7 @@ import { useNavigate } from 'react-router-dom';
 import { getCachedResource, getOrFetchResource } from '../../lib/resourceCache';
 import { useAuth } from '../hooks/useAuth';
 import { Pagination } from '../../admin/components/Shared';
+import PageLoader from '../../components/PageLoader';
 
 const CadetResults = () => {
   const { user } = useAuth();
@@ -141,13 +142,8 @@ const CadetResults = () => {
           </div>
         </div>
 
-        {/* Loading */}
         {loading ? (
-          <div className="flex h-[260px] sm:h-[300px] flex-col items-center justify-center gap-4 text-ink-4">
-            <div className="h-8 w-8 animate-spin rounded-full border-2 border-stone-deep border-t-navy"></div>
-            <span className="font-mono text-[10px] uppercase tracking-widest">Fetching Results...</span>
-          </div>
-
+          <PageLoader text="Fetching Results..." className="min-h-[260px] sm:min-h-[300px]" />
         ) : results.length > 0 ? (
           <>
             {/* ── Desktop table (md+) ── */}

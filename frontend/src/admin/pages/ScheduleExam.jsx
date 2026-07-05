@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { adminApi, examApi } from '../../api';
@@ -6,6 +6,7 @@ import { PageHeader } from '../components/Shared';
 import PageLoader from '../../components/PageLoader';
 import { invalidateCachedResource } from '../../lib/resourceCache';
 import { useCachedFetch } from '../../hooks/useCachedFetch';
+import CustomSelect from '../../components/CustomSelect';
 import { 
   ShieldCheck, 
   Search, 
@@ -24,81 +25,6 @@ import {
   Clock,
   Loader2
 } from 'lucide-react';
-
-const SearchableSelect = ({ label, options, value, onChange, placeholder }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [search, setSearch] = useState("");
-  const containerRef = useRef(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (containerRef.current && !containerRef.current.contains(event.target)) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  const filteredOptions = options.filter(opt => 
-    opt.toLowerCase().includes(search.toLowerCase())
-  );
-
-  return (
-    <div className="relative" ref={containerRef}>
-      <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">{label}</label>
-      <div 
-        className={`flex items-center justify-between w-full h-[38px] px-3 border rounded-md font-ui text-[14px] bg-white cursor-pointer transition-all ${isOpen ? 'border-navy ring-[3px] ring-navy-wash' : 'border-stone-deep hover:border-navy-soft/50'}`}
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        <span className={value ? 'text-ink font-medium' : 'text-ink-4 truncate'}>
-          {value || placeholder}
-        </span>
-        <ChevronDown size={14} className={`transition-transform duration-200 shrink-0 text-ink-4 ${isOpen ? 'rotate-180 text-navy' : ''}`} />
-      </div>
-
-      {isOpen && (
-        <div className="absolute z-[1100] top-[100%] left-0 w-full mt-2 bg-white border border-stone-deep rounded-md shadow-lg overflow-hidden">
-          <div className="p-2 border-b border-stone bg-stone-wash/50">
-            <div className="relative">
-              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-ink-4" size={13} />
-              <input 
-                autoFocus
-                type="text" 
-                className="w-full h-[32px] pl-8 pr-2 bg-white border border-stone-deep rounded text-[13px] outline-none focus:border-navy-soft transition-all"
-                placeholder="Search..."
-                value={search}
-                onChange={e => setSearch(e.target.value)}
-                onClick={e => e.stopPropagation()}
-              />
-            </div>
-          </div>
-          <div className="max-h-[200px] overflow-y-auto">
-            <div 
-              className="px-3 py-2 text-[13px] text-navy font-semibold hover:bg-navy-wash/30 cursor-pointer border-b border-stone transition-colors"
-              onClick={() => { onChange(""); setSearch(""); setIsOpen(false); }}
-            >
-              Clear Selection (All)
-            </div>
-            {filteredOptions.length === 0 ? (
-              <div className="px-3 py-4 text-center text-ink-4 text-[13px] italic">No results match your search</div>
-            ) : (
-              filteredOptions.map(opt => (
-                <div 
-                  key={opt}
-                  className={`px-3 py-2 text-[13px] hover:bg-navy hover:text-white cursor-pointer transition-colors ${value === opt ? 'bg-navy-wash/50 text-navy font-bold' : 'text-ink font-medium'}`}
-                  onClick={() => { onChange(opt); setSearch(""); setIsOpen(false); }}
-                >
-                  {opt}
-                </div>
-              ))
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
 
 const StepIndicator = ({ currentStep }) => {
   return (
@@ -141,7 +67,7 @@ export default function ScheduleExam() {
     },
     { staleTimeMs: 2 * 60 * 1000 }
   );
-  const exams = examsData?.exams || [];
+  const exams = useMemo(() => examsData?.exams || [], [examsData]);
 
   const fetchFilters = async () => {
     try {
@@ -162,6 +88,7 @@ export default function ScheduleExam() {
       handlePreview();
     }, 400); // 400ms debounce
     return () => clearTimeout(timeoutId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [form.wing, form.college, form.batch, form.query, currentStep]);
 
   useEffect(() => {
@@ -363,33 +290,41 @@ export default function ScheduleExam() {
                 <div className="space-y-5">
                   <div>
                     <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Wing / Service Unit</label>
-                    <select 
-                      className="w-full h-[38px] px-3 border border-stone-deep rounded-md font-ui text-[14px] bg-white outline-none focus:border-navy-soft transition-all"
+                    <CustomSelect 
                       value={form.wing}
-                      onChange={e => setForm({...form, wing: e.target.value})}
-                    >
-                      <option value="">All Service Wings</option>
-                      {filterOptions.wings.map(w => (
-                        <option key={w} value={w}>{w}</option>
-                      ))}
-                    </select>
+                      onChange={val => setForm({...form, wing: val})}
+                      options={[
+                        { value: "", label: "All Service Wings" },
+                        ...filterOptions.wings.map(w => ({ value: w, label: w }))
+                      ]}
+                    />
                   </div>
 
-                  <SearchableSelect 
-                    label="Cadet Batch"
-                    options={filterOptions.batches}
-                    value={form.batch}
-                    onChange={val => setForm({...form, batch: val})}
-                    placeholder="All Available Batches"
-                  />
+                  <div className="mt-4">
+                    <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Cadet Batch</label>
+                    <CustomSelect 
+                      searchable={true}
+                      value={form.batch}
+                      onChange={val => setForm({...form, batch: val})}
+                      options={[
+                        { value: "", label: "All Available Batches" },
+                        ...filterOptions.batches.map(b => ({ value: b, label: b }))
+                      ]}
+                    />
+                  </div>
 
-                  <SearchableSelect 
-                    label="Institutional Body"
-                    options={filterOptions.colleges}
-                    value={form.college}
-                    onChange={val => setForm({...form, college: val})}
-                    placeholder="All Registered Colleges"
-                  />
+                  <div className="mt-4">
+                    <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Institutional Body</label>
+                    <CustomSelect 
+                      searchable={true}
+                      value={form.college}
+                      onChange={val => setForm({...form, college: val})}
+                      options={[
+                        { value: "", label: "All Registered Colleges" },
+                        ...filterOptions.colleges.map(c => ({ value: c, label: c }))
+                      ]}
+                    />
+                  </div>
 
                   <div className="pt-4 border-t border-stone">
                     <div className="relative mb-3">

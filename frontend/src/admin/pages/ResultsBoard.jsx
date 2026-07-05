@@ -6,6 +6,7 @@ import { toast } from 'sonner';
 import { PageHeader, Pagination } from '../components/Shared';
 import { Download, Search, Edit3, XCircle, ShieldAlert, ChevronDown, Loader2 } from 'lucide-react';
 import { invalidateCachedResourcePattern } from '../../lib/resourceCache';
+import CustomSelect from '../../components/CustomSelect';
 
 // ─── MultiSelect Dropdown ────────────────────────────────────────────────────
 function MultiSelect({ options, selectedValues, onChange, placeholder }) {
@@ -363,29 +364,29 @@ export default function ResultsBoard() {
           {/* Sort */}
           <div>
             <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Sort</label>
-            <select
-              className="w-full h-[38px] px-3 border border-stone-deep rounded-md font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all"
+            <CustomSelect
               value={filters.sort}
-              onChange={(e) => setFilters(f => ({ ...f, sort: e.target.value }))}
-            >
-              <option value="default">Newest First</option>
-              <option value="score_desc">Score (High to Low)</option>
-            </select>
+              onChange={(val) => setFilters(f => ({ ...f, sort: val }))}
+              options={[
+                { value: "default", label: "Newest First" },
+                { value: "score_desc", label: "Score (High to Low)" }
+              ]}
+            />
           </div>
 
           {/* Status */}
           <div>
             <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Status</label>
-            <select
-              className="w-full h-[38px] px-3 border border-stone-deep rounded-md font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all"
+            <CustomSelect
               value={filters.status}
-              onChange={(e) => setFilters(f => ({ ...f, status: e.target.value }))}
-            >
-              <option value="all">All Statuses</option>
-              <option value="distinction">Distinction (≥ 70%)</option>
-              <option value="qualified">Qualified (40% – 69%)</option>
-              <option value="not_clear">Not Clear (&lt; 40%)</option>
-            </select>
+              onChange={(val) => setFilters(f => ({ ...f, status: val }))}
+              options={[
+                { value: "all", label: "All Statuses" },
+                { value: "distinction", label: "Distinction (≥ 70%)" },
+                { value: "qualified", label: "Qualified (40% – 69%)" },
+                { value: "not_clear", label: "Not Clear (< 40%)" }
+              ]}
+            />
           </div>
         </div>
 
@@ -566,25 +567,25 @@ export default function ResultsBoard() {
               </div>
               <div className="mb-5">
                 <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Sort By</label>
-                <select
-                  className="w-full h-[38px] px-3 border border-stone-deep rounded-md font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all"
+                <CustomSelect
                   value={exportSettings.sortBy}
-                  onChange={(e) => setExportSettings(s => ({ ...s, sortBy: e.target.value }))}
-                >
-                  <option value="Average">Average Score</option>
-                  <option value="Name">Student Name</option>
-                </select>
+                  onChange={(val) => setExportSettings(s => ({ ...s, sortBy: val }))}
+                  options={[
+                    { value: "Average", label: "Average Score" },
+                    { value: "Name", label: "Student Name" }
+                  ]}
+                />
               </div>
               <div className="mb-6">
                 <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Order</label>
-                <select
-                  className="w-full h-[38px] px-3 border border-stone-deep rounded-md font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all"
+                <CustomSelect
                   value={exportSettings.sortOrder}
-                  onChange={(e) => setExportSettings(s => ({ ...s, sortOrder: e.target.value }))}
-                >
-                  <option value="asc">Ascending (A–Z / Low to High)</option>
-                  <option value="desc">Descending (Z–A / High to Low)</option>
-                </select>
+                  onChange={(val) => setExportSettings(s => ({ ...s, sortOrder: val }))}
+                  options={[
+                    { value: "asc", label: "Ascending (A–Z / Low to High)" },
+                    { value: "desc", label: "Descending (Z–A / High to Low)" }
+                  ]}
+                />
               </div>
               <div className="flex gap-3">
                 <button type="button" className="flex-1 h-[36px] rounded-md font-ui text-[13px] font-medium flex items-center justify-center gap-2 bg-transparent text-ink-2 border border-stone-deep hover:bg-stone transition-all" onClick={() => setShowExportModal(false)}>

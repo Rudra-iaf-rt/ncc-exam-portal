@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { adminApi, examApi } from '../../api';
@@ -14,11 +14,13 @@ import {
   Eye
 } from 'lucide-react';
 import { useAuth } from '../../cadet/hooks/useAuth';
+import { useConfirm } from '../../contexts/ConfirmContext';
 
 export default function MonitorWall() {
+  const confirm = useConfirm();
   const { id } = useParams();
   const navigate = useNavigate();
-  const { user: currentUser } = useAuth();
+  const { user } = useAuth();
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -36,7 +38,7 @@ export default function MonitorWall() {
       });
   }, [id, navigate]);
 
-  const fetchLiveMonitorData = async (isBackground = false) => {
+  const fetchLiveMonitorData = useCallback(async (isBackground = false) => {
     if (!isBackground) setLoading(true);
     setRefreshing(true);
     try {
@@ -49,7 +51,7 @@ export default function MonitorWall() {
       setLoading(false);
       setRefreshing(false);
     }
-  };
+  }, [id]);
 
   useEffect(() => {
     if (!exam) return;
@@ -62,7 +64,7 @@ export default function MonitorWall() {
     }, 10000);
     
     return () => clearInterval(interval);
-  }, [exam]);
+  }, [exam, fetchLiveMonitorData]);
 
   const handleExtendTime = async (studentId, minutes) => {
     try {
@@ -78,7 +80,13 @@ export default function MonitorWall() {
   };
 
   const handleTerminate = async (studentId, reason) => {
-    if (!window.confirm("Are you sure you want to terminate this cadet's exam? This action cannot be undone.")) return;
+    const confirmed = await confirm({
+      title: 'Terminate Session',
+      message: "Are you sure you want to terminate this cadet's exam? This action cannot be undone.",
+      confirmText: 'Terminate',
+      isDanger: true
+    });
+    if (!confirmed) return;
     try {
       await examApi.terminateSession({ examId: Number(id), studentId, reason });
       toast.success("Exam session terminated");
@@ -89,7 +97,13 @@ export default function MonitorWall() {
   };
 
   const handleResetAttempt = async (studentId) => {
-    if (!window.confirm("Are you sure you want to completely reset this cadet's attempt? This will delete all their answers and allow them to start over.")) return;
+    const confirmed = await confirm({
+      title: 'Reset Attempt',
+      message: "Are you sure you want to completely reset this cadet's attempt? This will delete all their answers and allow them to start over.",
+      confirmText: 'Reset',
+      isDanger: true
+    });
+    if (!confirmed) return;
     try {
       await examApi.resetAttempt({ examId: Number(id), studentId });
       toast.success("Exam attempt reset successfully");

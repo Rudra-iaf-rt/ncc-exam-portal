@@ -18,7 +18,10 @@ import {
   Clock
 } from 'lucide-react';
 
+import { useConfirm } from '../../contexts/ConfirmContext';
+
 export default function Assignments() {
+  const confirm = useConfirm();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
 
@@ -40,7 +43,13 @@ export default function Assignments() {
   const exams = data?.exams || [];
 
   const handleDelete = async (id) => {
-    if (!window.confirm("Revoke this examination authorization? The cadet will no longer be able to attempt this exam.")) return;
+    const confirmed = await confirm({
+      title: 'Revoke Authorization',
+      message: 'Revoke this examination authorization? The cadet will no longer be able to attempt this exam.',
+      confirmText: 'Revoke',
+      isDanger: true
+    });
+    if (!confirmed) return;
     try {
       await adminApi.deleteAssignment(id);
       invalidateCachedResource('admin-assignments');
