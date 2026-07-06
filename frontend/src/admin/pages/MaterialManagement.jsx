@@ -522,8 +522,8 @@ export default function MaterialManagement() {
       {/* Upload Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-[#0E1929]/40 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full max-w-[600px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] animate-in zoom-in-95 duration-200">
-            <div className="bg-stone border-b border-stone-mid px-6 py-5 flex justify-between items-center">
+          <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full max-w-[600px] max-h-[90vh] flex flex-col overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] animate-in zoom-in-95 duration-200">
+            <div className="shrink-0 bg-stone border-b border-stone-mid px-6 py-5 flex justify-between items-center">
               <div className="flex items-center gap-3">
                 <div className="bg-navy text-white p-2 rounded-lg shadow-sm">
                   <CloudUpload size={20} />
@@ -540,14 +540,16 @@ export default function MaterialManagement() {
               <button
                 onClick={() => setIsModalOpen(false)}
                 disabled={isSubmitting}
+                type="button"
                 className="text-ink-4 hover:bg-stone-mid hover:text-ink p-1.5 rounded-full transition-colors disabled:opacity-40"
               >
                 <XCircle size={20} />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-4 sm:p-8 max-h-[85vh] overflow-y-auto custom-scrollbar">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+              <div className="flex-1 overflow-y-auto p-4 sm:p-8 custom-scrollbar">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
 
                 {/* File drop zone — full width */}
                 <div className="col-span-1 sm:col-span-2">
@@ -641,7 +643,7 @@ export default function MaterialManagement() {
                 </div>
               </div>
 
-              <div className="flex gap-4 mt-10">
+              <div className="shrink-0 p-4 sm:px-8 sm:py-6 bg-stone border-t border-stone-deep flex gap-4 mt-auto">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
@@ -668,6 +670,7 @@ export default function MaterialManagement() {
                   )}
                 </button>
               </div>
+              </div>
             </form>
           </div>
         </div>
@@ -676,8 +679,8 @@ export default function MaterialManagement() {
       {/* Edit Modal */}
       {isEditModalOpen && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-[#0E1929]/40 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full max-w-[600px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] animate-in zoom-in-95 duration-200">
-            <div className="bg-stone border-b border-stone-mid px-6 py-5 flex justify-between items-center">
+          <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full max-w-[600px] max-h-[90vh] flex flex-col overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] animate-in zoom-in-95 duration-200">
+            <div className="shrink-0 bg-stone border-b border-stone-mid px-6 py-5 flex justify-between items-center">
               <div className="flex items-center gap-3">
                 <div className="bg-navy text-white p-2 rounded-lg shadow-sm">
                   <Edit size={20} />
@@ -694,14 +697,16 @@ export default function MaterialManagement() {
               <button
                 onClick={() => setIsEditModalOpen(false)}
                 disabled={isSubmitting}
+                type="button"
                 className="text-ink-4 hover:bg-stone-mid hover:text-ink p-1.5 rounded-full transition-colors disabled:opacity-40"
               >
                 <XCircle size={20} />
               </button>
             </div>
 
-            <form onSubmit={handleEditSubmit} className="p-4 sm:p-8 max-h-[85vh] overflow-y-auto custom-scrollbar">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <form onSubmit={handleEditSubmit} className="flex flex-col flex-1 overflow-hidden">
+              <div className="flex-1 overflow-y-auto p-4 sm:p-8 custom-scrollbar">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
 
                 {/* Title */}
                 <div className="col-span-1 sm:col-span-2">
@@ -802,12 +807,12 @@ export default function MaterialManagement() {
                 </div>
               </div>
 
-              <div className="flex gap-4 mt-10">
+              <div className="shrink-0 p-4 sm:px-8 sm:py-6 bg-stone border-t border-stone-deep flex gap-4 mt-auto">
                 <button
                   type="button"
                   onClick={() => setIsEditModalOpen(false)}
                   disabled={isSubmitting}
-                  className="flex-1 h-[50px] rounded-xl font-ui text-[15px] font-medium border border-stone-deep text-ink-2 hover:bg-stone transition-all disabled:opacity-40"
+                  className="flex-1 h-[50px] rounded-xl font-ui text-[15px] font-medium border border-stone-deep text-ink-2 hover:bg-stone-mid transition-all disabled:opacity-40"
                 >
                   Cancel
                 </button>
@@ -828,6 +833,7 @@ export default function MaterialManagement() {
                     </>
                   )}
                 </button>
+              </div>
               </div>
             </form>
           </div>

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { adminApi } from '../../api';
+import { adminApi, leaderboardApi } from '../../api';
 import { useAdminAuth } from '../../contexts/AdminAuth';
 import { PageHeader, StatCard } from '../components/Shared';
 import { 
@@ -23,9 +23,21 @@ export default function Dashboard() {
     cacheKey,
     async () => {
       const response = await adminApi.getStats();
-      return response?.data || {
-        totalStudents: 0, activeExams: 0, totalExams: 0,
-        averageScore: '0%', recentActivity: [],
+      let leaderboard = [];
+      try {
+        if (user?.collegeCode) {
+          const lbRes = await leaderboardApi.getUnitLeaderboard(user.collegeCode);
+          leaderboard = lbRes?.data || [];
+        }
+      } catch (e) {
+        console.error("Failed to fetch leaderboard", e);
+      }
+      return {
+        ...(response?.data || {
+          totalStudents: 0, activeExams: 0, totalExams: 0,
+          averageScore: '0%', recentActivity: [],
+        }),
+        leaderboard
       };
     },
     { staleTimeMs: 2 * 60 * 1000, enabled: !!user }
@@ -33,7 +45,7 @@ export default function Dashboard() {
 
   const stats = data || {
     totalStudents: 0, activeExams: 0, totalExams: 0,
-    averageScore: '0%', recentActivity: [],
+    averageScore: '0%', recentActivity: [], leaderboard: []
   };
 
   const isInitialLoading = loading && stats.totalExams === 0 && stats.totalStudents === 0;
@@ -153,6 +165,56 @@ export default function Dashboard() {
                     <Link to="/admin/results" className="h-[40px] rounded-lg font-ui text-[13px] font-bold flex items-center justify-center gap-2 transition-all bg-gold text-navy border-none hover:bg-gold-2">
                       Review Performance
                     </Link>
+                  )}
+                </div>
+              </div>
+
+              {/* Leaderboard Widget */}
+              <div className="bg-white border border-stone-deep rounded-md p-6 shadow-sm">
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-8 h-8 rounded bg-gold/10 flex items-center justify-center text-gold-3">
+                    <Trophy size={16} strokeWidth={2} />
+                  </div>
+                  <h4 className="m-0 font-ui text-[14px] font-bold text-navy">Top Performers</h4>
+                </div>
+                
+                <div className="flex flex-col gap-2">
+                  {stats.leaderboard && stats.leaderboard.length > 0 ? (
+                    stats.leaderboard.slice(0, 5).map((cadet, i) => (
+                      <div key={cadet.studentId} className="flex items-center justify-between p-2 rounded-md hover:bg-stone-wash transition-colors">
+                        <div className="flex items-center gap-3">
+                          <span className={`font-mono text-[11px] font-bold w-5 text-center ${i === 0 ? 'text-gold-3' : i === 1 ? 'text-stone-400' : i === 2 ? 'text-amber-700' : 'text-ink-4'}`}>
+                            #{cadet.rank}
+                          </span>
+                          <div className="flex flex-col ml-3">
+                            <span className="font-ui text-[13px] font-semibold text-ink leading-none">{cadet.name}</span>
+                            <div className="flex items-center gap-2 mt-1">
+                              <span className="font-mono text-[10px] text-ink-3">{cadet.regimentalNumber}</span>
+                              {cadet.collegeCode && (
+                                <>
+                                  <span className="text-stone-deep">|</span>
+                                  <span className="font-mono text-[9px] uppercase tracking-wider text-navy-soft">{cadet.collegeCode}</span>
+                                </>
+                              )}
+                              {cadet.wing && (
+                                <>
+                                  <span className="text-stone-deep">|</span>
+                                  <span className="font-mono text-[9px] uppercase tracking-wider text-olive-mid">{cadet.wing}</span>
+                                </>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="flex flex-col items-end">
+                          <span className="font-mono text-[12px] font-bold text-navy">{cadet.averageScore}%</span>
+                          <span className="font-mono text-[9px] text-ink-4 mt-0.5">{cadet.examsTaken} exams</span>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-center py-6 text-ink-4 text-[12px] font-ui bg-stone-wash rounded-md border border-stone-mid border-dashed">
+                      Not enough data.<br />Cadets need to complete 2+ exams.
+                    </div>
                   )}
                 </div>
               </div>

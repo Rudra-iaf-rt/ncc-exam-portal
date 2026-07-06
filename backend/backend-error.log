@@ -13757,3 +13757,16 @@ The column `Exam.startAt` does not exist in the current database.
     at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:45065)
     at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:46285)
     at async e.run (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:43335)
+[2026-07-06T05:44:08.083Z] TypeError: Cannot read properties of undefined (reading 'findMany')
+    at Object.getUnitLeaderboard (C:\College Projects\ncc-exam-portal\backend\src\services\leaderboard.service.js:24:38)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\College Projects\ncc-exam-portal\backend\src\routes\leaderboard.routes.js:11:25
+[2026-07-06T06:19:11.423Z] TypeError: Cannot read properties of undefined (reading 'findMany')
+    at Object.getUnitLeaderboard (C:\College Projects\ncc-exam-portal\backend\src\services\leaderboard.service.js:34:38)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\College Projects\ncc-exam-portal\backend\src\routes\leaderboard.routes.js:11:25
+[2026-07-06T06:32:01.584Z] TypeError: Cannot read properties of undefined (reading 'findMany')
+    at getUnitLeaderboard (C:\College Projects\ncc-exam-portal\backend\src\services\leaderboard.service.js:34:38)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Object.getStudentUnitRank (C:\College Projects\ncc-exam-portal\backend\src\services\leaderboard.service.js:102:23)
+    at async C:\College Projects\ncc-exam-portal\backend\src\routes\leaderboard.routes.js:29:22

@@ -9,6 +9,7 @@ const materialsRoutes = require("./routes/materials.routes");
 const usersRoutes = require("./routes/users.routes");
 const adminRoutes = require('./routes/admin');
 const collegesRoutes = require('./routes/colleges.routes');
+const leaderboardRoutes = require('./routes/leaderboard.routes');
 
 const notificationsRoutes = require("./routes/notifications.routes");
 const antiCheatRoutes = require("./routes/anti-cheat.routes");
@@ -58,6 +59,7 @@ app.use("/api", materialsRoutes);
 app.use("/api", examRoutes);
 app.use("/api", resultsRoutes);
 app.use("/api", usersRoutes);
+app.use("/api/leaderboard", leaderboardRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api', collegesRoutes);
 

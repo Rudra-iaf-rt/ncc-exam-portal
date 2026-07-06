@@ -37,11 +37,11 @@ export default function ExamCreate() {
 
   // Step 2: Questions (for manual mode)
   const [questions, setQuestions] = useState([
-    { question: '', options: ['', '', '', ''], answer: '', type: 'MCQ', topic: '', marks: 4 }
+    { question: '', options: ['', '', '', ''], answer: '', type: 'MCQ', marks: 4 }
   ]);
 
   const addQuestion = () => {
-    setQuestions([...questions, { question: '', options: ['', '', '', ''], answer: '', type: 'MCQ', topic: '', marks: 4 }]);
+    setQuestions([...questions, { question: '', options: ['', '', '', ''], answer: '', type: 'MCQ', marks: 4 }]);
   };
 
   const removeQuestion = (index) => {
@@ -403,7 +403,7 @@ export default function ExamCreate() {
                     )}
                   </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-5 mb-5">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5">
                     <div>
                       <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Type</label>
                       <CustomSelect
@@ -424,16 +424,6 @@ export default function ExamCreate() {
                       />
                     </div>
                     <div>
-                      <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Topic</label>
-                      <input
-                        type="text"
-                        placeholder="e.g. History"
-                        className="w-full h-[38px] px-3 border border-stone-deep rounded-md font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all"
-                        value={q.topic || ''}
-                        onChange={(e) => updateQuestion(qIndex, 'topic', e.target.value)}
-                      />
-                    </div>
-                    <div>
                       <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Marks</label>
                       <input
                         type="number"
@@ -444,7 +434,6 @@ export default function ExamCreate() {
                       />
                     </div>
                   </div>
-
                   <div className="mb-5">
                     <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Question Content</label>
                     <textarea 

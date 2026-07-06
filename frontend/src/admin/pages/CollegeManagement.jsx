@@ -303,8 +303,8 @@ export default function CollegeManagement() {
       {/* College Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-[#0E1929]/40 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full max-w-[650px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] animate-in zoom-in-95 duration-200">
-            <div className="bg-stone border-b border-stone-mid px-6 py-5 flex justify-between items-center">
+          <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full max-w-[650px] max-h-[90vh] flex flex-col overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] animate-in zoom-in-95 duration-200">
+            <div className="shrink-0 bg-stone border-b border-stone-mid px-6 py-5 flex justify-between items-center">
               <div className="flex items-center gap-3">
                 <div className="bg-navy text-white p-2 rounded-lg shadow-sm">
                   <Building2 size={20} />
@@ -316,13 +316,14 @@ export default function CollegeManagement() {
                   <p className="m-0 text-[12px] text-ink-4 font-ui mt-0.5">Configure institutional identity and contact details.</p>
                 </div>
               </div>
-              <button onClick={() => setIsModalOpen(false)} className="text-ink-4 hover:bg-stone-mid hover:text-ink p-1.5 rounded-full transition-colors">
+              <button type="button" onClick={() => setIsModalOpen(false)} className="text-ink-4 hover:bg-stone-mid hover:text-ink p-1.5 rounded-full transition-colors">
                 <XCircle size={20} />
               </button>
             </div>
 
-            <form onSubmit={handleSubmit} className="p-4 sm:p-8 max-h-[85vh] overflow-y-auto custom-scrollbar">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+              <div className="flex-1 overflow-y-auto p-4 sm:p-8 custom-scrollbar">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="col-span-1 sm:col-span-2">
                   <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-2">College Full Name *</label>
                   <div className="relative">
@@ -492,11 +493,11 @@ export default function CollegeManagement() {
                 </div>
               </div>
 
-              <div className="flex gap-4 mt-10">
+              <div className="shrink-0 p-4 sm:px-8 sm:py-6 bg-stone border-t border-stone-deep flex gap-4 mt-auto">
                 <button 
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="flex-1 h-[50px] rounded-xl font-ui text-[15px] font-medium border border-stone-deep text-ink-2 hover:bg-stone transition-all"
+                  className="flex-1 h-[50px] rounded-xl font-ui text-[15px] font-medium border border-stone-deep text-ink-2 hover:bg-stone-mid transition-all"
                 >
                   Cancel
                 </button>
@@ -509,6 +510,7 @@ export default function CollegeManagement() {
                     ? (isEditing ? 'Updating...' : 'Registering...') 
                     : (isEditing ? 'Update Records' : 'Register College')}
                 </button>
+              </div>
               </div>
             </form>
           </div>

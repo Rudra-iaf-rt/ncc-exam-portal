@@ -59,7 +59,6 @@ export default function ExamEdit() {
           options: q.options || ['', '', '', ''],
           answer: q.answer || '',
           type: q.type || 'MCQ',
-          topic: q.topic || '',
           marks: q.marks ?? 4
         })));
       }
@@ -73,7 +72,7 @@ export default function ExamEdit() {
   };
 
   const addQuestion = () => {
-    setQuestions([...questions, { question: '', options: ['', '', '', ''], answer: '', type: 'MCQ', topic: '', marks: 4 }]);
+    setQuestions([...questions, { question: '', options: ['', '', '', ''], answer: '', type: 'MCQ', marks: 4 }]);
   };
 
   const removeQuestion = (index) => {
@@ -337,16 +336,6 @@ export default function ExamEdit() {
                       { value: "FILL_IN_THE_BLANK", label: "Fill in the Blank" },
                       { value: "SUBJECTIVE", label: "Subjective / Essay" }
                     ]}
-                  />
-                </div>
-                <div>
-                  <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Topic</label>
-                  <input
-                    type="text"
-                    placeholder="e.g. History"
-                    className="w-full h-[38px] px-3 border border-stone-deep rounded-md font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all"
-                    value={q.topic || ''}
-                    onChange={(e) => updateQuestion(qIndex, 'topic', e.target.value)}
                   />
                 </div>
                 <div>

@@ -1018,6 +1018,7 @@ async function publishResults(userId, examIdRaw) {
     await cacheDelPattern(`results:admin:*`);
     await cacheDelPattern(`results:student:*`);
     await cacheDelPattern(`results:instructor:*`);
+    await cacheDelPattern(`leaderboard:unit:*`);
     await cacheDelPattern(`exams:details:${examId}`);
     await cacheDel([`exam:review_data:${examId}`]);
     // Wildcard exams catalog caches (since resultsPublished state changed)

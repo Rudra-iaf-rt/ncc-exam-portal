@@ -7,10 +7,11 @@ import {
   Search, 
   ChevronRight,
   ShieldCheck,
-  User as UserIcon
+  User as UserIcon,
+  Trophy
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
-import { examApi } from '../../api';
+import { examApi, leaderboardApi } from '../../api';
 import { toast } from 'sonner';
 import { getCachedResource, getOrFetchResource } from '../../lib/resourceCache';
 import PageLoader from '../../components/PageLoader';
@@ -43,6 +44,7 @@ const CadetDashboard = () => {
   const [loadingExams, setLoadingExams] = useState(true);
   const [loadingResults, setLoadingResults] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [rankData, setRankData] = useState(null);
 
   // Auto-recovery for any stuck/un-synced local answers
   useEffect(() => {
@@ -66,6 +68,7 @@ const CadetDashboard = () => {
               try {
                 storedData = JSON.parse(storedStr);
               } catch (e) {
+                console.log(e)
                 // Invalid JSON, safe to remove
                 localStorage.removeItem(key);
                 continue;
@@ -107,6 +110,7 @@ const CadetDashboard = () => {
     if (cachedData) {
       setExams(cachedData.exams || []);
       setResults(cachedData.results || []);
+      setRankData(cachedData.rankData || null);
       setLoadingExams(false);
       setLoadingResults(false);
     } else {
@@ -126,9 +130,15 @@ const CadetDashboard = () => {
             const resultsRes = await examApi
               .getResults()
               .catch(() => ({ data: { results: [] } }));
+            
+            const rankRes = await leaderboardApi
+              .getMyRank()
+              .catch(() => ({ data: null }));
+
             return {
               exams: assignedExams || [],
               results: resultsRes?.data?.results || [],
+              rankData: rankRes?.data || null,
             };
           },
           { staleTimeMs: 2 * 60 * 1000 }
@@ -137,6 +147,7 @@ const CadetDashboard = () => {
         if (cancelled) return;
         setExams(data.exams || []);
         setResults(data.results || []);
+        setRankData(data.rankData || null);
         setLoadingExams(false);
         setLoadingResults(false);
       } catch (err) {

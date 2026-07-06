@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { examApi } from '../../api';
+import { examApi, leaderboardApi } from '../../api';
 import { 
   Award, 
   Calendar, 
@@ -22,6 +22,7 @@ const CadetResults = () => {
   const [page, setPage] = useState(1);
   const [pagination, setPagination] = useState({ totalPages: 1 });
   const [loading, setLoading] = useState(true);
+  const [rankData, setRankData] = useState(null);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -35,6 +36,7 @@ const CadetResults = () => {
     if (cached) {
       setResults(cached.results || []);
       setPagination(cached.pagination || { totalPages: 1 });
+      setRankData(cached.rankData || null);
       setLoading(false);
     } else {
       setLoading(true);
@@ -46,9 +48,16 @@ const CadetResults = () => {
           cacheKey,
           async () => {
             const response = await examApi.getResults({ page, limit: 20 });
+            
+            let rankRes = null;
+            if (page === 1) { // Only fetch rank on first page to save bandwidth
+              rankRes = await leaderboardApi.getMyRank().catch(() => ({ data: null }));
+            }
+            
             return { 
               results: response?.data?.results || [],
-              pagination: response?.data?.pagination || { totalPages: 1 }
+              pagination: response?.data?.pagination || { totalPages: 1 },
+              rankData: rankRes?.data || null
             };
           },
           { staleTimeMs: 2 * 60 * 1000 }
@@ -56,6 +65,7 @@ const CadetResults = () => {
         if (!cancelled) {
           setResults(data.results || []);
           setPagination(data.pagination || { totalPages: 1 });
+          if (data.rankData) setRankData(data.rankData);
         }
       } catch (error) {
         if (!cancelled && error.status !== 401) {
@@ -127,7 +137,15 @@ const CadetResults = () => {
           <div className="text-center sm:text-left">
             <span className="block font-mono text-[8px] sm:text-[9px] font-bold tracking-widest text-ink-4 uppercase mb-0.5 sm:mb-1">Rank</span>
             <span className="font-display text-base sm:text-2xl font-medium text-ink leading-tight block">
-              {results.filter(r => r.score !== null).length > 0 ? getPerformanceTag(results.filter(r => r.score !== null)[0]?.score || 0).label : 'Unranked'}
+              {rankData ? (
+                rankData.isRanked ? (
+                  `#${rankData.rank} / ${rankData.totalRankedCadets}`
+                ) : (
+                  `Take ${rankData.examsNeeded} more`
+                )
+              ) : (
+                '--'
+              )}
             </span>
           </div>
         </div>

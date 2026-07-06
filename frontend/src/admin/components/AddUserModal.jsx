@@ -97,8 +97,8 @@ export default function AddUserModal({ isOpen, onClose, onRefresh, initialRole =
 
   return (
     <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-[#0E1929]/40 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full max-w-[700px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] animate-in zoom-in-95 duration-200">
-        <div className="bg-stone border-b border-stone-mid px-6 py-5 flex justify-between items-center">
+      <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full max-w-[700px] max-h-[90vh] flex flex-col overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] animate-in zoom-in-95 duration-200">
+        <div className="shrink-0 bg-stone border-b border-stone-mid px-6 py-5 flex justify-between items-center">
           <div className="flex items-center gap-3">
             <div className="bg-navy text-white p-2 rounded-lg">
               {isStudent ? <UserIcon size={20} /> : <ShieldCheck size={20} />}
@@ -112,13 +112,14 @@ export default function AddUserModal({ isOpen, onClose, onRefresh, initialRole =
               </p>
             </div>
           </div>
-          <button onClick={onClose} className="text-ink-4 hover:bg-stone-mid hover:text-ink p-1.5 rounded-full transition-colors">
+          <button onClick={onClose} type="button" className="text-ink-4 hover:bg-stone-mid hover:text-ink p-1.5 rounded-full transition-colors">
             <X size={20} />
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-4 sm:p-8">
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+        <form onSubmit={handleSubmit} className="flex flex-col flex-1 overflow-hidden">
+          <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="col-span-1">
               <label htmlFor="add-name" className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-2">Full Name *</label>
               <div className="relative">
@@ -228,30 +229,31 @@ export default function AddUserModal({ isOpen, onClose, onRefresh, initialRole =
             )}
           </div>
 
-          <div className="mt-8 flex items-start gap-3 bg-stone p-4 rounded-xl border border-stone-deep">
-            <Info size={16} className="text-navy/60 mt-0.5 shrink-0" />
-            <p className="m-0 font-ui text-[13px] text-ink-3 leading-relaxed">
-              {!isStudent
-                ? <>Default instructor password is <code className="bg-white px-1.5 py-0.5 rounded border border-stone-deep text-navy font-bold">staff@ncc123</code>. Staff sign in via email.</>
-                : <>Default cadet password is <code className="bg-white px-1.5 py-0.5 rounded border border-stone-deep text-navy font-bold">cadet123</code>. Cadets sign in via Regimental No or Email.</>
-              }
-            </p>
+            <div className="mt-8 flex items-start gap-3 bg-stone p-4 rounded-xl border border-stone-deep">
+              <Info size={16} className="text-navy/60 mt-0.5 shrink-0" />
+              <p className="m-0 font-ui text-[13px] text-ink-3 leading-relaxed">
+                {!isStudent
+                  ? <>Default instructor password is <code className="bg-white px-1.5 py-0.5 rounded border border-stone-deep text-navy font-bold">staff@ncc123</code>. Staff sign in via email.</>
+                  : <>Default cadet password is <code className="bg-white px-1.5 py-0.5 rounded border border-stone-deep text-navy font-bold">cadet123</code>. Cadets sign in via Regimental No or Email.</>
+                }
+              </p>
+            </div>
           </div>
 
-          <div className="mt-8 flex gap-4">
+          <div className="shrink-0 p-4 sm:px-6 sm:py-4 bg-stone-wash/50 border-t border-stone-deep flex justify-end gap-3 mt-auto">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 h-[48px] rounded-xl font-ui text-[15px] font-medium border border-stone-deep text-ink-2 hover:bg-stone transition-all"
+              className="px-5 py-2.5 rounded-xl font-ui text-[14px] font-medium text-ink-3 hover:text-ink hover:bg-stone transition-all"
             >
               Cancel
             </button>
             <button
               type="submit"
-              className="flex-[2] h-[48px] rounded-xl font-ui text-[15px] font-bold bg-navy text-[#F4F0E4] hover:bg-navy-mid transition-all shadow-lg shadow-navy/20 disabled:opacity-50"
               disabled={loading}
+              className="px-6 py-2.5 rounded-xl font-ui text-[14px] font-medium bg-navy text-white hover:bg-navy-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-[0_2px_10px_rgba(26,39,68,0.15)] flex items-center gap-2"
             >
-              {loading ? 'Processing...' : isStudent ? 'Enroll Cadet' : 'Provision Instructor'}
+              {loading ? <span className="opacity-70">Creating...</span> : 'Create Record'}
             </button>
           </div>
         </form>

@@ -374,8 +374,8 @@ export default function ExamList() {
       {/* ── Confirmation Modal ───────────────────────────────────────────── */}
       {confirmAction && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-[#0E1929]/40 backdrop-blur-sm">
-          <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full max-w-[400px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] animate-in fade-in zoom-in-95 duration-200">
-            <div className="bg-stone border-b border-stone-mid px-6 py-5 flex justify-between items-center">
+          <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full max-w-[400px] max-h-[90vh] flex flex-col overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] animate-in fade-in zoom-in-95 duration-200">
+            <div className="bg-stone border-b border-stone-mid px-6 py-5 flex justify-between items-center shrink-0">
               <div className="flex items-center gap-2.5">
                 <AlertTriangle size={20} className={confirmAction.type === 'delete' ? "text-crimson" : "text-navy"} />
                 <h2 className="m-0 font-ui text-[18px] font-semibold text-navy">
@@ -389,7 +389,7 @@ export default function ExamList() {
                 <XCircle size={20} />
               </button>
             </div>
-            <div className="p-6">
+            <div className="p-6 overflow-y-auto">
               <p className="font-ui text-[14px] text-ink-2 mb-6">
                 {confirmAction.type === 'delete' 
                   ? "Are you sure you want to delete this exam? This will also purge all related student attempts and results. This action cannot be undone."

@@ -76,8 +76,8 @@ export default function BatchManagementModal({ isOpen, onClose }) {
 
   return (
     <div className="fixed inset-0 z-[1100] flex items-center justify-center p-4 bg-[#0E1929]/40 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full max-w-[500px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] animate-in zoom-in-95 duration-200">
-        <div className="bg-stone border-b border-stone-mid px-6 py-4 flex justify-between items-center">
+      <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full max-w-[500px] max-h-[90vh] flex flex-col overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] animate-in zoom-in-95 duration-200">
+        <div className="shrink-0 bg-stone border-b border-stone-mid px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-3">
             <div className="bg-navy text-white p-1.5 rounded-lg">
               <Calendar size={18} />
@@ -89,7 +89,7 @@ export default function BatchManagementModal({ isOpen, onClose }) {
           </button>
         </div>
 
-        <div className="p-6">
+        <div className="flex-1 overflow-y-auto p-6">
           <form onSubmit={handleAddBatch} className="mb-6">
             <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-2">Create New Batch</label>
             <div className="flex gap-2">

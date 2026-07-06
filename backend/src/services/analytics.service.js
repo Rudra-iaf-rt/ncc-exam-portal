@@ -2,9 +2,6 @@ const { prisma } = require("../lib/prisma");
 const { parsePositiveInt } = require("../utils/validation");
 const { HttpError } = require("../utils/http-error");
 
-/**
- * Get comprehensive analytics for a specific exam.
- */
 async function getExamAnalytics(examIdRaw) {
   const examId = parsePositiveInt(examIdRaw, "examId");
 
@@ -13,8 +10,11 @@ async function getExamAnalytics(examIdRaw) {
     include: {
       questions: true,
       attempts: {
-        where: { status: "COMPLETED" },
+        where: { status: { in: ["SUBMITTED", "TIMED_OUT", "TERMINATED"] } },
         include: { student: { select: { id: true, name: true, regimentalNumber: true } } }
+      },
+      results: {
+        include: { student: { select: { name: true, regimentalNumber: true } } }
       }
     }
   });
@@ -34,14 +34,15 @@ async function getExamAnalytics(examIdRaw) {
   }
 
   // Calculate Overview
-  const scores = exam.attempts.map(a => a.score || 0).sort((a, b) => a - b);
-  const averageScore = scores.reduce((sum, s) => sum + s, 0) / totalAttempts;
+  const scores = exam.results.map(r => r.score).sort((a, b) => a - b);
+  const totalResults = scores.length || 1; // avoid division by zero
+  const averageScore = scores.reduce((sum, s) => sum + s, 0) / totalResults;
   
   // Create Score Distribution Histogram (ranges of 10%)
   const distribution = new Array(10).fill(0);
   
   scores.forEach(s => {
-    let percentage = (s / (maxPossible || 1)) * 100;
+    let percentage = s; // Result.score is already a percentage
     if (percentage < 0) percentage = 0;
     if (percentage > 100) percentage = 100;
     let bucket = Math.floor(percentage / 10);
@@ -62,6 +63,8 @@ async function getExamAnalytics(examIdRaw) {
       id: q.id,
       text: q.question || "",
       topic: q.topic || "General",
+      options: q.options || [],
+      answer: q.answer || "",
       correctCount: 0,
       attempts: 0
     };
@@ -92,7 +95,12 @@ async function getExamAnalytics(examIdRaw) {
     qdiList.push({
       questionId: stat.id,
       qdi: parseFloat(qdi.toFixed(2)),
-      topic: stat.topic
+      topic: stat.topic,
+      text: stat.text,
+      options: stat.options,
+      answer: stat.answer,
+      attempts: stat.attempts,
+      correctCount: stat.correctCount
     });
 
     if (!topicMap[stat.topic]) {
@@ -108,14 +116,26 @@ async function getExamAnalytics(examIdRaw) {
     performancePercentage: parseFloat(((topicMap[topic].totalQDI / topicMap[topic].count) * 100).toFixed(1))
   }));
 
+  // Top 5% Cadets Leaderboard
+  const top5PercentCount = Math.max(5, Math.ceil(exam.results.length * 0.05));
+  const topPerformers = exam.results
+    .sort((a, b) => b.score - a.score)
+    .slice(0, top5PercentCount)
+    .map(r => ({
+      name: r.student.name,
+      regimentalNumber: r.student.regimentalNumber,
+      score: r.score
+    }));
+
   return {
     overview: {
       totalAttempts,
-      averageScore: parseFloat(averageScore.toFixed(2)),
-      highestScore: scores[scores.length - 1],
-      lowestScore: scores[0],
+      averageScore: Math.round(averageScore),
+      highestScore: scores.length > 0 ? scores[scores.length - 1] : 0,
+      lowestScore: scores.length > 0 ? scores[0] : 0,
       maxPossible
     },
+    topPerformers,
     topicPerformance,
     scoreDistribution,
     qdi: qdiList.sort((a, b) => a.qdi - b.qdi) // Sort by hardest first

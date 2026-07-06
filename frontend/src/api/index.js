@@ -4,3 +4,4 @@ export { default as adminApi } from './admin';
 export { default as examApi } from './exam';
 export { default as generalApi } from './general';
 export { default as materialsApi } from './materials';
+export { default as leaderboardApi } from './leaderboard';

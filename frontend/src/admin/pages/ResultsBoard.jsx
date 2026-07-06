@@ -540,8 +540,8 @@ export default function ResultsBoard() {
       {/* ── Export Settings Modal ───────────────────────────────────────────── */}
       {showExportModal && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-[#0E1929]/40 backdrop-blur-sm">
-          <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full max-w-[400px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)]">
-            <div className="bg-stone border-b border-stone-mid px-6 py-5 flex justify-between items-center">
+          <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full max-w-[400px] max-h-[90vh] flex flex-col overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)]">
+            <div className="shrink-0 bg-stone border-b border-stone-mid px-6 py-5 flex justify-between items-center">
               <div className="flex items-center gap-2.5">
                 <Download size={20} className="text-navy" />
                 <h2 className="m-0 font-ui text-[18px] font-semibold text-navy">Export Settings</h2>
@@ -550,44 +550,46 @@ export default function ResultsBoard() {
                 <XCircle size={20} />
               </button>
             </div>
-            <form onSubmit={handleExportSubmit} className="p-6">
-              <div className="mb-5 p-3 bg-stone rounded-lg text-[12px] text-ink-3 font-ui border border-stone-mid">
-                Will export <strong className="text-ink">{pagination.total ?? 'all'}</strong> records with current filters applied.
-              </div>
-              <div className="mb-5">
-                <label className="flex items-center gap-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    className="w-4 h-4 rounded border-stone-deep accent-navy"
-                    checked={exportSettings.includeAverage}
-                    onChange={(e) => setExportSettings(s => ({ ...s, includeAverage: e.target.checked }))}
+            <form onSubmit={handleExportSubmit} className="flex flex-col flex-1 overflow-hidden">
+              <div className="flex-1 overflow-y-auto p-6">
+                <div className="mb-5 p-3 bg-stone rounded-lg text-[12px] text-ink-3 font-ui border border-stone-mid">
+                  Will export <strong className="text-ink">{pagination.total ?? 'all'}</strong> records with current filters applied.
+                </div>
+                <div className="mb-5">
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="w-4 h-4 rounded border-stone-deep accent-navy"
+                      checked={exportSettings.includeAverage}
+                      onChange={(e) => setExportSettings(s => ({ ...s, includeAverage: e.target.checked }))}
+                    />
+                    <span className="font-ui text-[14px] text-ink-2">Include Average Score column</span>
+                  </label>
+                </div>
+                <div className="mb-5">
+                  <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Sort By</label>
+                  <CustomSelect
+                    value={exportSettings.sortBy}
+                    onChange={(val) => setExportSettings(s => ({ ...s, sortBy: val }))}
+                    options={[
+                      { value: "Average", label: "Average Score" },
+                      { value: "Name", label: "Student Name" }
+                    ]}
                   />
-                  <span className="font-ui text-[14px] text-ink-2">Include Average Score column</span>
-                </label>
+                </div>
+                <div className="mb-6">
+                  <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Order</label>
+                  <CustomSelect
+                    value={exportSettings.sortOrder}
+                    onChange={(val) => setExportSettings(s => ({ ...s, sortOrder: val }))}
+                    options={[
+                      { value: "asc", label: "Ascending (A–Z / Low to High)" },
+                      { value: "desc", label: "Descending (Z–A / High to Low)" }
+                    ]}
+                  />
+                </div>
               </div>
-              <div className="mb-5">
-                <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Sort By</label>
-                <CustomSelect
-                  value={exportSettings.sortBy}
-                  onChange={(val) => setExportSettings(s => ({ ...s, sortBy: val }))}
-                  options={[
-                    { value: "Average", label: "Average Score" },
-                    { value: "Name", label: "Student Name" }
-                  ]}
-                />
-              </div>
-              <div className="mb-6">
-                <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Order</label>
-                <CustomSelect
-                  value={exportSettings.sortOrder}
-                  onChange={(val) => setExportSettings(s => ({ ...s, sortOrder: val }))}
-                  options={[
-                    { value: "asc", label: "Ascending (A–Z / Low to High)" },
-                    { value: "desc", label: "Descending (Z–A / High to Low)" }
-                  ]}
-                />
-              </div>
-              <div className="flex gap-3">
+              <div className="shrink-0 px-6 py-5 bg-stone border-t border-stone-deep flex gap-3 mt-auto">
                 <button type="button" className="flex-1 h-[36px] rounded-md font-ui text-[13px] font-medium flex items-center justify-center gap-2 bg-transparent text-ink-2 border border-stone-deep hover:bg-stone transition-all" onClick={() => setShowExportModal(false)}>
                   Cancel
                 </button>
@@ -604,8 +606,8 @@ export default function ResultsBoard() {
       {/* ── Override Modal ──────────────────────────────────────────────────── */}
       {isAdmin && editingResult && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-[#0E1929]/40 backdrop-blur-sm">
-          <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full max-w-[450px] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)]">
-            <div className="bg-stone border-b border-stone-mid px-6 py-5 flex justify-between items-center">
+          <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full max-w-[450px] max-h-[90vh] flex flex-col overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)]">
+            <div className="shrink-0 bg-stone border-b border-stone-mid px-6 py-5 flex justify-between items-center">
               <div className="flex items-center gap-2.5">
                 <ShieldAlert size={20} className="text-crimson" />
                 <h2 className="m-0 font-ui text-[18px] font-semibold text-crimson">Score Override</h2>
@@ -614,10 +616,11 @@ export default function ResultsBoard() {
                 <XCircle size={20} />
               </button>
             </div>
-            <form onSubmit={handleOverride} className="p-6">
-              <div className="mb-5 p-3 bg-stone rounded-lg border-l-4 border-l-navy border border-stone-mid">
-                <div className="font-mono text-[10px] tracking-[0.1em] uppercase text-ink-4 mb-1">Target Cadet</div>
-                <div className="font-semibold text-navy">{editingResult.studentName}</div>
+            <form onSubmit={handleOverride} className="flex flex-col flex-1 overflow-hidden">
+              <div className="flex-1 overflow-y-auto p-6">
+                <div className="mb-5 p-3 bg-stone rounded-lg border-l-4 border-l-navy border border-stone-mid">
+                  <div className="font-mono text-[10px] tracking-[0.1em] uppercase text-ink-4 mb-1">Target Cadet</div>
+                  <div className="font-semibold text-navy">{editingResult.studentName}</div>
                 <div className="text-[12px] text-ink-3">{editingResult.examTitle}</div>
               </div>
               <div className="mb-5">
@@ -639,9 +642,9 @@ export default function ResultsBoard() {
                   value={overrideForm.reason}
                   onChange={e => setOverrideForm(f => ({ ...f, reason: e.target.value }))}
                 />
-                <div className="text-[10px] text-ink-4 mt-1 font-ui">* This action will be recorded in the HQ audit logs.</div>
+                </div>
               </div>
-              <div className="flex gap-3 mt-6">
+              <div className="shrink-0 px-6 py-5 bg-stone border-t border-stone-deep flex gap-3 mt-auto">
                 <button type="button" className="flex-1 h-[36px] rounded-md font-ui text-[13px] font-medium flex items-center justify-center gap-2 bg-transparent text-ink-2 border border-stone-deep hover:bg-stone transition-all" onClick={() => setEditingResult(null)}>
                   Cancel
                 </button>
