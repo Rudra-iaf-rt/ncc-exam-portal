@@ -441,7 +441,7 @@ describe("Exam Service Unit Tests", () => {
     });
 
     it("should throw 400 if title is provided but empty", async () => {
-      prisma.exam.findUnique.mockResolvedValue({ id: 8, createdBy: creatorId });
+      prisma.exam.findUnique.mockResolvedValue({ id: 8, createdBy: creatorId, status: "DRAFT" });
 
       await expect(examService.updateExamMetaByCreator(creatorId, examId, { title: " " })).rejects.toThrow(
         new HttpError(400, "title cannot be empty")
@@ -449,7 +449,7 @@ describe("Exam Service Unit Tests", () => {
     });
 
     it("should throw 400 if status is invalid", async () => {
-      prisma.exam.findUnique.mockResolvedValue({ id: 8, createdBy: creatorId });
+      prisma.exam.findUnique.mockResolvedValue({ id: 8, createdBy: creatorId, status: "DRAFT" });
 
       await expect(
         examService.updateExamMetaByCreator(creatorId, examId, { status: "INVALID_STATUS" })
@@ -457,7 +457,7 @@ describe("Exam Service Unit Tests", () => {
     });
 
     it("should throw 400 if there is nothing to update", async () => {
-      prisma.exam.findUnique.mockResolvedValue({ id: 8, createdBy: creatorId });
+      prisma.exam.findUnique.mockResolvedValue({ id: 8, createdBy: creatorId, status: "DRAFT" });
 
       await expect(examService.updateExamMetaByCreator(creatorId, examId, {})).rejects.toThrow(
         new HttpError(400, "Nothing to update")
@@ -465,7 +465,7 @@ describe("Exam Service Unit Tests", () => {
     });
 
     it("should successfully update metadata when body is valid", async () => {
-      prisma.exam.findUnique.mockResolvedValue({ id: 8, createdBy: creatorId });
+      prisma.exam.findUnique.mockResolvedValue({ id: 8, createdBy: creatorId, status: "DRAFT" });
       prisma.exam.update.mockResolvedValue({ id: 8, title: "Updated Title", status: "LIVE" });
 
       const result = await examService.updateExamMetaByCreator(creatorId, examId, {
@@ -493,7 +493,7 @@ describe("Exam Service Unit Tests", () => {
     const examId = 8;
 
     it("should successfully replace questions inside transaction", async () => {
-      prisma.exam.findUnique.mockResolvedValueOnce({ id: 8, createdBy: creatorId });
+      prisma.exam.findUnique.mockResolvedValueOnce({ id: 8, createdBy: creatorId, status: "DRAFT" });
       prisma.question.findMany.mockResolvedValueOnce([{ id: 101, question: "Old Q", options: ["X"], answer: "X" }]);
       prisma.attempt.findMany.mockResolvedValueOnce([]);
       prisma.exam.findUnique.mockResolvedValueOnce({

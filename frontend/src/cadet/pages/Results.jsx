@@ -81,9 +81,9 @@ const CadetResults = () => {
   }, [user, page]);
 
   const getPerformanceTag = (score) => {
-    if (score >= 80) return { label: 'Distinction', class: 'distinction' };
-    if (score >= 60) return { label: 'First Class', class: 'first' };
-    if (score >= 40) return { label: 'Pass', class: 'pass' };
+    if (score >= 80) return { label: 'Grade A', class: 'distinction' };
+    if (score >= 60) return { label: 'Grade B', class: 'first' };
+    if (score >= 40) return { label: 'Grade C', class: 'pass' };
     return { label: 'Fail', class: 'fail' };
   };
 

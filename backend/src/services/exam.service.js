@@ -292,6 +292,17 @@ async function updateExamMetaByCreator(userId, examIdRaw, body) {
   if (exam.createdBy !== userId) {
     throw new HttpError(403, "Only exam creator can update this exam");
   }
+
+  // Lifecycle Lock: Only allow status updates for non-DRAFT exams
+  if (exam.status !== 'DRAFT' && body) {
+    const allowedKeys = ['status'];
+    const incomingKeys = Object.keys(body).filter(k => body[k] !== undefined);
+    const hasDisallowed = incomingKeys.some(k => !allowedKeys.includes(k));
+    if (hasDisallowed) {
+      throw new HttpError(403, "Structural metadata cannot be updated once the exam is live, completed, or archived.");
+    }
+  }
+
   const payload = {};
   if (body?.title != null) {
     const title = String(body.title).trim();
@@ -384,6 +395,13 @@ async function replaceExamQuestionsByCreator(userId, examIdRaw, body) {
   if (exam.createdBy !== userId) {
     throw new HttpError(403, "Only exam creator can update questions");
   }
+
+  // Lifecycle Lock: LIVE and ARCHIVED are strictly locked. COMPLETED allows answer corrections only.
+  if (exam.status === 'LIVE' || exam.status === 'ARCHIVED') {
+    throw new HttpError(403, "Questions and answers are strictly locked in LIVE or ARCHIVED states.");
+  }
+  const isCompleted = exam.status === 'COMPLETED';
+
   const questions = body?.questions;
   if (!Array.isArray(questions) || questions.length === 0) {
     throw new HttpError(400, "questions must be a non-empty array");
@@ -401,6 +419,10 @@ async function replaceExamQuestionsByCreator(userId, examIdRaw, body) {
     orderBy: { id: "asc" },
   });
 
+  if (isCompleted && questions.length !== existingQuestions.length) {
+    throw new HttpError(403, "Cannot add or remove questions in COMPLETED state.");
+  }
+
   const ops = [];
   const maxLen = Math.max(questions.length, existingQuestions.length);
   
@@ -413,7 +435,9 @@ async function replaceExamQuestionsByCreator(userId, examIdRaw, body) {
       ops.push(
         prisma.question.update({
           where: { id: ex.id },
-          data: {
+          data: isCompleted ? {
+            answer: normalizeAnswer(q.answer)
+          } : {
             question: String(q.question).trim(),
             options: q.options.map((o) => String(o)),
             answer: normalizeAnswer(q.answer),
@@ -421,6 +445,7 @@ async function replaceExamQuestionsByCreator(userId, examIdRaw, body) {
         })
       );
     } else if (q && !ex) {
+      if (isCompleted) throw new HttpError(403, "Cannot add questions in COMPLETED state.");
       // Create new question appended to the end
       ops.push(
         prisma.question.create({
@@ -433,6 +458,7 @@ async function replaceExamQuestionsByCreator(userId, examIdRaw, body) {
         })
       );
     } else if (!q && ex) {
+      if (isCompleted) throw new HttpError(403, "Cannot remove questions in COMPLETED state.");
       // Delete trailing question if the exam shrank
       ops.push(
         prisma.question.delete({
