@@ -48,7 +48,8 @@ const materialsApi = {
    */
   getDownloadUrl: (id) => {
     const token = localStorage.getItem('ncc_token');
-    return `/api/materials/${id}/download?token=${token}`;
+    const base = client.defaults.baseURL.replace(/\/+$/, '');
+    return `${base}/materials/${id}/download?token=${token}`;
   },
 
   /**
@@ -57,7 +58,8 @@ const materialsApi = {
    */
   getViewUrl: (id) => {
     const token = localStorage.getItem('ncc_token');
-    return `/api/materials/${id}/view?token=${token}`;
+    const base = client.defaults.baseURL.replace(/\/+$/, '');
+    return `${base}/materials/${id}/view?token=${token}`;
   }
 };
 

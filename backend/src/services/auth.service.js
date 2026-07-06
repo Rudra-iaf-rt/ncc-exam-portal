@@ -183,7 +183,7 @@ async function refreshSession(userId) {
 async function refreshSessionWithToken(rawRefreshToken) {
   const refreshToken = String(rawRefreshToken || "").trim();
   if (!refreshToken) {
-    throw new HttpError(400, "refreshToken is required");
+    throw new HttpError(401, "refreshToken is required");
   }
 
   const tokenHash = sha256(refreshToken);
