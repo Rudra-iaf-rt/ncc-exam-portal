@@ -522,8 +522,9 @@ export default function MaterialManagement() {
       {/* Upload Modal */}
       {isModalOpen && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-[#0E1929]/40 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full max-w-[600px] max-h-[90vh] flex flex-col overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] animate-in zoom-in-95 duration-200">
-            <div className="shrink-0 bg-stone border-b border-stone-mid px-6 py-5 flex justify-between items-center">
+          <div className="w-full max-w-[600px] max-h-[90vh] shadow-[0_20px_50px_rgba(0,0,0,0.15)] animate-in zoom-in-95 duration-200 rounded-2xl">
+            <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full h-full max-h-[90vh] flex flex-col overflow-hidden">
+              <div className="shrink-0 bg-stone border-b border-stone-mid px-6 py-5 flex justify-between items-center">
               <div className="flex items-center gap-3">
                 <div className="bg-navy text-white p-2 rounded-lg shadow-sm">
                   <CloudUpload size={20} />
@@ -642,8 +643,8 @@ export default function MaterialManagement() {
                   />
                 </div>
               </div>
-
-              <div className="shrink-0 p-4 sm:px-8 sm:py-6 bg-stone border-t border-stone-deep flex gap-4 mt-auto">
+              </div>
+              <div className="shrink-0 p-4 sm:px-8 sm:py-6 bg-stone border-t border-stone-deep flex gap-4 mt-auto rounded-b-2xl">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
@@ -670,8 +671,8 @@ export default function MaterialManagement() {
                   )}
                 </button>
               </div>
-              </div>
             </form>
+            </div>
           </div>
         </div>
       )}
@@ -679,7 +680,8 @@ export default function MaterialManagement() {
       {/* Edit Modal */}
       {isEditModalOpen && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-[#0E1929]/40 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full max-w-[600px] max-h-[90vh] flex flex-col overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] animate-in zoom-in-95 duration-200">
+          <div className="w-full max-w-[600px] max-h-[90vh] shadow-[0_20px_50px_rgba(0,0,0,0.15)] animate-in zoom-in-95 duration-200 rounded-2xl">
+            <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full h-full max-h-[90vh] flex flex-col overflow-hidden isolate">
             <div className="shrink-0 bg-stone border-b border-stone-mid px-6 py-5 flex justify-between items-center">
               <div className="flex items-center gap-3">
                 <div className="bg-navy text-white p-2 rounded-lg shadow-sm">
@@ -806,8 +808,8 @@ export default function MaterialManagement() {
                   />
                 </div>
               </div>
-
-              <div className="shrink-0 p-4 sm:px-8 sm:py-6 bg-stone border-t border-stone-deep flex gap-4 mt-auto">
+              </div>
+              <div className="shrink-0 p-4 sm:px-8 sm:py-6 bg-stone border-t border-stone-deep flex gap-4 mt-auto rounded-b-2xl">
                 <button
                   type="button"
                   onClick={() => setIsEditModalOpen(false)}
@@ -834,8 +836,8 @@ export default function MaterialManagement() {
                   )}
                 </button>
               </div>
-              </div>
             </form>
+            </div>
           </div>
         </div>
       )}

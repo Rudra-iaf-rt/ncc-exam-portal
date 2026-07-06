@@ -141,11 +141,11 @@ export const CadetLayout = () => {
             <div className="absolute -inset-6 bg-gold/5 blur-[40px] rounded-full group-hover/logo:bg-gold/10 transition-all duration-1000" />
             
             {/* Seal Container */}
-            <div className="w-20 h-20 rounded-full p-2 shadow-[0_0_40px_rgba(0,0,0,0.3),0_0_20px_rgba(212,175,55,0.1)] border border-gold/20 relative z-10 overflow-hidden flex items-center justify-center transition-transform duration-500 group-hover/logo:scale-105 bg-[#E8E4D4]/5">
+            <div className="w-24 h-24 rounded-full bg-white p-2 shadow-[0_0_40px_rgba(0,0,0,0.3),0_0_20px_rgba(212,175,55,0.1)] border-[3px] border-gold/20 relative z-10 overflow-hidden flex items-center justify-center transition-transform duration-500 group-hover/logo:scale-105">
               <img 
                 src="/assets/ncc-logo.png" 
                 alt="NCC Logo" 
-                className="w-full h-full object-contain scale-[1.25] drop-shadow-md" 
+                className="w-full h-full object-contain scale-110" 
               />
             </div>
 
@@ -155,7 +155,7 @@ export const CadetLayout = () => {
 
           <div className="space-y-2">
             <div className="font-display text-[22px] text-[#E8E4D4] leading-none italic tracking-tighter font-black">NCC TIRUPATI</div>
-            <div className="font-ui text-[9px] text-gold/30 tracking-[0.3em] uppercase font-black flex items-center justify-center gap-2">
+            <div className="font-ui text-[10px] text-gold/30 tracking-[0.3em] uppercase font-black flex items-center justify-center gap-2">
               <span className="w-3 h-px bg-gold/20" />
               11(A) AIR SQN(T) NCC
               <span className="w-3 h-px bg-gold/20" />

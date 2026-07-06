@@ -540,8 +540,9 @@ export default function ResultsBoard() {
       {/* ── Export Settings Modal ───────────────────────────────────────────── */}
       {showExportModal && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-[#0E1929]/40 backdrop-blur-sm">
-          <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full max-w-[400px] max-h-[90vh] flex flex-col overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)]">
-            <div className="shrink-0 bg-stone border-b border-stone-mid px-6 py-5 flex justify-between items-center">
+          <div className="w-full max-w-[400px] max-h-[90vh] shadow-[0_20px_50px_rgba(0,0,0,0.15)] rounded-2xl">
+            <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full h-full max-h-[90vh] flex flex-col overflow-hidden">
+              <div className="shrink-0 bg-stone border-b border-stone-mid px-6 py-5 flex justify-between items-center">
               <div className="flex items-center gap-2.5">
                 <Download size={20} className="text-navy" />
                 <h2 className="m-0 font-ui text-[18px] font-semibold text-navy">Export Settings</h2>
@@ -589,7 +590,7 @@ export default function ResultsBoard() {
                   />
                 </div>
               </div>
-              <div className="shrink-0 px-6 py-5 bg-stone border-t border-stone-deep flex gap-3 mt-auto">
+              <div className="shrink-0 px-6 py-5 bg-stone border-t border-stone-deep flex gap-3 mt-auto rounded-b-2xl">
                 <button type="button" className="flex-1 h-[36px] rounded-md font-ui text-[13px] font-medium flex items-center justify-center gap-2 bg-transparent text-ink-2 border border-stone-deep hover:bg-stone transition-all" onClick={() => setShowExportModal(false)}>
                   Cancel
                 </button>
@@ -599,6 +600,7 @@ export default function ResultsBoard() {
                 </button>
               </div>
             </form>
+            </div>
           </div>
         </div>
       )}
@@ -606,8 +608,9 @@ export default function ResultsBoard() {
       {/* ── Override Modal ──────────────────────────────────────────────────── */}
       {isAdmin && editingResult && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-[#0E1929]/40 backdrop-blur-sm">
-          <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full max-w-[450px] max-h-[90vh] flex flex-col overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)]">
-            <div className="shrink-0 bg-stone border-b border-stone-mid px-6 py-5 flex justify-between items-center">
+          <div className="w-full max-w-[450px] max-h-[90vh] shadow-[0_20px_50px_rgba(0,0,0,0.15)] rounded-2xl">
+            <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full h-full max-h-[90vh] flex flex-col overflow-hidden">
+              <div className="shrink-0 bg-stone border-b border-stone-mid px-6 py-5 flex justify-between items-center">
               <div className="flex items-center gap-2.5">
                 <ShieldAlert size={20} className="text-crimson" />
                 <h2 className="m-0 font-ui text-[18px] font-semibold text-crimson">Score Override</h2>
@@ -644,7 +647,7 @@ export default function ResultsBoard() {
                 />
                 </div>
               </div>
-              <div className="shrink-0 px-6 py-5 bg-stone border-t border-stone-deep flex gap-3 mt-auto">
+              <div className="shrink-0 px-6 py-5 bg-stone border-t border-stone-deep flex gap-3 mt-auto rounded-b-2xl">
                 <button type="button" className="flex-1 h-[36px] rounded-md font-ui text-[13px] font-medium flex items-center justify-center gap-2 bg-transparent text-ink-2 border border-stone-deep hover:bg-stone transition-all" onClick={() => setEditingResult(null)}>
                   Cancel
                 </button>
@@ -653,6 +656,7 @@ export default function ResultsBoard() {
                 </button>
               </div>
             </form>
+            </div>
           </div>
         </div>
       )}

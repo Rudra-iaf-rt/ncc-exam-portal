@@ -46,7 +46,7 @@ export default function AdminLogin() {
             />
           </div>
           <h1 className="font-display text-[28px] text-navy m-0 mb-2 tracking-[-0.02em]">
-            Admin Login
+            Staff Login
           </h1>
           <p className="text-ink-4 text-[13px] font-normal">Authorized Users Only</p>
         </div>
