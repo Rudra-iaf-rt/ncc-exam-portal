@@ -160,7 +160,7 @@ export default function AddUserModal({ isOpen, onClose, onRefresh, initialRole =
                 Assigned College / Unit * {isInstructor && <span className="text-gold lowercase font-ui font-normal ml-1">(locked)</span>}
               </label>
               <div className="relative">
-                <Building2 size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-4 z-10" />
+                {/* <Building2 size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-4 z-10" /> */}
                 {isInstructor ? (
                   <input
                     readOnly
@@ -173,7 +173,7 @@ export default function AddUserModal({ isOpen, onClose, onRefresh, initialRole =
                     onChange={(val) => setFormData({ ...formData, college: val })}
                     searchable={true}
                     options={[
-                      { value: "", label: fetchingColleges ? 'Loading Colleges...' : 'Select College' },
+                      { value: "", label: fetchingColleges ? 'Loading Colleges...' : `Select College` },
                       ...colleges.map(c => ({ value: c.code, label: `${c.name} (${c.code})` }))
                     ]}
                   />

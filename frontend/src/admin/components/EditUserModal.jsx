@@ -139,7 +139,7 @@ export default function EditUserModal({ isOpen, onClose, onRefresh, user }) {
               <div className="col-span-1">
                 <label htmlFor="edit-college" className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-2">Assigned College / Unit *</label>
                 <div className="relative">
-                  <Building2 size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-4 z-10" />
+                  {/* <Building2 size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-4 z-10" /> */}
                   <CustomSelect
                     value={formData.college}
                     onChange={(val) => setFormData({ ...formData, college: val })}
@@ -148,7 +148,7 @@ export default function EditUserModal({ isOpen, onClose, onRefresh, user }) {
                       { value: "", label: fetchingColleges ? 'Loading Colleges...' : 'Select College' },
                       ...colleges.map(c => ({ value: c.code, label: `${c.name} (${c.code})` }))
                     ]}
-                  />
+                  />  
                 </div>
               </div>
 

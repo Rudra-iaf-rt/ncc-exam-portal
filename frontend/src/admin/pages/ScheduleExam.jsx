@@ -321,7 +321,7 @@ export default function ScheduleExam() {
                       onChange={val => setForm({...form, college: val})}
                       options={[
                         { value: "", label: "All Registered Colleges" },
-                        ...filterOptions.colleges.map(c => ({ value: c, label: c }))
+                        ...filterOptions.colleges.map(c => ({ value: c.code, label: `${c.name} (${c.code})` }))
                       ]}
                     />
                   </div>

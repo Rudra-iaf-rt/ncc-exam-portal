@@ -1,3 +1,4 @@
+const logger = require("../utils/logger")
 const adminService = require("../services/admin.service");
 const monitorService = require("../services/monitor.service");
 const analyticsService = require("../services/analytics.service");
@@ -195,6 +196,7 @@ async function updateBatch(req, res) {
     
     res.json(batch);
   } catch (error) {
+    logger.error("[Update Batch Error]", error);
     res.status(500).json({ error: "Failed to update batch" });
   }
 }

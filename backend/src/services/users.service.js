@@ -329,7 +329,7 @@ async function getFilters(currentUser) {
     prisma.user.findMany({ where: { role: ROLES.STUDENT, ...collegeWhere }, select: { wing: true }, distinct: ['wing'] }),
     prisma.user.findMany({ 
       where: { role: ROLES.STUDENT, ...collegeWhere }, 
-      select: { college: { select: { name: true } } }, 
+      select: { college: { select: { name: true, code: true } } }, 
       distinct: ['collegeCode'] 
     }),
     prisma.user.findMany({ where: { role: ROLES.STUDENT, ...collegeWhere }, select: { batch: true }, distinct: ['batch'] }),
@@ -343,7 +343,7 @@ async function getFilters(currentUser) {
 
   return {
     wings: wings.map(w => w.wing).filter(Boolean),
-    colleges: colleges.map(c => c.college?.name).filter(Boolean).sort(),
+    colleges: colleges.map(c => c.college).filter(Boolean).sort((a, b) => a.name.localeCompare(b.name)),
     batches: allBatches
   };
 }
