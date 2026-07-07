@@ -192,7 +192,7 @@ export function AdminLayout() {
               <Trophy size={16} strokeWidth={1.5} className="group-hover/link:scale-110 transition-transform duration-300" />
               <span>Exam Results</span>
             </NavLink>
-            {isAdmin && (
+            {(isAdmin || user?.canManageExams) && (
               <>
                 <NavLink to="/admin/assignments" onClick={() => setSidebarOpen(false)} className={navLinkClass}>
                   <UserCheck size={16} strokeWidth={1.5} className="group-hover/link:scale-110 transition-transform duration-300" />

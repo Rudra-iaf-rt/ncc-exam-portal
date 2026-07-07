@@ -159,6 +159,24 @@ async function bulkImportCadets(req, res) {
   }
 }
 
+async function bulkUpdateManageExams(req, res) {
+  try {
+    const { enable } = req.body;
+    const count = await usersService.bulkUpdateManageExams(enable);
+    await auditLogService.recordAudit(req, {
+      action: "USER_BULK_UPDATE_MANAGE_EXAMS",
+      entityType: "User",
+      entityId: "bulk",
+      statusCode: 200,
+    });
+    logger.audit('USER_BULK_UPDATE_MANAGE_EXAMS', { enable, count }, req.user.id);
+    res.json({ message: `Successfully updated ${count} instructors`, count });
+  } catch (error) {
+    const status = error.status || 500;
+    res.status(status).json({ error: error.message || "Bulk update failed" });
+  }
+}
+
 module.exports = {
   createUser,
   listAll,
@@ -171,4 +189,5 @@ module.exports = {
   listInstructors,
   createInstructor,
   bulkImportCadets,
+  bulkUpdateManageExams,
 };

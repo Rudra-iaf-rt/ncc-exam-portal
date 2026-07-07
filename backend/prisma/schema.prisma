@@ -16,6 +16,7 @@ model User {
   refreshToken          String?
   batch                 String?
   isActive              Boolean              @default(true)
+  canManageExams        Boolean              @default(false)
   wing                  String?
   mobile                String?
   yearOfStudy           String?

@@ -42,12 +42,12 @@ async function authenticate(req, res, next) {
     }
     const user = await prisma.user.findUnique({
       where: { id },
-      select: { id: true, role: true, isActive: true },
+      select: { id: true, role: true, isActive: true, canManageExams: true },
     });
     if (!user || !user.isActive) {
       return res.status(401).json({ error: "Account disabled or not found" });
     }
-    req.user = { id: user.id, role: user.role };
+    req.user = { id: user.id, role: user.role, canManageExams: user.canManageExams };
     next();
   } catch (err) {
     logger.warn('AUTH_FAILED', { reason: 'Token verification failed', error: err.message, path: req.path });

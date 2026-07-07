@@ -113,18 +113,29 @@ async function listExamsCatalog(userId, role, query = {}) {
 
   const globalVer = await getCacheVersion("exams:catalog:global");
   const userVer = await getCacheVersion(`exams:catalog:user:${userId}`);
-  const cacheKey = `exams:catalog:v${globalVer}:u${userVer}:${role}:${userId}:p${page}:l${limit}`;
+  const cacheKey = `exams:catalog2:v${globalVer}:u${userVer}:${role}:${userId}:p${page}:l${limit}`;
   const cached = await cacheGetJson(cacheKey);
   if (cached) return cached;
 
-  const where = isStudent
-    ? {
-        status: "LIVE",
-        assignments: {
-          some: { userId: userId },
-        },
-      }
-    : {};
+  let where = {};
+  if (isStudent) {
+    where = {
+      status: "LIVE",
+      assignments: {
+        some: { userId: userId },
+      },
+    };
+  } else if (role === "INSTRUCTOR") {
+    const instructor = await prisma.user.findUnique({ where: { id: userId }, select: { collegeCode: true } });
+    if (instructor?.collegeCode) {
+      where.OR = [
+        { creator: { collegeCode: instructor.collegeCode } },
+        { assignments: { some: { user: { collegeCode: instructor.collegeCode } } } }
+      ];
+    } else {
+      where.id = -1; // Force no results
+    }
+  }
 
   const [exams, total, completedResults, attempts] = await Promise.all([
     prisma.exam.findMany({

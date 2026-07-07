@@ -85,8 +85,9 @@ async function listAssignments(req, res) {
 async function createAssignments(req, res) {
   try {
     const { ROLES } = require("../middleware/roles");
-    if (req.user.role !== ROLES.ADMIN) {
-      return res.status(403).json({ error: "Access denied. Admin privileges required for eligibility management." });
+    const { role, canManageExams } = req.user;
+    if (role !== ROLES.ADMIN && !(role === ROLES.INSTRUCTOR && canManageExams)) {
+      return res.status(403).json({ error: "Access denied. Admin or authorized instructor privileges required." });
     }
     const { examId, wing, collegeCode, batch, userIds } = req.body;
     const result = await adminService.bulkAssign(examId, { wing, collegeCode, batch }, userIds, req.user);
@@ -100,8 +101,9 @@ async function createAssignments(req, res) {
 async function deleteAssignment(req, res) {
   try {
     const { ROLES } = require("../middleware/roles");
-    if (req.user.role !== ROLES.ADMIN) {
-      return res.status(403).json({ error: "Access denied. Admin privileges required to remove eligibility." });
+    const { role, canManageExams } = req.user;
+    if (role !== ROLES.ADMIN && !(role === ROLES.INSTRUCTOR && canManageExams)) {
+      return res.status(403).json({ error: "Access denied. Admin or authorized instructor privileges required." });
     }
     const id = parseInt(req.params.id);
     await prisma.examAssignment.delete({ where: { id } });

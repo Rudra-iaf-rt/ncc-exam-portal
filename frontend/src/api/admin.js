@@ -9,6 +9,7 @@ export const adminApi = {
   bulkImport: (formData) => apiClient.post('/admin/users/import', formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),
+  bulkManageExams: (enable) => apiClient.put('/users/bulk-manage-exams', { enable }),
 
   // Colleges
   getColleges: () => apiClient.get('/admin/colleges'),

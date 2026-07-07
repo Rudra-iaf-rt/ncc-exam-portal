@@ -46,6 +46,7 @@ function sanitizeUser(user) {
     college: user.college?.name || user.collegeCode,
     wing: user.wing,
     isActive: user.isActive,
+    canManageExams: user.canManageExams,
   };
 }
 

@@ -89,6 +89,7 @@ function StatusDropdown({ status, disabled, onChange, processing }) {
 export default function ExamList() {
   const { user } = useAdminAuth();
   const isAdmin = user?.role === 'ADMIN';
+  const canManageExams = isAdmin || (user?.role === 'INSTRUCTOR' && user?.canManageExams);
   const [page, setPage] = useState(1);
   const [processingItems, setProcessingItems] = useState(new Set());
   const [confirmAction, setConfirmAction] = useState(null);
@@ -116,7 +117,7 @@ export default function ExamList() {
   const pagination = data?.pagination || { totalPages: 1 };
 
   const handleStatusChange = async (id, newStatus) => {
-    if (!isAdmin) return;
+    if (!canManageExams) return;
     
     const procKey = `status-${id}`;
     addProcessing(procKey);
@@ -145,7 +146,7 @@ export default function ExamList() {
   };
 
   const handlePublishResults = (id) => {
-    if (!isAdmin) return;
+    if (!canManageExams) return;
     setConfirmAction({ type: 'publish', id });
   };
 
@@ -177,7 +178,7 @@ export default function ExamList() {
   };
 
   const handleDelete = (id) => {
-    if (!isAdmin) return;
+    if (!canManageExams) return;
     setConfirmAction({ type: 'delete', id });
   };
 
@@ -203,7 +204,7 @@ export default function ExamList() {
       <PageHeader 
         title="Exam *Management*" 
         subtitle={isAdmin ? "List of all exams available in the system." : "Scheduled examinations."}
-        action={isAdmin && (
+        action={canManageExams && (
           <NavLink to="/admin/exams/create" className="h-[36px] px-[18px] rounded-md font-ui text-[13px] font-medium flex items-center gap-2 transition-all bg-navy text-[#F4F0E4] hover:bg-navy-mid">
             <Plus size={16} strokeWidth={1.5} />
             <span>Create New Exam</span>
@@ -225,7 +226,7 @@ export default function ExamList() {
                 <th className="font-normal px-4 py-3">Questions</th>
                 <th className="font-normal px-4 py-3">Status</th>
                 <th className="font-normal px-4 py-3">College</th>
-                {isAdmin && <th className="font-normal px-4 py-3 text-right">Actions</th>}
+                {canManageExams && <th className="font-normal px-4 py-3 text-right">Actions</th>}
               </tr>
             </thead>
             <tbody className="font-ui text-[13.5px] text-ink-2">
@@ -245,7 +246,7 @@ export default function ExamList() {
                     <td className="px-4 py-3">{e.duration} Minutes</td>
                     <td className="px-4 py-3">{e.questionCount} Items</td>
                     <td className="px-4 py-3">
-                      {isAdmin ? (
+                      {canManageExams ? (
                         <div className="flex items-center gap-2">
                           <StatusDropdown 
                             status={e.status}
@@ -287,7 +288,7 @@ export default function ExamList() {
                         >
                           <Eye size={16} strokeWidth={1.5} />
                         </NavLink>
-                        {isAdmin && (
+                        {canManageExams && (
                           <>
                             {e.status === 'LIVE' && (
                               <NavLink 

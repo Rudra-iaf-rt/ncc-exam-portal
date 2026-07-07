@@ -194,15 +194,24 @@ describe("Materials Service — Backblaze B2 Storage", () => {
   // ── getMaterialForDownload ──────────────────────────────────────────────────
 
   describe("getMaterialForDownload", () => {
-    it("should return a B2 pre-signed URL for a B2 material", async () => {
+    it("should return a B2 object stream and metadata for a B2 material", async () => {
       prisma.material.findUnique.mockResolvedValue(
         makeMaterialRow({ fileUrl: "materials/uuid-1234.pdf", driveFileId: null })
       );
+      
+      const { b2Client } = require("../../lib/b2");
+      b2Client.send = jest.fn().mockResolvedValue({
+        Body: "mock-stream",
+        ContentType: "application/pdf",
+        ContentLength: 1024,
+      });
 
       const result = await materialsService.getMaterialForDownload(1);
 
       expect(result.isB2).toBe(true);
-      expect(result.url).toBe("https://b2.example.com/presigned-url?token=abc");
+      expect(result.stream).toBe("mock-stream");
+      expect(result.contentType).toBe("application/pdf");
+      expect(result.contentLength).toBe(1024);
     });
 
     it("should return Drive URL for legacy Drive materials", async () => {

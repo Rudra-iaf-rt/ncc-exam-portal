@@ -20,6 +20,13 @@ router.get(
   asyncHandler(usersController.listInstructors)
 );
 
+router.put(
+  "/users/bulk-manage-exams",
+  authenticate,
+  requireAdmin,
+  asyncHandler(usersController.bulkUpdateManageExams)
+);
+
 router.get(
   "/users/all",
   authenticate,

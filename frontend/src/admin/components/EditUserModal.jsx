@@ -18,6 +18,7 @@ export default function EditUserModal({ isOpen, onClose, onRefresh, user }) {
     wing: user?.wing || '',
     batch: user?.batch || '',
     isActive: user?.isActive ?? true,
+    canManageExams: user?.canManageExams ?? false,
     password: ''
   });
   const { data: collegesData, loading: fetchingColleges } = useCachedFetch(
@@ -51,6 +52,7 @@ export default function EditUserModal({ isOpen, onClose, onRefresh, user }) {
         wing: user?.wing || '',
         batch: user?.batch || '',
         isActive: user?.isActive ?? true,
+        canManageExams: user?.canManageExams ?? false,
         password: ''
       });
     }
@@ -71,7 +73,6 @@ export default function EditUserModal({ isOpen, onClose, onRefresh, user }) {
     try {
       await adminApi.updateUser(user.id, payload);
       toast.success('Record updated successfully.');
-      // Invalidate both caches — role change could move user between lists
       invalidateCachedResource('admin-users-students');
       invalidateCachedResource('admin-staff-list');
       onRefresh?.();
@@ -225,20 +226,40 @@ export default function EditUserModal({ isOpen, onClose, onRefresh, user }) {
                 </>
               )}
 
-              <div className="col-span-1 sm:col-span-2 p-4 bg-stone rounded-xl flex items-center justify-between border border-stone-deep">
-                <div>
-                  <div className="text-[14px] font-bold text-navy font-ui">Account Access</div>
-                  <div className="text-[11px] text-ink-3 font-ui mt-0.5">
-                    {formData.isActive ? 'User is currently enabled' : 'User is currently disabled'}
+              <div className="col-span-1 sm:col-span-2 space-y-4">
+                <div className="p-4 bg-stone rounded-xl flex items-center justify-between border border-stone-deep">
+                  <div>
+                    <div className="text-[14px] font-bold text-navy font-ui">Account Access</div>
+                    <div className="text-[11px] text-ink-3 font-ui mt-0.5">
+                      {formData.isActive ? 'User is currently enabled' : 'User is currently disabled'}
+                    </div>
                   </div>
+                  <button 
+                    type="button"
+                    onClick={() => setFormData({ ...formData, isActive: !formData.isActive })}
+                    className={`w-12 h-6 rounded-full relative cursor-pointer border-none transition-colors duration-300 ${formData.isActive ? 'bg-[#3B6D11]' : 'bg-stone-deep'}`}
+                  >
+                    <div className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-all duration-300 ${formData.isActive ? 'left-[26px]' : 'left-1'}`} />
+                  </button>
                 </div>
-                <button 
-                  type="button"
-                  onClick={() => setFormData({ ...formData, isActive: !formData.isActive })}
-                  className={`w-12 h-6 rounded-full relative cursor-pointer border-none transition-colors duration-300 ${formData.isActive ? 'bg-[#3B6D11]' : 'bg-stone-deep'}`}
-                >
-                  <div className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-all duration-300 ${formData.isActive ? 'left-[26px]' : 'left-1'}`} />
-                </button>
+
+                {!isStudent && formData.role === 'INSTRUCTOR' && (
+                  <div className="p-4 bg-stone rounded-xl flex items-center justify-between border border-stone-deep">
+                    <div>
+                      <div className="text-[14px] font-bold text-navy font-ui">Exam Management</div>
+                      <div className="text-[11px] text-ink-3 font-ui mt-0.5">
+                        {formData.canManageExams ? 'Instructor can assign and manage exams for their college' : 'Instructor cannot manage exams'}
+                      </div>
+                    </div>
+                    <button 
+                      type="button"
+                      onClick={() => setFormData({ ...formData, canManageExams: !formData.canManageExams })}
+                      className={`w-12 h-6 rounded-full relative cursor-pointer border-none transition-colors duration-300 ${formData.canManageExams ? 'bg-[#3B6D11]' : 'bg-stone-deep'}`}
+                    >
+                      <div className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-all duration-300 ${formData.canManageExams ? 'left-[26px]' : 'left-1'}`} />
+                    </button>
+                  </div>
+                )}
               </div>
             </div>
           </div>

@@ -45,12 +45,15 @@ function requireInstructor(req, res, next) {
 
 function requireExamCreator(req, res, next) {
   const r = req.user?.role;
-  if (r !== ROLES.ADMIN && r !== ROLES.INSTRUCTOR) {
-    return res.status(403).json({
-      error: "Only instructors and administrators can create exams",
-    });
+  const canManage = req.user?.canManageExams;
+  
+  if (r === ROLES.ADMIN || (r === ROLES.INSTRUCTOR && canManage)) {
+    return next();
   }
-  next();
+  
+  return res.status(403).json({
+    error: "Only administrators or authorized instructors can create exams",
+  });
 }
 
 module.exports = {

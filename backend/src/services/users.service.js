@@ -42,6 +42,7 @@ function safeUserSelect() {
     },
     wing: true,
     isActive: true,
+    canManageExams: true,
   };
 }
 
@@ -57,14 +58,17 @@ async function createUser(body, currentUser, tx = prisma) {
     role = ROLES.STUDENT; // Instructors can only create students
   }
   
-  const existing = await tx.user.findFirst({
-    where: { 
-      OR: [
-        regimentalNumber ? { regimentalNumber } : undefined,
-        email ? { email: normalizeEmail(email) } : undefined
-      ].filter(Boolean)
-    }
-  });
+  const orConditions = [
+    regimentalNumber?.trim() ? { regimentalNumber: regimentalNumber.trim() } : undefined,
+    email?.trim() ? { email: normalizeEmail(email) } : undefined
+  ].filter(Boolean);
+
+  let existing = null;
+  if (orConditions.length > 0) {
+    existing = await tx.user.findFirst({
+      where: { OR: orConditions }
+    });
+  }
 
   if (existing) {
     throw new HttpError(409, "User with this Regimental Number or Email already exists");
@@ -76,14 +80,15 @@ async function createUser(body, currentUser, tx = prisma) {
   const user = await tx.user.create({
     data: {
       name,
-      regimentalNumber,
+      regimentalNumber: regimentalNumber?.trim() || null,
       collegeCode,
       password: hashedPassword,
       role: role || ROLES.STUDENT,
-      email: email ? normalizeEmail(email) : null,
+      email: email?.trim() ? normalizeEmail(email) : null,
       wing,
       batch,
-      isActive: isActive ?? true
+      isActive: isActive ?? true,
+      canManageExams: body.canManageExams ? Boolean(body.canManageExams) : false,
     },
     include: { college: true }
   });
@@ -96,16 +101,18 @@ async function updateUser(idRaw, body, tx = prisma) {
   const id = Number(idRaw);
   if (!Number.isFinite(id)) throw new HttpError(400, "Invalid user ID");
 
-  const { name, regimentalNumber, college: collegeCode, password, email, role, wing, batch, isActive } = body;
+  const { name, regimentalNumber, college: collegeCode, password, email, role, wing, batch, isActive, canManageExams } = body;
 
-  if (regimentalNumber || email) {
+  const orConditions = [
+    regimentalNumber?.trim() ? { regimentalNumber: regimentalNumber.trim() } : undefined,
+    email?.trim() ? { email: normalizeEmail(email) } : undefined,
+  ].filter(Boolean);
+
+  if (orConditions.length > 0) {
     const existing = await tx.user.findFirst({
       where: {
         id: { not: id },
-        OR: [
-          regimentalNumber ? { regimentalNumber } : undefined,
-          email ? { email: normalizeEmail(email) } : undefined,
-        ].filter(Boolean),
+        OR: orConditions,
       },
     });
     if (existing) {
@@ -115,14 +122,18 @@ async function updateUser(idRaw, body, tx = prisma) {
 
   const updateData = {
     name,
-    regimentalNumber,
+    regimentalNumber: regimentalNumber?.trim() || null,
     collegeCode,
-    email: email ? normalizeEmail(email) : undefined,
+    email: email?.trim() ? normalizeEmail(email) : null,
     role,
     wing,
     batch,
     isActive
   };
+
+  if (canManageExams !== undefined) {
+    updateData.canManageExams = Boolean(canManageExams);
+  }
 
   if (password) {
     updateData.password = await bcrypt.hash(password, SALT_ROUNDS);
@@ -144,7 +155,15 @@ async function updateUser(idRaw, body, tx = prisma) {
   return sanitizeUser(user);
 }
 
-async function listUsers(query = {}, currentUser) {
+async function bulkUpdateManageExams(enable) {
+  const result = await prisma.user.updateMany({
+    where: { role: "INSTRUCTOR" },
+    data: { canManageExams: Boolean(enable) }
+  });
+  return result.count;
+}
+
+async function listUsers(query = {}, currentUser = null) {
   const role = typeof query.role === "string" ? query.role.trim().toUpperCase() : null;
   const where = role ? { role } : {};
 
@@ -432,4 +451,5 @@ module.exports = {
   listInstructors,
   createInstructor,
   bulkImportCadets,
+  bulkUpdateManageExams,
 };

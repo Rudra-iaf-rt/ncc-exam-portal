@@ -60,6 +60,25 @@ export default function StaffManagement() {
     setIsEditOpen(true);
   };
 
+  const handleBulkManageExams = async (enable) => {
+    const confirmed = await confirm({
+      title: enable ? 'Enable Exam Management' : 'Revoke Exam Management',
+      message: `Are you sure you want to ${enable ? 'enable' : 'revoke'} exam management permissions for ALL instructors?`,
+      confirmText: enable ? 'Enable All' : 'Revoke All',
+      isDanger: !enable
+    });
+
+    if (!confirmed) return;
+
+    try {
+      const res = await adminApi.bulkManageExams(enable);
+      invalidateCachedResource('admin-staff-list');
+      toast.success(res.data.message || `Updated permissions successfully.`);
+    } catch (error) {
+      toast.error(error.message || 'Failed to update permissions');
+    }
+  };
+
   const filteredStaff = staff.filter(u => {
     const name = u.name || '';
     const email = u.email || '';
@@ -80,13 +99,31 @@ export default function StaffManagement() {
         title="Instructors"
         subtitle="List of instructors."
         action={
-          <button 
-            className="h-[36px] px-[18px] rounded-md font-ui text-[13px] font-medium flex items-center gap-2 transition-all bg-navy text-[#F4F0E4] hover:bg-navy-mid"
-            onClick={() => setIsAddOpen(true)}
-          >
-            <Plus size={16} strokeWidth={1.5} />
-            <span>Add Instructor</span>
-          </button>
+          <div className="flex items-center gap-2">
+            <button 
+              className="h-[36px] px-[18px] rounded-md font-ui text-[13px] font-medium flex items-center gap-2 transition-all bg-stone border border-stone-deep text-ink-2 hover:bg-stone-mid"
+              onClick={() => handleBulkManageExams(true)}
+              title="Allow all instructors to manage exams"
+            >
+              <ShieldCheck size={16} strokeWidth={1.5} />
+              <span>Allow All</span>
+            </button>
+            <button 
+              className="h-[36px] px-[18px] rounded-md font-ui text-[13px] font-medium flex items-center gap-2 transition-all bg-stone border border-stone-deep text-ink-2 hover:bg-stone-mid"
+              onClick={() => handleBulkManageExams(false)}
+              title="Revoke exam management from all instructors"
+            >
+              <AlertCircle size={16} strokeWidth={1.5} />
+              <span>Revoke All</span>
+            </button>
+            <button 
+              className="h-[36px] px-[18px] rounded-md font-ui text-[13px] font-medium flex items-center gap-2 transition-all bg-navy text-[#F4F0E4] hover:bg-navy-mid ml-2"
+              onClick={() => setIsAddOpen(true)}
+            >
+              <Plus size={16} strokeWidth={1.5} />
+              <span>Add Instructor</span>
+            </button>
+          </div>
         }
       />
 
@@ -177,11 +214,19 @@ export default function StaffManagement() {
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      <div className="flex items-center gap-1.5">
-                        <div className={`w-2 h-2 rounded-full ${user.isActive ? 'bg-olive' : 'bg-stone-3'}`} />
-                        <span className={`text-[12px] ${user.isActive ? 'text-navy font-medium' : 'text-ink-4'}`}>
-                          {user.isActive ? 'Active' : 'Disabled'}
-                        </span>
+                      <div className="flex flex-col gap-1">
+                        <div className="flex items-center gap-1.5">
+                          <div className={`w-2 h-2 rounded-full ${user.isActive ? 'bg-olive' : 'bg-stone-3'}`} />
+                          <span className={`text-[12px] ${user.isActive ? 'text-navy font-medium' : 'text-ink-4'}`}>
+                            {user.isActive ? 'Active' : 'Disabled'}
+                          </span>
+                        </div>
+                        {user.canManageExams && user.role === 'INSTRUCTOR' && (
+                          <div className="flex items-center gap-1 text-[10px] font-mono text-[#3B6D11] uppercase tracking-wider bg-[#3B6D11]/10 w-fit px-1.5 py-0.5 rounded border border-[#3B6D11]/20">
+                            <ShieldCheck size={10} />
+                            <span>Exam Manager</span>
+                          </div>
+                        )}
                       </div>
                     </td>
                     <td className="px-4 py-3 text-right">

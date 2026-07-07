@@ -19,7 +19,8 @@ export default function AddUserModal({ isOpen, onClose, onRefresh, initialRole =
     email: '',
     role: initialRole,
     wing: '',
-    batch: ''
+    batch: '',
+    canManageExams: false
   });
   const { data: collegesData, loading: fetchingColleges } = useCachedFetch(
     'admin-colleges-list',
@@ -227,6 +228,24 @@ export default function AddUserModal({ isOpen, onClose, onRefresh, initialRole =
                   />
                 </div>
               </>
+            )}
+
+            {!isStudent && formData.role === 'INSTRUCTOR' && !isInstructor && (
+              <div className="col-span-1 sm:col-span-2 p-4 bg-stone rounded-xl flex items-center justify-between border border-stone-deep">
+                <div>
+                  <div className="text-[14px] font-bold text-navy font-ui">Exam Management</div>
+                  <div className="text-[11px] text-ink-3 font-ui mt-0.5">
+                    {formData.canManageExams ? 'Instructor can assign and manage exams for their college' : 'Instructor cannot manage exams'}
+                  </div>
+                </div>
+                <button 
+                  type="button"
+                  onClick={() => setFormData({ ...formData, canManageExams: !formData.canManageExams })}
+                  className={`w-12 h-6 rounded-full relative cursor-pointer border-none transition-colors duration-300 ${formData.canManageExams ? 'bg-[#3B6D11]' : 'bg-stone-deep'}`}
+                >
+                  <div className={`w-4 h-4 rounded-full bg-white absolute top-1 transition-all duration-300 ${formData.canManageExams ? 'left-[26px]' : 'left-1'}`} />
+                </button>
+              </div>
             )}
           </div>
 

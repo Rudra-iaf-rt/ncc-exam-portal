@@ -1,4 +1,5 @@
 const express = require("express");
+const { Prisma } = require('@prisma/client');
 const multer = require("multer");
 const { authenticate } = require("../middleware/auth");
 const { requireAdmin, requireStaff } = require("../middleware/roles");
@@ -81,7 +82,22 @@ router.get("/exams", authenticate, requireStaff, async (req, res) => {
   try {
     let exams = [];
     try {
+      let where = {};
+      if (req.user.role === 'INSTRUCTOR') {
+        const { ROLES } = require("../middleware/roles");
+        const instructor = await prisma.user.findUnique({ where: { id: req.user.id }, select: { collegeCode: true } });
+        if (instructor?.collegeCode) {
+          where.OR = [
+            { creator: { collegeCode: instructor.collegeCode } },
+            { assignments: { some: { user: { collegeCode: instructor.collegeCode } } } }
+          ];
+        } else {
+          where.id = -1; // Force no results
+        }
+      }
+
       exams = await prisma.exam.findMany({
+        where,
         orderBy: { id: 'desc' },
         include: {
           _count: { select: { questions: true } },
@@ -93,12 +109,24 @@ router.get("/exams", authenticate, requireStaff, async (req, res) => {
       const missingNewColumns = message.includes("Exam.startAt") || message.includes("Exam.endAt");
       if (!missingNewColumns) throw err;
 
+      let queryCondition = Prisma.sql``;
+      if (req.user.role === 'INSTRUCTOR') {
+        const { ROLES } = require("../middleware/roles");
+        const instructor = await prisma.user.findUnique({ where: { id: req.user.id }, select: { collegeCode: true } });
+        if (instructor?.collegeCode) {
+          queryCondition = Prisma.sql`WHERE u."collegeCode" = ${instructor.collegeCode} OR e.id IN (SELECT "examId" FROM "ExamAssignment" ea JOIN "User" u2 ON ea."userId" = u2.id WHERE u2."collegeCode" = ${instructor.collegeCode})`;
+        } else {
+          queryCondition = Prisma.sql`WHERE 1=0`;
+        }
+      }
+
       const legacyExams = await prisma.$queryRaw`
         SELECT e.id, e.title, e.status, e.duration, e."createdAt", e."createdBy",
                u."collegeCode" as "creatorCollegeCode", c.name as "creatorCollegeName"
         FROM "Exam" e
         LEFT JOIN "User" u ON u.id = e."createdBy"
         LEFT JOIN "College" c ON c.code = u."collegeCode"
+        ${queryCondition}
         ORDER BY e.id DESC
       `;
       const questionCounts = await prisma.question.groupBy({
