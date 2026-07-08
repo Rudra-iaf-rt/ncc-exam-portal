@@ -60,7 +60,12 @@ export const useExamAutoSave = (examId, userId) => {
     }
 
     // 2. Immediately save to LocalStorage (0 latency, crash safe)
-    const updatedAnswers = { ...currentAnswers, [questionId]: selectedAnswer };
+    const updatedAnswers = { ...currentAnswers };
+    if (selectedAnswer === null || selectedAnswer === undefined) {
+      delete updatedAnswers[questionId];
+    } else {
+      updatedAnswers[questionId] = selectedAnswer;
+    }
     localStorage.setItem(storageKey, JSON.stringify({
       answers: updatedAnswers,
       timestamp: Date.now()

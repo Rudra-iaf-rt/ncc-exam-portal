@@ -6,7 +6,7 @@ import { NavLink } from 'react-router-dom';
 import { examApi } from '../../api';
 import { useAdminAuth } from '../../contexts/AdminAuth';
 import { PageHeader, Pagination } from '../components/Shared';
-import { Plus, Eye, ShieldAlert, Edit3, Trash2, UserCheck, Loader2, MonitorPlay, BarChart, AlertTriangle, XCircle, ChevronDown, Check, FileEdit, Radio, CheckCircle2, Archive, Send } from 'lucide-react';
+import { Plus, Eye, X, Edit3, Trash2, UserCheck, Loader2, MonitorPlay, BarChart, AlertTriangle, XCircle, ChevronDown, Check, FileEdit, Radio, CheckCircle2, Archive, Send } from 'lucide-react';
 import { invalidateCachedResourcePattern, getCachedResource, setCachedResource } from '../../lib/resourceCache';
 import { useCachedFetch } from '../../hooks/useCachedFetch';
 
@@ -93,6 +93,7 @@ export default function ExamList() {
   const [page, setPage] = useState(1);
   const [processingItems, setProcessingItems] = useState(new Set());
   const [confirmAction, setConfirmAction] = useState(null);
+  const [viewingColleges, setViewingColleges] = useState(null);
   const limit = 20;
 
   const addProcessing = (key) => setProcessingItems(prev => new Set(prev).add(key));
@@ -225,7 +226,7 @@ export default function ExamList() {
                 <th className="font-normal px-4 py-3">Duration</th>
                 <th className="font-normal px-4 py-3">Questions</th>
                 <th className="font-normal px-4 py-3">Status</th>
-                <th className="font-normal px-4 py-3">College</th>
+                <th className="font-normal px-4 py-3">College(s)</th>
                 {canManageExams && <th className="font-normal px-4 py-3 text-right">Actions</th>}
               </tr>
             </thead>
@@ -270,13 +271,24 @@ export default function ExamList() {
                         </span>
                       )}
                     </td>
-                    <td className="px-4 py-3">
-                      {e.creator?.college ? (
-                        <span className="font-mono text-[10px] tracking-[0.05em] py-1 px-2.5 rounded-full font-medium inline-flex bg-stone-mid text-ink-3 border border-stone-deep">
-                          {e.creator.college}
-                        </span>
+                    <td className="px-4 py-3 max-w-[200px]">
+                      {e.assignedColleges && e.assignedColleges.length > 0 ? (
+                        <div className="inline-block max-w-full">
+                          <button 
+                            type="button"
+                            onClick={() => setViewingColleges(e.assignedColleges)}
+                            className="font-mono text-[10px] tracking-[0.05em] py-1 px-2.5 rounded-full font-medium inline-flex items-center bg-stone-mid text-ink-3 border border-stone-deep hover:bg-stone focus:outline-none focus:ring-2 focus:ring-navy/20 cursor-pointer max-w-full transition-colors text-left"
+                          >
+                            <span className="truncate">{e.assignedColleges[0].code}</span>
+                            {e.assignedColleges.length > 1 && (
+                              <span className="ml-1 text-navy font-semibold whitespace-nowrap shrink-0">+{e.assignedColleges.length - 1}</span>
+                            )}
+                          </button>
+                        </div>
                       ) : (
-                        <span className="text-ink-4 text-[12px]">—</span>
+                        <span className="font-mono text-[10px] tracking-[0.05em] py-1 px-2.5 rounded-full font-medium inline-flex bg-red-50 text-red-500 border border-red-100">
+                          Unassigned
+                        </span>
                       )}
                     </td>
                     <td className="px-4 py-3 text-right">
@@ -424,6 +436,27 @@ export default function ExamList() {
                   {confirmAction.type === 'delete' ? 'Delete Exam' : 'Publish Results'}
                 </button>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {viewingColleges && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-navy/40 backdrop-blur-sm transition-all" onClick={() => setViewingColleges(null)}>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-sm overflow-hidden border border-stone-deep animate-in zoom-in-95 duration-200" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-stone-deep bg-stone-light">
+              <h3 className="font-semibold text-navy text-[13px] tracking-wide">Assigned Colleges</h3>
+              <button onClick={() => setViewingColleges(null)} className="p-1 text-ink-3 hover:text-red-500 hover:bg-red-50 rounded-md transition-colors">
+                <X size={16} />
+              </button>
+            </div>
+            <div className="p-2 max-h-[60vh] overflow-y-auto custom-scrollbar bg-white">
+              {viewingColleges.map((c, i) => (
+                <div key={i} className="px-3 py-2.5 border-b border-gray-200 last:border-0 flex items-center gap-3 hover:bg-stone-wash transition-colors">
+                  <div className="w-12 shrink-0 font-mono text-[10px] bg-stone-mid border border-stone-deep text-ink-3 py-1.5 text-center rounded-md font-semibold">{c.code}</div>
+                  <div className="text-[13px] text-ink-2 font-medium leading-tight">{c.name}</div>
+                </div>
+              ))}
             </div>
           </div>
         </div>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import GlobalLoader from '../../components/GlobalLoader';
 import { toast } from 'sonner';
 import { useParams, useNavigate } from 'react-router-dom';
@@ -30,12 +30,8 @@ const ExamAttempt = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  // Standardize user identity for hashing, caching, and auto-save
   const userKey = user?.id || user?.regimentalNumber || user?.email || 'unknown';
 
-  // --- ALL STATE DECLARATIONS MUST COME BEFORE ANY useEffect THAT REFERENCES THEM ---
-  // (Placing a useState below a useEffect that uses it in a dep-array causes a TDZ
-  // ReferenceError in the minified bundle: "Cannot access 'x' before initialization")
   const [exam, setExam] = useState(null);
   const [answers, setAnswers] = useState({});
   const [loading, setLoading] = useState(true);
@@ -61,12 +57,8 @@ const ExamAttempt = () => {
     }
   }, [userKey, loading]);
   
-  // syncStatus: 'idle' | 'saving' | 'saved' | 'error'
-  // Start as 'idle' so no badge shows before the first save attempt.
   const { syncStatus, queueSave, loadLocalAnswers, clearLocalAnswers } = useExamAutoSave(Number(id), userKey);
   
-  // Ref so the onSecurityBreach callback (stable closure in useProctoring)
-  // always calls the latest version of the auto-terminate handler.
   const autoTerminateRef = useRef(null);
 
   const {
@@ -197,11 +189,17 @@ const ExamAttempt = () => {
 
   const handleSelect = (questionId, option) => {
     queueSave(questionId, option); // Uses localStorage directly to avoid state lag
-    setAnswers(prev => ({ ...prev, [questionId]: option }));
+    setAnswers(prev => {
+      const next = { ...prev };
+      if (option === null || option === undefined) {
+        delete next[questionId];
+      } else {
+        next[questionId] = option;
+      }
+      return next;
+    });
   };
 
-  // Keep the ref up-to-date so the useProctoring callback always uses the latest closure
-  // (avoids stale captures of navigate, user, id, etc.)
   const executeSubmitAndRedirectToDashboard = async () => {
     if (isSubmittingRef.current) return;
 
@@ -225,11 +223,8 @@ const ExamAttempt = () => {
       invalidateCachedResourcePattern(`cadet-results:${userKey}`);
 
       clearLocalAnswers();
-      // Navigate to dashboard (not review) on violation-triggered submission
       navigate('/cadet/dashboard');
-    } catch (error) {
-      // Even if the submit call fails, the backend already auto-submitted server-side
-      // on the 3rd violation — still navigate away.
+    } catch (error) {     
       clearLocalAnswers();
       navigate('/cadet/dashboard');
     }
@@ -244,9 +239,7 @@ const ExamAttempt = () => {
     isSubmittingRef.current = true;
     setIsSubmitting(true);
     
-    // Read from answersRef to get all merged answers, bypassing stale closures
     const currentAnswers = answersRef.current || {};
-    // Fallback to local storage for latest delta just in case state is lagging
     const localAnswers = loadLocalAnswers() || {};
     const finalMergedAnswers = { ...currentAnswers, ...localAnswers };
 
@@ -263,7 +256,6 @@ const ExamAttempt = () => {
 
       clearLocalAnswers();
       toast.success('Exam submitted successfully.');
-      // Redirect to review page for immediate per-question feedback
       navigate(`/exam/review/${id}`);
     } catch (error) {
       toast.error(error.message || 'Critical error during exam submission');
@@ -290,9 +282,8 @@ const ExamAttempt = () => {
 
       toast.success('Session restored! You can continue your exam.');
       setIsSessionExpired(false);
-      setRecoveryPassword(''); // Clear password for security
+      setRecoveryPassword('');
       
-      // Force an immediate sync of current answer to verify
       if (answersRef.current[currentQ]) {
         queueSave(currentQ, answersRef.current[currentQ]);
       }
@@ -311,7 +302,6 @@ const ExamAttempt = () => {
 
   if (loading) return <GlobalLoader text="Initializing Secure Session..." />;
 
-  // STEP 1: Screen Share (Transmission)
   if (!isScreenSharing) return (
     <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-navy/95 backdrop-blur-md p-6">
       <div className="w-full max-w-md rounded-rl border border-white/20 bg-white p-10 text-center shadow-2xl">
@@ -328,7 +318,6 @@ const ExamAttempt = () => {
     </div>
   );
 
-  // STEP 2: Fullscreen (Secure Perimeter)
   if (!isFullscreen) return (
     <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-navy/95 backdrop-blur-md p-6">
       <div className="w-full max-w-md rounded-rl border border-white/20 bg-white p-10 text-center shadow-2xl">
@@ -466,9 +455,7 @@ const ExamAttempt = () => {
 
   return (
     <div className="flex h-screen flex-col bg-stone-wash">
-      {/* Redesigned Responsive Header */}
-      <header className="z-[100] sticky top-0 flex items-center justify-between bg-navy px-4 sm:px-8 py-3.5 shadow-lg border-b border-white/10 shrink-0">
-        {/* Left Section: Title & Status Pills */}
+      <header className="z-[100] sticky top-0 flex items-center justify-between bg-navy px-4 sm:px-8 py-3.5 shadow-lg border-b border-white/10 shrink-0">        {/* Left Section: Title & Status Pills */}
         <div className="flex flex-col gap-1 min-w-0">
           <h1 className="font-display text-[15px] sm:text-lg text-[#F4F0E4] font-bold truncate max-w-[130px] xs:max-w-[180px] sm:max-w-xs md:max-w-md">
             {exam.title}
@@ -594,7 +581,7 @@ const ExamAttempt = () => {
               </span>
               <div className="flex items-center gap-2 rounded-full bg-stone-wash px-3 py-1 text-[11px] font-semibold text-ink-4 border border-stone-deep/40">
                 <ShieldCheck size={12} className="text-olive-soft" />
-                <span className="font-ui uppercase tracking-wide">Exam Session Secure</span>
+                <span className="font-ui uppercase tracking-wide"></span>
               </div>
             </div>
             
@@ -602,7 +589,6 @@ const ExamAttempt = () => {
               {q.question}
             </p>
 
-            {/* Answer Options or Input based on type */}
             <div className="flex flex-col gap-3.5">
               {(!q.type || q.type === 'MCQ') && q.options?.map((opt, i) => (
                 <label 
@@ -619,7 +605,15 @@ const ExamAttempt = () => {
                     name={`q-${q.id}`}
                     value={opt}
                     checked={answers[q.id] === opt}
-                    onChange={() => handleSelect(q.id, opt)}
+                    onClick={(e) => {
+                      if (answers[q.id] === opt) {
+                        e.preventDefault();
+                        handleSelect(q.id, null);
+                      } else {
+                        handleSelect(q.id, opt);
+                      }
+                    }}
+                    onChange={() => {}}
                     disabled={isSubmitting}
                   />
                   <span className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full border font-ui text-[13.5px] font-bold transition-all duration-200 ${

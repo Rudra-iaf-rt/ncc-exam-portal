@@ -175,6 +175,48 @@ async function listExamsCatalog(userId, role, query = {}) {
   const completedMap = new Map(completedResults.map((r) => [r.examId, r.score]));
   const attemptMap = new Map((attempts || []).map((a) => [a.examId, a]));
 
+  const examIds = exams.map((e) => e.id);
+  const examIdsList = examIds.length > 0 ? examIds.join(',') : '0';
+  const assignedCollegesRaw = await prisma.$queryRawUnsafe(`
+    SELECT DISTINCT ea."examId", COALESCE(c."name", u."collegeCode", 'N/A') as "collegeName"
+    FROM "ExamAssignment" ea
+    JOIN "User" u ON ea."userId" = u.id
+    LEFT JOIN "College" c ON u."collegeCode" = c."code"
+    WHERE ea."examId" IN (${examIdsList})
+  `);
+
+  function generateAcronym(name) {
+    if (!name || name === 'N/A') return 'N/A';
+    const ignoreWords = ['of', 'and', '&', 'the', 'for', 'in', 'at', 'college', 'degree','autonomous'];
+    const words = name.split(/[\s,()-]+/);
+    let acronym = '';
+    for (const word of words) {
+      if (!word) continue;
+      if (ignoreWords.includes(word.toLowerCase())) continue;
+      
+      if (word === word.toUpperCase() && word.length >= 2 && /[A-Z]/.test(word)) {
+        acronym += word;
+      } else {
+        const match = word.match(/[a-zA-Z0-9]/);
+        if (match) {
+          acronym += match[0].toUpperCase();
+        }
+      }
+    }
+    return acronym.length >= 2 ? acronym : name.substring(0, 4).toUpperCase();
+  }
+
+  const assignedCollegesMap = new Map();
+  assignedCollegesRaw.forEach((row) => {
+    if (!assignedCollegesMap.has(row.examId)) {
+      assignedCollegesMap.set(row.examId, []);
+    }
+    assignedCollegesMap.get(row.examId).push({
+      name: row.collegeName,
+      code: generateAcronym(row.collegeName)
+    });
+  });
+
   const finalExams = exams.map((e) => {
     const attempt = attemptMap.get(e.id);
     return {
@@ -191,6 +233,7 @@ async function listExamsCatalog(userId, role, query = {}) {
       attemptStatus: attempt ? attempt.status : null,
       expiresAt: attempt ? attempt.expiresAt : null,
       resultsPublished: e.resultsPublished,
+      assignedColleges: assignedCollegesMap.get(e.id) || [],
       creator: e.creator
         ? {
             id: e.creator.id,
