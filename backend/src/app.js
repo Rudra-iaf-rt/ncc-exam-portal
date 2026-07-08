@@ -10,6 +10,7 @@ const usersRoutes = require("./routes/users.routes");
 const adminRoutes = require('./routes/admin');
 const collegesRoutes = require('./routes/colleges.routes');
 const leaderboardRoutes = require('./routes/leaderboard.routes');
+const errorsRoutes = require('./routes/errors.routes');
 
 const notificationsRoutes = require("./routes/notifications.routes");
 const antiCheatRoutes = require("./routes/anti-cheat.routes");
@@ -62,6 +63,7 @@ app.use("/api", usersRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
 app.use('/api/admin', adminRoutes);
 app.use('/api', collegesRoutes);
+app.use('/api/errors', errorsRoutes);
 
 app.use("/api", notificationsRoutes);
 app.use("/api", antiCheatRoutes);

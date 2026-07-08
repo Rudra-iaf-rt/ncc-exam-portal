@@ -69,12 +69,10 @@ function App() {
             <Route path="/cadet/results" element={<CadetResults />} />
             <Route path="/cadet/materials" element={<CadetMaterials />} />
             <Route path="/cadet/settings/password" element={<ChangePassword />} />
-            {/* Legacy redirects so old bookmarks still work */}
             <Route path="/dashboard" element={<Navigate to="/cadet/dashboard" replace />} />
             <Route path="/results" element={<Navigate to="/cadet/results" replace />} />
             <Route path="/materials" element={<Navigate to="/cadet/materials" replace />} />
           </Route>
-          {/* ExamAttempt & ExamReview are outside CadetLayout to allow full-screen / immersive layout */}
           <Route path="/exam/:id" element={<ExamAttempt />} />
           <Route path="/exam/review/:examId" element={<ExamReview />} />
         </Route>

@@ -18,11 +18,10 @@ import {
   GraduationCap,
   Lock,
 } from 'lucide-react';
+import ErrorBoundary from '../components/ErrorBoundary';
 
 function SidebarSection({ title, children, icon: SidebarIcon, defaultExpanded = false }) {
   const location = useLocation();
-  const [isHovered, setIsHovered] = useState(false);
-  
   // Detect if any child link matches current path or its sub-paths
   const isPathActive = React.useMemo(() => {
       
@@ -49,15 +48,7 @@ function SidebarSection({ title, children, icon: SidebarIcon, defaultExpanded = 
     }
   }, [isPathActive]);
 
-  const isExpanded = isHovered || isManuallyToggled;
-
-  const handleMouseEnter = () => {
-    setIsHovered(true);
-  };
-
-  const handleMouseLeave = () => {
-    setIsHovered(false);
-  };
+  const isExpanded = isManuallyToggled;
 
   const handleToggle = (e) => {
     e.preventDefault();
@@ -65,17 +56,13 @@ function SidebarSection({ title, children, icon: SidebarIcon, defaultExpanded = 
   };
 
   return (
-    <div 
-      className="mb-1 px-2"
-      onMouseEnter={handleMouseEnter}
-      onMouseLeave={handleMouseLeave}
-    >
+    <div className="mb-1 px-2">
       <button 
         onClick={handleToggle}
         className={`w-full flex items-center justify-between px-5 py-3 rounded-xl transition-all duration-500 group ${isExpanded ? 'bg-white/[0.04]' : 'hover:bg-white/[0.06]'}`}
       >
         <div className="flex items-center gap-3">
-          <div className={`transition-all duration-500 ${isHovered ? 'scale-110 rotate-[5deg]' : ''}`}>
+          <div className="transition-all duration-500 group-hover:scale-110 group-hover:rotate-[5deg]">
             <SidebarIcon 
               size={18} 
               className={`transition-colors duration-500 ${isExpanded || isPathActive ? 'text-gold' : 'text-white/30'}`} 
@@ -297,7 +284,9 @@ export function AdminLayout() {
         </header>
 
         <main className="flex-1 w-full px-4 py-4 animate-in fade-in slide-in-from-bottom-4 duration-700">
-          <Outlet />
+          <ErrorBoundary level="ROUTE">
+            <Outlet />
+          </ErrorBoundary>
         </main>
       </div>
     </div>

@@ -57,3 +57,4 @@ current_questions.json
 sample_attempt.json
 .agents/
 templates/
+graphify-out

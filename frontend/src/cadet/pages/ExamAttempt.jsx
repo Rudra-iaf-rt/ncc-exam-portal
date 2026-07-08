@@ -19,9 +19,12 @@ import {
   Maximize,
   Monitor,
   Lock,
-  User
+  User,
+  Menu,
+  X
 } from 'lucide-react';
 import { useProctoring } from '../hooks/useProctoring';
+import ErrorBoundary from '../../components/ErrorBoundary';
 import { useAuth } from '../hooks/useAuth';
 import { invalidateCachedResourcePattern } from '../../lib/resourceCache';
 
@@ -571,7 +574,8 @@ const ExamAttempt = () => {
         </aside>
 
         {/* Question Content Area */}
-        <div className="flex flex-1 flex-col overflow-y-auto p-4 lg:p-8">
+        <ErrorBoundary level="COMPONENT">
+          <div className="flex flex-1 flex-col overflow-y-auto p-4 lg:p-8">
           
           {/* Question Card */}
           <div className="w-full flex-1 rounded-rl border border-stone-deep bg-white p-5 sm:p-10 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
@@ -671,6 +675,7 @@ const ExamAttempt = () => {
             </button>
           </div>
         </div>
+        </ErrorBoundary>
       </main>
 
       {/* Mobile Sticky Bottom Summary and Grid Button */}
