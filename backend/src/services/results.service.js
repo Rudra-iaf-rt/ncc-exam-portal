@@ -132,7 +132,8 @@ async function listForStudent(studentId, query) {
     },
   };
 
-  await cacheSetJson(cacheKey, 60, response);
+  // Cache under the student-specific namespace so cacheDelNamespace can target it.
+  await cacheSetJson(cacheKey, 60, response, `results:student:${studentId}`);
 
   return response;
 }
@@ -177,12 +178,8 @@ async function listForInstructor(instructorId, query) {
   }
 
   const cacheKey = `results:instructor:${instructorId}:${collegeCode}:${examId || 'all'}:${query.search || 'none'}:p${page}:l${limit}`;
-  try {
-    const cached = await redis.get(cacheKey);
-    if (cached) return JSON.parse(cached);
-  } catch (err) {
-    console.error("[Redis] GET error in listForInstructor", err);
-  }
+  const cached = await cacheGetJson(cacheKey);
+  if (cached) return cached;
 
   const where = {
     student: { collegeCode: collegeCode === "NONE" ? null : collegeCode },
@@ -226,11 +223,7 @@ async function listForInstructor(instructorId, query) {
     },
   };
 
-  try {
-    await redis.setex(cacheKey, 30, JSON.stringify(response)); // Cache results for 30s
-  } catch (err) {
-    console.error("[Redis] SET error in listForInstructor", err);
-  }
+  await cacheSetJson(cacheKey, 30, response, `results:instructor`);
 
   return response;
 }
@@ -310,7 +303,8 @@ async function listForAdmin(query) {
     },
   };
 
-  await cacheSetJson(cacheKey, 30, response);
+  // Cache under shared admin namespace for targeted invalidation.
+  await cacheSetJson(cacheKey, 30, response, "results:admin");
 
   return response;
 }
@@ -320,28 +314,31 @@ async function examSummary(examIdRaw) {
   if (!Number.isFinite(examId)) {
     throw new HttpError(400, "Invalid examId");
   }
-  const exam = await prisma.exam.findUnique({
-    where: { id: examId },
-    include: { results: true },
-  });
+  const [exam, agg] = await Promise.all([
+    prisma.exam.findUnique({
+      where: { id: examId },
+      select: { id: true, title: true }
+    }),
+    prisma.result.aggregate({
+      where: { examId },
+      _count: { _all: true },
+      _avg: { score: true },
+      _max: { score: true },
+      _min: { score: true }
+    })
+  ]);
+
   if (!exam) {
     throw new HttpError(404, "Exam not found");
   }
-  const scores = exam.results.map((r) => r.score);
-  const attempts = scores.length;
-  const averageScore =
-    attempts > 0
-      ? Number((scores.reduce((sum, s) => sum + s, 0) / attempts).toFixed(2))
-      : 0;
-  const highestScore = attempts > 0 ? Math.max(...scores) : 0;
-  const lowestScore = attempts > 0 ? Math.min(...scores) : 0;
+
   return {
     examId: exam.id,
     title: exam.title,
-    attempts,
-    averageScore,
-    highestScore,
-    lowestScore,
+    attempts: agg._count._all || 0,
+    averageScore: agg._count._all > 0 ? Number((agg._avg.score || 0).toFixed(2)) : 0,
+    highestScore: agg._max.score || 0,
+    lowestScore: agg._min.score || 0,
   };
 }
 

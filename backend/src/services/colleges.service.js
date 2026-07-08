@@ -1,5 +1,5 @@
 const { prisma } = require('../lib/prisma');
-const { redis } = require('../lib/redis');
+const { cacheGetJson, cacheSetJson, cacheDel } = require('../lib/cache');
 const { HttpError } = require('../utils/http-error');
 const userService = require('./users.service');
 
@@ -61,26 +61,14 @@ async function attachCountsToColleges(colleges) {
 }
 
 async function clearCollegesCache() {
-  try {
-    await Promise.all([
-      redis.del('cache:colleges:active'),
-      redis.del('cache:colleges:all')
-    ]);
-  } catch (err) {
-    console.error('[Redis Cache Del Error]', err);
-  }
+  // cacheDel is wrapped with the 120ms timeout guard and consistent error handling.
+  await cacheDel(['cache:colleges:active', 'cache:colleges:all']);
 }
 
 async function listColleges() {
   const cacheKey = 'cache:colleges:active';
-  try {
-    const cached = await redis.get(cacheKey);
-    if (cached) {
-      return JSON.parse(cached);
-    }
-  } catch (err) {
-    console.error('[Redis Cache Get Error]', err);
-  }
+  const cached = await cacheGetJson(cacheKey);
+  if (cached) return cached;
 
   const colleges = await prisma.college.findMany({
     where: { isActive: true },
@@ -88,39 +76,21 @@ async function listColleges() {
   });
 
   const result = await attachCountsToColleges(colleges);
-
-  try {
-    await redis.set(cacheKey, JSON.stringify(result), 'EX', 60);
-  } catch (err) {
-    console.error('[Redis Cache Set Error]', err);
-  }
-
+  await cacheSetJson(cacheKey, 60, result);
   return result;
 }
 
 async function listCollegesAll() {
   const cacheKey = 'cache:colleges:all';
-  try {
-    const cached = await redis.get(cacheKey);
-    if (cached) {
-      return JSON.parse(cached);
-    }
-  } catch (err) {
-    console.error('[Redis Cache Get Error]', err);
-  }
+  const cached = await cacheGetJson(cacheKey);
+  if (cached) return cached;
 
   const colleges = await prisma.college.findMany({
     orderBy: { name: 'asc' },
   });
 
   const result = await attachCountsToColleges(colleges);
-
-  try {
-    await redis.set(cacheKey, JSON.stringify(result), 'EX', 60);
-  } catch (err) {
-    console.error('[Redis Cache Set Error]', err);
-  }
-
+  await cacheSetJson(cacheKey, 60, result);
   return result;
 }
 

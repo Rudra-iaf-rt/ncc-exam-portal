@@ -36,6 +36,8 @@ model User {
   college               College?             @relation(fields: [collegeCode], references: [code])
 
   @@index([collegeCode])
+  @@index([role, isActive])
+  @@index([role, collegeCode])
 }
 
 
@@ -150,6 +152,7 @@ model ExamAssignment {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([userId, examId])
+  @@index([examId])
 }
 
 model Question {
@@ -186,6 +189,8 @@ model Attempt {
   @@unique([studentId, examId])
   @@index([studentId])
   @@index([examId])
+  @@index([status])
+  @@index([examId, status])
 }
 
 model Result {
@@ -199,6 +204,7 @@ model Result {
 
   @@unique([studentId, examId])
   @@index([studentId])
+  @@index([examId])
 }
 
 model ExamViolation {

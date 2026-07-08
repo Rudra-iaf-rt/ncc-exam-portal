@@ -1,52 +1,67 @@
 const { prisma } = require("../lib/prisma");
 const { parsePositiveInt } = require("../utils/validation");
 const { HttpError } = require("../utils/http-error");
+const { cacheGetJson, cacheSetJson } = require("../lib/cache");
+const { normalizeAnswer } = require("./exam-scoring.service");
 
 async function getExamAnalytics(examIdRaw) {
   const examId = parsePositiveInt(examIdRaw, "examId");
+  
+  const cacheKey = `analytics:exam:${examId}`;
+  const cached = await cacheGetJson(cacheKey);
+  if (cached) return cached;
 
   const exam = await prisma.exam.findUnique({
     where: { id: examId },
-    include: {
-      questions: true,
-      attempts: {
-        where: { status: { in: ["SUBMITTED", "TIMED_OUT", "TERMINATED"] } },
-        include: { student: { select: { id: true, name: true, regimentalNumber: true } } }
-      },
-      results: {
-        include: { student: { select: { name: true, regimentalNumber: true } } }
-      }
+    select: { 
+      positiveMarks: true, 
+      questions: true 
     }
   });
 
   if (!exam) throw new HttpError(404, "Exam not found");
 
-  const maxPossible = exam.questions.reduce((sum, q) => sum + (q.marks || exam.positiveMarks || 4), 0);
+  const [agg, resultsData, attemptsData] = await Promise.all([
+    prisma.result.aggregate({
+      where: { examId },
+      _count: { _all: true },
+      _avg: { score: true },
+      _max: { score: true },
+      _min: { score: true },
+    }),
+    prisma.result.findMany({
+      where: { examId },
+      select: { score: true }
+    }),
+    prisma.attempt.findMany({
+      where: { examId, status: { in: ["SUBMITTED", "TIMED_OUT", "TERMINATED"] } },
+      select: { answers: true }
+    })
+  ]);
 
-  const totalAttempts = exam.attempts.length;
+  const maxPossible = exam.questions.reduce((sum, q) => sum + (q.marks || exam.positiveMarks || 4), 0);
+  const totalAttempts = attemptsData.length;
+
   if (totalAttempts === 0) {
-    return {
+    const emptyStats = {
       overview: { totalAttempts: 0, averageScore: 0, highestScore: 0, lowestScore: 0, maxPossible },
       topicPerformance: [],
       scoreDistribution: [],
-      qdi: []
+      qdi: [],
+      topPerformers: []
     };
+    cacheSetJson(cacheKey, 300, emptyStats);
+    return emptyStats;
   }
 
-  // Calculate Overview
-  const scores = exam.results.map(r => r.score).sort((a, b) => a - b);
-  const totalResults = scores.length || 1; // avoid division by zero
-  const averageScore = scores.reduce((sum, s) => sum + s, 0) / totalResults;
-  
-  // Create Score Distribution Histogram (ranges of 10%)
+  // Score Distribution Histogram (ranges of 10%)
   const distribution = new Array(10).fill(0);
-  
-  scores.forEach(s => {
-    let percentage = s; // Result.score is already a percentage
+  resultsData.forEach(r => {
+    let percentage = r.score;
     if (percentage < 0) percentage = 0;
     if (percentage > 100) percentage = 100;
     let bucket = Math.floor(percentage / 10);
-    if (bucket === 10) bucket = 9; // 100% goes into the 90-100 bucket
+    if (bucket === 10) bucket = 9;
     distribution[bucket]++;
   });
 
@@ -54,8 +69,6 @@ async function getExamAnalytics(examIdRaw) {
     range: `${i * 10}-${(i + 1) * 10}%`,
     count
   }));
-
-  const { normalizeAnswer } = require("./exam-scoring.service");
 
   const questionStats = {};
   exam.questions.forEach(q => {
@@ -70,7 +83,7 @@ async function getExamAnalytics(examIdRaw) {
     };
   });
 
-  exam.attempts.forEach(attempt => {
+  attemptsData.forEach(attempt => {
     const answers = typeof attempt.answers === 'string' ? JSON.parse(attempt.answers) : (attempt.answers || {});
     
     exam.questions.forEach(q => {
@@ -116,30 +129,43 @@ async function getExamAnalytics(examIdRaw) {
     performancePercentage: parseFloat(((topicMap[topic].totalQDI / topicMap[topic].count) * 100).toFixed(1))
   }));
 
-  // Top 5% Cadets Leaderboard
-  const top5PercentCount = Math.max(5, Math.ceil(exam.results.length * 0.05));
-  const topPerformers = exam.results
-    .sort((a, b) => b.score - a.score)
-    .slice(0, top5PercentCount)
-    .map(r => ({
-      name: r.student.name,
-      regimentalNumber: r.student.regimentalNumber,
-      score: r.score
-    }));
+  // Top 5% Cadets Leaderboard - explicit fast query
+  const totalResults = agg._count._all || 1;
+  const top5PercentCount = Math.max(5, Math.ceil(totalResults * 0.05));
+  const topPerformersData = await prisma.result.findMany({
+    where: { examId },
+    take: top5PercentCount,
+    orderBy: { score: 'desc' },
+    select: {
+      score: true,
+      student: { select: { name: true, regimentalNumber: true } }
+    }
+  });
 
-  return {
+  const topPerformers = topPerformersData.map(r => ({
+    name: r.student.name,
+    regimentalNumber: r.student.regimentalNumber,
+    score: r.score
+  }));
+
+  const responsePayload = {
     overview: {
       totalAttempts,
-      averageScore: Math.round(averageScore),
-      highestScore: scores.length > 0 ? scores[scores.length - 1] : 0,
-      lowestScore: scores.length > 0 ? scores[0] : 0,
+      averageScore: Math.round(agg._avg.score || 0),
+      highestScore: agg._max.score || 0,
+      lowestScore: agg._min.score || 0,
       maxPossible
     },
     topPerformers,
     topicPerformance,
     scoreDistribution,
-    qdi: qdiList.sort((a, b) => a.qdi - b.qdi) // Sort by hardest first
+    qdi: qdiList.sort((a, b) => a.qdi - b.qdi)
   };
+
+  // Cache for 5 minutes
+  cacheSetJson(cacheKey, 300, responsePayload);
+
+  return responsePayload;
 }
 
 module.exports = {

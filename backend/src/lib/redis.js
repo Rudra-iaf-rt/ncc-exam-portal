@@ -6,13 +6,11 @@ if (process.env.REDIS_URL) {
   const isDev = process.env.NODE_ENV === "development";
 
   redis = new Redis(process.env.REDIS_URL, {
-    // In development, relax thresholds to tolerate high latency to remote cloud databases (e.g. India to US-East-1)
-    // In production, keep aggressive thresholds to fail fast and degrade gracefully under high load
-    maxRetriesPerRequest: isDev ? null : 1,
-    enableOfflineQueue: isDev ? true : false,
-    enableReadyCheck: false,
-    connectTimeout: isDev ? 10000 : 1000,
-    commandTimeout: isDev ? 3000 : 400,
+    maxRetriesPerRequest: isDev ? null : 3,
+    enableOfflineQueue: true,
+    enableReadyCheck: true,
+    connectTimeout: 10000,
+    commandTimeout: 5000,
   });
 
   redis.on("error", (err) => {
@@ -32,12 +30,44 @@ if (process.env.REDIS_URL) {
   // and local development can still function without a Redis instance.
   const memoryMap = new Map();
   const hashObj = new Map();
+  const setObj = new Map();
   
   redis = {
     get: async (k) => memoryMap.get(k) || null,
-    set: async (k, v) => { memoryMap.set(k, v); return "OK"; },
+    // SET with optional EX/NX support (matches ioredis arg order: key, value, 'EX', secs, 'NX')
+    set: async (k, v, ...args) => {
+      const upperArgs = args.map((a) => String(a).toUpperCase());
+      const isNX = upperArgs.includes("NX");
+      if (isNX && memoryMap.has(k)) return null; // NX: do not overwrite existing key
+      memoryMap.set(k, v);
+      return "OK";
+    },
     setex: async (k, s, v) => { memoryMap.set(k, v); return "OK"; },
-    del: async (k) => { memoryMap.delete(k); hashObj.delete(k); return 1; },
+    del: async (...keys) => {
+      let count = 0;
+      for (const k of keys) {
+        if (memoryMap.has(k)) { memoryMap.delete(k); count++; }
+        hashObj.delete(k);
+        setObj.delete(k);
+      }
+      return count;
+    },
+    sadd: async (k, ...members) => {
+      if (!setObj.has(k)) setObj.set(k, new Set());
+      const s = setObj.get(k);
+      let added = 0;
+      for (const m of members) { if (!s.has(m)) { s.add(m); added++; } }
+      return added;
+    },
+    smembers: async (k) => {
+      const s = setObj.get(k);
+      return s ? Array.from(s) : [];
+    },
+    incr: async (k) => {
+      const val = Number(memoryMap.get(k) || 0) + 1;
+      memoryMap.set(k, String(val));
+      return val;
+    },
     hset: async (k, f, v) => {
       if (!hashObj.has(k)) hashObj.set(k, {});
       hashObj.get(k)[f] = v;
@@ -48,6 +78,8 @@ if (process.env.REDIS_URL) {
       return obj ? { ...obj } : null;
     },
     expire: async () => 1,
+    // For rate-limit-redis compat: no-op in dev without real Redis
+    call: async (_command, ..._args) => null,
   };
 }
 

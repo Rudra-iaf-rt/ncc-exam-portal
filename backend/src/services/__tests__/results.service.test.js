@@ -3,6 +3,7 @@ jest.mock("../../lib/prisma", () => {
   const mockResult = {
     findMany: jest.fn(),
     count: jest.fn(),
+    aggregate: jest.fn(),
   };
   const mockUser = {
     findUnique: jest.fn(),
@@ -29,9 +30,17 @@ jest.mock("../../lib/redis", () => ({
   },
 }));
 
+jest.mock("../../lib/cache", () => ({
+  cacheGetJson: jest.fn(),
+  cacheSetJson: jest.fn(),
+  cacheDel: jest.fn(),
+  trackKey: jest.fn(),
+}));
+
 const resultsService = require("../results.service");
 const { prisma } = require("../../lib/prisma");
 const { redis } = require("../../lib/redis");
+const { cacheGetJson, cacheSetJson } = require("../../lib/cache");
 const { HttpError } = require("../../utils/http-error");
 
 describe("Results Service Unit Tests", () => {
@@ -53,17 +62,17 @@ describe("Results Service Unit Tests", () => {
         results: [{ id: 1, score: 90, examTitle: "Mock Exam" }],
         pagination: { total: 1, page: 1, limit: 10, totalPages: 1 },
       };
-      redis.get.mockResolvedValue(JSON.stringify(mockCachedResponse));
+      cacheGetJson.mockResolvedValue(mockCachedResponse);
 
       const res = await resultsService.listForStudent(studentId, query);
 
-      expect(redis.get).toHaveBeenCalledWith("results:student:12:5:p1:l10");
+      expect(cacheGetJson).toHaveBeenCalledWith("results:student:12:5:p1:l10");
       expect(res).toEqual(mockCachedResponse);
       expect(prisma.result.findMany).not.toHaveBeenCalled();
     });
 
     it("should query DB, set Redis cache and return data on cache miss", async () => {
-      redis.get.mockResolvedValue(null);
+      cacheGetJson.mockResolvedValue(null);
       prisma.attempt.findMany.mockResolvedValue([]);
       prisma.result.findMany.mockResolvedValue([
         {
@@ -88,10 +97,11 @@ describe("Results Service Unit Tests", () => {
 
       expect(prisma.result.findMany).toHaveBeenCalled();
       expect(prisma.result.count).toHaveBeenCalled();
-      expect(redis.setex).toHaveBeenCalledWith(
+      expect(cacheSetJson).toHaveBeenCalledWith(
         "results:student:12:5:p1:l10",
         60,
-        expect.any(String)
+        expect.any(Object),
+        "results:student:12"
       );
       expect(res.results[0].studentName).toBe("John Cadet");
     });
@@ -104,23 +114,25 @@ describe("Results Service Unit Tests", () => {
     it("should resolve collegeCode from Redis metadata cache on instructor metadata hit", async () => {
       redis.get
         .mockResolvedValueOnce("MIT") // metadata cache hit for user collegeCode
-        .mockResolvedValueOnce(
-          JSON.stringify({
+        
+      cacheGetJson.mockResolvedValueOnce(
+          {
             results: [{ id: 1, score: 95 }],
             pagination: { total: 1 },
-          })
+          }
         ); // results cache hit
 
       const res = await resultsService.listForInstructor(instructorId, query);
 
       expect(redis.get).toHaveBeenNthCalledWith(1, "user:metadata:2");
-      expect(redis.get).toHaveBeenNthCalledWith(2, "results:instructor:2:MIT:all:none:p1:l10");
+      expect(cacheGetJson).toHaveBeenCalledWith("results:instructor:2:MIT:all:none:p1:l10");
       expect(prisma.user.findUnique).not.toHaveBeenCalled();
       expect(res.results[0].score).toBe(95);
     });
 
     it("should resolve collegeCode from DB if Redis metadata is missing, then cache it", async () => {
-      redis.get.mockResolvedValue(null); // misses both metadata and results
+      redis.get.mockResolvedValue(null); // misses both metadata
+      cacheGetJson.mockResolvedValue(null); // misses results
       prisma.user.findUnique.mockResolvedValue({ id: 2, collegeCode: "MIT" });
       prisma.result.findMany.mockResolvedValue([]);
       prisma.result.count.mockResolvedValue(0);
@@ -132,10 +144,11 @@ describe("Results Service Unit Tests", () => {
         select: { collegeCode: true },
       });
       expect(redis.setex).toHaveBeenCalledWith("user:metadata:2", 300, "MIT");
-      expect(redis.setex).toHaveBeenCalledWith(
+      expect(cacheSetJson).toHaveBeenCalledWith(
         "results:instructor:2:MIT:all:none:p1:l10",
         30,
-        expect.any(String)
+        expect.any(Object),
+        "results:instructor"
       );
     });
   });
@@ -150,6 +163,12 @@ describe("Results Service Unit Tests", () => {
           { score: 80 },
           { score: 110 },
         ],
+      });
+      prisma.result.aggregate.mockResolvedValue({
+        _count: { _all: 3 },
+        _avg: { score: 80 },
+        _max: { score: 110 },
+        _min: { score: 50 }
       });
 
       const summary = await resultsService.examSummary(10);
@@ -166,6 +185,7 @@ describe("Results Service Unit Tests", () => {
 
     it("should throw HttpError 404 if exam is not found", async () => {
       prisma.exam.findUnique.mockResolvedValue(null);
+      prisma.result.aggregate.mockResolvedValue({ _count: { _all: 0 }, _avg: { score: 0 }, _max: { score: 0 }, _min: { score: 0 } });
 
       await expect(resultsService.examSummary(99)).rejects.toThrow(
         new HttpError(404, "Exam not found")

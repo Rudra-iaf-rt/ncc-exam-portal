@@ -1,6 +1,6 @@
 const { prisma } = require("../lib/prisma");
 const { redis } = require("../lib/redis");
-const { cacheGetJson, cacheSetJson, cacheDel, cacheDelPattern, getCacheVersion, incrementCacheVersion } = require("../lib/cache");
+const { cacheGetJson, cacheSetJson, cacheDel, cacheDelPattern, cacheDelNamespace, getCacheVersion, incrementCacheVersion } = require("../lib/cache");
 const { HttpError } = require("../utils/http-error");
 const { features } = require("../config/features");
 const {
@@ -176,14 +176,18 @@ async function listExamsCatalog(userId, role, query = {}) {
   const attemptMap = new Map((attempts || []).map((a) => [a.examId, a]));
 
   const examIds = exams.map((e) => e.id);
-  const examIdsList = examIds.length > 0 ? examIds.join(',') : '0';
-  const assignedCollegesRaw = await prisma.$queryRawUnsafe(`
-    SELECT DISTINCT ea."examId", COALESCE(c."name", u."collegeCode", 'N/A') as "collegeName"
-    FROM "ExamAssignment" ea
-    JOIN "User" u ON ea."userId" = u.id
-    LEFT JOIN "College" c ON u."collegeCode" = c."code"
-    WHERE ea."examId" IN (${examIdsList})
-  `);
+  // Use $queryRaw with a parameterized tagged template (safe) instead of
+  // $queryRawUnsafe with string interpolation (constitutional violation §4 Rule #2).
+  const assignedCollegesRaw = examIds.length > 0
+    ? await prisma.$queryRaw`
+        SELECT DISTINCT ea."examId",
+          COALESCE(c."name", u."collegeCode", 'N/A') as "collegeName"
+        FROM "ExamAssignment" ea
+        JOIN "User" u ON ea."userId" = u.id
+        LEFT JOIN "College" c ON u."collegeCode" = c."code"
+        WHERE ea."examId" = ANY(${examIds}::int[])
+      `
+    : [];
 
   function generateAcronym(name) {
     if (!name || name === 'N/A') return 'N/A';
@@ -266,37 +270,12 @@ async function getExamForStudent(examId) {
   }
 
   const cacheKey = `exams:details:${examId}`;
-  try {
-    const cached = await redis.get(cacheKey);
-    if (cached) return JSON.parse(cached);
-  } catch (err) {
-    console.error("[Redis] GET error in getExamForStudent", err);
-  }
+  const cached = await cacheGetJson(cacheKey);
+  if (cached) return cached;
 
-  const exam = await prisma.exam.findUnique({
-    where: { id: examId },
-    include: {
-      questions: {
-        select: {
-          id: true,
-          question: true,
-          options: true,
-        },
-        orderBy: { id: "asc" },
-      },
-    },
-  });
-
-  if (!exam) {
-    throw new HttpError(404, "Exam not found");
-  }
-  if (exam.status !== "LIVE") {
-    // Note: status is not selected in the 'select' above, so we need to be careful.
-    // Actually, I should probably check status BEFORE caching or cache the whole object.
-    // Let's re-fetch with status just to be safe, or select it.
-  }
-
-  // Improved query to include status for validation
+  // Single query — includes top-level fields (status, duration, etc.)
+  // and question sub-fields, deliberately excluding `answer` to prevent
+  // leaking correct answers to students via the cache.
   const fullExam = await prisma.exam.findUnique({
     where: { id: examId },
     include: {
@@ -311,11 +290,7 @@ async function getExamForStudent(examId) {
   if (fullExam.status !== "LIVE") throw new HttpError(403, "Exam is not published yet");
   if (fullExam.questions.length === 0) throw new HttpError(400, "Exam has no questions");
 
-  try {
-    await redis.setex(cacheKey, 600, JSON.stringify(fullExam));
-  } catch (err) {
-    console.error("[Redis] SET error in getExamForStudent", err);
-  }
+  await cacheSetJson(cacheKey, 600, fullExam);
 
   return fullExam;
 }
@@ -804,11 +779,14 @@ async function saveAttemptAnswer(studentId, body) {
     throw new HttpError(403, "Time limit exceeded");
   }
 
-  // 2. Fetch Exam details (Redis-cached)
-  const cacheKey = `exams:details:${examId}`;
+  // 2. Fetch Exam timing/question-list data (Redis-cached).
+  // IMPORTANT: uses a separate key from exams:details:* to avoid schema collision.
+  // This object only carries { id, duration, questions:[{id}] } — never question
+  // text, options, or answers — so it cannot overwrite the richer student-facing cache.
+  const timingCacheKey = `exams:timing:${examId}`;
   let cachedExam = null;
   try {
-    const data = await redis.get(cacheKey);
+    const data = await redis.get(timingCacheKey);
     if (data) cachedExam = JSON.parse(data);
   } catch (err) {
     console.error("[Redis] GET error in saveAttemptAnswer:", err);
@@ -817,7 +795,7 @@ async function saveAttemptAnswer(studentId, body) {
   if (!cachedExam) {
     const exam = await prisma.exam.findUnique({
       where: { id: examId },
-      include: { questions: { orderBy: { id: "asc" } } },
+      include: { questions: { select: { id: true }, orderBy: { id: "asc" } } },
     });
     if (!exam) {
       throw new HttpError(404, "Exam not found");
@@ -828,7 +806,7 @@ async function saveAttemptAnswer(studentId, body) {
       questions: exam.questions.map((q) => ({ id: q.id })),
     };
     try {
-      await redis.setex(cacheKey, 3600, JSON.stringify(cachedExam));
+      await redis.setex(timingCacheKey, 3600, JSON.stringify(cachedExam));
     } catch (err) {
       console.error("[Redis] SET error in saveAttemptAnswer:", err);
     }
@@ -991,11 +969,13 @@ async function submitExam(studentId, body) {
     }),
   ]);
 
-  // Best-effort invalidation (should never block submit response path)
+  // Best-effort invalidation (should never block submit response path).
+  // cacheDelNamespace targets only the keys registered in each namespace Set,
+  // replacing the previously-disabled cacheDelPattern no-ops.
   await Promise.all([
-    cacheDelPattern(`results:student:${studentId}:*`),
-    cacheDelPattern(`results:admin:*`),
-    cacheDelPattern(`results:instructor:*`),
+    cacheDelNamespace(`results:student:${studentId}`),
+    cacheDelNamespace("results:admin"),
+    cacheDelNamespace(`results:instructor`),
     incrementCacheVersion(`exams:catalog:user:${studentId}`),
     cacheDel([
       `stats:dashboard:STUDENT:${studentId}`,
@@ -1093,16 +1073,16 @@ async function publishResults(userId, examIdRaw) {
     data: { resultsPublished: true },
   });
 
-  // Clear related caches
+  // Clear related caches using set-based namespace invalidation (replaces no-op cacheDelPattern).
   try {
-    await cacheDelPattern(`results:admin:*`);
-    await cacheDelPattern(`results:student:*`);
-    await cacheDelPattern(`results:instructor:*`);
-    await cacheDelPattern(`leaderboard:unit:*`);
-    await cacheDelPattern(`exams:details:${examId}`);
-    await cacheDel([`exam:review_data:${examId}`]);
-    // Wildcard exams catalog caches (since resultsPublished state changed)
-    await incrementCacheVersion("exams:catalog:global");
+    await Promise.all([
+      cacheDelNamespace("results:admin"),
+      cacheDelNamespace("results:student"),
+      cacheDelNamespace("results:instructor"),
+      cacheDelNamespace("leaderboard:unit"),
+      cacheDel([`exams:details:${examId}`, `exam:review_data:${examId}`]),
+      incrementCacheVersion("exams:catalog:global"),
+    ]);
   } catch (err) {
     console.error("[Redis] Cache invalidation failed during publishResults", err);
   }

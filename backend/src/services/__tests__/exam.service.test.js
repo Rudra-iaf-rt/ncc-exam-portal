@@ -32,6 +32,11 @@ jest.mock("../../lib/prisma", () => {
     attempt: mockAttempt,
     result: mockResult,
     $executeRaw: jest.fn(),
+    // $queryRaw is a tagged template — wrap it so it works as both tagged template and function
+    $queryRaw: Object.assign(
+      jest.fn().mockResolvedValue([]),
+      { [Symbol.for("jest.asymmetricMatch")]: undefined }
+    ),
   };
   mockPrisma.$transaction = jest.fn((cb) => {
     if (typeof cb === "function") {

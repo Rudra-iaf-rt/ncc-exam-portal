@@ -1,6 +1,6 @@
 const bcrypt = require("bcrypt");
 const { prisma } = require("../lib/prisma");
-const { redis } = require("../lib/redis");
+const { cacheDel } = require("../lib/cache");
 const { HttpError } = require("../utils/http-error");
 const { ROLES } = require("../middleware/roles");
 const { sanitizeUser } = require("./auth.service");
@@ -9,14 +9,7 @@ const { features } = require("../config/features");
 const SALT_ROUNDS = 10;
 
 async function clearCollegesCache() {
-  try {
-    await Promise.all([
-      redis.del('cache:colleges:active'),
-      redis.del('cache:colleges:all')
-    ]);
-  } catch (err) {
-    console.error('[Redis Cache Del Error in users.service]', err);
-  }
+  await cacheDel(['cache:colleges:active', 'cache:colleges:all']);
 }
 
 function normalizeEmail(email) {
@@ -168,9 +161,13 @@ async function listUsers(query = {}, currentUser = null) {
   const where = role ? { role } : {};
 
   if (currentUser?.role === ROLES.INSTRUCTOR) {
-    const instructorRecord = await prisma.user.findUnique({ where: { id: currentUser.id } });
-    if (instructorRecord?.collegeCode) {
-      where.collegeCode = instructorRecord.collegeCode;
+    if (currentUser.collegeCode) {
+      where.collegeCode = currentUser.collegeCode;
+    } else {
+      const instructorRecord = await prisma.user.findUnique({ where: { id: currentUser.id } });
+      if (instructorRecord?.collegeCode) {
+        where.collegeCode = instructorRecord.collegeCode;
+      }
     }
   }
 
@@ -254,38 +251,85 @@ async function bulkImportCadets(cadetsArray, currentUser) {
 
   const defaultPassword = await bcrypt.hash('cadet123', SALT_ROUNDS);
 
+  const validCadets = [];
+  const regNumbersInPayload = new Set();
+  
   for (const cadet of cadetsArray) {
-    try {
-      const { name, regimentalNumber, collegeCode, wing, batch } = cadet;
-      
-      if (!name || !regimentalNumber || !collegeCode) {
-        throw new Error("Missing required fields: name, regimentalNumber, or collegeCode");
-      }
-
-      await prisma.user.create({
-        data: {
-          name,
-          regimentalNumber,
-          collegeCode: collegeCode.toUpperCase(),
-          role: ROLES.STUDENT,
-          password: defaultPassword,
-          wing: wing || null,
-          batch: batch || null,
-          isActive: true
-        }
-      });
-      results.success++;
-    } catch (err) {
+    const { name, regimentalNumber, collegeCode, wing, batch } = cadet;
+    if (!name || !regimentalNumber || !collegeCode) {
       results.failed++;
-      results.errors.push({ 
-        regimentalNumber: cadet.regimentalNumber || 'N/A', 
-        error: err.message 
+      results.errors.push({
+        regimentalNumber: regimentalNumber || 'N/A',
+        error: "Missing required fields: name, regimentalNumber, or collegeCode"
       });
+      continue;
+    }
+    
+    if (regNumbersInPayload.has(regimentalNumber)) {
+      results.failed++;
+      results.errors.push({
+        regimentalNumber,
+        error: "Duplicate regimentalNumber in import payload"
+      });
+      continue;
+    }
+    
+    regNumbersInPayload.add(regimentalNumber);
+    validCadets.push({
+      name,
+      regimentalNumber,
+      collegeCode: collegeCode.toUpperCase(),
+      role: ROLES.STUDENT,
+      password: defaultPassword,
+      wing: wing || null,
+      batch: batch || null,
+      isActive: true
+    });
+  }
+
+  if (validCadets.length === 0) {
+    return results;
+  }
+
+  const existingUsers = await prisma.user.findMany({
+    where: {
+      regimentalNumber: { in: Array.from(regNumbersInPayload) }
+    },
+    select: { regimentalNumber: true }
+  });
+  
+  const existingRegSet = new Set(existingUsers.map(u => u.regimentalNumber));
+  
+  const toInsert = [];
+  for (const cadet of validCadets) {
+    if (existingRegSet.has(cadet.regimentalNumber)) {
+      results.failed++;
+      results.errors.push({
+        regimentalNumber: cadet.regimentalNumber,
+        error: "User with this Regimental Number already exists"
+      });
+    } else {
+      toInsert.push(cadet);
     }
   }
 
-  if (results.success > 0) {
-    await clearCollegesCache();
+  if (toInsert.length > 0) {
+    try {
+      const inserted = await prisma.user.createMany({
+        data: toInsert,
+        skipDuplicates: true
+      });
+      results.success += inserted.count;
+      await clearCollegesCache();
+    } catch (err) {
+      for (const cadet of toInsert) {
+        results.failed++;
+        results.errors.push({
+          regimentalNumber: cadet.regimentalNumber,
+          error: "Bulk insert failed: " + err.message
+        });
+      }
+    }
   }
 
   return results;
@@ -296,9 +340,13 @@ async function searchUsers(filters = {}, currentUser) {
   let collegeCode = filters.collegeCode;
 
   if (currentUser?.role === ROLES.INSTRUCTOR) {
-    const instructorRecord = await prisma.user.findUnique({ where: { id: currentUser.id } });
-    if (instructorRecord?.collegeCode) {
-      collegeCode = instructorRecord.collegeCode;
+    if (currentUser.collegeCode) {
+      collegeCode = currentUser.collegeCode;
+    } else {
+      const instructorRecord = await prisma.user.findUnique({ where: { id: currentUser.id } });
+      if (instructorRecord?.collegeCode) {
+        collegeCode = instructorRecord.collegeCode;
+      }
     }
   }
 
@@ -326,7 +374,7 @@ async function searchUsers(filters = {}, currentUser) {
       ]
     },
     select: safeUserSelect(),
-    take: 3000
+    take: 50
   });
 
   return rows.map(u => ({
@@ -338,9 +386,13 @@ async function searchUsers(filters = {}, currentUser) {
 async function getFilters(currentUser) {
   let collegeWhere = {};
   if (currentUser?.role === ROLES.INSTRUCTOR) {
-    const instructorRecord = await prisma.user.findUnique({ where: { id: currentUser.id } });
-    if (instructorRecord?.collegeCode) {
-      collegeWhere = { collegeCode: instructorRecord.collegeCode };
+    if (currentUser.collegeCode) {
+      collegeWhere = { collegeCode: currentUser.collegeCode };
+    } else {
+      const instructorRecord = await prisma.user.findUnique({ where: { id: currentUser.id } });
+      if (instructorRecord?.collegeCode) {
+        collegeWhere = { collegeCode: instructorRecord.collegeCode };
+      }
     }
   }
 

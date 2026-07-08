@@ -1,4 +1,7 @@
 const crypto = require("crypto");
+const rateLimit = require("express-rate-limit");
+const { RedisStore } = require("rate-limit-redis");
+const { redis } = require("../lib/redis");
 
 function requestContext(req, res, next) {
   req.requestId = crypto.randomUUID();
@@ -15,32 +18,41 @@ function securityHeaders(_req, res, next) {
   next();
 }
 
+
 function createRateLimiter({ windowMs, max, keyFn, message }) {
-  const buckets = new Map();
-  const resolveKey = typeof keyFn === "function" ? keyFn : (req) => req.ip || "unknown";
-
-  return (req, res, next) => {
-    const key = resolveKey(req);
-    const now = Date.now();
-    const existing = buckets.get(key);
-    const fresh = !existing || existing.resetAt <= now;
-    const bucket = fresh ? { count: 0, resetAt: now + windowMs } : existing;
-    bucket.count += 1;
-    buckets.set(key, bucket);
-
-    if (bucket.count > max) {
-      const retryAfterSec = Math.max(1, Math.ceil((bucket.resetAt - now) / 1000));
+  const limiterConfig = {
+    windowMs,
+    max,
+    keyGenerator: typeof keyFn === "function" ? keyFn : (req) => req.ip || "unknown",
+    standardHeaders: "draft-7", // Sends RateLimit-* headers (RFC 6585)
+    legacyHeaders: false,
+    handler: (_req, res, _next, options) => {
+      const retryAfterSec = Math.max(1, Math.ceil(options.windowMs / 1000));
       res.setHeader("Retry-After", String(retryAfterSec));
-      return res.status(429).json({ error: message || "Too many requests" });
-    }
+      res.status(429).json({
+        error: message || "Too many requests",
+        code: "RATE_001",
+      });
+    },
+    skip: () => process.env.LOAD_TEST === "true",
+  };
 
-    if (buckets.size > 15000) {
-      for (const [k, b] of buckets.entries()) {
-        if (b.resetAt <= now) buckets.delete(k);
-      }
-    }
+  // Without Redis: return a plain express-rate-limit instance (MemoryStore).
+  if (!process.env.REDIS_URL) {
+    return rateLimit(limiterConfig);
+  }
 
-    return next();
+  // With Redis: defer RedisStore construction until the first request so the
+  // ioredis connection is established before any commands are sent.
+  let _limiter = null;
+  return (req, res, next) => {
+    if (!_limiter) {
+      const store = new RedisStore({
+        sendCommand: (...args) => redis.call(...args),
+      });
+      _limiter = rateLimit({ ...limiterConfig, store });
+    }
+    return _limiter(req, res, next);
   };
 }
 
@@ -49,24 +61,22 @@ const authRateLimiter = createRateLimiter({
   max: 300,
   keyFn: (req) => {
     const identifier = req.body?.regimentalNumber || req.body?.email || req.ip || "unknown";
-    return `${identifier}:${String(req.path || "")}`;
+    return `rl:auth:${identifier}:${String(req.path || "")}`;
   },
   message: "Too many auth requests. Please try again shortly.",
 });
 
 const attemptRateLimiter = createRateLimiter({
   windowMs: 60 * 1000,
-  max: process.env.LOAD_TEST === "true" ? 50000 : 300,
-  keyFn: (req) =>
-    `${req.ip || "unknown"}:${String(req.user?.id || "guest")}:attempt`,
+  max: 300,
+  keyFn: (req) => `rl:attempt:${req.ip || "unknown"}:${String(req.user?.id || "guest")}`,
   message: "Too many attempt actions. Please slow down.",
 });
 
 const antiCheatRateLimiter = createRateLimiter({
   windowMs: 60 * 1000,
   max: 100,
-  keyFn: (req) =>
-    `${req.ip || "unknown"}:${String(req.user?.id || "guest")}:anti-cheat`,
+  keyFn: (req) => `rl:anticheat:${req.ip || "unknown"}:${String(req.user?.id || "guest")}`,
   message: "Too many anti-cheat requests. Please slow down.",
 });
 
@@ -78,3 +88,4 @@ module.exports = {
   attemptRateLimiter,
   antiCheatRateLimiter,
 };
+

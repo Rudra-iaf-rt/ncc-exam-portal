@@ -1,8 +1,15 @@
 const { prisma } = require("../lib/prisma");
 const { redis } = require("../lib/redis");
+const { withCacheLock, cacheSetJson, cacheGetJson, trackKey } = require("../lib/cache");
+
+const MIN_EXAMS_REQUIRED = 2;
+const LEADERBOARD_TTL = 86400; // 24 hours
 
 /**
- * Calculates and caches the unit leaderboard for a specific college
+ * Calculates and caches the unit leaderboard for a specific college.
+ * Uses a DB-level groupBy aggregation (no full user+results in-memory load)
+ * and a stampede lock to prevent concurrent cache rebuilds.
+ *
  * @param {string} collegeCode - The college/unit code
  */
 const getUnitLeaderboard = async (collegeCode) => {
@@ -10,117 +17,146 @@ const getUnitLeaderboard = async (collegeCode) => {
 
   const cacheKey = `leaderboard:unit:${collegeCode}`;
 
-  try {
-    // 1. Try Cache First
-    const cached = await redis.get(cacheKey);
-    if (cached) {
-      return JSON.parse(cached);
-    }
-  } catch (err) {
-    console.error("[Redis] Cache read error on leaderboard", err);
-  }
+  // 1. Try cache first (wrapped in the timeout guard via cacheGetJson)
+  const cached = await cacheGetJson(cacheKey);
+  if (cached) return cached;
 
-  // 2. Fetch all students in the unit (or globally if HQ) with their results
-  const whereClause = {
-    role: 'STUDENT',
-    isActive: true
+  // 2. Cache miss — acquire a stampede lock so only one process rebuilds.
+  //    Other concurrent requests get null back and we return an empty array
+  //    as the lightweight fallback (they'll retry on the next request once
+  //    the lock holder has populated the cache).
+  const leaderboard = await withCacheLock(
+    `leaderboard_rebuild:${collegeCode}`,
+    async () => {
+      // Double-check: another process may have populated the cache while we
+      // were waiting for the lock.
+      const freshCached = await cacheGetJson(cacheKey);
+      if (freshCached) return freshCached;
+
+      return _buildLeaderboard(collegeCode);
+    },
+    15 // lock TTL: 15s — enough for the aggregation query to complete
+  );
+
+  // Lock not acquired (another rebuild in progress) — return empty as fallback
+  if (leaderboard === null) return [];
+
+  return leaderboard;
+};
+
+/**
+ * Runs the DB aggregation and stores the result in the cache.
+ * Separated so it can be called cleanly inside the stampede lock.
+ */
+async function _buildLeaderboard(collegeCode) {
+  // Aggregate scores per student directly in the DB — avoids loading all
+  // result rows into Node memory (O(students × exams) vs. O(ranked_students)).
+  const isGlobal = collegeCode === "HQ001";
+
+  const studentWhere = {
+    role: "STUDENT",
+    isActive: true,
+    ...(isGlobal ? {} : { collegeCode }),
   };
-  
-  // If collegeCode is HQ001, we want a global leaderboard (no college filter)
-  if (collegeCode !== 'HQ001') {
-    whereClause.collegeCode = collegeCode;
+
+  // Step 1: Aggregate result counts + sums per student using groupBy
+  const aggregated = await prisma.result.groupBy({
+    by: ["studentId"],
+    where: {
+      student: studentWhere,
+    },
+    _count: { _all: true },
+    _sum: { score: true },
+    orderBy: { _sum: { score: "desc" } },
+  });
+
+  // Step 2: Filter to students who have taken the minimum number of exams
+  const qualified = aggregated.filter(
+    (row) => row._count._all >= MIN_EXAMS_REQUIRED
+  );
+
+  if (qualified.length === 0) {
+    await cacheSetJson(`leaderboard:unit:${collegeCode}`, LEADERBOARD_TTL, [], "leaderboard:unit");
+    return [];
   }
 
+  // Step 3: Fetch only the profile fields we need, for the qualified student IDs
+  const qualifiedIds = qualified.map((r) => r.studentId);
   const students = await prisma.user.findMany({
-    where: whereClause,
+    where: { id: { in: qualifiedIds } },
     select: {
       id: true,
       name: true,
       regimentalNumber: true,
       collegeCode: true,
       wing: true,
-      results: {
-        select: {
-          score: true
-        }
-      }
-    }
+    },
   });
 
-  // 3. Calculate metrics and apply threshold (Min 2 Exams)
-  const MIN_EXAMS_REQUIRED = 2;
-  
-  let leaderboard = [];
+  const studentMap = new Map(students.map((s) => [s.id, s]));
 
-  students.forEach((student) => {
-    const examsTaken = student.results.length;
-    
-    if (examsTaken >= MIN_EXAMS_REQUIRED) {
-      const totalScore = student.results.reduce((sum, res) => sum + res.score, 0);
+  // Step 4: Build and rank the leaderboard in memory (only qualified students)
+  let leaderboard = qualified
+    .map((row) => {
+      const student = studentMap.get(row.studentId);
+      if (!student) return null;
+      const examsTaken = row._count._all;
+      const totalScore = row._sum.score ?? 0;
       const averageScore = Math.round(totalScore / examsTaken);
-
-      leaderboard.push({
+      return {
         studentId: student.id,
         name: student.name,
         regimentalNumber: student.regimentalNumber,
         collegeCode: student.collegeCode,
         wing: student.wing,
         averageScore,
-        examsTaken
-      });
-    }
-  });
-
-  // 4. Sort Leaderboard
-  // Primary sort: Average Score (DESC)
-  // Secondary sort: Exams Taken (DESC) - Tie breaker
-  leaderboard.sort((a, b) => {
-    if (b.averageScore === a.averageScore) {
+        examsTaken,
+      };
+    })
+    .filter(Boolean)
+    .sort((a, b) => {
+      if (b.averageScore !== a.averageScore) return b.averageScore - a.averageScore;
       return b.examsTaken - a.examsTaken;
-    }
-    return b.averageScore - a.averageScore;
-  });
+    })
+    .map((cadet, index) => ({ rank: index + 1, ...cadet }));
 
-  // 5. Assign Ranks
-  leaderboard = leaderboard.map((cadet, index) => ({
-    rank: index + 1,
-    ...cadet
-  }));
-
-  // 6. Cache the result (24 hour TTL)
-  try {
-    await redis.setex(cacheKey, 86400, JSON.stringify(leaderboard));
-  } catch (err) {
-    console.error("[Redis] Cache write error on leaderboard", err);
-  }
+  // Step 5: Cache the result — tracked under the leaderboard:unit namespace
+  //         so cacheDelNamespace("leaderboard:unit") can invalidate it on
+  //         results publish.
+  await cacheSetJson(
+    `leaderboard:unit:${collegeCode}`,
+    LEADERBOARD_TTL,
+    leaderboard,
+    "leaderboard:unit"
+  );
 
   return leaderboard;
-};
+}
 
 /**
- * Gets the specific rank and stats for a single student in their unit
+ * Gets the specific rank and stats for a single student in their unit.
  * @param {number} studentId
  * @param {string} collegeCode
  */
 const getStudentUnitRank = async (studentId, collegeCode) => {
   const leaderboard = await getUnitLeaderboard(collegeCode);
-  
-  const studentStats = leaderboard.find(c => c.studentId === parseInt(studentId));
-  
+
+  const studentStats = leaderboard.find((c) => c.studentId === parseInt(studentId));
+
   if (studentStats) {
     return {
       isRanked: true,
       ...studentStats,
-      totalRankedCadets: leaderboard.length
+      totalRankedCadets: leaderboard.length,
     };
   }
 
-  // If not in leaderboard, they haven't met the threshold or don't exist
+  // Not in leaderboard — fetch their personal stats (single small query)
   const student = await prisma.user.findUnique({
     where: { id: parseInt(studentId) },
     select: {
-      results: { select: { score: true } }
-    }
+      results: { select: { score: true } },
+    },
   });
 
   if (!student) throw new Error("Student not found");
@@ -137,12 +173,12 @@ const getStudentUnitRank = async (studentId, collegeCode) => {
     rank: null,
     examsTaken,
     averageScore,
-    examsNeeded: Math.max(0, 2 - examsTaken),
-    totalRankedCadets: leaderboard.length
+    examsNeeded: Math.max(0, MIN_EXAMS_REQUIRED - examsTaken),
+    totalRankedCadets: leaderboard.length,
   };
 };
 
 module.exports = {
   getUnitLeaderboard,
-  getStudentUnitRank
+  getStudentUnitRank,
 };

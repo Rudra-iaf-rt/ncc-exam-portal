@@ -3,6 +3,7 @@ const crypto = require("crypto");
 const { prisma } = require("../lib/prisma");
 const { signToken } = require("../utils/jwt");
 const { HttpError } = require("../utils/http-error");
+const { cacheGetJson, cacheSetJson, cacheDel } = require("../lib/cache");
 const { ROLES } = require("../middleware/roles");
 const { sendMail } = require("./mailer.service");
 
@@ -52,7 +53,7 @@ function sanitizeUser(user) {
 
 async function issueSessionTokens(user, options = {}) {
   const oldTokenHash = options.oldTokenHash ? String(options.oldTokenHash) : null;
-  const accessToken = signToken({ sub: user.id, role: user.role });
+  const accessToken = signToken({ sub: user.id, role: user.role, collegeCode: user.collegeCode || null });
   const refreshToken = crypto.randomBytes(REFRESH_TOKEN_BYTES).toString("hex");
   const tokenHash = sha256(refreshToken);
   const expiresAt = new Date(Date.now() + REFRESH_TOKEN_TTL_DAYS * 24 * 60 * 60 * 1000);
@@ -149,6 +150,13 @@ async function getMe(userId) {
     throw new HttpError(401, "Authentication required");
   }
 
+  // Cache the user profile for 60s — this is hit on every authenticated
+  // page load (GET /api/auth/me) and was previously doing a full DB round-trip
+  // each time (~4s on a remote DB connection).
+  const cacheKey = `auth:me:${parsedId}`;
+  const cached = await cacheGetJson(cacheKey);
+  if (cached) return cached;
+
   const user = await prisma.user.findUnique({
     where: { id: parsedId },
     include: { college: true }
@@ -159,7 +167,10 @@ async function getMe(userId) {
   if (!user.isActive) {
     throw new HttpError(403, "Account is disabled");
   }
-  return sanitizeUser(user);
+  const sanitized = sanitizeUser(user);
+  // Fire-and-forget cache write — never block the response
+  cacheSetJson(cacheKey, 60, sanitized);
+  return sanitized;
 }
 
 async function refreshSession(userId) {

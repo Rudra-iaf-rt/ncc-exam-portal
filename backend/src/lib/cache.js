@@ -8,8 +8,6 @@ async function withTimeout(promise, fallback = null) {
     timeoutId = setTimeout(() => resolve(fallback), CACHE_TIMEOUT_MS);
   });
 
-  // Attach a catch handler to the input promise to prevent it from causing
-  // an unhandled promise rejection if it rejects in the background after the timeout has resolved.
   if (promise && typeof promise.catch === "function") {
     promise.catch((err) => {
       console.warn("[Redis Cache Background Error]", err.message);
@@ -24,6 +22,11 @@ async function withTimeout(promise, fallback = null) {
   }
 }
 
+function trackKey(namespace, key) {
+  if (!namespace || !key) return;
+  withTimeout(redis.sadd(`keys:${namespace}`, key), null).catch(() => {});
+}
+
 async function cacheGetJson(key) {
   if (!key) return null;
   try {
@@ -36,13 +39,12 @@ async function cacheGetJson(key) {
   }
 }
 
-async function cacheSetJson(key, ttlSec, value) {
+async function cacheSetJson(key, ttlSec, value, namespace = null) {
   if (!key || !ttlSec) return;
   try {
     const payload = JSON.stringify(value);
-    withTimeout(redis.setex(key, ttlSec, payload), null).catch((err) => {
-      console.error("[Redis Cache Set Background Failure]", err.message);
-    });
+    await withTimeout(redis.setex(key, ttlSec, payload), null);
+    if (namespace) trackKey(namespace, key);
   } catch (_err) {
     // Best-effort write only.
   }
@@ -63,11 +65,39 @@ async function cacheDel(keys) {
   }
 }
 
+async function cacheDelNamespace(namespace) {
+  if (!namespace) return;
+  const keySet = `keys:${namespace}`;
+  try {
+    const keys = await withTimeout(redis.smembers(keySet), []);
+    if (keys && keys.length > 0) {
+      await cacheDel(keys);
+    }
+    await withTimeout(redis.del(keySet), null);
+  } catch (err) {
+    console.error("[Redis] cacheDelNamespace error", err);
+  }
+}
+
 async function cacheDelPattern(pattern) {
-  // Disabled: SCAN operations on remote Redis clusters are O(N) over the keyspace and can take 
-  // 10+ seconds for large databases, completely blocking the event loop and exhausting quotas.
-  // Instead, we rely on the short TTLs (30s - 60s) for cache expiration.
   return Promise.resolve();
+}
+
+async function withCacheLock(key, ttlSec, callback) {
+  const lockKey = `lock:${key}`;
+  const acquired = await withTimeout(
+    // ioredis SET option order: value, expiryMode, time, setMode
+    // "NX", "EX", n is wrong → sends SET key 1 NX EX n which Redis rejects.
+    // Correct: "EX", n, "NX" → sends SET key 1 EX n NX
+    redis.set(lockKey, "1", "EX", ttlSec, "NX"),
+    null
+  );
+  if (acquired !== "OK") return null;
+  try {
+    return await callback();
+  } finally {
+    await withTimeout(redis.del(lockKey), null);
+  }
 }
 
 async function getCacheVersion(namespace) {
@@ -93,8 +123,10 @@ module.exports = {
   cacheGetJson,
   cacheSetJson,
   cacheDel,
+  cacheDelNamespace,
   cacheDelPattern,
+  withCacheLock,
   getCacheVersion,
   incrementCacheVersion,
+  trackKey,
 };
-

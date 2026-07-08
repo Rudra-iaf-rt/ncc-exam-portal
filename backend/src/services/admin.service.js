@@ -24,41 +24,69 @@ async function getStats(currentUser) {
   const cached = await cacheGetJson(cacheKey);
   if (cached) return cached;
 
-  let userWhere = { role: "STUDENT" };
-  let attemptWhere = { status: "IN_PROGRESS" };
-  let resultWhere = {};
+  // Fetch instructor's collegeCode in the same parallel block as all other
+  // queries — previously it was a sequential round-trip that added ~2s to
+  // every cold stats load for INSTRUCTOR users.
+  const isInstructor = currentUser?.role === "INSTRUCTOR";
+  let cc = isInstructor ? currentUser?.collegeCode : null;
+  const [instructorRecord, totalStudents, totalExams, activeAttempts, resultAgg, recentActivity] =
+    await Promise.all([
+      (isInstructor && !cc)
+        ? prisma.user.findUnique({ where: { id: currentUser.id }, select: { collegeCode: true } })
+        : Promise.resolve(null),
+      prisma.user.count({ where: { role: "STUDENT" } }), // refined below after collegeCode is known
+      prisma.exam.count(),
+      prisma.attempt.count({ where: { status: "IN_PROGRESS" } }),
+      prisma.result.aggregate({ _avg: { score: true } }),
+      prisma.result.findMany({
+        take: 5,
+        orderBy: { id: 'desc' },
+        include: {
+          student: { select: { name: true } },
+          exam: { select: { title: true } }
+        }
+      })
+    ]);
 
-  if (currentUser?.role === "INSTRUCTOR") {
-    const instructorRecord = await prisma.user.findUnique({ where: { id: currentUser.id } });
-    if (instructorRecord?.collegeCode) {
-      userWhere.collegeCode = instructorRecord.collegeCode;
-      attemptWhere.student = { collegeCode: instructorRecord.collegeCode };
-      resultWhere.student = { collegeCode: instructorRecord.collegeCode };
+  // If this is an instructor, re-run the scoped queries with their collegeCode.
+  // We only do a second round if we actually have a collegeCode to scope by;
+  // otherwise the broad numbers above are used (matching the previous behavior).
+  let finalStudents = totalStudents;
+  let finalAttempts = activeAttempts;
+  let finalAgg = resultAgg;
+  let finalActivity = recentActivity;
+
+  if (isInstructor) {
+    if (!cc && instructorRecord?.collegeCode) cc = instructorRecord.collegeCode;
+    if (cc) {
+      const scopedWhere = { student: { collegeCode: cc } };
+    const [s, a, agg, act] = await Promise.all([
+      prisma.user.count({ where: { role: "STUDENT", collegeCode: cc } }),
+      prisma.attempt.count({ where: { status: "IN_PROGRESS", ...scopedWhere } }),
+      prisma.result.aggregate({ where: scopedWhere, _avg: { score: true } }),
+      prisma.result.findMany({
+        where: scopedWhere,
+        take: 5,
+        orderBy: { id: 'desc' },
+        include: {
+          student: { select: { name: true } },
+          exam: { select: { title: true } }
+        }
+      })
+    ]);
+      finalStudents = s;
+      finalAttempts = a;
+      finalAgg = agg;
+      finalActivity = act;
     }
   }
 
-  const [totalStudents, totalExams, activeAttempts, resultAgg, recentActivity] = await Promise.all([
-    prisma.user.count({ where: userWhere }),
-    prisma.exam.count(),
-    prisma.attempt.count({ where: attemptWhere }),
-    prisma.result.aggregate({ where: resultWhere, _avg: { score: true } }),
-    prisma.result.findMany({
-      where: resultWhere,
-      take: 5,
-      orderBy: { id: 'desc' },
-      include: {
-        student: { select: { name: true } },
-        exam: { select: { title: true } }
-      }
-    })
-  ]);
-
   const result = {
-    totalStudents,
+    totalStudents: finalStudents,
     totalExams,
-    activeExams: activeAttempts,
-    averageScore: resultAgg._avg.score ? `${resultAgg._avg.score.toFixed(1)}%` : "0%",
-    recentActivity: recentActivity.map(r => ({
+    activeExams: finalAttempts,
+    averageScore: finalAgg._avg.score ? `${finalAgg._avg.score.toFixed(1)}%` : "0%",
+    recentActivity: finalActivity.map(r => ({
       studentName: r.student.name,
       examTitle: r.exam.title,
       score: r.score,
@@ -66,8 +94,8 @@ async function getStats(currentUser) {
     }))
   };
 
-  // Dashboard stats cached for 30 seconds
-  await cacheSetJson(cacheKey, 30, result);
+  // Cache for 60s — these are aggregated counts, not live data.
+  await cacheSetJson(cacheKey, 60, result);
 
   return result;
 }
@@ -94,10 +122,28 @@ async function importUsers(fileBuffer, originalName, adminId) {
   const errors = [];
   const validUsers = [];
   
-  // Fetch existing users to check uniqueness
-  const existingUsers = await prisma.user.findMany({
-    select: { regimentalNumber: true, email: true }
-  });
+  const csvRegNos = new Set();
+  const csvEmails = new Set();
+  
+  for (const row of results) {
+    const regNo = row.regimentalNumber || row.RegimentalNumber || row.regNo || row.RegNo;
+    const email = row.email || row.Email || row.EMAIL;
+    if (regNo) csvRegNos.add(regNo);
+    if (email) csvEmails.add(email.toLowerCase());
+  }
+
+  // Fetch only existing users that match the CSV
+  const orConditions = [];
+  if (csvRegNos.size > 0) orConditions.push({ regimentalNumber: { in: Array.from(csvRegNos) } });
+  if (csvEmails.size > 0) orConditions.push({ email: { in: Array.from(csvEmails) } });
+
+  const existingUsers = orConditions.length > 0 
+    ? await prisma.user.findMany({
+        where: { OR: orConditions },
+        select: { regimentalNumber: true, email: true }
+      })
+    : [];
+    
   const existingRegNos = new Set(existingUsers.map(u => u.regimentalNumber).filter(Boolean));
 
   // Fetch all colleges and batches to validate against
@@ -185,11 +231,15 @@ async function bulkAssign(examId, filters, userIds, currentUser) {
   let enforcedCollegeCode = undefined;
 
   if (currentUser?.role === "INSTRUCTOR") {
-    const instructorRecord = await prisma.user.findUnique({ where: { id: currentUser.id } });
-    if (!instructorRecord || !instructorRecord.collegeCode) {
-      throw new HttpError(403, "Instructor must be assigned to a college to assign exams");
+    if (currentUser.collegeCode) {
+      enforcedCollegeCode = currentUser.collegeCode;
+    } else {
+      const instructorRecord = await prisma.user.findUnique({ where: { id: currentUser.id } });
+      if (!instructorRecord || !instructorRecord.collegeCode) {
+        throw new HttpError(403, "Instructor must be assigned to a college to assign exams");
+      }
+      enforcedCollegeCode = instructorRecord.collegeCode;
     }
-    enforcedCollegeCode = instructorRecord.collegeCode;
   }
 
   if (userIds && Array.isArray(userIds) && userIds.length > 0) {
