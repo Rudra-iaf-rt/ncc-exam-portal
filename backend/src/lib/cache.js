@@ -1,6 +1,7 @@
+const logger = require("../utils/logger")
 const { redis } = require("./redis");
 
-const CACHE_TIMEOUT_MS = Number(process.env.CACHE_TIMEOUT_MS || 120);
+const CACHE_TIMEOUT_MS = Number(process.env.CACHE_TIMEOUT_MS || 2000);
 
 async function withTimeout(promise, fallback = null) {
   let timeoutId;
@@ -115,7 +116,7 @@ async function incrementCacheVersion(namespace) {
   try {
     withTimeout(redis.incr(`cache_version:${namespace}`), null).catch(() => {});
   } catch (err) {
-    // Best effort
+    logger.error("Error incrementing cache version", err);
   }
 }
 

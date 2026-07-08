@@ -27,6 +27,7 @@ const getUnitLeaderboard = async (collegeCode) => {
   //    the lock holder has populated the cache).
   const leaderboard = await withCacheLock(
     `leaderboard_rebuild:${collegeCode}`,
+    15, // lock TTL: 15s — enough for the aggregation query to complete
     async () => {
       // Double-check: another process may have populated the cache while we
       // were waiting for the lock.
@@ -34,8 +35,7 @@ const getUnitLeaderboard = async (collegeCode) => {
       if (freshCached) return freshCached;
 
       return _buildLeaderboard(collegeCode);
-    },
-    15 // lock TTL: 15s — enough for the aggregation query to complete
+    }
   );
 
   // Lock not acquired (another rebuild in progress) — return empty as fallback

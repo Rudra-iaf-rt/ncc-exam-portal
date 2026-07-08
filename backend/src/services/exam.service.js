@@ -976,6 +976,7 @@ async function submitExam(studentId, body) {
     cacheDelNamespace(`results:student:${studentId}`),
     cacheDelNamespace("results:admin"),
     cacheDelNamespace(`results:instructor`),
+    cacheDelNamespace("leaderboard:unit"),
     incrementCacheVersion(`exams:catalog:user:${studentId}`),
     cacheDel([
       `stats:dashboard:STUDENT:${studentId}`,

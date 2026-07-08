@@ -140,8 +140,10 @@ const CadetResults = () => {
               {rankData ? (
                 rankData.isRanked ? (
                   `#${rankData.rank} / ${rankData.totalRankedCadets}`
-                ) : (
+                ) : rankData.examsNeeded > 0 ? (
                   `Take ${rankData.examsNeeded} more`
+                ) : (
+                  'Calculating...'
                 )
               ) : (
                 '--'
@@ -164,7 +166,6 @@ const CadetResults = () => {
           <PageLoader text="Fetching Results..." className="min-h-[260px] sm:min-h-[300px]" />
         ) : results.length > 0 ? (
           <>
-            {/* ── Desktop table (md+) ── */}
             <div className="hidden md:block overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
