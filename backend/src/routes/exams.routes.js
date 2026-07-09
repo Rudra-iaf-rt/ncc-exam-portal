@@ -8,7 +8,6 @@ const {
   requireAdmin
 } = require("../middleware/roles");
 
-const { attemptRateLimiter } = require("../middleware/security");
 const { asyncHandler } = require("../middleware/error-handler");
 
 const router = express.Router();
@@ -180,7 +179,6 @@ router.post(
   "/attempt/answer",
   authenticate,
   requireStudent,
-  attemptRateLimiter,
   asyncHandler(examsController.saveAnswer)
 );
 
@@ -188,7 +186,6 @@ router.post(
   "/attempt/sync",
   authenticate,
   requireStudent,
-  attemptRateLimiter,
   asyncHandler(examsController.syncAnswers)
 );
 
@@ -196,7 +193,6 @@ router.post(
   "/attempt/save-progress",
   authenticate,
   requireStudent,
-  attemptRateLimiter,
   asyncHandler(examsController.saveAnswer)
 );
 
@@ -204,7 +200,6 @@ router.post(
   "/attempt/submit",
   authenticate,
   requireStudent,
-  attemptRateLimiter,
   asyncHandler(examsController.submit)
 );
 
@@ -226,7 +221,6 @@ router.post(
   "/exams/submit",
   authenticate,
   requireStudent,
-  attemptRateLimiter,
   asyncHandler(examsController.submit)
 );
 

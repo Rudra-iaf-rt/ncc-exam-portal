@@ -80,11 +80,45 @@ const antiCheatRateLimiter = createRateLimiter({
   message: "Too many anti-cheat requests. Please slow down.",
 });
 
+// Dedicated limiter for token-refresh endpoints.
+// Keys by the decoded JWT user ID so each cadet has their own
+// 120-req/min bucket even when all are behind the same college WiFi/NAT IP.
+// We only decode (not verify) the payload here — verification still happens
+// inside the authenticate middleware. This is safe: a forged userId in the
+// token just gives the attacker their own (empty) bucket, no escalation.
+const refreshRateLimiter = createRateLimiter({
+  windowMs: 60 * 1000,
+  max: 120,
+  keyFn: (req) => {
+    try {
+      const token =
+        req.cookies?.accessToken ||
+        (req.headers.authorization?.startsWith("Bearer ")
+          ? req.headers.authorization.slice(7)
+          : null);
+      if (token) {
+        const payloadB64 = token.split(".")[1];
+        if (payloadB64) {
+          const decoded = JSON.parse(
+            Buffer.from(payloadB64, "base64url").toString()
+          );
+          if (decoded?.id) return `rl:refresh:user:${decoded.id}`;
+        }
+      }
+    } catch (_) {
+      // Malformed token — fall through to IP-based key.
+    }
+    return `rl:refresh:ip:${req.ip || "unknown"}`;
+  },
+  message: "Too many refresh requests. Please try again shortly.",
+});
+
 module.exports = {
   requestContext,
   securityHeaders,
   createRateLimiter,
   authRateLimiter,
+  refreshRateLimiter,
   attemptRateLimiter,
   antiCheatRateLimiter,
 };

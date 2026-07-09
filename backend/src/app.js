@@ -22,6 +22,8 @@ const { notFoundHandler, errorHandler } = require("./middleware/error-handler");
 
 const app = express();
 
+app.set("trust proxy", 1);
+
 const allowedOrigins = [
   ...(process.env.CLIENT_URLS ? process.env.CLIENT_URLS.split(",") : []),
   process.env.CLIENT_URL,
