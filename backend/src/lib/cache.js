@@ -106,7 +106,7 @@ async function getCacheVersion(namespace) {
   try {
     const raw = await withTimeout(redis.get(`cache_version:${namespace}`), "1");
     return raw ? Number(raw) : 1;
-  } catch (err) {
+  } catch (_err) {
     return 1;
   }
 }

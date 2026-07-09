@@ -1,4 +1,5 @@
 const crypto = require("crypto");
+const { Buffer } = require("buffer");
 const rateLimit = require("express-rate-limit");
 const { RedisStore } = require("rate-limit-redis");
 const { redis } = require("../lib/redis");
@@ -60,8 +61,29 @@ const authRateLimiter = createRateLimiter({
   windowMs: 60 * 1000,
   max: 300,
   keyFn: (req) => {
-    const identifier = req.body?.regimentalNumber || req.body?.email || req.ip || "unknown";
-    return `rl:auth:${identifier}:${String(req.path || "")}`;
+
+    const fromBody =
+      req.body?.regimentalNumber ||
+      req.body?.email;
+    if (fromBody) return `rl:auth:${fromBody}:${String(req.path || "")}`;
+
+    // Last resort: try to decode the JWT to get a user ID
+    try {
+      const token =
+        req.cookies?.accessToken ||
+        (req.headers.authorization?.startsWith("Bearer ")
+          ? req.headers.authorization.slice(7)
+          : null);
+      if (token) {
+        const payloadB64 = token.split(".")[1];
+        if (payloadB64) {
+          const decoded = JSON.parse(Buffer.from(payloadB64, "base64url").toString());
+          if (decoded?.id) return `rl:auth:user:${decoded.id}:${String(req.path || "")}`;
+        }
+      }
+    } catch (_) {}
+
+    return `rl:auth:anonymous:${String(req.path || "")}`;
   },
   message: "Too many auth requests. Please try again shortly.",
 });
@@ -69,23 +91,17 @@ const authRateLimiter = createRateLimiter({
 const attemptRateLimiter = createRateLimiter({
   windowMs: 60 * 1000,
   max: 300,
-  keyFn: (req) => `rl:attempt:${req.ip || "unknown"}:${String(req.user?.id || "guest")}`,
+  keyFn: (req) => `rl:attempt:user:${String(req.user?.id || "guest")}`,
   message: "Too many attempt actions. Please slow down.",
 });
 
 const antiCheatRateLimiter = createRateLimiter({
   windowMs: 60 * 1000,
   max: 100,
-  keyFn: (req) => `rl:anticheat:${req.ip || "unknown"}:${String(req.user?.id || "guest")}`,
+  keyFn: (req) => `rl:anticheat:user:${String(req.user?.id || "guest")}`,
   message: "Too many anti-cheat requests. Please slow down.",
 });
 
-// Dedicated limiter for token-refresh endpoints.
-// Keys by the decoded JWT user ID so each cadet has their own
-// 120-req/min bucket even when all are behind the same college WiFi/NAT IP.
-// We only decode (not verify) the payload here — verification still happens
-// inside the authenticate middleware. This is safe: a forged userId in the
-// token just gives the attacker their own (empty) bucket, no escalation.
 const refreshRateLimiter = createRateLimiter({
   windowMs: 60 * 1000,
   max: 120,
@@ -105,10 +121,8 @@ const refreshRateLimiter = createRateLimiter({
           if (decoded?.id) return `rl:refresh:user:${decoded.id}`;
         }
       }
-    } catch (_) {
-      // Malformed token — fall through to IP-based key.
-    }
-    return `rl:refresh:ip:${req.ip || "unknown"}`;
+    } catch (_) {}
+    return `rl:refresh:unauthenticated`;
   },
   message: "Too many refresh requests. Please try again shortly.",
 });
