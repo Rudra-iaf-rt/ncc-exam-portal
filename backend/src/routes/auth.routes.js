@@ -16,9 +16,6 @@ router.post("/forgot-password", authRateLimiter, asyncHandler(authController.for
 router.post("/reset-password", authRateLimiter, asyncHandler(authController.resetPassword));
 router.get("/me", authenticate, asyncHandler(authController.me));
 
-// Refresh endpoints use a per-user-ID rate limiter (decoded from JWT) instead of
-// the shared IP-based authRateLimiter — otherwise all cadets on the same college
-// WiFi/NAT share one bucket and collectively hit the 300/min cap.
 router.get("/refresh", refreshRateLimiter, authenticate, asyncHandler(authController.refresh));
 router.post("/refresh", refreshRateLimiter, asyncHandler(authController.refreshWithToken));
 router.post("/refresh-token", refreshRateLimiter, asyncHandler(authController.refreshWithToken));

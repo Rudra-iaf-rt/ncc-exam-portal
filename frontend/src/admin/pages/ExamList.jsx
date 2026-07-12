@@ -223,6 +223,7 @@ export default function ExamList() {
               <tr className="bg-stone border-b border-stone-deep font-mono text-[11px] tracking-[0.1em] uppercase text-ink-4">
                 <th className="font-normal px-4 py-3 w-[80px]">ID</th>
                 <th className="font-normal px-4 py-3">Exam Title</th>
+                <th className="font-normal px-4 py-3">Date</th>
                 <th className="font-normal px-4 py-3">Duration</th>
                 <th className="font-normal px-4 py-3">Questions</th>
                 <th className="font-normal px-4 py-3">Status</th>
@@ -233,7 +234,7 @@ export default function ExamList() {
             <tbody className="font-ui text-[13.5px] text-ink-2">
               {exams.length === 0 ? (
                 <tr>
-                  <td colSpan="7" className="text-center p-12 text-ink-4 font-light">
+                  <td colSpan="8" className="text-center p-12 text-ink-4 font-light">
                     No active exams found in the database.
                   </td>
                 </tr>
@@ -243,6 +244,9 @@ export default function ExamList() {
                     <td className="px-4 py-3"><code className="font-mono text-[12px] bg-transparent p-0 text-ink-3">#{e.id.toString().padStart(3, '0')}</code></td>
                     <td className="px-4 py-3">
                       <div className="font-medium text-navy">{e.title}</div>
+                    </td>
+                    <td className="px-4 py-3 text-ink-3">
+                      {e.startAt ? new Date(e.startAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : (e.createdAt ? new Date(e.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'TBD')}
                     </td>
                     <td className="px-4 py-3">{e.duration} Minutes</td>
                     <td className="px-4 py-3">{e.questionCount} Items</td>

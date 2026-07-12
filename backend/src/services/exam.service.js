@@ -230,6 +230,8 @@ async function listExamsCatalog(userId, role, query = {}) {
       status: e.status,
       published: e.status === "LIVE",
       publishedAt: e.publishedAt,
+      startAt: e.startAt,
+      createdAt: e.createdAt,
       questionCount: e._count.questions,
       createdBy: e.createdBy,
       completed: completedMap.has(e.id),

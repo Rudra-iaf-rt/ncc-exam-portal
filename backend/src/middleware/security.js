@@ -25,7 +25,7 @@ function createRateLimiter({ windowMs, max, keyFn, message }) {
     windowMs,
     max,
     keyGenerator: typeof keyFn === "function" ? keyFn : (req) => req.ip || "unknown",
-    standardHeaders: "draft-7", // Sends RateLimit-* headers (RFC 6585)
+    standardHeaders: "draft-7",
     legacyHeaders: false,
     handler: (_req, res, _next, options) => {
       const retryAfterSec = Math.max(1, Math.ceil(options.windowMs / 1000));
