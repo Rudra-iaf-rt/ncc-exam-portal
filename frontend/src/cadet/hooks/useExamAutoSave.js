@@ -78,9 +78,15 @@ export const useExamAutoSave = (examId, userId) => {
       clearTimeout(syncTimeoutRef.current);
     }
     
+    // 60 s debounce: protects the free-tier Neon DB from query storms when 500
+    // cadets are simultaneously answering questions. This is safe because:
+    //   a) Every answer is ALREADY written to localStorage instantly (line 62) — crash-proof.
+    //   b) The keepalive fetch below fires the moment the tab hides — tab-close-proof.
+    //   c) executeSubmit() merges localStorage into the final payload — submit-proof.
+    // The debounce only controls the *background* sync; it does not affect data safety.
     syncTimeoutRef.current = setTimeout(() => {
       syncToServer(updatedAnswers);
-    }, 60000); 
+    }, 60000);
     
   }, [storageKey, syncToServer]);
 

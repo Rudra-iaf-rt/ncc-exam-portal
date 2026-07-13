@@ -49,6 +49,9 @@ const ExamAttempt = () => {
   const [isRecovering, setIsRecovering] = useState(false);
   const answersRef = useRef(answers);
   const isSubmittingRef = useRef(false);
+  // Bug-4 fix: gate that prevents the back-button trap from releasing before navigate() fires.
+  // Set to true immediately before every navigate() call site.
+  const hasNavigatedAwayRef = useRef(false);
 
   useEffect(() => {
     answersRef.current = answers;
@@ -90,33 +93,38 @@ const ExamAttempt = () => {
     }
   }, [user, loading]);
 
-  // Prevent accidentally leaving the page (reloads, closing tab)
+  // Prevent accidentally leaving the page (reloads, closing tab, etc.)
+  // Bug-4 fix: use hasNavigatedAwayRef instead of isTerminated — keeps the block
+  // active after auto-termination until navigate() has actually been called.
   useEffect(() => {
     const handleBeforeUnload = (e) => {
-      if (isSubmittingRef.current || isTerminated) return;
+      if (hasNavigatedAwayRef.current) return;
       e.preventDefault();
-      e.returnValue = ''; // Required for some browsers
+      e.returnValue = '';
     };
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
-  }, [isTerminated]);
+  }, []); // No deps — only reads refs
 
-  // Prevent browser back button
+  // Bug-4 fix: back-button trap stays locked until hasNavigatedAwayRef is true.
+  // Previously released on isTerminated, letting cadets navigate away before the
+  // async auto-submit finished. Now the trap holds through the entire submit flow.
   useEffect(() => {
-    // Push an extra state so that when user hits 'back', popstate fires but stays on same page
     window.history.pushState(null, null, window.location.pathname);
-    
-    const handlePopState = (e) => {
-      if (isSubmittingRef.current || isTerminated) return;
-      // Push state again to trap the user
+
+    const handlePopState = () => {
+      if (hasNavigatedAwayRef.current) return; // Navigation committed — let it through
       window.history.pushState(null, null, window.location.pathname);
-      toast.warning('You cannot leave the exam page.', {
-        description: 'Please submit the exam before navigating away.'
-      });
+      // Suppress toast while submission is in progress (terminated state)
+      if (!isSubmittingRef.current) {
+        toast.warning('You cannot leave the exam page.', {
+          description: 'Please submit the exam before navigating away.'
+        });
+      }
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
-  }, [isTerminated]);
+  }, []); // No deps — only reads refs, no stale closure risk
 
   useEffect(() => {
     startExam();
@@ -167,6 +175,7 @@ const ExamAttempt = () => {
       } else {
         toast.error(error.message || 'Failed to start exam session');
       }
+      hasNavigatedAwayRef.current = true; // Bug-4: release back-button trap
       navigate('/cadet/dashboard', { replace: true });
     } finally {
       setLoading(false);
@@ -201,22 +210,26 @@ const ExamAttempt = () => {
     };
   }, [id, currentQ, loading, exam]);
 
+  // Bug-1 fix: timer always ticks once the exam is loaded.
+  // Removing the !isFullscreen / !isScreenSharing guards eliminates the exploit
+  // where exiting fullscreen paused the clock for up to 30 s of free lookup time.
+  // The UI overlay already blocks all interaction — stopping the clock was redundant.
   useEffect(() => {
-    if (loading || !isFullscreen || !isScreenSharing) return;
+    if (!exam || loading) return;
     if (timeLeft <= 0) return;
-    
+
     const timer = setInterval(() => {
       setTimeLeft(prev => {
         if (prev <= 1) {
           clearInterval(timer);
-          executeSubmit(); // Auto-submit
+          executeSubmit();
           return 0;
         }
         return prev - 1;
       });
     }, 1000);
     return () => clearInterval(timer);
-  }, [loading, isFullscreen, isScreenSharing]);
+  }, [exam, loading]); // isFullscreen / isScreenSharing intentionally removed (Bug-1 fix)
 
   const handleSelect = (questionId, option) => {
     queueSave(questionId, option); // Uses localStorage directly to avoid state lag
@@ -254,9 +267,12 @@ const ExamAttempt = () => {
       invalidateCachedResourcePattern(`cadet-results:${userKey}`);
 
       clearLocalAnswers();
+      hasNavigatedAwayRef.current = true; // Bug-4: release back-button trap
       navigate('/cadet/dashboard', { replace: true });
-    } catch (error) {     
+    } catch (error) {
+      // Even on submit error during auto-terminate, navigate away to avoid stuck state
       clearLocalAnswers();
+      hasNavigatedAwayRef.current = true; // Bug-4: release back-button trap
       navigate('/cadet/dashboard', { replace: true });
     }
   };
@@ -287,6 +303,7 @@ const ExamAttempt = () => {
 
       clearLocalAnswers();
       toast.success('Exam submitted successfully.');
+      hasNavigatedAwayRef.current = true; // Bug-4: release back-button trap
       navigate(`/exam/review/${id}`, { replace: true });
     } catch (error) {
       toast.error(error.message || 'Critical error during exam submission');
@@ -314,7 +331,16 @@ const ExamAttempt = () => {
       toast.success('Session restored! You can continue your exam.');
       setIsSessionExpired(false);
       setRecoveryPassword('');
-      
+
+      // Bug-8 fix: re-establish proctoring if it degraded during the outage.
+      // Screen-share stream may have ended (isScreenSharing=false) or fullscreen
+      // may have dropped (isFullscreen=false) while the session expired modal was up.
+      if (!isScreenSharing) {
+        requestScreenShare();
+      } else if (!isFullscreen) {
+        requestFullscreen();
+      }
+
       if (answersRef.current[currentQ]) {
         queueSave(currentQ, answersRef.current[currentQ]);
       }
@@ -332,6 +358,64 @@ const ExamAttempt = () => {
   };
 
   if (loading) return <GlobalLoader text="Initializing Secure Session..." />;
+
+  // Bug-8 fix: session-expired is checked FIRST so the re-auth modal is always
+  // reachable, even if screen-share/fullscreen state has simultaneously degraded
+  // (e.g. stream died during a network outage). Previously the !isScreenSharing
+  // guard would intercept and hide the session-expired modal.
+  if (isSessionExpired) return (
+    <div className="fixed inset-0 z-[4000] flex items-center justify-center bg-navy/95 backdrop-blur-md p-6">
+      <div className="w-full max-w-md rounded-md border border-white/20 bg-white p-8 text-center shadow-2xl">
+        <div className="w-16 h-16 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
+          <Lock size={32} className="text-rose-500" />
+        </div>
+        <h2 className="mb-2 font-display text-2xl text-navy">Session Expired</h2>
+        <p className="mb-6 font-ui text-[14px] text-ink-3">
+          Your connection dropped or your session expired. To prevent losing your answers and avoid proctoring violations, please re-authenticate below.
+        </p>
+
+        <form onSubmit={handleRecoveryLogin} className="flex flex-col gap-4 text-left">
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[11px] font-bold text-ink-3 uppercase tracking-wider ml-1">Regimental Number</label>
+            <div className="relative flex items-center">
+              <User size={16} className="absolute left-3 z-20 text-ink-4" />
+              <input
+                type="text"
+                placeholder="e.g. NCC/2024/123"
+                className="w-full bg-stone-wash border border-stone-deep rounded-sm py-2.5 pl-10 pr-4 font-ui text-[14px] transition-all focus:bg-white focus:border-navy focus:ring-2 focus:ring-navy-wash outline-none"
+                value={recoveryRegNo}
+                onChange={(e) => setRecoveryRegNo(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+
+          <div className="flex flex-col gap-1.5">
+            <label className="text-[11px] font-bold text-ink-3 uppercase tracking-wider ml-1">Password</label>
+            <div className="relative flex items-center">
+              <Lock size={16} className="absolute left-3 z-20 text-ink-4" />
+              <input
+                type="password"
+                placeholder="••••••••"
+                className="w-full bg-stone-wash border border-stone-deep rounded-sm py-2.5 pl-10 pr-4 font-ui text-[14px] transition-all focus:bg-white focus:border-navy focus:ring-2 focus:ring-navy-wash outline-none"
+                value={recoveryPassword}
+                onChange={(e) => setRecoveryPassword(e.target.value)}
+                required
+              />
+            </div>
+          </div>
+
+          <button 
+            type="submit" 
+            className="mt-4 w-full rounded-r bg-navy py-3.5 font-ui font-bold text-white shadow-lg transition-all hover:bg-navy-mid active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
+            disabled={isRecovering}
+          >
+            {isRecovering ? 'AUTHENTICATING...' : 'RESUME EXAM'}
+          </button>
+        </form>
+      </div>
+    </div>
+  );
 
   if (!isScreenSharing) return (
     <div className="fixed inset-0 z-[1000] flex items-center justify-center bg-navy/95 backdrop-blur-md p-6">
@@ -389,7 +473,7 @@ const ExamAttempt = () => {
               {lastViolationType === 'FULLSCREEN_EXIT' && "You exited fullscreen mode. The exam requires fullscreen to continue."}
               {lastViolationType === 'SCREEN_STOP' && "You stopped sharing your screen. Screen sharing is required to proctor the exam."}
               {lastViolationType === 'FOCUS_LOSS' && "The exam window lost focus. This happens when you click outside the exam."}
-              {lastViolationType === 'MOUSE_LEAVE' && "Your cursor moved outside the secure exam area."}
+              {lastViolationType === 'MOUSE_LEAVE' && "Your cursor left the exam window for more than 2 seconds. Keep your mouse inside the exam at all times."}
               {!lastViolationType && "A system violation was detected."}
               {" To ensure fairness, please keep your focus solely on the exam."}
             </p>
@@ -428,59 +512,6 @@ const ExamAttempt = () => {
     </div>
   );
 
-  if (isSessionExpired) return (
-    <div className="fixed inset-0 z-[4000] flex items-center justify-center bg-navy/95 backdrop-blur-md p-6">
-      <div className="w-full max-w-md rounded-md border border-white/20 bg-white p-8 text-center shadow-2xl">
-        <div className="w-16 h-16 bg-rose-500/10 rounded-full flex items-center justify-center mx-auto mb-4">
-          <Lock size={32} className="text-rose-500" />
-        </div>
-        <h2 className="mb-2 font-display text-2xl text-navy">Session Expired</h2>
-        <p className="mb-6 font-ui text-[14px] text-ink-3">
-          Your connection dropped or your session expired. To prevent losing your answers and avoid proctoring violations, please re-authenticate below.
-        </p>
-
-        <form onSubmit={handleRecoveryLogin} className="flex flex-col gap-4 text-left">
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[11px] font-bold text-ink-3 uppercase tracking-wider ml-1">Regimental Number</label>
-            <div className="relative flex items-center">
-              <User size={16} className="absolute left-3 z-20 text-ink-4" />
-              <input
-                type="text"
-                placeholder="e.g. NCC/2024/123"
-                className="w-full bg-stone-wash border border-stone-deep rounded-sm py-2.5 pl-10 pr-4 font-ui text-[14px] transition-all focus:bg-white focus:border-navy focus:ring-2 focus:ring-navy-wash outline-none"
-                value={recoveryRegNo}
-                onChange={(e) => setRecoveryRegNo(e.target.value)}
-                required
-              />
-            </div>
-          </div>
-
-          <div className="flex flex-col gap-1.5">
-            <label className="text-[11px] font-bold text-ink-3 uppercase tracking-wider ml-1">Password</label>
-            <div className="relative flex items-center">
-              <Lock size={16} className="absolute left-3 z-20 text-ink-4" />
-              <input
-                type="password"
-                placeholder="••••••••"
-                className="w-full bg-stone-wash border border-stone-deep rounded-sm py-2.5 pl-10 pr-4 font-ui text-[14px] transition-all focus:bg-white focus:border-navy focus:ring-2 focus:ring-navy-wash outline-none"
-                value={recoveryPassword}
-                onChange={(e) => setRecoveryPassword(e.target.value)}
-                required
-              />
-            </div>
-          </div>
-
-          <button 
-            type="submit" 
-            className="mt-4 w-full rounded-r bg-navy py-3.5 font-ui font-bold text-white shadow-lg transition-all hover:bg-navy-mid active:scale-95 disabled:opacity-70 disabled:cursor-not-allowed"
-            disabled={isRecovering}
-          >
-            {isRecovering ? 'AUTHENTICATING...' : 'RESUME EXAM'}
-          </button>
-        </form>
-      </div>
-    </div>
-  );
 
   const q = exam.questions[currentQ];
 

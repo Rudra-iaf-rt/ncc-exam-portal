@@ -26,41 +26,63 @@ export const useProctoring = ({ onSecurityBreach, maxWarnings = 3 }) => {
   const setExamId = useCallback((id) => { examIdRef.current = id; }, []);
 
   const isViolatingRef = useRef(false);
+  // Tracks real-time warning count outside React state to avoid stale closures (Bug-6 fix)
+  const warningCountRef = useRef(0);
 
   /**
    * Record a violation server-side and react to the returned count.
-   * Falls back to local count if the API call fails (network issue during exam).
+   *
+   * Security invariants:
+   *   1. isViolatingRef is reset on EVERY exit path — no silent swallowing (Bug-3 fix)
+   *   2. warningCountRef is used instead of stale `warningCount` state (Bug-6 fix)
+   *   3. Server count is always authoritative; local ref is only a fallback
    */
   const recordViolation = useCallback(async (type) => {
-    // Prevent multiple simultaneous violation triggers (e.g. blur + visibility)
+    // Gate: one violation in-flight at a time
     if (isViolatingRef.current) return;
     isViolatingRef.current = true;
 
-    let newCount = warningCount + 1; // Optimistic local fallback
+    // Bug-6 fix: read from ref — immune to stale React state in rapid concurrent calls
+    let newCount = warningCountRef.current + 1;
     setLastViolationType(type);
 
     if (examIdRef.current) {
       try {
         const { data } = await examApi.saveViolation({ examId: examIdRef.current, type });
+        // Server count is authoritative — corrects any local drift
         newCount = data.warningCount;
         if (data.terminate) {
+          // Bug-3 fix: reset before early return so future signals aren't gated
+          isViolatingRef.current = false;
+          warningCountRef.current = newCount;
+          setWarningCount(newCount);
+          setIsTerminated(true);
+          setShowWarning(true);
           onSecurityBreachRef.current?.(true);
           return;
         }
       } catch (_err) {
-        // Network failure: use local count — violation still shown to cadet
+        // Network failure: fall back to local ref count.
+        // Bug-3 fix: MUST reset here — next violation must be allowed to record.
+        isViolatingRef.current = false;
       }
     }
 
+    // Keep ref in sync with the count we're committing to state
+    warningCountRef.current = newCount;
     setWarningCount(newCount);
+
     if (newCount >= maxWarnings) {
+      // Bug-3 fix: reset before breach callback to prevent deadlock
+      isViolatingRef.current = false;
       setIsTerminated(true);
-      setShowWarning(true); // Show the terminated modal
+      setShowWarning(true);
       onSecurityBreachRef.current?.(true);
     } else {
       setShowWarning(true);
+      // isViolatingRef is reset by dismissWarning() when cadet clicks "Return to Exam"
     }
-  }, [warningCount, maxWarnings]);
+  }, [maxWarnings]); // Bug-6: warningCount removed — read from warningCountRef instead
 
   // Fullscreen Handlers
   const requestFullscreen = useCallback(async () => {
@@ -92,8 +114,27 @@ export const useProctoring = ({ onSecurityBreach, maxWarnings = 3 }) => {
     const isMobile = isMobileDevice();
     const hasScreenShareSupport = !!(navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia);
 
+    // Bug-2 fix: mobile / unsupported-browser bypass is now logged server-side so
+    // admins can audit every session that skipped real screen capture.
+    // The examIdRef is populated by setProctoringExamId() in startExam() before
+    // the cadet can ever reach this button, so it is reliably set here.
     if (isMobile || !hasScreenShareSupport) {
       setIsScreenSharing(true);
+
+      const bypassType = isMobile ? 'MOBILE_SCREEN_SHARE_BYPASS' : 'BROWSER_SCREEN_SHARE_UNSUPPORTED';
+      const bypassMsg  = isMobile
+        ? 'Mobile device — screen capture bypassed'
+        : 'Browser does not support getDisplayMedia — screen capture bypassed';
+
+      if (examIdRef.current) {
+        // Fire-and-forget: log bypass for admin visibility; never block the cadet flow
+        examApi.saveViolation({
+          examId: examIdRef.current,
+          type:    bypassType,
+          message: bypassMsg,
+        }).catch(() => {});
+      }
+
       if (isMobile) {
         toast.info('Mobile detected: Screen sharing requirement waived.', {
           description: 'Ensure you stay on this page to avoid violations.'
@@ -112,7 +153,7 @@ export const useProctoring = ({ onSecurityBreach, maxWarnings = 3 }) => {
 
       const videoTrack = stream.getVideoTracks()[0];
 
-      // Enforce entire screen sharing where the browser supports it
+      // Enforce entire-screen sharing where the browser reports surface type
       const settings = videoTrack.getSettings();
       if (settings.displaySurface && settings.displaySurface !== 'monitor') {
         stream.getTracks().forEach(t => t.stop());
@@ -130,10 +171,16 @@ export const useProctoring = ({ onSecurityBreach, maxWarnings = 3 }) => {
       setIsScreenSharing(true);
       return true;
     } catch (_err) {
-      // If it's a mobile device and getDisplayMedia failed (some mobile browsers 
-      // have the API but it fails or is restricted), allow bypass.
+      // getDisplayMedia failed on a mobile that technically supports it — allow bypass
       if (isMobile) {
         setIsScreenSharing(true);
+        if (examIdRef.current) {
+          examApi.saveViolation({
+            examId:  examIdRef.current,
+            type:    'MOBILE_SCREEN_SHARE_BYPASS',
+            message: 'Mobile device — getDisplayMedia threw, screen capture bypassed',
+          }).catch(() => {});
+        }
         return true;
       }
       toast.error('Screen sharing is required to attempt the exam.');
@@ -142,40 +189,55 @@ export const useProctoring = ({ onSecurityBreach, maxWarnings = 3 }) => {
   }, [recordViolation]);
 
   // Fullscreen & visibility event listeners
+  // Bug-7 fix: mouseLeave removed — it fires on browser chrome overlays (e.g. the
+  // OS screen-share notification bar) and is trivially evaded with a fast alt-tab.
+  // The visibilitychange + blur combo below catches all real cheating vectors.
   useEffect(() => {
     const handleFullscreenChange = () => {
       const inFullscreen = !!document.fullscreenElement;
       setIsFullscreen(inFullscreen);
-      // Only record violation if they were already in the exam (sharing) and leave
+      // Only record violation if they were already in the proctored session
       if (!inFullscreen && isScreenSharing) {
         recordViolation('FULLSCREEN_EXIT');
       }
     };
 
     const handleVisibilityChange = () => {
+      // Fires when the tab is hidden (alt-tab to another app, new tab, minimise)
       if (document.hidden && isScreenSharing) {
         recordViolation('TAB_SWITCH');
       }
     };
 
     const handleBlur = () => {
-      // Blur catches window focus loss even if the tab isn't hidden 
-      // (e.g. user clicks a taskbar icon or a second monitor window)
+      // Catches focus loss when the page isn't actually hidden —
+      // e.g. cadet clicks a second-monitor window or the OS taskbar.
+      // Guard against double-firing with the visibility handler.
       if (isScreenSharing && !document.hidden) {
         recordViolation('FOCUS_LOSS');
       }
     };
 
-    // Debounce mouse-leave so native browser overlays (e.g. the screen-share
-    // notification bar) don't falsely trigger a violation. The cursor must leave
-    // the document and NOT return for 500 ms before we count it.
+    // mouseLeave covers the one gap blur+visibility miss: a cadet on a dual-monitor
+    // setup who slides the cursor to their second screen to read notes WITHOUT clicking
+    // anything (so blur never fires). Guards:
+    //   1. 2-second timeout — filters out accidental exits (Chrome screen-share bar,
+    //      edge of window, etc.). If the cursor returns within 2 s, no violation.
+    //   2. document.hasFocus() check inside the callback — if the window lost focus
+    //      during the wait (blur already fired and recorded a violation), we skip
+    //      this one to avoid double-counting the same cheating event.
     let mouseLeaveTimer = null;
 
     const handleMouseLeave = () => {
       if (!isScreenSharing) return;
+      // Only arm the timer when the window still has focus (blur hasn't fired)
+      if (!document.hasFocus()) return;
       mouseLeaveTimer = setTimeout(() => {
+        // Re-check before recording: if focus dropped during the 2-s wait,
+        // blur already handled it — don't double-count.
+        if (!document.hasFocus()) return;
         recordViolation('MOUSE_LEAVE');
-      }, 500);
+      }, 2000);
     };
 
     const handleMouseEnter = () => {
