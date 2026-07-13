@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useAppNavigation } from '../../contexts/NavigationContext';
 import { toast } from 'sonner';
 import { adminApi, examApi } from '../../api';
 import { PageHeader, StatCard } from '../components/Shared';
@@ -20,6 +21,7 @@ export default function MonitorWall() {
   const confirm = useConfirm();
   const { id } = useParams();
   const navigate = useNavigate();
+  const { goBack } = useAppNavigation();
   const { user } = useAuth();
   const [sessions, setSessions] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -127,7 +129,7 @@ export default function MonitorWall() {
         action={
           <div className="flex items-center gap-3">
             <button 
-              onClick={() => navigate('/admin/dashboard')}
+              onClick={() => goBack('/admin/exams')}
               className="h-[36px] px-[18px] rounded-md font-ui text-[13px] font-medium flex items-center gap-2 transition-all bg-white border border-stone-deep text-ink-3 hover:text-navy hover:border-navy"
             >
               <ArrowLeft size={16} strokeWidth={1.5} />

@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useAppNavigation } from '../../contexts/NavigationContext';
 import { examApi } from '../../api';
 import {
   ChevronLeft,
@@ -226,6 +227,7 @@ function StatCard({ icon: Icon, count, label, colorCls, bgCls = "bg-white", bord
 const ExamReview = () => {
   const { examId } = useParams();
   const navigate   = useNavigate();
+  const { goBack } = useAppNavigation();
 
   const [data,    setData]    = useState(null);
   const [loading, setLoading] = useState(true);
@@ -319,7 +321,7 @@ const ExamReview = () => {
       <div className="min-h-screen bg-stone-wash flex flex-col">
         <header className="sticky top-0 z-50 bg-navy px-4 py-3.5 flex items-center gap-3 shadow-lg border-b border-white/10">
           <button
-            onClick={() => navigate('/cadet/results')}
+            onClick={() => goBack('/cadet/results')}
             className="flex items-center gap-1.5 rounded-r px-3 py-1.5 font-ui text-[13px] font-bold text-white/80 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
           >
             <ChevronLeft size={18} /> Back
@@ -341,7 +343,7 @@ const ExamReview = () => {
           </p>
           <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xs">
             <button
-              onClick={() => navigate('/cadet/results')}
+              onClick={() => goBack('/cadet/results')}
               className="flex-1 flex items-center justify-center gap-2 rounded-r border border-stone-deep bg-white px-5 py-3 font-ui text-[13px] font-bold text-ink-3 hover:bg-stone-wash transition-all cursor-pointer"
             >
               <ChevronLeft size={15} /> Back to Results
@@ -370,7 +372,7 @@ const ExamReview = () => {
         {/* Left: back + title */}
         <div className="flex items-center gap-2 min-w-0">
           <button
-            onClick={() => navigate('/cadet/results')}
+            onClick={() => goBack('/cadet/results')}
             className="flex items-center justify-center w-8 h-8 rounded-full text-white/70 hover:text-white hover:bg-white/10 transition-all cursor-pointer shrink-0"
             id="review-back-btn"
             aria-label="Back to results"
@@ -582,7 +584,7 @@ const ExamReview = () => {
 
           {/* Back to results */}
           <button
-            onClick={() => navigate('/cadet/results')}
+            onClick={() => goBack('/cadet/results')}
             className="flex items-center gap-1.5 rounded-r bg-navy px-3 sm:px-5 py-2.5 font-ui text-[12px] sm:text-[13px] font-bold text-[#F4F0E4] hover:bg-navy-mid active:scale-95 transition-all cursor-pointer shadow-sm shrink-0"
             id="review-footer-back-btn"
             style={{ minHeight: 40 }}

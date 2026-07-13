@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useAppNavigation } from '../../contexts/NavigationContext';
 import { examApi } from '../../api';
 import { toast } from 'sonner';
 import { PageHeader } from '../components/Shared';
@@ -20,6 +21,7 @@ import {
 
 export default function ExamCreate() {
   const navigate = useNavigate();
+  const { goBack } = useAppNavigation();
   /** excel = upload a question sheet; manual = step-by-step questions */
   const [creationMode, setCreationMode] = useState('excel');
   const [step, setStep] = useState(1); // 1: Details, 2: Questions
@@ -111,7 +113,7 @@ export default function ExamCreate() {
       });
       toast.success('Exam successfully created from file.');
       invalidateCachedResourcePattern('admin-exam-list');
-      navigate('/admin/exams');
+      goBack('/admin/exams');
     } catch (error) {
       toast.error(error.message || 'Could not create the exam from this file.');
     } finally {
@@ -135,7 +137,7 @@ export default function ExamCreate() {
       });
       toast.success('Examination successfully created.');
       invalidateCachedResourcePattern('admin-exam-list');
-      navigate('/admin/exams');
+      goBack('/admin/exams');
     } catch (error) {
       toast.error(error.message || 'Operational failure: Unable to create examination.');
     } finally {

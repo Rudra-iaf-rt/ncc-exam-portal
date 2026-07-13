@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { useAppNavigation } from '../../contexts/NavigationContext';
 import { toast } from 'sonner';
 import { adminApi, examApi } from '../../api';
 import { PageHeader, StatCard } from '../components/Shared';
@@ -22,6 +23,7 @@ import {
 export default function ExamAnalytics() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { goBack } = useAppNavigation();
   const [analytics, setAnalytics] = useState(null);
   const [exam, setExam] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -39,9 +41,9 @@ export default function ExamAnalytics() {
     })
     .catch(err => {
       toast.error("Failed to load analytics");
-      navigate('/admin/results');
+      goBack('/admin/results');
     });
-  }, [id, navigate]);
+  }, [id, goBack]);
 
   const isInitialLoading = loading || !analytics;
 
@@ -56,7 +58,7 @@ export default function ExamAnalytics() {
         subtitle="Data-driven insights for examination performance and question quality."
         action={
           <button 
-            onClick={() => navigate('/admin/results')}
+            onClick={() => goBack('/admin/results')}
             className="h-[36px] px-4 rounded-md font-ui text-[13px] font-medium flex items-center gap-2 bg-stone text-ink-2 border border-stone-deep hover:bg-stone-mid transition-all"
           >
             <ArrowLeft size={16} />

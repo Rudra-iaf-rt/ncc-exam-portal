@@ -20,6 +20,7 @@ import UserManagement from './admin/pages/UserManagement'
 import StaffManagement from './admin/pages/StaffManagement'
 import CollegeManagement from './admin/pages/CollegeManagement'
 import MaterialManagement from './admin/pages/MaterialManagement'
+import { NavigationProvider } from './contexts/NavigationContext'
 
 import Assignments from './admin/pages/Assignments'
 import ScheduleExam from './admin/pages/ScheduleExam'
@@ -55,6 +56,7 @@ function App() {
           className: 'ncc-toast-official',
         }}
       />
+      <NavigationProvider>
       <Routes>
         {/* Public / Landing */}
         <Route path="/" element={<CadetLogin />} />
@@ -108,6 +110,7 @@ function App() {
         {/* Fallback */}
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
+      </NavigationProvider>
     </>
   )
 }

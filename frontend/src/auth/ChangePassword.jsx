@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Lock, Shield, Eye, EyeOff, CheckCircle2, ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useAppNavigation } from '../contexts/NavigationContext';
 import { authApi } from '../api/auth';
 import { toast } from 'sonner';
 
 const ChangePassword = () => {
-  const navigate = useNavigate();
+  const { goBack } = useAppNavigation();
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -28,7 +28,7 @@ const ChangePassword = () => {
     try {
       await authApi.changePassword({ oldPassword, newPassword });
       toast.success('Password updated successfully!');
-      navigate(-1);
+      goBack();
     } catch (err) {
       toast.error(err.message || 'Failed to update password. Please check your current password.');
     } finally {
@@ -40,7 +40,7 @@ const ChangePassword = () => {
     <div className="max-w-2xl mx-auto py-8">
       <div className="flex items-center gap-4 mb-8">
         <button 
-          onClick={() => navigate(-1)}
+          onClick={() => goBack()}
           className="w-10 h-10 rounded-full bg-white border border-stone-deep flex items-center justify-center text-ink-3 hover:text-navy hover:border-navy transition-all"
         >
           <ArrowLeft size={20} />

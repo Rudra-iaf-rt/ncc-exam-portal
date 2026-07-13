@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
+import { useAppNavigation } from '../../contexts/NavigationContext';
 import { examApi } from '../../api';
 import { toast } from 'sonner';
 import { PageHeader } from '../components/Shared';
@@ -11,6 +12,7 @@ import PageLoader from '../../components/PageLoader';
 export default function ExamEdit() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { goBack } = useAppNavigation();
   const [step, setStep] = useState(1); // 1: Details, 2: Questions
   const [isLoading, setIsLoading] = useState(true);
   const [isSubmittingMeta, setIsSubmittingMeta] = useState(false);
@@ -70,7 +72,7 @@ export default function ExamEdit() {
     } catch (error) {
       console.log(error)
       toast.error('Failed to load examination details.');
-      navigate('/admin/exams');
+      goBack('/admin/exams');
     } finally {
       setIsLoading(false);
     }
@@ -161,7 +163,7 @@ export default function ExamEdit() {
       await examApi.updateExamQuestions(id, questions);
       toast.success('Examination Question Blocks synchronized successfully.');
       invalidateCachedResource('admin-exam-list');
-      navigate('/admin/exams');
+      goBack('/admin/exams');
     } catch (error) {
       toast.error(error.message || 'Operational failure: Unable to update questions.');
     } finally {
@@ -172,7 +174,7 @@ export default function ExamEdit() {
     <div className="max-w-[900px] mx-auto pb-12">
       <div className="mb-6 flex items-center gap-3">
         <button 
-          onClick={() => navigate('/admin/exams')}
+          onClick={() => goBack('/admin/exams')}
           className="w-8 h-8 flex items-center justify-center rounded-md bg-white border border-stone-deep text-ink-3 hover:text-navy hover:bg-stone transition-colors"
         >
           <ArrowLeft size={16} strokeWidth={2} />

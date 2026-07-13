@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useSearchParams, useNavigate } from 'react-router-dom';
+import { useAppNavigation } from '../../contexts/NavigationContext';
 import { toast } from 'sonner';
 import { adminApi, examApi } from '../../api';
 import { PageHeader } from '../components/Shared';
@@ -39,6 +40,7 @@ const StepIndicator = ({ currentStep }) => {
 export default function ScheduleExam() {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const { goBack } = useAppNavigation();
   const [currentStep, setCurrentStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [filterOptions, setFilterOptions] = useState({ wings: [], colleges: [], batches: [] });
@@ -155,7 +157,7 @@ export default function ScheduleExam() {
       const { data } = await adminApi.createAssignments(payload);
       invalidateCachedResource('admin-assignments');
       toast.success(`Successfully scheduled exams for ${data.count || selectedUsers.size} cadets.`);
-      navigate('/admin/assignments');
+      goBack('/admin/assignments');
     } catch (err) {
       toast.error(err.message || "Failed to finalize exam schedule.");
     } finally {

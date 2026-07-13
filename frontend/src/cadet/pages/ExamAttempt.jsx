@@ -90,6 +90,34 @@ const ExamAttempt = () => {
     }
   }, [user, loading]);
 
+  // Prevent accidentally leaving the page (reloads, closing tab)
+  useEffect(() => {
+    const handleBeforeUnload = (e) => {
+      if (isSubmittingRef.current || isTerminated) return;
+      e.preventDefault();
+      e.returnValue = ''; // Required for some browsers
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [isTerminated]);
+
+  // Prevent browser back button
+  useEffect(() => {
+    // Push an extra state so that when user hits 'back', popstate fires but stays on same page
+    window.history.pushState(null, null, window.location.pathname);
+    
+    const handlePopState = (e) => {
+      if (isSubmittingRef.current || isTerminated) return;
+      // Push state again to trap the user
+      window.history.pushState(null, null, window.location.pathname);
+      toast.warning('You cannot leave the exam page.', {
+        description: 'Please submit the exam before navigating away.'
+      });
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [isTerminated]);
+
   useEffect(() => {
     startExam();
   }, [id]);
@@ -139,7 +167,7 @@ const ExamAttempt = () => {
       } else {
         toast.error(error.message || 'Failed to start exam session');
       }
-      navigate('/cadet/dashboard');
+      navigate('/cadet/dashboard', { replace: true });
     } finally {
       setLoading(false);
     }
@@ -226,10 +254,10 @@ const ExamAttempt = () => {
       invalidateCachedResourcePattern(`cadet-results:${userKey}`);
 
       clearLocalAnswers();
-      navigate('/cadet/dashboard');
+      navigate('/cadet/dashboard', { replace: true });
     } catch (error) {     
       clearLocalAnswers();
-      navigate('/cadet/dashboard');
+      navigate('/cadet/dashboard', { replace: true });
     }
   };
   // Wire the ref every render so onSecurityBreach always calls the fresh closure
@@ -259,7 +287,7 @@ const ExamAttempt = () => {
 
       clearLocalAnswers();
       toast.success('Exam submitted successfully.');
-      navigate(`/exam/review/${id}`);
+      navigate(`/exam/review/${id}`, { replace: true });
     } catch (error) {
       toast.error(error.message || 'Critical error during exam submission');
       setIsSubmitting(false);
