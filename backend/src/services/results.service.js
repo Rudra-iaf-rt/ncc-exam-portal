@@ -657,7 +657,11 @@ async function getReviewForAdmin(studentId, examIdRaw) {
   // 2. Fetch the student's result
   const result = await prisma.result.findUnique({
     where: { studentId_examId: { studentId, examId } },
-    select: { score: true, createdAt: true },
+    select: { 
+      score: true, 
+      createdAt: true,
+      student: { select: { name: true, regimentalNumber: true, college: { select: { name: true } } } }
+    },
   });
 
   // 3. Fetch or cache the Exam + questions globally
@@ -723,6 +727,9 @@ async function getReviewForAdmin(studentId, examIdRaw) {
   const response = {
     examId,
     examTitle: exam.title,
+    studentName: result?.student?.name ?? 'Unknown Student',
+    regimentalNumber: result?.student?.regimentalNumber ?? '',
+    collegeName: result?.student?.college?.name ?? '',
     score: result?.score ?? 0,
     correct,
     incorrect,
