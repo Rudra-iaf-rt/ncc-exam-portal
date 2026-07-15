@@ -48,6 +48,13 @@ router.get(
 );
 
 router.get(
+  "/results/admin/review/:examId/:studentId",
+  authenticate,
+  requireAdmin,
+  asyncHandler(resultsController.getAdminReview)
+);
+
+router.get(
   "/results/summary/:examId",
   authenticate,
   requireStaff,

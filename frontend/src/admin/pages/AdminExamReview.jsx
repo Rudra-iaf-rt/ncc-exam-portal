@@ -110,10 +110,8 @@ function QuestionCard({ item, index, scoringScheme }) {
 
       {/* ── Question header ── */}
       <div className="px-4 py-3 sm:px-5 sm:py-4 border-b border-inherit">
-        {/* Status chip — top-right on mobile via flex-wrap */}
         <div className="flex items-start justify-between gap-2 flex-wrap">
           <div className="flex items-start gap-2.5 min-w-0 flex-1">
-            {/* Question number bubble */}
             <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-white border border-stone-deep font-mono text-[10px] sm:text-[11px] font-bold text-ink-3 shadow-sm mt-0.5">
               {(index + 1).toString().padStart(2, '0')}
             </span>
@@ -121,7 +119,6 @@ function QuestionCard({ item, index, scoringScheme }) {
               {question}
             </p>
           </div>
-          {/* Status chip */}
           <span className={`flex-shrink-0 self-start flex items-center gap-1 rounded-full border px-2 py-0.5 font-mono text-[9px] sm:text-[10px] font-bold uppercase tracking-wider ${statusConfig.chipBg}`}>
             <StatusIcon size={10} className={statusConfig.iconClass} />
             {statusConfig.label}
@@ -169,7 +166,7 @@ function QuestionCard({ item, index, scoringScheme }) {
             <div className={`p-4 rounded-md border ${isCorrect ? 'border-emerald-400 bg-emerald-50' : 'border-crimson/40 bg-crimson-wash'} flex items-start gap-3`}>
               {isCorrect ? <CheckCircle2 size={16} className="text-emerald-600 mt-0.5 shrink-0" /> : <XCircle size={16} className="text-crimson mt-0.5 shrink-0" />}
               <div>
-                <div className="font-ui text-xs font-bold uppercase tracking-wide opacity-70 mb-1">Your Answer</div>
+                <div className="font-ui text-xs font-bold uppercase tracking-wide opacity-70 mb-1">Cadet's Answer</div>
                 <div className="font-ui text-[14px] font-medium">{studentAnswer || <span className="italic opacity-50">No answer provided</span>}</div>
               </div>
             </div>
@@ -189,7 +186,7 @@ function QuestionCard({ item, index, scoringScheme }) {
           <div className="flex flex-col gap-3">
             <div className="p-4 rounded-md border border-stone-deep bg-white flex items-start gap-3">
               <div>
-                <div className="font-ui text-xs font-bold uppercase tracking-wide opacity-70 mb-1">Your Answer</div>
+                <div className="font-ui text-xs font-bold uppercase tracking-wide opacity-70 mb-1">Cadet's Answer</div>
                 <div className="font-ui text-[14px] font-medium whitespace-pre-wrap">{studentAnswer || <span className="italic opacity-50">No answer provided</span>}</div>
               </div>
             </div>
@@ -204,7 +201,7 @@ function QuestionCard({ item, index, scoringScheme }) {
 
         {isSkipped && (!item.type || item.type === 'MCQ') && (
           <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-ink-4 flex items-center gap-1.5">
-            <MinusCircle size={10} /> You did not answer this question
+            <MinusCircle size={10} /> Cadet did not answer this question
           </p>
         )}
       </div>
@@ -224,8 +221,8 @@ function StatCard({ icon: Icon, count, label, colorCls, bgCls = "bg-white", bord
   );
 }
 
-const ExamReview = () => {
-  const { examId } = useParams();
+const AdminExamReview = () => {
+  const { examId, studentId } = useParams();
   const navigate   = useNavigate();
   const { goBack } = useAppNavigation();
 
@@ -240,7 +237,7 @@ const ExamReview = () => {
       try {
         setLoading(true);
         setError(null);
-        const res = await examApi.getResultReview(examId);
+        const res = await examApi.getAdminResultReview(examId, studentId);
         if (!cancelled) setData(res.data);
       } catch (err) {
         if (cancelled) return;
@@ -253,7 +250,7 @@ const ExamReview = () => {
     };
     fetchReview();
     return () => { cancelled = true; };
-  }, [examId]);
+  }, [examId, studentId]);
 
   const perf = useMemo(() => data ? getPerf(data.score) : null, [data]);
 
@@ -271,24 +268,6 @@ const ExamReview = () => {
       return true;
     });
   }, [questionsWithIndex, filter]);
-
-  // TOPIC PERFORMANCE 
-  // const topicPerformance = useMemo(() => {
-  //   if (!data?.questions) return [];
-  //   const topics = {};
-  //   data.questions.forEach(q => {
-  //     const t = q.topic || "General";
-  //     if (!topics[t]) topics[t] = { correct: 0, total: 0 };
-  //     topics[t].total++;
-  //     if (q.isCorrect) topics[t].correct++;
-  //   });
-  //   return Object.entries(topics).map(([topic, stats]) => ({
-  //     topic,
-  //     correct: stats.correct,
-  //     total: stats.total,
-  //     percentage: Math.round((stats.correct / stats.total) * 100)
-  //   })).sort((a, b) => b.percentage - a.percentage);
-  // }, [data?.questions]);
 
   /* ── Loading ── */
   if (loading) {
@@ -315,13 +294,12 @@ const ExamReview = () => {
 
   /* ── Error ── */
   if (error) {
-    const is403 = error.status === 403;
     const is404 = error.status === 404;
     return (
       <div className="min-h-screen bg-stone-wash flex flex-col">
         <header className="sticky top-0 z-50 bg-navy px-4 py-3.5 flex items-center gap-3 shadow-lg border-b border-white/10">
           <button
-            onClick={() => goBack('/cadet/results')}
+            onClick={() => goBack('/admin/results')}
             className="flex items-center gap-1.5 rounded-r px-3 py-1.5 font-ui text-[13px] font-bold text-white/80 hover:text-white hover:bg-white/10 transition-all cursor-pointer"
           >
             <ChevronLeft size={18} /> Back
@@ -332,23 +310,19 @@ const ExamReview = () => {
             <ClipboardClock size={36} />
           </div>
           <h2 className="font-display text-xl sm:text-2xl text-ink font-bold mb-2">
-            {is403 ? 'Review Not Available' : is404 ? 'Exam Not Found' : 'Under Evaluation'}
+            {is404 ? 'Exam Not Found' : 'Error Loading Review'}
           </h2>
           <p className="font-ui text-[13px] sm:text-[14px] text-ink-3 max-w-xs mb-6 leading-relaxed">
-            {is403
-              ? error.message || 'Results for this exam are not yet published.'
-              : is404
-              ? 'We could not locate this exam or your attempt.'
-              : error.message}
+            {error.message}
           </p>
           <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xs">
             <button
-              onClick={() => goBack('/cadet/results')}
+              onClick={() => goBack('/admin/results')}
               className="flex-1 flex items-center justify-center gap-2 rounded-r border border-stone-deep bg-white px-5 py-3 font-ui text-[13px] font-bold text-ink-3 hover:bg-stone-wash transition-all cursor-pointer"
             >
               <ChevronLeft size={15} /> Back to Results
             </button>
-            {!is403 && !is404 && (
+            {!is404 && (
               <button
                 onClick={() => window.location.reload()}
                 className="flex-1 flex items-center justify-center gap-2 rounded-r bg-navy px-5 py-3 font-ui text-[13px] font-bold text-white hover:bg-navy-mid transition-all cursor-pointer"
@@ -372,7 +346,7 @@ const ExamReview = () => {
         {/* Left: back + title */}
         <div className="flex items-center gap-2 min-w-0">
           <button
-            onClick={() => goBack('/cadet/results')}
+            onClick={() => goBack('/admin/results')}
             className="flex items-center justify-center w-8 h-8 rounded-full text-white/70 hover:text-white hover:bg-white/10 transition-all cursor-pointer shrink-0"
             id="review-back-btn"
             aria-label="Back to results"
@@ -384,7 +358,7 @@ const ExamReview = () => {
               {examTitle}
             </span>
             <span className="font-mono text-[8px] uppercase tracking-[0.15em] text-white/40 leading-none mt-0.5">
-              Answer Review
+              Cadet Answer Review
             </span>
           </div>
         </div>
@@ -392,7 +366,6 @@ const ExamReview = () => {
         <span className={`flex-shrink-0 flex items-center gap-1 rounded-full border px-2 sm:px-3 py-1 font-mono text-[9px] sm:text-[10px] font-bold uppercase tracking-wider ${perf.bg} ${perf.text} ${perf.border}`}>
           <Award size={10} />
           <span className="hidden xs:inline">{perf.label}</span>
-          {/* On very small screens show score instead of label */}
           <span className="xs:hidden">{score}%</span>
         </span>
       </header>
@@ -406,16 +379,15 @@ const ExamReview = () => {
           {/* Banner */}
           <div className="bg-navy px-4 py-2.5 flex items-center gap-2">
             <Target size={13} className="text-white/50" />
-            <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-white/40">Performance Summary</span>
+            <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-white/40">Cadet Performance Summary</span>
           </div>
 
-          {/* Hero content — stacked on mobile, side-by-side on sm+ */}
+          {/* Hero content */}
           <div className="p-4 sm:p-6">
 
-            {/* Ring + title row (mobile: ring centred + title below; sm: ring left + stats right) */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-5">
 
-              {/* Score ring — smaller on mobile */}
+              {/* Score ring */}
               <div className="flex flex-col items-center gap-2 shrink-0 self-center">
                 <div className="sm:hidden">
                   <ScoreRing score={score} size={116} />
@@ -500,7 +472,7 @@ const ExamReview = () => {
               <div className="mt-4 bg-crimson-wash border border-crimson/20 rounded-lg p-3 flex items-start gap-2.5">
                 <AlertCircle size={16} className="text-crimson shrink-0 mt-0.5" />
                 <p className="font-ui text-[12px] sm:text-[13px] text-crimson leading-snug">
-                  <strong>Negative Marking Applied:</strong> {incorrect} incorrect answer{incorrect > 1 ? 's' : ''} resulted in a {data.scoringScheme.negativeMarks} mark penalty each, deducted from your original score.
+                  <strong>Negative Marking Applied:</strong> {incorrect} incorrect answer{incorrect > 1 ? 's' : ''} resulted in a {data.scoringScheme.negativeMarks} mark penalty each, deducted from the original score.
                 </p>
               </div>
             )}
@@ -576,7 +548,6 @@ const ExamReview = () => {
             <span className={`hidden sm:inline-flex items-center rounded-full border px-2.5 py-1 font-mono text-[10px] font-bold uppercase tracking-wider ${perf.bg} ${perf.text} ${perf.border}`}>
               {perf.label}
             </span>
-            {/* Mobile-only inline perf text */}
             <span className={`sm:hidden font-mono text-[10px] font-bold uppercase tracking-wider ${perf.text} truncate`}>
               {perf.label}
             </span>
@@ -584,7 +555,7 @@ const ExamReview = () => {
 
           {/* Back to results */}
           <button
-            onClick={() => goBack('/cadet/results')}
+            onClick={() => goBack('/admin/results')}
             className="flex items-center gap-1.5 rounded-r bg-navy px-3 sm:px-5 py-2.5 font-ui text-[12px] sm:text-[13px] font-bold text-[#F4F0E4] hover:bg-navy-mid active:scale-95 transition-all cursor-pointer shadow-sm shrink-0"
             id="review-footer-back-btn"
             style={{ minHeight: 40 }}
@@ -601,4 +572,4 @@ const ExamReview = () => {
   );
 };
 
-export default ExamReview;
+export default AdminExamReview;

@@ -20,6 +20,7 @@ import UserManagement from './admin/pages/UserManagement'
 import StaffManagement from './admin/pages/StaffManagement'
 import CollegeManagement from './admin/pages/CollegeManagement'
 import MaterialManagement from './admin/pages/MaterialManagement'
+import AdminExamReview from './admin/pages/AdminExamReview'
 import { NavigationProvider } from './contexts/NavigationContext'
 
 import Assignments from './admin/pages/Assignments'
@@ -88,6 +89,7 @@ function App() {
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="exams" element={<ExamList />} />
             <Route path="results" element={<ResultsBoard />} />
+            <Route path="results/review/:examId/:studentId" element={<AdminExamReview />} />
             <Route path="users" element={<UserManagement />} />
             <Route path="settings/password" element={<ChangePassword />} />
             

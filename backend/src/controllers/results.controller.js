@@ -59,6 +59,11 @@ async function getReview(req, res) {
   res.json(data);
 }
 
+async function getAdminReview(req, res) {
+  const data = await resultsService.getReviewForAdmin(Number(req.params.studentId), req.params.examId);
+  res.json(data);
+}
+
 module.exports = {
   listStudent,
   listInstructor,
@@ -68,4 +73,5 @@ module.exports = {
   exportBulkCsv,
   listAll,
   getReview,
+  getAdminReview,
 };

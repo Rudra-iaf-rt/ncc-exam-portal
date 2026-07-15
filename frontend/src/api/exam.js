@@ -14,7 +14,7 @@ export const examApi = {
   // Cadet Exam Actions
   getExams: (params) => apiClient.get('/exams', { params }),
   getAssigned: () => apiClient.get('/exams').then(res => res.data.exams),
-  getExamDetails: (id) => apiClient.get(`/staff/exams/${id}`), // Using the staff endpoint to get full details including questions
+  getExamDetails: (id) => apiClient.get(`/staff/exams/${id}`),
   createExam: (data) => apiClient.post('/exams/create', data),
   createExamFromExcel: ({ title, duration, negativeMarking, negativeMarks, file }) => {
     const form = new FormData();
@@ -40,6 +40,7 @@ export const examApi = {
   getResults: (params) => apiClient.get('/results', { params }),
   getAdminResults: (params) => apiClient.get('/results/admin', { params }),
   getResultReview: (examId) => apiClient.get(`/results/review/${examId}`),
+  getAdminResultReview: (examId, studentId) => apiClient.get(`/results/admin/review/${examId}/${studentId}`),
   exportBulkAdminResults: (params) => apiClient.get('/results/export-bulk', { 
     params,
     responseType: 'blob' 

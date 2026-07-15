@@ -1,10 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate, Link } from 'react-router-dom';
 import { adminApi, examApi } from '../../api';
 import { useAdminAuth } from '../../contexts/AdminAuth';
 import { toast } from 'sonner';
 import { PageHeader, Pagination } from '../components/Shared';
-import { Download, Search, Edit3, XCircle, ShieldAlert, ChevronDown, Loader2 } from 'lucide-react';
+import { Download, Search, Edit3, XCircle, ShieldAlert, ChevronDown, Loader2, FileText } from 'lucide-react';
 import { invalidateCachedResourcePattern } from '../../lib/resourceCache';
 import CustomSelect from '../../components/CustomSelect';
 
@@ -512,13 +512,22 @@ export default function ResultsBoard() {
                     </td>
                     {isAdmin && (
                       <td className="px-4 py-3 text-right">
-                        <button
-                          className="w-8 h-8 rounded-md inline-flex items-center justify-center text-navy-soft hover:bg-stone hover:text-navy transition-colors"
-                          onClick={() => { setEditingResult(r); setOverrideForm({ score: r.score, reason: '' }); }}
-                          title="Override Score"
-                        >
-                          <Edit3 size={16} />
-                        </button>
+                        <div className="flex items-center justify-end gap-1">
+                          <Link
+                            to={`/admin/results/review/${r.examId}/${r.studentId}`}
+                            className="w-8 h-8 rounded-md inline-flex items-center justify-center text-navy-soft hover:bg-stone hover:text-navy transition-colors"
+                            title="View Exam Review"
+                          >
+                            <FileText size={16} />
+                          </Link>
+                          <button
+                            className="w-8 h-8 rounded-md inline-flex items-center justify-center text-navy-soft hover:bg-stone hover:text-navy transition-colors"
+                            onClick={() => { setEditingResult(r); setOverrideForm({ score: r.score, reason: '' }); }}
+                            title="Override Score"
+                          >
+                            <Edit3 size={16} />
+                          </button>
+                        </div>
                       </td>
                     )}
                   </tr>

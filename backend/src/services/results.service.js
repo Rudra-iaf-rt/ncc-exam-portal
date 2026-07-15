@@ -634,6 +634,114 @@ async function exportBulkExamResultsCsv(user, query) {
   return [header.map(h => `"${String(h).replace(/"/g, '""')}"`).join(","), ...dataRows].join("\n");
 }
 
+async function getReviewForAdmin(studentId, examIdRaw) {
+  const examId = Number(examIdRaw);
+  if (!Number.isFinite(examId)) {
+    throw new HttpError(400, "Invalid examId");
+  }
+
+  const cacheKey = `resultreview:admin:${studentId}:${examId}`;
+  const cached = await cacheGetJson(cacheKey);
+  if (cached) return cached;
+
+  // 1. Verify the attempt exists and belongs to this student
+  const attempt = await prisma.attempt.findUnique({
+    where: { studentId_examId: { studentId, examId } },
+    select: { status: true, answers: true, updatedAt: true },
+  });
+
+  if (!attempt) {
+    throw new HttpError(404, "No attempt found for this exam");
+  }
+
+  // 2. Fetch the student's result
+  const result = await prisma.result.findUnique({
+    where: { studentId_examId: { studentId, examId } },
+    select: { score: true, createdAt: true },
+  });
+
+  // 3. Fetch or cache the Exam + questions globally
+  const examReviewCacheKey = `exam:review_data:${examId}`;
+  let exam = await cacheGetJson(examReviewCacheKey);
+  if (!exam) {
+    exam = await prisma.exam.findUnique({
+      where: { id: examId },
+      include: {
+        questions: {
+          select: { id: true, question: true, options: true, answer: true, topic: true },
+          orderBy: { id: "asc" },
+        },
+      },
+    });
+    if (exam) {
+      await cacheSetJson(examReviewCacheKey, 3600, exam);
+    }
+  }
+
+  if (!exam) {
+    throw new HttpError(404, "Exam not found");
+  }
+
+  // 4. Build the student answer map from the JSONB blob
+  const studentAnswers =
+    attempt.answers && typeof attempt.answers === "object"
+      ? attempt.answers
+      : {};
+
+  // 5. Compute per-question review
+  let correct = 0;
+  let skipped = 0;
+
+  const { normalizeAnswer } = require("./exam-scoring.service");
+
+  const questions = exam.questions.map((q) => {
+    const studentAnswer = studentAnswers[String(q.id)] ?? null;
+    const correctAnswer = normalizeAnswer(q.answer);
+    const normalizedStudent = studentAnswer ? normalizeAnswer(studentAnswer) : null;
+
+    const isSkipped = normalizedStudent === null || normalizedStudent === "";
+    const isCorrect = !isSkipped && normalizedStudent === correctAnswer;
+
+    if (isCorrect) correct++;
+    if (isSkipped) skipped++;
+
+    return {
+      questionId: q.id,
+      question: q.question,
+      topic: q.topic || "General",
+      options: q.options,
+      correctAnswer,
+      studentAnswer: normalizedStudent,
+      isCorrect,
+      isSkipped,
+    };
+  });
+
+  const total = exam.questions.length;
+  const incorrect = total - correct - skipped;
+
+  const response = {
+    examId,
+    examTitle: exam.title,
+    score: result?.score ?? 0,
+    correct,
+    incorrect,
+    skipped,
+    total,
+    submittedAt: result?.createdAt ?? attempt.updatedAt,
+    questions,
+    scoringScheme: {
+      negativeMarking: exam.negativeMarking ?? false,
+      positiveMarks: exam.positiveMarks ?? 4,
+      negativeMarks: exam.negativeMarks ?? 1.0,
+    },
+  };
+
+  await cacheSetJson(cacheKey, 300, response);
+
+  return response;
+}
+
 module.exports = {
   mapResultRow,
   listForStudent,
@@ -643,4 +751,5 @@ module.exports = {
   exportExamResultsCsv,
   exportBulkExamResultsCsv,
   getReviewForStudent,
+  getReviewForAdmin,
 };
