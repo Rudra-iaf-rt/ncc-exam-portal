@@ -93,7 +93,7 @@ function App() {
             <Route path="users" element={<UserManagement />} />
             <Route path="settings/password" element={<ChangePassword />} />
             
-            {/* Admin-only sections */}
+            {/* Admin-only */}
             <Route element={<RequireAdmin />}>
               <Route path="exams/create" element={<ExamCreate />} />
               <Route path="exams/edit/:id" element={<ExamEdit />} />
@@ -105,6 +105,7 @@ function App() {
               <Route path="staff" element={<StaffManagement />} />
               <Route path="colleges" element={<CollegeManagement />} />
               <Route path="logs" element={<AuditLogs />} />
+              <Route path="history" element={<AuditLogs />} />
             </Route>
           </Route>
         </Route>
