@@ -7,7 +7,8 @@ import {
   LogOut,
   ChevronDown,
   GraduationCap,
-  Lock
+  Lock,
+  User
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { toast } from 'sonner';
@@ -160,10 +161,10 @@ export const CadetLayout = () => {
             ))}
           </SidebarSection>
 
-          <SidebarSection title="Security" icon={Lock} defaultExpanded={false}>
-            <NavLink to="/cadet/settings/password" className={navLinkClass}>
-              <Lock size={16} strokeWidth={1.5} className="group-hover/link:scale-110 transition-transform duration-300" />
-              <span>Change Password</span>
+          <SidebarSection title="Account" icon={User} defaultExpanded={false}>
+            <NavLink to="/cadet/profile" className={navLinkClass}>
+              <User size={16} strokeWidth={1.5} className="group-hover/link:scale-110 transition-transform duration-300" />
+              <span>Profile</span>
             </NavLink>
           </SidebarSection>
         </div>
@@ -194,7 +195,10 @@ export const CadetLayout = () => {
           {/* Account Cluster */}
           <div className="flex items-center gap-2">
             {/* User Utility */}
-            <div className="flex items-center gap-2.5 pl-3 pr-1.5 py-1 rounded-xl hover:bg-navy/5 transition-all duration-300 group cursor-default border border-transparent hover:border-navy/5">
+            <NavLink 
+              to="/cadet/profile"
+              className="flex items-center gap-2.5 pl-3 pr-1.5 py-1 rounded-xl hover:bg-navy/5 transition-all duration-300 group cursor-pointer border border-transparent hover:border-navy/5"
+            >
               <div className="text-right hidden sm:block">
                 <div className="font-ui text-[12px] font-bold text-navy/80 leading-none">{user?.name || 'Cadet'}</div>
                 <div className="font-ui text-[9px] text-navy/30 font-bold uppercase tracking-tighter mt-0.5">
@@ -207,7 +211,7 @@ export const CadetLayout = () => {
                 </div>
                 <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full bg-emerald-500 border-2 border-stone" />
               </div>
-            </div>
+            </NavLink>
 
             <div className="h-4 w-px bg-navy/10 mx-1" />
 

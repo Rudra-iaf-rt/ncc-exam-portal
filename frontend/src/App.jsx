@@ -9,6 +9,7 @@ import ExamAttempt from './cadet/pages/ExamAttempt'
 import ExamReview from './cadet/pages/ExamReview'
 import CadetResults from './cadet/pages/Results'
 import CadetMaterials from './cadet/pages/Materials'
+import CadetProfile from './cadet/pages/Profile'
 import { RequireCadet } from './cadet/guards/RequireCadet'
 import { CadetLayout } from './cadet/components/CadetLayout'
 import Dashboard from './admin/pages/Dashboard'
@@ -71,6 +72,7 @@ function App() {
             <Route path="/cadet/dashboard" element={<CadetDashboard />} />
             <Route path="/cadet/results" element={<CadetResults />} />
             <Route path="/cadet/materials" element={<CadetMaterials />} />
+            <Route path="/cadet/profile" element={<CadetProfile />} />
             <Route path="/cadet/settings/password" element={<ChangePassword />} />
             <Route path="/dashboard" element={<Navigate to="/cadet/dashboard" replace />} />
             <Route path="/results" element={<Navigate to="/cadet/results" replace />} />
@@ -105,7 +107,6 @@ function App() {
               <Route path="staff" element={<StaffManagement />} />
               <Route path="colleges" element={<CollegeManagement />} />
               <Route path="logs" element={<AuditLogs />} />
-              <Route path="history" element={<AuditLogs />} />
             </Route>
           </Route>
         </Route>
