@@ -257,7 +257,16 @@ const CadetDashboard = () => {
                 }`}>
                   <div>
                     <div className="flex items-start justify-between mb-3">
-                      <h3 className="font-ui text-[18px] font-semibold text-ink group-hover:text-navy transition-colors leading-tight pr-4">{exam.title}</h3>
+                      <button 
+                        onClick={() => {
+                          const isFinished = exam.completed || exam.attemptStatus === 'SUBMITTED' || exam.attemptStatus === 'TIMED_OUT' || (exam.expiresAt && new Date(exam.expiresAt) <= new Date());
+                          navigate(isFinished ? `/exam/review/${exam.id}` : `/exam/${exam.id}`);
+                        }}
+                        className="font-ui text-[18px] font-semibold text-ink group-hover:text-navy group-hover:underline transition-all leading-tight pr-4 text-left outline-none"
+                        title="View Exam Details"
+                      >
+                        {exam.title}
+                      </button>
                       <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded bg-stone-wash text-ink-3 transition-colors group-hover:bg-navy-wash group-hover:text-navy">
                         <FileText size={16} strokeWidth={1.5} />
                       </div>

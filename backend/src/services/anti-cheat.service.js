@@ -86,36 +86,63 @@ async function autoSubmitOnViolation(studentId, examId) {
 async function reportViolation(studentId, body = {}) {
   const examId = parsePositiveInt(body.examId, "examId");
   const type = String(body.type || "").trim();
+  // isPenalty defaults to true — only bypass audit-log calls explicitly set it to false
+  const isPenalty = body.isPenalty !== false;
   const MAX_WARNINGS = 3;
 
   if (!type) {
     throw new HttpError(400, "type is required");
   }
 
-  const [item] = await prisma.$transaction([
-    prisma.examViolation.create({
-      data: {
-        studentId,
-        examId,
-        type,
-        message: body.message ? String(body.message) : null,
-      },
-    }),
-    prisma.attempt.updateMany({
-      where: { studentId, examId, status: "IN_PROGRESS" },
-      data: { warningCount: { increment: 1 } },
-    }),
-  ]);
-
-  const attempt = await prisma.attempt.findUnique({
+  // Step 1: Read current warningCount BEFORE taking any action.
+  // This is the authoritative source for whether we can still penalise.
+  const existingAttempt = await prisma.attempt.findUnique({
     where: { studentId_examId: { studentId, examId } },
-    select: { warningCount: true },
+    select: { warningCount: true, status: true },
   });
 
-  const warningCount = attempt?.warningCount || 0;
-  const terminate = warningCount >= MAX_WARNINGS;
+  const currentCount = existingAttempt?.warningCount ?? 0;
 
-  // If threshold reached, auto-submit the exam server-side (fire-and-forget)
+  // Step 2: Always create the ExamViolation record for admin audit visibility —
+  // even for non-penalty bypasses and even after the cap, so the flags list is complete.
+  const item = await prisma.examViolation.create({
+    data: {
+      studentId,
+      examId,
+      type,
+      message: body.message ? String(body.message) : null,
+    },
+  });
+
+  // Step 3: Increment warningCount only when:
+  //   a) This is a real penalty (not an audit-only bypass log), AND
+  //   b) The cap has not already been reached (prevents 4th+ penalty from slipping in).
+  // The WHERE clause adds a DB-level safety net for concurrent requests.
+  let warningCount = currentCount;
+  if (isPenalty && currentCount < MAX_WARNINGS) {
+    await prisma.attempt.updateMany({
+      where: {
+        studentId,
+        examId,
+        status: "IN_PROGRESS",
+        warningCount: { lt: MAX_WARNINGS }, // DB-level guard against race conditions
+      },
+      data: { warningCount: { increment: 1 } },
+    });
+    // Re-read the count from the DB to get the authoritative post-increment value.
+    // This corrects any drift if a concurrent request also incremented simultaneously.
+    const updated = await prisma.attempt.findUnique({
+      where: { studentId_examId: { studentId, examId } },
+      select: { warningCount: true },
+    });
+    warningCount = updated?.warningCount ?? currentCount + 1;
+  }
+
+  const terminate = isPenalty && warningCount >= MAX_WARNINGS;
+
+  // Step 4: If threshold reached, auto-submit server-side (fire-and-forget).
+  // autoSubmitOnViolation is idempotent — safe to call even if the frontend
+  // is simultaneously submitting.
   if (terminate) {
     autoSubmitOnViolation(studentId, examId);
   }

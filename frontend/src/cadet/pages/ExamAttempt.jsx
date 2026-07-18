@@ -78,6 +78,7 @@ const ExamAttempt = () => {
     requestFullscreen,
     requestScreenShare,
     setExamId: setProctoringExamId,
+    initializeFromServer,
   } = useProctoring({
     onSecurityBreach: (terminate) => {
       if (terminate) {
@@ -153,8 +154,15 @@ const ExamAttempt = () => {
         }));
 
         setExam({ ...data.exam, questions: randomizedQuestions });
-        setProctoringExamId(Number(id)); 
+        setProctoringExamId(Number(id));
         setTimeLeft(data.remainingSeconds ?? data.exam.duration * 60);
+
+        // Restore server-side warningCount into the proctoring hook.
+        // If the count is already >= 3 (e.g. page refresh after termination, or
+        // a cadet trying to re-enter after being auto-submitted), initializeFromServer
+        // will permanently lock all proctoring signals and show the terminated UI,
+        // preventing any further exam interaction.
+        initializeFromServer(data.warningCount ?? 0);
 
         let ansMap = {};
         if (data.answers && data.answers.length > 0) {

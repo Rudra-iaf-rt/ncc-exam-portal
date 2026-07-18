@@ -28,6 +28,9 @@ export const useProctoring = ({ onSecurityBreach, maxWarnings = 3 }) => {
   const isViolatingRef = useRef(false);
   // Tracks real-time warning count outside React state to avoid stale closures (Bug-6 fix)
   const warningCountRef = useRef(0);
+  // Synchronous ref — avoids the stale-state window where dismissWarning could
+  // unlock after the 3rd violation before isTerminated React state propagates.
+  const isTerminatedRef = useRef(false);
 
   /**
    * Record a violation server-side and react to the returned count.
@@ -38,7 +41,7 @@ export const useProctoring = ({ onSecurityBreach, maxWarnings = 3 }) => {
    *   3. Server count is always authoritative; local ref is only a fallback
    */
   const recordViolation = useCallback(async (type) => {
-    // Gate: one violation in-flight at a time
+    // Gate: one violation in-flight at a time. Also permanently locked after termination.
     if (isViolatingRef.current) return;
     isViolatingRef.current = true;
 
@@ -52,8 +55,10 @@ export const useProctoring = ({ onSecurityBreach, maxWarnings = 3 }) => {
         // Server count is authoritative — corrects any local drift
         newCount = data.warningCount;
         if (data.terminate) {
-          // Bug-3 fix: reset before early return so future signals aren't gated
-          isViolatingRef.current = false;
+          // Keep isViolatingRef permanently true — no more violations ever allowed.
+          // DO NOT reset it here. This is the intentional change from the old code
+          // which reset it before calling onSecurityBreach, creating a 4th-violation window.
+          isTerminatedRef.current = true;
           warningCountRef.current = newCount;
           setWarningCount(newCount);
           setIsTerminated(true);
@@ -73,8 +78,9 @@ export const useProctoring = ({ onSecurityBreach, maxWarnings = 3 }) => {
     setWarningCount(newCount);
 
     if (newCount >= maxWarnings) {
-      // Bug-3 fix: reset before breach callback to prevent deadlock
-      isViolatingRef.current = false;
+      // Permanent lock — exam is over, no more violations can be recorded.
+      isTerminatedRef.current = true;
+      // isViolatingRef stays true — intentionally NOT reset here.
       setIsTerminated(true);
       setShowWarning(true);
       onSecurityBreachRef.current?.(true);
@@ -127,11 +133,13 @@ export const useProctoring = ({ onSecurityBreach, maxWarnings = 3 }) => {
         : 'Browser does not support getDisplayMedia — screen capture bypassed';
 
       if (examIdRef.current) {
-        // Fire-and-forget: log bypass for admin visibility; never block the cadet flow
+        // Fire-and-forget: log bypass for admin visibility; never block the cadet flow.
+        // isPenalty:false ensures this audit log does NOT increment warningCount.
         examApi.saveViolation({
           examId: examIdRef.current,
           type:    bypassType,
           message: bypassMsg,
+          isPenalty: false,
         }).catch(() => {});
       }
 
@@ -175,10 +183,12 @@ export const useProctoring = ({ onSecurityBreach, maxWarnings = 3 }) => {
       if (isMobile) {
         setIsScreenSharing(true);
         if (examIdRef.current) {
+          // isPenalty:false — getDisplayMedia failure on mobile is an audit log, not a penalty.
           examApi.saveViolation({
             examId:  examIdRef.current,
             type:    'MOBILE_SCREEN_SHARE_BYPASS',
             message: 'Mobile device — getDisplayMedia threw, screen capture bypassed',
+            isPenalty: false,
           }).catch(() => {});
         }
         return true;
@@ -272,12 +282,41 @@ export const useProctoring = ({ onSecurityBreach, maxWarnings = 3 }) => {
     };
   }, [screenStream]);
 
+  /**
+   * Called by ExamAttempt after startExam() resolves to sync the authoritative
+   * server-side warningCount into the proctoring hook's state.
+   *
+   * If the count is already at or above the max (e.g. the cadet refreshed the page
+   * mid-termination, or they're trying to re-enter after being auto-submitted), this
+   * permanently locks all proctoring signals and shows the terminated UI immediately.
+   */
+  const initializeFromServer = useCallback((serverWarningCount) => {
+    const count = Number(serverWarningCount) || 0;
+    if (count <= 0) return; // Fresh attempt — nothing to restore
+
+    warningCountRef.current = count;
+    setWarningCount(count);
+
+    if (count >= maxWarnings) {
+      // Permanently lock — exam is over. This blocks re-entry after a page refresh.
+      isTerminatedRef.current = true;
+      isViolatingRef.current = true;
+      setIsTerminated(true);
+      setShowWarning(true);
+      // No onSecurityBreach call here — we're restoring state, not triggering a new breach.
+      // ExamAttempt will see isTerminated=true and will NOT navigate away automatically;
+      // the cadet sees the "Exam Terminated" modal and must navigate manually.
+    }
+  }, [maxWarnings]);
+
   const dismissWarning = useCallback(() => {
-    if (!isTerminated) {
+    // Use the synchronous ref instead of React state to avoid the stale-state
+    // window between the 3rd violation being processed and isTerminated propagating.
+    if (!isTerminatedRef.current) {
       setShowWarning(false);
       isViolatingRef.current = false;
     }
-  }, [isTerminated]);
+  }, []); // No deps — reads only refs
 
   return {
     isFullscreen,
@@ -291,5 +330,6 @@ export const useProctoring = ({ onSecurityBreach, maxWarnings = 3 }) => {
     requestScreenShare,
     setExamId, // Expose so ExamAttempt can inject examId after startExam resolves
     screenStream,
+    initializeFromServer, // Called by ExamAttempt to restore server-side warningCount
   };
 };

@@ -7,104 +7,11 @@ import { PageHeader, Pagination } from '../components/Shared';
 import { Download, Search, Edit3, XCircle, ShieldAlert, ChevronDown, Loader2, FileText } from 'lucide-react';
 import { invalidateCachedResourcePattern } from '../../lib/resourceCache';
 import CustomSelect from '../../components/CustomSelect';
+import MultiSelect from '../../components/MultiSelect';
+import ViewUserModal from '../components/ViewUserModal';
 
-// ─── MultiSelect Dropdown ────────────────────────────────────────────────────
-function MultiSelect({ options, selectedValues, onChange, placeholder }) {
-  const [open, setOpen] = useState(false);
-  const containerRef = useRef(null);
+// ─── Skeleton row for loading state ─────────────────────────────────────────
 
-  useEffect(() => {
-    const handler = (e) => {
-      if (containerRef.current && !containerRef.current.contains(e.target)) {
-        setOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handler);
-    return () => document.removeEventListener('mousedown', handler);
-  }, []);
-
-  const toggle = (val) => {
-    const strVal = String(val);
-    if (selectedValues.includes(strVal)) {
-      onChange(selectedValues.filter(v => v !== strVal));
-    } else {
-      onChange([...selectedValues, strVal]);
-    }
-  };
-
-  const hasSelections = selectedValues.length > 0;
-
-  return (
-    <div className="relative" ref={containerRef}>
-      {/* Trigger */}
-      <div
-        className={`w-full min-h-[38px] px-3 py-1.5 border rounded-md font-ui text-[14px] bg-white flex flex-wrap gap-1 items-center cursor-pointer transition-all
-          ${open ? 'border-navy-soft ring-[3px] ring-navy-wash' : 'border-stone-deep'}
-        `}
-        onClick={() => setOpen(!open)}
-      >
-        {!hasSelections ? (
-          <span className="text-ink-4 flex-1 select-none">{placeholder}</span>
-        ) : (
-          <div className="flex flex-wrap gap-1 flex-1">
-            {selectedValues.map(val => {
-              const opt = options.find(o => String(o.value) === val);
-              return (
-                <span
-                  key={val}
-                  className="bg-navy/10 text-navy border border-navy/20 px-2 py-0.5 rounded text-[12px] flex items-center gap-1 font-medium"
-                >
-                  {opt?.label || val}
-                  <button
-                    type="button"
-                    onClick={(e) => { e.stopPropagation(); onChange(selectedValues.filter(v => v !== val)); }}
-                    className="text-navy/50 hover:text-crimson transition-colors"
-                  >
-                    <XCircle size={11} />
-                  </button>
-                </span>
-              );
-            })}
-          </div>
-        )}
-        <ChevronDown
-          size={14}
-          className={`text-ink-4 flex-shrink-0 transition-transform duration-200 ${open ? 'rotate-180' : ''}`}
-        />
-      </div>
-
-      {/* Dropdown */}
-      {open && (
-        <div className="absolute top-[calc(100%+4px)] left-0 w-full bg-white border border-stone-deep rounded-md shadow-[0_10px_30px_rgba(0,0,0,0.12)] z-30 max-h-[220px] overflow-y-auto">
-          {options.length === 0 ? (
-            <div className="px-3 py-4 text-[12px] text-ink-4 text-center font-ui">Loading...</div>
-          ) : (
-            options.map(opt => {
-              const isChecked = selectedValues.includes(String(opt.value));
-              return (
-                <label
-                  key={opt.value}
-                  className={`flex items-center gap-2.5 px-3 py-2.5 cursor-pointer font-ui text-[13px] border-b border-stone-mid last:border-0 transition-colors
-                    ${isChecked ? 'bg-navy/5 text-navy font-medium' : 'hover:bg-stone-wash text-ink-2'}
-                  `}
-                >
-                  <input
-                    type="checkbox"
-                    className="w-3.5 h-3.5 rounded border-stone-deep accent-navy cursor-pointer"
-                    checked={isChecked}
-                    onChange={() => toggle(opt.value)}
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                  {opt.label}
-                </label>
-              );
-            })
-          )}
-        </div>
-      )}
-    </div>
-  );
-}
 
 // ─── Skeleton row for loading state ─────────────────────────────────────────
 function SkeletonRow({ cols = 7 }) {
@@ -146,18 +53,18 @@ export default function ResultsBoard() {
   const [loading, setLoading] = useState(true);
   const abortRef = useRef(null);
 
-  // ── Export modal ──────────────────────────────────────────────────────────
+  // ── Modals state ────────────────────────────────────────────────────────
   const [showExportModal, setShowExportModal] = useState(false);
   const [exportSettings, setExportSettings] = useState({
     includeAverage: true,
     sortBy: 'Name',
     sortOrder: 'asc',
   });
-
-  // ── Override modal ────────────────────────────────────────────────────────
   const [editingResult, setEditingResult] = useState(null);
   const [overrideForm, setOverrideForm] = useState({ score: '', reason: '' });
   const [submitting, setSubmitting] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [isViewOpen, setIsViewOpen] = useState(false);
 
   // ── Load dropdown lists once ──────────────────────────────────────────────
   useEffect(() => {
@@ -477,14 +384,40 @@ export default function ResultsBoard() {
                 results.map((r) => (
                   <tr key={r.id} className="border-b border-stone-mid hover:bg-stone-wash transition-colors last:border-b-0">
                     <td className="px-4 py-3">
-                      <div className="font-medium text-ink">{r.studentName}</div>
+                      <button 
+                        onClick={() => {
+                          setSelectedUser({
+                            id: r.studentId,
+                            name: r.studentName,
+                            regimentalNumber: r.regimentalNumber,
+                            college: r.college
+                          });
+                          setIsViewOpen(true);
+                        }}
+                        className="font-medium text-navy hover:text-navy-soft hover:underline text-left outline-none"
+                        title="View Profile"
+                      >
+                        {r.studentName}
+                      </button>
                       <div className="text-[11px] text-ink-4 font-light">{r.college}</div>
                     </td>
                     <td className="px-4 py-3">
                       <code className="font-mono text-[12px] text-ink-3 tracking-wide">{r.regimentalNumber}</code>
                     </td>
                     <td className="px-4 py-3 text-[13px]">{r.college}</td>
-                    <td className="px-4 py-3 text-[13px]">{r.examTitle}</td>
+                    <td className="px-4 py-3 text-[13px]">
+                      {isAdmin ? (
+                        <Link 
+                          to={`/admin/results/review/${r.examId}/${r.studentId}`}
+                          className="text-navy hover:text-navy-soft hover:underline"
+                          title="View Exam Review"
+                        >
+                          {r.examTitle}
+                        </Link>
+                      ) : (
+                        r.examTitle
+                      )}
+                    </td>
                     <td className={`px-4 py-3 font-semibold ${r.score >= 70 ? 'text-[#3B6D11]' : r.score < 40 ? 'text-crimson' : 'text-ink'}`}>
                       {r.score}%
                     </td>
@@ -669,6 +602,15 @@ export default function ResultsBoard() {
           </div>
         </div>
       )}
+
+      <ViewUserModal 
+        isOpen={isViewOpen} 
+        onClose={() => {
+          setIsViewOpen(false);
+          setSelectedUser(null);
+        }} 
+        user={selectedUser}
+      />
     </div>
   );
 }

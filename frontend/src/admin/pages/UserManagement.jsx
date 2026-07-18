@@ -16,8 +16,9 @@ import {
 import BulkImport from '../components/BulkImport';
 import AddUserModal from '../components/AddUserModal';
 import EditUserModal from '../components/EditUserModal';
+import ViewUserModal from '../components/ViewUserModal';
 import BatchManagementModal from '../components/BatchManagementModal';
-import { Calendar } from 'lucide-react';
+import { Calendar, Eye } from 'lucide-react';
 import { invalidateCachedResourcePattern } from '../../lib/resourceCache';
 import { useCachedFetch } from '../../hooks/useCachedFetch';
 
@@ -28,6 +29,7 @@ export default function UserManagement() {
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [isEditOpen, setIsEditOpen] = useState(false);
+  const [isViewOpen, setIsViewOpen] = useState(false);
   const [isBatchOpen, setIsBatchOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
   
@@ -97,6 +99,11 @@ export default function UserManagement() {
     setIsEditOpen(true);
   };
 
+  const openView = (user) => {
+    setSelectedUser(user);
+    setIsViewOpen(true);
+  };
+
   const handleRefresh = () => {
     invalidateCachedResourcePattern('admin-users-students');
   };
@@ -144,15 +151,27 @@ export default function UserManagement() {
           key={selectedUser?.id || 'new'}
           isOpen={isEditOpen} 
           user={selectedUser}
-          onRefresh={() => {
-            handleRefresh();
-          }}
+          onRefresh={handleRefresh}
           onClose={() => {
             setIsEditOpen(false);
             setSelectedUser(null);
           }} 
         />
       )}
+
+      <ViewUserModal 
+        isOpen={isViewOpen} 
+        onClose={() => {
+          setIsViewOpen(false);
+          setSelectedUser(null);
+        }} 
+        user={selectedUser}
+        onEdit={(u) => {
+          setIsViewOpen(false);
+          setTimeout(() => openEdit(u), 150); // slight delay for smooth transition
+        }}
+        onRefresh={handleRefresh}
+      />
 
       <BulkImport 
         isOpen={isImportOpen} 
@@ -224,7 +243,13 @@ export default function UserManagement() {
                 users.map((user) => (
                   <tr key={user.id} className="border-b border-stone-mid hover:bg-stone-wash transition-colors last:border-b-0">
                     <td className="px-4 py-3">
-                      <div className="font-medium text-navy">{user.name}</div>
+                      <button 
+                        onClick={() => openView(user)}
+                        className="font-medium text-navy hover:text-navy-soft hover:underline text-left outline-none"
+                        title="View Profile"
+                      >
+                        {user.name}
+                      </button>
                       {user.yearOfStudy && (
                         <div className="text-[10px] text-ink-4 mt-0.5 flex items-center gap-1">
                           <span className="px-1.5 py-0.5 bg-stone-deep rounded uppercase tracking-tighter font-bold">Year {user.yearOfStudy}</span>
@@ -255,26 +280,35 @@ export default function UserManagement() {
                     <td className="px-4 py-3 text-[13px]">
                       <div className="truncate max-w-[150px]" title={user.college}>{user.college}</div>
                     </td>
-                    {isAdmin && (
                       <td className="px-4 py-3 text-right">
                         <div className="flex gap-2 justify-end">
                           <button 
-                            onClick={() => openEdit(user)}
+                            onClick={() => openView(user)}
                             className="w-8 h-8 rounded-md flex items-center justify-center bg-stone-2 text-navy hover:bg-stone-3 transition-colors" 
-                            title="Edit User"
+                            title="View Profile"
                           >
-                            <Pencil size={14} />
+                            <Eye size={14} />
                           </button>
-                          <button 
-                            onClick={() => handleDelete(user.id, user.name)}
-                            className="w-8 h-8 rounded-md flex items-center justify-center bg-[#ef444410] text-[#ef4444] hover:bg-[#ef444420] transition-colors" 
-                            title="Delete User"
-                          >
-                            <Trash2 size={14} />
-                          </button>
+                          {isAdmin && (
+                            <>
+                              <button 
+                                onClick={() => openEdit(user)}
+                                className="w-8 h-8 rounded-md flex items-center justify-center bg-stone-2 text-navy hover:bg-stone-3 transition-colors" 
+                                title="Edit User"
+                              >
+                                <Pencil size={14} />
+                              </button>
+                              <button 
+                                onClick={() => handleDelete(user.id, user.name)}
+                                className="w-8 h-8 rounded-md flex items-center justify-center bg-[#ef444410] text-[#ef4444] hover:bg-[#ef444420] transition-colors" 
+                                title="Delete User"
+                              >
+                                <Trash2 size={14} />
+                              </button>
+                            </>
+                          )}
                         </div>
                       </td>
-                    )}
                   </tr>
                 ))
               ) : (

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import PageLoader from '../../components/PageLoader';
 
 import { toast } from 'sonner';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Link } from 'react-router-dom';
 import { examApi } from '../../api';
 import { useAdminAuth } from '../../contexts/AdminAuth';
 import { PageHeader, Pagination } from '../components/Shared';
@@ -243,7 +243,17 @@ export default function ExamList() {
                   <tr key={e.id} className="border-b border-stone-mid hover:bg-stone-wash transition-colors last:border-b-0">
                     <td className="px-4 py-3"><code className="font-mono text-[12px] bg-transparent p-0 text-ink-3">#{e.id.toString().padStart(3, '0')}</code></td>
                     <td className="px-4 py-3">
-                      <div className="font-medium text-navy">{e.title}</div>
+                      {canManageExams ? (
+                        <Link 
+                          to={`/admin/exams/edit/${e.id}`}
+                          className="font-medium text-navy hover:text-navy-soft hover:underline"
+                          title="Edit Exam"
+                        >
+                          {e.title}
+                        </Link>
+                      ) : (
+                        <div className="font-medium text-navy">{e.title}</div>
+                      )}
                     </td>
                     <td className="px-4 py-3 text-ink-3">
                       {e.startAt ? new Date(e.startAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : (e.createdAt ? new Date(e.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'TBD')}

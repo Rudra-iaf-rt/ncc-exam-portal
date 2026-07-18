@@ -185,7 +185,13 @@ const CadetResults = () => {
                         <td className="px-6 py-4">
                           <div className="flex items-center gap-3 font-ui text-[14px] font-medium text-ink group-hover:text-navy">
                             <FileText size={15} className="text-ink-4 shrink-0" />
-                            <span className="truncate max-w-[220px]">{res.exam?.title ?? res.examTitle ?? 'Untitled Exam'}</span>
+                            <button
+                              onClick={() => { if (res.score !== null) navigate(`/exam/review/${res.examId}`); }}
+                              className={`truncate max-w-[220px] text-left outline-none ${res.score !== null ? 'hover:underline cursor-pointer' : 'cursor-default'}`}
+                              title={res.score !== null ? "View Exam Review" : "Pending Results"}
+                            >
+                              {res.exam?.title ?? res.examTitle ?? 'Untitled Exam'}
+                            </button>
                           </div>
                           {res.violationCount > 0 && (
                             <div className="flex items-center g ap-1 mt-1 ml-6">
@@ -259,9 +265,13 @@ const CadetResults = () => {
 
                     {/* Middle: title + date + badge */}
                     <div className="flex-1 min-w-0">
-                      <p className="font-ui text-[14px] font-semibold text-ink truncate">
+                      <button
+                        onClick={() => { if (res.score !== null) navigate(`/exam/review/${res.examId}`); }}
+                        className={`font-ui text-[14px] font-semibold text-ink truncate text-left outline-none ${res.score !== null ? 'hover:text-navy hover:underline cursor-pointer' : 'cursor-default'}`}
+                        title={res.score !== null ? "View Exam Review" : "Pending Results"}
+                      >
                         {res.exam?.title ?? res.examTitle ?? 'Untitled Exam'}
-                      </p>
+                      </button>
                       {res.violationCount > 0 && (
                         <span className="inline-flex items-center gap-1 font-mono text-[9px] tracking-wider py-0.5 px-1.5 rounded-full font-bold bg-rose-500/10 text-rose-600 border border-rose-500/20 mt-0.5">
                           <ShieldAlert size={9} />

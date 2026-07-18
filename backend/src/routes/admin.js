@@ -20,6 +20,7 @@ router.get("/users", authenticate, requireStaff, usersController.listAll);
 router.post("/users", authenticate, requireStaff, usersController.createUser);
 router.get("/users/search", authenticate, requireStaff, usersController.searchUsers);
 router.get("/users/filters", authenticate, requireStaff, usersController.getFilters);
+router.get("/users/:id/stats", authenticate, requireStaff, adminController.getUserStats);
 router.post("/users/import", authenticate, requireAdmin, upload.single("file"), adminController.importUsers);
 router.patch("/users/:id", authenticate, requireStaff, usersController.updateUser);
 router.delete("/users/:id", authenticate, requireStaff, usersController.removeById);

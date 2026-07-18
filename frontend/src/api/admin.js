@@ -6,6 +6,7 @@ export const adminApi = {
   createUser: (userData) => apiClient.post('/admin/users', userData),
   updateUser: (id, userData) => apiClient.patch(`/admin/users/${id}`, userData),
   deleteUser: (id) => apiClient.delete(`/admin/users/${id}`),
+  getUserStats: (id) => apiClient.get(`/admin/users/${id}/stats`),
   bulkImport: (formData) => apiClient.post('/admin/users/import', formData, {
     headers: { 'Content-Type': 'multipart/form-data' }
   }),

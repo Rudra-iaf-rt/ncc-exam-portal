@@ -234,6 +234,62 @@ async function examAnalytics(req, res) {
   }
 }
 
+async function getUserStats(req, res) {
+  try {
+    const userId = parseInt(req.params.id);
+    const { ROLES } = require("../middleware/roles");
+    
+    // Authorization check for Instructor (ensure the cadet is in their college)
+    if (req.user.role === ROLES.INSTRUCTOR) {
+      const cadet = await prisma.user.findUnique({ where: { id: userId }, select: { collegeCode: true } });
+      const instructor = await prisma.user.findUnique({ where: { id: req.user.id }, select: { collegeCode: true } });
+      if (cadet?.collegeCode !== instructor?.collegeCode) {
+        return res.status(403).json({ error: "Access denied. Cadet belongs to a different college." });
+      }
+    }
+
+    // 1. Get results to calculate examsTaken, avgScore, totalScore
+    const results = await prisma.result.findMany({
+      where: { studentId: userId },
+      select: { score: true }
+    });
+
+    const examsTaken = results.length;
+    let bestScore = 0;
+    let avgScore = 0;
+
+    if (examsTaken > 0) {
+      const totalScore = results.reduce((acc, curr) => acc + (curr.score || 0), 0);
+      avgScore = Math.round(totalScore / examsTaken);
+      bestScore = Math.max(...results.map(r => r.score || 0));
+    }
+
+    // 2. Get rank (this calls the leaderboard service)
+    const leaderboardService = require("../services/leaderboard.service");
+    const cadet = await prisma.user.findUnique({ where: { id: userId }, select: { collegeCode: true } });
+    let globalRank = 'Unranked';
+    if (cadet && cadet.collegeCode) {
+      try {
+        const rankData = await leaderboardService.getStudentUnitRank(userId, cadet.collegeCode);
+        globalRank = rankData?.rank ? `#${rankData.rank}` : 'Unranked';
+      } catch (err) {
+        // Ignore rank errors, just leave as Unranked
+      }
+    }
+
+    res.json({
+      examsTaken,
+      avgScore,
+      bestScore,
+      globalRank
+    });
+
+  } catch (error) {
+    console.error("[User Stats Error]", error);
+    res.status(500).json({ error: "Failed to fetch user stats" });
+  }
+}
+
 module.exports = {
   getStats,
   importUsers,
@@ -246,5 +302,6 @@ module.exports = {
   updateBatch,
   deleteBatch,
   liveMonitor,
-  examAnalytics
+  examAnalytics,
+  getUserStats
 };

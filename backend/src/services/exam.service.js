@@ -694,6 +694,9 @@ async function startAttempt(studentId, examIdRaw, sessionIdRaw) {
         currentQuestionIndex,
         expiresAt: existing.expiresAt,
         sessionId: existing.sessionId,
+        // Returned so frontend can call initializeFromServer() and block re-entry
+        // if cadet already has 3 violations (e.g. after a page refresh).
+        warningCount: existing.warningCount ?? 0,
       },
     };
   }
@@ -725,6 +728,7 @@ async function startAttempt(studentId, examIdRaw, sessionIdRaw) {
         currentQuestionIndex: 0,
         expiresAt: attempt.expiresAt,
         sessionId: attempt.sessionId,
+        warningCount: 0, // Fresh attempt always starts at zero
       },
     };
   } catch (err) {

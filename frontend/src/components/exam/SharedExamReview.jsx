@@ -1,0 +1,386 @@
+import React, { useState, useMemo } from 'react';
+import {
+  CheckCircle2,
+  XCircle,
+  MinusCircle,
+  Award,
+  AlertCircle,
+  Target
+} from 'lucide-react';
+import StatCard from '../StatCard';
+
+/* ─── Score ring ─────────────────────────────────────────────────────────── */
+function ScoreRing({ score, size = 136 }) {
+  const clamped = Math.min(100, Math.max(0, score));
+  const angle   = Math.round((clamped / 100) * 360);
+
+  const ringColor =
+    clamped >= 80 ? '#B8860B' :
+    clamped >= 60 ? '#5A5E3E' :
+    clamped >= 40 ? '#4A6090' :
+    '#8B1A1A';
+
+  const thickness = 12;
+
+  return (
+    <div
+      style={{
+        width: size, height: size, borderRadius: '50%', flexShrink: 0,
+        background: `conic-gradient(${ringColor} ${angle}deg, #E8E4D8 ${angle}deg)`,
+        display: 'flex', alignItems: 'center', justifyContent: 'center',
+        padding: thickness,
+      }}
+    >
+      <div
+        style={{
+          width: size - thickness * 2, height: size - thickness * 2,
+          borderRadius: '50%', background: '#FDFCF8',
+          display: 'flex', flexDirection: 'column',
+          alignItems: 'center', justifyContent: 'center', gap: 2,
+        }}
+      >
+        <span style={{
+          fontFamily: 'Noto Sans Mono, monospace',
+          fontSize: size * 0.225, fontWeight: 700, color: ringColor, lineHeight: 1,
+        }}>
+          {score}%
+        </span>
+        <span style={{
+          fontFamily: 'Noto Sans, sans-serif',
+          fontSize: size * 0.09, color: '#9A9A8E',
+          textTransform: 'uppercase', letterSpacing: '0.1em',
+        }}>
+          Score
+        </span>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Performance config ─────────────────────────────────────────────────── */
+export function getPerf(score) {
+  if (score >= 80) return { label: 'Distinction', bg: 'bg-gold-wash',    text: 'text-gold-deep',  border: 'border-gold-pale' };
+  if (score >= 60) return { label: 'First Class', bg: 'bg-olive-wash',   text: 'text-olive-mid',  border: 'border-olive-pale' };
+  if (score >= 40) return { label: 'Pass',        bg: 'bg-navy-wash',    text: 'text-navy-soft',  border: 'border-navy-pale' };
+  return            { label: 'Fail',       bg: 'bg-crimson-wash', text: 'text-crimson',    border: 'border-crimson/30' };
+}
+
+/* ─── Skeleton card ──────────────────────────────────────────────────────── */
+export function SkeletonCard() {
+  return (
+    <div className="rounded-xl border border-stone-deep bg-white p-4 sm:p-6 animate-pulse">
+      <div className="flex items-start gap-3">
+        <div className="h-7 w-7 rounded-full bg-stone-mid shrink-0" />
+        <div className="flex-1 space-y-2">
+          <div className="h-4 bg-stone-mid rounded w-4/5" />
+          <div className="h-3 bg-stone-wash rounded w-1/2" />
+          <div className="space-y-2 mt-3">
+            {[1, 2, 3, 4].map(i => (
+              <div key={i} className="h-11 bg-stone-wash rounded-lg border border-stone-mid" />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Per-question card ──────────────────────────────────────────────────── */
+function QuestionCard({ item, index, scoringScheme, context = 'cadet' }) {
+  const { question, options, correctAnswer, studentAnswer, isCorrect, isSkipped } = item;
+  const { negativeMarking = false, positiveMarks = 4, negativeMarks = 1.0 } = scoringScheme || {};
+
+  const statusConfig = isCorrect
+    ? { label: `Correct (+${positiveMarks})`,   bg: 'bg-emerald-50',   border: 'border-emerald-200', iconClass: 'text-emerald-600', chipBg: 'bg-emerald-100 text-emerald-700 border-emerald-200' }
+    : isSkipped
+    ? { label: 'Skipped (0)',   bg: 'bg-stone-wash',   border: 'border-stone-deep',  iconClass: 'text-ink-4',       chipBg: 'bg-stone-mid text-ink-3 border-stone-deep' }
+    : { label: `Incorrect (${negativeMarking ? `-${negativeMarks}` : 'no penalty'})`, bg: 'bg-crimson-wash',  border: 'border-crimson/20', iconClass: 'text-crimson',     chipBg: 'bg-crimson-wash text-crimson border-crimson/30' };
+
+  const StatusIcon = isCorrect ? CheckCircle2 : isSkipped ? MinusCircle : XCircle;
+  const answerLabel = context === 'admin' ? "Cadet's Answer" : "Your Answer";
+  const skippedLabel = context === 'admin' ? "Cadet did not answer this question" : "You did not answer this question";
+
+  return (
+    <div className={`rounded-xl border ${statusConfig.border} ${statusConfig.bg} overflow-hidden`}>
+      <div className="px-4 py-3 sm:px-5 sm:py-4 border-b border-inherit">
+        <div className="flex items-start justify-between gap-2 flex-wrap">
+          <div className="flex items-start gap-2.5 min-w-0 flex-1">
+            <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full bg-white border border-stone-deep font-mono text-[10px] sm:text-[11px] font-bold text-ink-3 shadow-sm mt-0.5">
+              {(index + 1).toString().padStart(2, '0')}
+            </span>
+            <p className="font-ui text-[14px] sm:text-[15px] font-medium text-ink leading-snug">
+              {question}
+            </p>
+          </div>
+          <span className={`flex-shrink-0 self-start flex items-center gap-1 rounded-full border px-2 py-0.5 font-mono text-[9px] sm:text-[10px] font-bold uppercase tracking-wider ${statusConfig.chipBg}`}>
+            <StatusIcon size={10} className={statusConfig.iconClass} />
+            {statusConfig.label}
+          </span>
+        </div>
+      </div>
+
+      <div className="flex flex-col gap-2 px-4 py-3 sm:px-5 sm:py-4">
+        {(!item.type || item.type === 'MCQ') && options?.map((opt, i) => {
+          const isTheCorrect  = opt === correctAnswer;
+          const isStudentPick = opt === studentAnswer;
+
+          let optClass    = 'border-stone-mid bg-white text-ink-3';
+          let indicator   = null;
+
+          if (isTheCorrect && isStudentPick && isCorrect) {
+            optClass  = 'border-emerald-400 bg-emerald-50 text-emerald-800 shadow-[0_0_0_1px_rgba(52,211,153,0.25)]';
+            indicator = <CheckCircle2 size={15} className="text-emerald-600 shrink-0" />;
+          } else if (isTheCorrect && !isStudentPick) {
+            optClass  = 'border-emerald-300 bg-emerald-50/70 text-emerald-700';
+            indicator = <CheckCircle2 size={15} className="text-emerald-500 shrink-0" />;
+          } else if (isStudentPick && !isCorrect) {
+            optClass  = 'border-crimson/40 bg-crimson-wash text-crimson shadow-[0_0_0_1px_rgba(139,26,26,0.1)]';
+            indicator = <XCircle size={15} className="text-crimson shrink-0" />;
+          }
+
+          return (
+            <div
+              key={i}
+              className={`flex items-center gap-3 rounded-lg border px-3 py-2.5 sm:px-4 sm:py-3 ${optClass}`}
+              style={{ minHeight: 44 }}
+            >
+              <span className="flex-shrink-0 flex h-6 w-6 sm:h-7 sm:w-7 items-center justify-center rounded-full border border-current/20 font-mono text-[11px] font-bold opacity-60">
+                {String.fromCharCode(65 + i)}
+              </span>
+              <span className="font-ui text-[13.5px] sm:text-[14px] font-medium flex-1 leading-snug">{opt}</span>
+              {indicator}
+            </div>
+          );
+        })}
+
+        {item.type === 'FILL_IN_THE_BLANK' && (
+          <div className="flex flex-col gap-3">
+            <div className={`p-4 rounded-md border ${isCorrect ? 'border-emerald-400 bg-emerald-50' : 'border-crimson/40 bg-crimson-wash'} flex items-start gap-3`}>
+              {isCorrect ? <CheckCircle2 size={16} className="text-emerald-600 mt-0.5 shrink-0" /> : <XCircle size={16} className="text-crimson mt-0.5 shrink-0" />}
+              <div>
+                <div className="font-ui text-xs font-bold uppercase tracking-wide opacity-70 mb-1">{answerLabel}</div>
+                <div className="font-ui text-[14px] font-medium">{studentAnswer || <span className="italic opacity-50">No answer provided</span>}</div>
+              </div>
+            </div>
+            {!isCorrect && (
+              <div className="p-4 rounded-md border border-emerald-300 bg-emerald-50/70 flex items-start gap-3">
+                <CheckCircle2 size={16} className="text-emerald-500 mt-0.5 shrink-0" />
+                <div>
+                  <div className="font-ui text-xs font-bold uppercase tracking-wide text-emerald-700 mb-1">Correct Answer</div>
+                  <div className="font-ui text-[14px] font-medium text-emerald-800">{correctAnswer}</div>
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {item.type === 'SUBJECTIVE' && (
+          <div className="flex flex-col gap-3">
+            <div className="p-4 rounded-md border border-stone-deep bg-white flex items-start gap-3">
+              <div>
+                <div className="font-ui text-xs font-bold uppercase tracking-wide opacity-70 mb-1">{answerLabel}</div>
+                <div className="font-ui text-[14px] font-medium whitespace-pre-wrap">{studentAnswer || <span className="italic opacity-50">No answer provided</span>}</div>
+              </div>
+            </div>
+            <div className="p-4 rounded-md border border-blue-200 bg-blue-50/50 flex items-start gap-3">
+              <div>
+                <div className="font-ui text-xs font-bold uppercase tracking-wide text-blue-700 mb-1">Grading Note</div>
+                <div className="font-ui text-[13px] text-blue-800">This question requires manual grading by your instructor. It is not auto-scored.</div>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {isSkipped && (!item.type || item.type === 'MCQ') && (
+          <p className="mt-0.5 font-mono text-[10px] uppercase tracking-wider text-ink-4 flex items-center gap-1.5">
+            <MinusCircle size={10} /> {skippedLabel}
+          </p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Shared Exam Review Main Body ───────────────────────────────────────── */
+export default function SharedExamReview({ data, context = 'cadet' }) {
+  const [filter, setFilter] = useState('all');
+
+  const perf = useMemo(() => data ? getPerf(data.score) : null, [data]);
+
+  const questionsWithIndex = useMemo(() => {
+    if (!data?.questions) return [];
+    return data.questions.map((q, i) => ({ ...q, originalIndex: i }));
+  }, [data?.questions]);
+
+  const filteredQuestions = useMemo(() => {
+    return questionsWithIndex.filter(q => {
+      if (filter === 'all') return true;
+      if (filter === 'correct') return q.isCorrect;
+      if (filter === 'skipped') return q.isSkipped;
+      if (filter === 'incorrect') return !q.isCorrect && !q.isSkipped;
+      return true;
+    });
+  }, [questionsWithIndex, filter]);
+
+  if (!data) return null;
+
+  const { examTitle, score, correct, incorrect, skipped, total, submittedAt } = data;
+
+  return (
+    <main className="flex-1 w-full max-w-3xl mx-auto px-3 sm:px-5 py-4 sm:py-6 pb-24 space-y-4">
+      {/* ════ STATS HERO ════ */}
+      <section className="rounded-xl border border-stone-deep bg-white shadow-[0_4px_24px_rgba(26,39,68,0.06)] overflow-hidden">
+        {/* Banner */}
+        <div className="bg-navy px-4 py-2.5 flex items-center gap-2">
+          <Target size={13} className="text-white/50" />
+          <span className="font-mono text-[9px] uppercase tracking-[0.18em] text-white/40">Performance Summary</span>
+        </div>
+
+        {/* Hero content */}
+        <div className="p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6 mb-5">
+            {/* Score ring */}
+            <div className="flex flex-col items-center gap-2 shrink-0 self-center">
+              <div className="sm:hidden">
+                <ScoreRing score={score} size={116} />
+              </div>
+              <div className="hidden sm:block">
+                <ScoreRing score={score} size={140} />
+              </div>
+            </div>
+
+            {/* Title + meta + badge */}
+            <div className="flex-1 text-center sm:text-left min-w-0">
+              <span className={`inline-flex items-center gap-1 rounded-full border px-2.5 py-0.5 font-mono text-[10px] font-bold uppercase tracking-wider mb-2 ${perf.bg} ${perf.text} ${perf.border}`}>
+                <Award size={10} /> {perf.label}
+              </span>
+              <p className="font-display text-[17px] sm:text-xl text-ink font-bold leading-snug truncate">
+                {examTitle}
+              </p>
+              <p className="font-mono text-[10px] text-ink-4 tracking-wider uppercase mt-1">
+                Submitted · {new Date(submittedAt).toLocaleDateString(undefined, { dateStyle: 'medium' })}
+              </p>
+            </div>
+          </div>
+
+          {/* Stats Container */}
+          <div className="mb-6">
+            {(() => {
+              const { negativeMarking = false, positiveMarks = 4, negativeMarks = 1.0 } = data?.scoringScheme || {};
+              const totalPenalty = negativeMarking ? incorrect * negativeMarks : 0;
+              const marksObtained = (correct * positiveMarks) - totalPenalty;
+              const maxMarks = total * positiveMarks;
+              return (
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+                  <StatCard
+                    icon={CheckCircle2} count={correct} label="Correct"
+                    colorCls="text-emerald-500"
+                    bgCls="bg-gradient-to-b from-emerald-50/60 to-white"
+                    borderCls="border-emerald-100"
+                  />
+                  <StatCard
+                    icon={XCircle} count={incorrect} label="Incorrect"
+                    colorCls="text-crimson"
+                    bgCls="bg-gradient-to-b from-rose-50/60 to-white"
+                    borderCls="border-rose-100"
+                  />
+                  <StatCard
+                    icon={MinusCircle} count={skipped} label="Skipped"
+                    colorCls="text-stone-500"
+                    bgCls="bg-gradient-to-b from-stone-100/60 to-white"
+                    borderCls="border-stone-200"
+                  />
+                  <StatCard
+                    icon={Award} count={`${marksObtained} / ${maxMarks}`} label="Marks"
+                    colorCls="text-indigo-500"
+                    bgCls="bg-gradient-to-b from-indigo-50/60 to-white"
+                    borderCls="border-indigo-100"
+                  />
+                </div>
+              );
+            })()}
+          </div>
+
+          {/* Progress bar */}
+          <div className="space-y-1.5">
+            <div className="flex justify-between font-mono text-[9px] sm:text-[10px] uppercase tracking-wider text-ink-4">
+              <span>Breakdown</span>
+              <span>{correct}/{total} correct</span>
+            </div>
+            <div className="flex h-2 sm:h-2.5 w-full rounded-full overflow-hidden bg-stone-mid">
+              {correct   > 0 && <div className="bg-emerald-500 transition-all duration-700" style={{ width: `${(correct   / total) * 100}%` }} />}
+              {incorrect > 0 && <div className="bg-crimson    transition-all duration-700" style={{ width: `${(incorrect / total) * 100}%` }} />}
+              {skipped   > 0 && <div className="bg-stone-deep  transition-all duration-700" style={{ width: `${(skipped   / total) * 100}%` }} />}
+            </div>
+            <div className="flex gap-3 font-mono text-[9px] uppercase tracking-wider text-ink-4">
+              <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500 inline-block" />Correct</span>
+              <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-crimson    inline-block" />Wrong</span>
+              <span className="flex items-center gap-1"><span className="h-1.5 w-1.5 rounded-full bg-stone-deep  inline-block" />Skipped</span>
+            </div>
+          </div>
+
+          {/* Penalty Explanation */}
+          {incorrect > 0 && data?.scoringScheme?.negativeMarking && (
+            <div className="mt-4 bg-crimson-wash border border-crimson/20 rounded-lg p-3 flex items-start gap-2.5">
+              <AlertCircle size={16} className="text-crimson shrink-0 mt-0.5" />
+              <p className="font-ui text-[12px] sm:text-[13px] text-crimson leading-snug">
+                <strong>Negative Marking Applied:</strong> {incorrect} incorrect answer{incorrect > 1 ? 's' : ''} resulted in a {data.scoringScheme.negativeMarks} mark penalty each, deducted from your original score.
+              </p>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* ════ QUESTION BREAKDOWN ════ */}
+      <section>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+          <div className="flex items-center gap-2.5">
+            <div className="h-5 w-1 bg-navy rounded-full" />
+            <h2 className="font-display text-lg sm:text-xl text-navy">Question Breakdown</h2>
+            <span className="font-mono text-[9px] sm:text-[10px] uppercase tracking-wider text-ink-4 bg-stone-wash border border-stone-deep rounded-full px-2 py-0.5">
+              {filteredQuestions.length} / {total} Qs
+            </span>
+          </div>
+          
+          <div className="flex bg-stone-wash p-1 rounded-lg border border-stone-deep inline-flex self-start sm:self-auto overflow-x-auto w-full sm:w-auto custom-scrollbar pb-1 sm:pb-0">
+            <button 
+              onClick={() => setFilter('all')}
+              className={`flex-1 sm:flex-none px-3 py-1.5 rounded-md text-[11px] font-bold font-mono transition-all ${filter === 'all' ? 'bg-white text-navy shadow-sm' : 'text-ink-4 hover:text-ink'}`}
+            >
+              ALL
+            </button>
+            <button 
+              onClick={() => setFilter('correct')}
+              className={`flex-1 sm:flex-none px-3 py-1.5 rounded-md text-[11px] font-bold font-mono transition-all ${filter === 'correct' ? 'bg-white text-emerald-700 shadow-sm border border-emerald-100' : 'text-ink-4 hover:text-ink'}`}
+            >
+              CORRECT
+            </button>
+            <button 
+              onClick={() => setFilter('incorrect')}
+              className={`flex-1 sm:flex-none px-3 py-1.5 rounded-md text-[11px] font-bold font-mono transition-all ${filter === 'incorrect' ? 'bg-white text-crimson shadow-sm border border-crimson/10' : 'text-ink-4 hover:text-ink'}`}
+            >
+              INCORRECT
+            </button>
+            <button 
+              onClick={() => setFilter('skipped')}
+              className={`flex-1 sm:flex-none px-3 py-1.5 rounded-md text-[11px] font-bold font-mono transition-all ${filter === 'skipped' ? 'bg-white text-ink-3 shadow-sm border border-stone-3' : 'text-ink-4 hover:text-ink'}`}
+            >
+              SKIPPED
+            </button>
+          </div>
+        </div>
+        <div className="space-y-3">
+          {filteredQuestions.length === 0 ? (
+            <div className="text-center p-8 bg-stone-wash border border-stone-deep rounded-xl font-ui text-[14px] text-ink-4">
+              No questions found matching this filter.
+            </div>
+          ) : (
+            filteredQuestions.map((item) => (
+              <QuestionCard key={item.questionId} item={item} index={item.originalIndex} scoringScheme={data?.scoringScheme} context={context} />
+            ))
+          )}
+        </div>
+      </section>
+    </main>
+  );
+}
