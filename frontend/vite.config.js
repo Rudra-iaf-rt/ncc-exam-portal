@@ -21,7 +21,7 @@ export default defineConfig(({ mode }) => {
           type: 'module',
         },
         workbox: {
-          maximumFileSizeToCacheInBytes: 200 * 1024 * 1024, // 200MB max per file (to handle videos)
+          maximumFileSizeToCacheInBytes: 200 * 1024 * 1024, 
           globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
           runtimeCaching: [
             {

@@ -1,13 +1,21 @@
 {
   "compilerOptions": {
-    "jsx": "react-jsx",
-    "allowJs": true,
+    "target": "ESNext",
+    "lib": ["DOM", "DOM.Iterable", "ESNext"],
     "module": "ESNext",
+    "skipLibCheck": true,
     "moduleResolution": "bundler",
-    "noEmit": true
+    "allowImportingTsExtensions": true,
+    "resolveJsonModule": true,
+    "isolatedModules": true,
+    "noEmit": true,
+    "jsx": "react-jsx",
+    "checkJs": false,
+    "allowJs": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   },
-  "include": [
-    "src/**/*"
-  ],
-  "extends": "expo/tsconfig.base"
+  "include": ["src"]
 }

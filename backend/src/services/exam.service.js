@@ -462,19 +462,39 @@ async function replaceExamQuestionsByCreator(userId, examIdRaw, body) {
     const ex = existingQuestions[i];
 
     if (q && ex) {
-      // Update existing question, keeping its original ID
-      ops.push(
-        prisma.question.update({
-          where: { id: ex.id },
-          data: isCompleted ? {
-            answer: normalizeAnswer(q.answer)
-          } : {
-            question: String(q.question).trim(),
-            options: q.options.map((o) => String(o)),
-            answer: normalizeAnswer(q.answer),
-          },
-        })
-      );
+      const newAnswer = normalizeAnswer(q.answer);
+      if (isCompleted) {
+        if (ex.answer !== newAnswer) {
+          ops.push(
+            prisma.question.update({
+              where: { id: ex.id },
+              data: { answer: newAnswer },
+            })
+          );
+        }
+      } else {
+        const newQuestion = String(q.question).trim();
+        const newOptions = q.options.map((o) => String(o));
+        
+        let changed = false;
+        if (ex.question !== newQuestion) changed = true;
+        if (ex.answer !== newAnswer) changed = true;
+        if (ex.options.length !== newOptions.length) changed = true;
+        else if (ex.options.some((opt, idx) => opt !== newOptions[idx])) changed = true;
+
+        if (changed) {
+          ops.push(
+            prisma.question.update({
+              where: { id: ex.id },
+              data: {
+                question: newQuestion,
+                options: newOptions,
+                answer: newAnswer,
+              },
+            })
+          );
+        }
+      }
     } else if (q && !ex) {
       if (isCompleted) throw new HttpError(403, "Cannot add questions in COMPLETED state.");
       // Create new question appended to the end
@@ -499,7 +519,8 @@ async function replaceExamQuestionsByCreator(userId, examIdRaw, body) {
     }
   }
 
-  await prisma.$transaction(ops);
+  // Fire all updates concurrently to avoid transaction timeouts
+  await Promise.all(ops);
 
   // Step 2: Fetch the freshly-written questions (needed for rescoring)
   const newQuestions = await prisma.question.findMany({
