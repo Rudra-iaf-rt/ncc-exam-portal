@@ -1,7 +1,7 @@
-const logger = require("../utils/logger")
+const { logger } = require("../utils/logger");
 const { redis } = require("./redis");
 
-const CACHE_TIMEOUT_MS = Number(process.env.CACHE_TIMEOUT_MS || 2000);
+const CACHE_TIMEOUT_MS = Number(process.env.CACHE_TIMEOUT_MS || 500);
 
 async function withTimeout(promise, fallback = null) {
   let timeoutId;
@@ -130,4 +130,5 @@ module.exports = {
   getCacheVersion,
   incrementCacheVersion,
   trackKey,
+  withTimeout,
 };

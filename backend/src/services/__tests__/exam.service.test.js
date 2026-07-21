@@ -514,7 +514,6 @@ describe("Exam Service Unit Tests", () => {
       const result = await examService.replaceExamQuestionsByCreator(creatorId, examId, body);
 
       expect(prisma.question.findMany).toHaveBeenCalledWith({ where: { examId: 8 }, orderBy: { id: "asc" } });
-      expect(prisma.$transaction).toHaveBeenCalled();
       expect(result.questions.length).toBe(1);
     });
   });

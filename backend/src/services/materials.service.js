@@ -1,6 +1,7 @@
 const path = require("path");
 const { prisma } = require("../lib/prisma");
 const { redis } = require("../lib/redis");
+const { withTimeout } = require("../lib/cache");
 const { b2Client, B2_BUCKET_NAME } = require("../lib/b2");
 const { Upload } = require("@aws-sdk/lib-storage");
 const { GetObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
@@ -29,16 +30,19 @@ async function invalidateMaterialsCache() {
     // Use SCAN to find matching keys — safe at 3k users with a short pattern
     let cursor = "0";
     do {
-      const [nextCursor, keys] = await redis.scan(
-        cursor,
-        "MATCH",
-        "materials:list:*",
-        "COUNT",
-        100
+      const [nextCursor, keys] = await withTimeout(
+        redis.scan(
+          cursor,
+          "MATCH",
+          "materials:list:*",
+          "COUNT",
+          100
+        ),
+        ["0", []]
       );
       cursor = nextCursor;
-      if (keys.length > 0) {
-        await redis.del(...keys);
+      if (keys && keys.length > 0) {
+        await withTimeout(redis.del(...keys), null);
       }
     } while (cursor !== "0");
   } catch (err) {
@@ -250,7 +254,7 @@ async function listMaterials(filters = {}) {
   const cacheKey = buildCacheKey(filters, page, limit);
 
   try {
-    const cached = await redis.get(cacheKey);
+    const cached = await withTimeout(redis.get(cacheKey), null);
     if (cached) return JSON.parse(cached);
   } catch (err) {
     console.error("[Redis] GET error in listMaterials", err.message);
@@ -297,7 +301,7 @@ async function listMaterials(filters = {}) {
   };
 
   try {
-    await redis.setex(cacheKey, CACHE_TTL_SECONDS, JSON.stringify(response));
+    await withTimeout(redis.setex(cacheKey, CACHE_TTL_SECONDS, JSON.stringify(response)), null);
   } catch (err) {
     console.error("[Redis] SET error in listMaterials", err.message);
   }

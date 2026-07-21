@@ -1,6 +1,6 @@
 const { prisma } = require("../lib/prisma");
 const { redis } = require("../lib/redis");
-const { cacheGetJson, cacheSetJson } = require("../lib/cache");
+const { cacheGetJson, cacheSetJson, withTimeout } = require("../lib/cache");
 const { HttpError } = require("../utils/http-error");
 
 function mapResultRow(r, violationCountMap = {}) {
@@ -153,7 +153,7 @@ async function listForInstructor(instructorId, query) {
   const instructorCacheKey = `user:metadata:${instructorId}`;
   let collegeCode = null;
   try {
-    const cachedCollegeCode = await redis.get(instructorCacheKey);
+    const cachedCollegeCode = await withTimeout(redis.get(instructorCacheKey), null);
     if (cachedCollegeCode) {
       collegeCode = cachedCollegeCode;
     }
@@ -171,7 +171,7 @@ async function listForInstructor(instructorId, query) {
     }
     collegeCode = me.collegeCode || "NONE";
     try {
-      await redis.setex(instructorCacheKey, 300, collegeCode); // Cache instructor info for 5 mins
+      await withTimeout(redis.setex(instructorCacheKey, 300, collegeCode), null); // Cache instructor info for 5 mins
     } catch (err) {
       console.error("[Redis] SET error in instructor metadata", err);
     }

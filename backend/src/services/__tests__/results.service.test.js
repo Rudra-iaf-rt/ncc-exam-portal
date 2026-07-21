@@ -35,6 +35,7 @@ jest.mock("../../lib/cache", () => ({
   cacheSetJson: jest.fn(),
   cacheDel: jest.fn(),
   trackKey: jest.fn(),
+  withTimeout: jest.fn().mockImplementation((promise, fallback) => promise),
 }));
 
 const resultsService = require("../results.service");

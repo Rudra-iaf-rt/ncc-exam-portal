@@ -1,6 +1,6 @@
 const { prisma } = require("../lib/prisma");
 const { redis } = require("../lib/redis");
-const { cacheGetJson, cacheSetJson, cacheDel, cacheDelPattern, cacheDelNamespace, getCacheVersion, incrementCacheVersion } = require("../lib/cache");
+const { cacheGetJson, cacheSetJson, cacheDel, cacheDelPattern, cacheDelNamespace, getCacheVersion, incrementCacheVersion, withTimeout } = require("../lib/cache");
 const { HttpError } = require("../utils/http-error");
 const { features } = require("../config/features");
 const {
@@ -111,8 +111,10 @@ async function listExamsCatalog(userId, role, query = {}) {
   const limit = Math.min(100, Math.max(1, parseInt(query.limit || "20", 10)));
   const skip = (page - 1) * limit;
 
-  const globalVer = await getCacheVersion("exams:catalog:global");
-  const userVer = await getCacheVersion(`exams:catalog:user:${userId}`);
+  const [globalVer, userVer] = await Promise.all([
+    getCacheVersion("exams:catalog:global"),
+    getCacheVersion(`exams:catalog:user:${userId}`),
+  ]);
   const cacheKey = `exams:catalog2:v${globalVer}:u${userVer}:${role}:${userId}:p${page}:l${limit}`;
   const cached = await cacheGetJson(cacheKey);
   if (cached) return cached;
@@ -426,7 +428,7 @@ async function replaceExamQuestionsByCreator(userId, examIdRaw, body) {
   if (exam.createdBy !== userId) {
     throw new HttpError(403, "Only exam creator can update questions");
   }
-
+   
   // Lifecycle Lock: LIVE and ARCHIVED are strictly locked. COMPLETED allows answer corrections only.
   if (exam.status === 'LIVE' || exam.status === 'ARCHIVED') {
     throw new HttpError(403, "Questions and answers are strictly locked in LIVE or ARCHIVED states.");
@@ -519,7 +521,6 @@ async function replaceExamQuestionsByCreator(userId, examIdRaw, body) {
     }
   }
 
-  // Fire all updates concurrently to avoid transaction timeouts
   await Promise.all(ops);
 
   // Step 2: Fetch the freshly-written questions (needed for rescoring)
@@ -529,7 +530,6 @@ async function replaceExamQuestionsByCreator(userId, examIdRaw, body) {
   });
 
   // Step 3: Recalculate scores for every SUBMITTED attempt on this exam.
-  // Answers are stored as { [questionId]: selectedAnswer } in Attempt.answers (JSONB).
   const submittedAttempts = await prisma.attempt.findMany({
     where: { examId, status: "SUBMITTED" },
     select: { studentId: true, answers: true },
@@ -548,9 +548,6 @@ async function replaceExamQuestionsByCreator(userId, examIdRaw, body) {
       return { studentId: attempt.studentId, score };
     });
 
-    // Each update targets a unique studentId_examId row — no cross-row conflicts,
-    // so no transaction needed. Promise.all fires all updates concurrently without
-    // holding an open interactive transaction, avoiding the 5 000 ms timeout.
     await Promise.all(
       scoredUpdates.map(({ studentId, score }) =>
         prisma.result.update({
@@ -813,7 +810,7 @@ async function saveAttemptAnswer(studentId, body) {
   const timingCacheKey = `exams:timing:${examId}`;
   let cachedExam = null;
   try {
-    const data = await redis.get(timingCacheKey);
+    const data = await withTimeout(redis.get(timingCacheKey), null);
     if (data) cachedExam = JSON.parse(data);
   } catch (err) {
     console.error("[Redis] GET error in saveAttemptAnswer:", err);
@@ -833,7 +830,7 @@ async function saveAttemptAnswer(studentId, body) {
       questions: exam.questions.map((q) => ({ id: q.id })),
     };
     try {
-      await redis.setex(timingCacheKey, 3600, JSON.stringify(cachedExam));
+      await withTimeout(redis.setex(timingCacheKey, 3600, JSON.stringify(cachedExam)), null);
     } catch (err) {
       console.error("[Redis] SET error in saveAttemptAnswer:", err);
     }
