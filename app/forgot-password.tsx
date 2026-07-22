@@ -19,23 +19,23 @@ import { api, getErrorMessage } from "../lib/api";
 
 export default function ForgotPasswordScreen() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [done, setDone] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   async function onSubmit() {
     setError(null);
-    const e = email.trim();
-    if (!e) {
-      setError("Enter your email address.");
+    const idVal = identifier.trim();
+    if (!idVal) {
+      setError("Enter your email or regimental number.");
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
       return;
     }
 
     setSubmitting(true);
     try {
-      await api.post("/api/auth/password/forgot", { email: e });
+      await api.post("/api/auth/password/forgot", { identifier: idVal });
       setDone(true);
       void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     } catch (err) {
@@ -64,21 +64,20 @@ export default function ForgotPasswordScreen() {
           <Text style={styles.badge}>ACCOUNT</Text>
           <Text style={styles.title}>Reset password</Text>
           <Text style={styles.subtitle}>
-            Enter the email on your cadet profile. If an account exists, you will receive a reset link.
+            Enter the email or regimental number on your profile. If an account exists with an email, you will receive a reset link.
           </Text>
         </View>
 
         <View style={styles.form}>
-          <Text style={styles.label}>Email</Text>
+          <Text style={styles.label}>Email or Regimental number</Text>
           <TextInput
             style={styles.input}
-            placeholder="you@example.com"
+            placeholder="you@example.com or NCC/..."
             placeholderTextColor={Colors.textMuted}
             autoCapitalize="none"
             autoCorrect={false}
-            keyboardType="email-address"
-            value={email}
-            onChangeText={setEmail}
+            value={identifier}
+            onChangeText={setIdentifier}
             onSubmitEditing={onSubmit}
             returnKeyType="send"
           />

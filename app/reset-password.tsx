@@ -1,7 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { useMemo, useState } from "react";
+import { useMemo, useState, useEffect } from "react";
 import {
   KeyboardAvoidingView,
   Platform,
@@ -32,6 +32,26 @@ export default function ResetPasswordScreen() {
   const [newPassword, setNewPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const [isValidating, setIsValidating] = useState(!!tokenFromLink);
+  const [validUser, setValidUser] = useState<{ name: string; regimentalNumber: string | null; email: string | null } | null>(null);
+
+  useEffect(() => {
+    async function validateToken() {
+      if (!tokenFromLink) return;
+      setIsValidating(true);
+      setError(null);
+      try {
+        const res = await api.post("/api/auth/password/verify-token", { token: tokenFromLink });
+        setValidUser(res.data?.user || null);
+      } catch (err) {
+        setError(getErrorMessage(err, "This reset link is invalid or has expired."));
+      } finally {
+        setIsValidating(false);
+      }
+    }
+    validateToken();
+  }, [tokenFromLink]);
 
   async function onSubmit() {
     setError(null);
@@ -84,14 +104,28 @@ export default function ResetPasswordScreen() {
         <View style={styles.form}>
           <Text style={styles.label}>Reset token</Text>
           <TextInput
-            style={styles.input}
+            style={[styles.input, (isValidating || validUser) && styles.inputDisabled]}
             placeholder="Paste token"
             placeholderTextColor={Colors.textMuted}
             autoCapitalize="none"
             autoCorrect={false}
             value={token}
             onChangeText={setToken}
+            editable={!isValidating && !validUser}
           />
+
+          {isValidating && (
+            <Text style={styles.validatingText}>Validating token...</Text>
+          )}
+
+          {validUser && (
+            <View style={styles.userCard}>
+              <Text style={styles.userCardTitle}>Resetting password for:</Text>
+              <Text style={styles.userCardName}>{validUser.name}</Text>
+              {validUser.regimentalNumber ? <Text style={styles.userCardSub}>{validUser.regimentalNumber}</Text> : null}
+              {validUser.email ? <Text style={styles.userCardSub}>{validUser.email}</Text> : null}
+            </View>
+          )}
 
           <Text style={styles.label}>New password</Text>
           <TextInput
@@ -103,11 +137,18 @@ export default function ResetPasswordScreen() {
             onChangeText={setNewPassword}
             onSubmitEditing={onSubmit}
             returnKeyType="done"
+            editable={!isValidating}
           />
 
           {error ? <Text style={styles.error}>{error}</Text> : null}
 
-          <PrimaryButton label="Update password" onPress={onSubmit} loading={submitting} style={styles.submit} />
+          <PrimaryButton 
+            label="Update password" 
+            onPress={onSubmit} 
+            loading={submitting} 
+            style={styles.submit}
+            disabled={isValidating || !!error}
+          />
         </View>
       </KeyboardAvoidingView>
     </Screen>
@@ -189,5 +230,36 @@ const styles = StyleSheet.create({
   },
   submit: {
     marginTop: Spacing.md,
+  },
+  inputDisabled: {
+    opacity: 0.6,
+    backgroundColor: Colors.surfaceHover,
+  },
+  validatingText: {
+    color: Colors.primary,
+    fontSize: 14,
+    fontWeight: "600",
+  },
+  userCard: {
+    backgroundColor: Colors.primaryLight,
+    padding: Spacing.md,
+    borderRadius: Radius.md,
+    marginVertical: Spacing.xs,
+  },
+  userCardTitle: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: Colors.primary,
+    marginBottom: 4,
+  },
+  userCardName: {
+    fontSize: 16,
+    fontWeight: "700",
+    color: Colors.text,
+  },
+  userCardSub: {
+    fontSize: 14,
+    color: Colors.textMuted,
+    marginTop: 2,
   },
 });

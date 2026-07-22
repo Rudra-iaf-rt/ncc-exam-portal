@@ -12,6 +12,7 @@ router.post("/login/student", authRateLimiter, asyncHandler(authController.login
 router.post("/login/staff", authRateLimiter, asyncHandler(authController.loginStaff));
 router.post("/password/forgot", authRateLimiter, asyncHandler(authController.forgotPassword));
 router.post("/password/reset", authRateLimiter, asyncHandler(authController.resetPassword));
+router.post("/password/verify-token", authRateLimiter, asyncHandler(authController.verifyResetToken));
 router.post("/forgot-password", authRateLimiter, asyncHandler(authController.forgotPassword));
 router.post("/reset-password", authRateLimiter, asyncHandler(authController.resetPassword));
 router.get("/me", authenticate, asyncHandler(authController.me));

@@ -168,6 +168,11 @@ async function changePassword(req, res) {
   res.json({ ok: true });
 }
 
+async function verifyResetToken(req, res) {
+  const user = await authService.verifyPasswordResetToken(req.body ?? {});
+  res.json({ ok: true, user });
+}
+
 module.exports = {
   register,
   loginStudent,
@@ -177,6 +182,7 @@ module.exports = {
   refreshWithToken,
   forgotPassword,
   resetPassword,
+  verifyResetToken,
   changePassword,
   logout,
 };

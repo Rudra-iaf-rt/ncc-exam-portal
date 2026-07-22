@@ -302,17 +302,19 @@ async function logoutAllForUser(userIdRaw) {
   return { ok: true };
 }
 
-async function requestPasswordReset({ email }) {
-  const emailNorm = String(email || "").trim().toLowerCase();
-  if (!emailNorm || !EMAIL_RE.test(emailNorm)) {
-    // Always succeed to avoid enumeration (and to keep API shape stable).
-    return;
-  }
+async function requestPasswordReset({ identifier, email }) {
+  const idNorm = String(identifier || email || "").trim();
+  if (!idNorm) return;
+
+  const isEmail = EMAIL_RE.test(idNorm.toLowerCase());
 
   const user = await prisma.user.findFirst({
-    where: { email: emailNorm },
+    where: isEmail
+      ? { email: idNorm.toLowerCase() }
+      : { regimentalNumber: idNorm.toUpperCase() },
     select: { id: true, email: true, name: true, role: true },
   });
+
   if (!user || !user.email) {
     return;
   }
@@ -329,25 +331,42 @@ async function requestPasswordReset({ email }) {
     },
   });
 
-  const appResetUrlBase = process.env.APP_RESET_URL_BASE || process.env.APP_PUBLIC_URL || "";
+  const appResetUrlBase = process.env.APP_RESET_URL_BASE || process.env.APP_PUBLIC_URL || "https://ncc-exam-portal.vercel.app/";
   const resetUrl = buildPasswordResetLink(rawToken, appResetUrlBase);
 
   const subject = "Reset your NCC Exam Portal password";
   const text = [
-    `Hello ${user.name || "User"},`,
+    `Hello ${user.name || "Cadet"},`,
     "",
-    "We received a request to reset your password.",
+    "We received a request to reset your password for the NCC Exam Portal.",
     "Use the link below to set a new password:",
     resetUrl,
     "",
     `This link expires in ${RESET_TOKEN_TTL_MINUTES} minutes.`,
-    "If you did not request this, you can ignore this email.",
+    "If you did not request this, you can safely ignore this email.",
   ].join("\n");
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; color: #333; line-height: 1.6;">
+      <h2 style="color: #0b3b60; border-bottom: 2px solid #0b3b60; padding-bottom: 10px;">NCC Exam Portal</h2>
+      <p>Hello <strong>${user.name || "Cadet"}</strong>,</p>
+      <p>We received a request to reset your password for your account.</p>
+      <p style="text-align: center; margin: 30px 0;">
+        <a href="${resetUrl}" style="background-color: #0b3b60; color: #ffffff; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">Reset Password</a>
+      </p>
+      <p>Or copy and paste this link into your browser:</p>
+      <p style="word-break: break-all; color: #666; font-size: 14px;">${resetUrl}</p>
+      <hr style="border: 0; border-top: 1px solid #eaeaea; margin: 30px 0;" />
+      <p style="font-size: 13px; color: #888;">This password reset link will expire in ${RESET_TOKEN_TTL_MINUTES} minutes.</p>
+      <p style="font-size: 13px; color: #888;">If you did not request a password reset, please ignore this email or contact your instructor if you have concerns.</p>
+    </div>
+  `;
 
   await sendMail({
     to: user.email,
     subject,
     text,
+    html,
   });
 }
 
@@ -396,6 +415,41 @@ async function resetPassword({ token, newPassword }) {
     }),
   ]);
 }
+
+async function verifyPasswordResetToken({ token }) {
+  const rawToken = String(token || "").trim();
+  if (!rawToken) {
+    throw new HttpError(400, "token is required");
+  }
+
+  const tokenHash = sha256(rawToken);
+  const record = await prisma.passwordResetToken.findFirst({
+    where: {
+      tokenHash,
+    },
+    include: {
+      user: {
+        select: {
+          name: true,
+          email: true,
+          regimentalNumber: true,
+        },
+      },
+    },
+  });
+
+  if (!record) {
+    throw new HttpError(400, "Invalid or expired reset token");
+  }
+  if (record.usedAt) {
+    throw new HttpError(400, "Reset token already used");
+  }
+  if (record.expiresAt.getTime() < Date.now()) {
+    throw new HttpError(400, "Invalid or expired reset token");
+  }
+
+  return record.user;
+}
 async function changePassword({ userId, oldPassword, newPassword }) {
   if (!oldPassword || !newPassword) {
     throw new HttpError(400, "oldPassword and newPassword are required");
@@ -437,5 +491,6 @@ module.exports = {
   logoutAllForUser,
   requestPasswordReset,
   resetPassword,
+  verifyPasswordResetToken,
   changePassword,
 };
