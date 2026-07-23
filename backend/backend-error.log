@@ -14922,3 +14922,15 @@ COMPONENT_STACK:
     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
     at async Object.requestPasswordReset (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:349:3)
     at async forgotPassword (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:120:3)
+[2026-07-23T17:54:04.520Z] Error: Brevo API error: 401 {"message":"We have detected you are using an unrecognised IP address 2409:40f0:5425:118d:98d6:6ce9:f79e:f689. If you performed this action make sure to add the new IP address in this link: https://app.brevo.com/security/authorised_ips","code":"unauthorized"}
+
+    at sendMail (C:\College Projects\ncc-exam-portal\backend\src\services\mailer.service.js:41:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Object.requestPasswordReset (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:454:3)
+    at async forgotPassword (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:120:3)
+[2026-07-23T17:54:14.597Z] Error: Brevo API error: 401 {"message":"We have detected you are using an unrecognised IP address 2409:40f0:5425:118d:98d6:6ce9:f79e:f689. If you performed this action make sure to add the new IP address in this link: https://app.brevo.com/security/authorised_ips","code":"unauthorized"}
+
+    at sendMail (C:\College Projects\ncc-exam-portal\backend\src\services\mailer.service.js:41:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Object.requestPasswordReset (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:454:3)
+    at async forgotPassword (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:120:3)
