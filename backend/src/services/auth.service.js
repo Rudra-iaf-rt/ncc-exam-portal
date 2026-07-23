@@ -352,93 +352,54 @@ async function requestPasswordReset({ identifier, email }) {
     <head>
       <meta charset="utf-8">
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Reset Password - NCC Exam Portal</title>
+      <title>Reset your password</title>
     </head>
     <body style="margin: 0; padding: 0; background-color: #F4F2EC; font-family: 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; -webkit-font-smoothing: antialiased;">
-      <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #F4F2EC; padding: 40px 16px;">
+      <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #F4F2EC; padding: 48px 16px;">
         <tr>
           <td align="center">
-            <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 560px; background-color: #FDFCF8; border: 1px solid #CCC8BC; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 12px rgba(26, 39, 68, 0.05);">
+            <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="max-width: 520px; background-color: #FFFFFF; border: 1px solid #E8E4D8; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
               
-              <!-- Official Tri-Service Accent Stripe (Crimson, Navy, Gold) -->
+              <!-- Header -->
               <tr>
-                <td style="height: 4px; background: #8B1A1A; background: linear-gradient(90deg, #8B1A1A 0%, #8B1A1A 33.3%, #1A2744 33.3%, #1A2744 66.6%, #B8860B 66.6%, #B8860B 100%); font-size: 0; line-height: 0;">&nbsp;</td>
-              </tr>
-
-              <!-- Header Section -->
-              <tr>
-                <td style="background-color: #1A2744; padding: 28px 36px; text-align: left;">
-                  <table role="presentation" border="0" cellspacing="0" cellpadding="0" style="display: inline-block; margin-bottom: 12px;">
-                    <tr>
-                      <td style="background-color: rgba(184, 134, 11, 0.15); border: 1px solid #B8860B; border-radius: 6px; padding: 4px 10px; font-family: 'Noto Sans', sans-serif; font-size: 11px; font-weight: 700; color: #F0DC82; letter-spacing: 1px; text-transform: uppercase;">
-                        🛡️ NCC EXAM PORTAL
-                      </td>
-                    </tr>
-                  </table>
-                  <h1 style="color: #FDFCF8; margin: 0 0 4px 0; font-size: 22px; font-weight: 700; letter-spacing: -0.3px; line-height: 1.2;">
-                    Password Reset Request
-                  </h1>
-                  <p style="color: #B8C8E0; margin: 0; font-size: 13px; font-weight: 400;">
-                    National Cadet Corps • Authentication Services
-                  </p>
+                <td style="padding: 32px 32px 24px 32px; border-bottom: 1px solid #F4F2EC;">
+                  <span style="font-size: 16px; font-weight: 700; color: #1A2744; letter-spacing: -0.2px;">NCC Exam Portal</span>
                 </td>
               </tr>
 
-              <!-- Body Content -->
+              <!-- Body -->
               <tr>
-                <td style="padding: 36px 36px 28px 36px; color: #1C1C18; line-height: 1.6; font-size: 15px;">
-                  <p style="margin-top: 0; margin-bottom: 16px; font-size: 16px; color: #1C1C18;">
-                    Jai Hind <strong>${user.name || "Cadet"}</strong>,
+                <td style="padding: 32px; color: #1C1C18; font-size: 15px; line-height: 1.6;">
+                  <p style="margin: 0 0 16px 0; color: #1C1C18;">
+                    Hello <strong>${user.name || "Cadet"}</strong>,
                   </p>
-                  <p style="margin-top: 0; margin-bottom: 24px; color: #3A3A34; line-height: 1.6;">
-                    We received a password reset request for your NCC Exam Portal account. If you submitted this request, please click the button below to establish a new password:
+                  <p style="margin: 0 0 24px 0; color: #3A3A34;">
+                    We received a request to reset the password for your account. Click the button below to set a new password:
                   </p>
 
-                  <!-- Primary CTA Button -->
-                  <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="margin: 32px 0;">
+                  <!-- CTA Button -->
+                  <table role="presentation" border="0" cellspacing="0" cellpadding="0" style="margin: 28px 0;">
                     <tr>
-                      <td align="center">
-                        <a href="${resetUrl}" target="_blank" style="background-color: #1A2744; color: #FDFCF8; padding: 14px 32px; text-decoration: none; border-radius: 6px; font-weight: 700; font-size: 14px; letter-spacing: 0.5px; display: inline-block; border: 1px solid #253660; box-shadow: 0 2px 6px rgba(26, 39, 68, 0.15);">
-                          RESET PASSWORD NOW &rarr;
+                      <td align="left">
+                        <a href="${resetUrl}" target="_blank" style="background-color: #1A2744; color: #FFFFFF; padding: 11px 22px; text-decoration: none; border-radius: 6px; font-weight: 600; font-size: 14px; display: inline-block;">
+                          Reset password
                         </a>
                       </td>
                     </tr>
                   </table>
 
-                  <!-- Expiry & Security Notice Box -->
-                  <table role="presentation" width="100%" border="0" cellspacing="0" cellpadding="0" style="background-color: #EDF1F8; border-left: 4px solid #1A2744; border-radius: 0 6px 6px 0; margin: 24px 0 28px 0;">
-                    <tr>
-                      <td style="padding: 16px 20px;">
-                        <p style="margin: 0 0 4px 0; font-size: 12px; font-weight: 700; color: #1A2744; text-transform: uppercase; letter-spacing: 0.5px;">
-                          ⏱️ Security Notice
-                        </p>
-                        <p style="margin: 0; font-size: 13px; color: #3A3A34; line-height: 1.5;">
-                          This reset link will expire in <strong>${RESET_TOKEN_TTL_MINUTES} minutes</strong>. For your protection, this link can only be used once.
-                        </p>
-                      </td>
-                    </tr>
-                  </table>
-
-                  <!-- Fallback Direct Link -->
-                  <div style="border-top: 1px dashed #CCC8BC; padding-top: 20px; margin-top: 24px;">
-                    <p style="margin: 0 0 8px 0; font-size: 12px; font-weight: 700; color: #6A6A60; text-transform: uppercase; letter-spacing: 0.5px;">
-                      Or copy and paste this link into your browser:
-                    </p>
-                    <p style="margin: 0; word-break: break-all; font-family: 'Noto Sans Mono', Consolas, monospace; font-size: 12px; background-color: #F9F8F4; padding: 10px 14px; border: 1px solid #E8E4D8; border-radius: 4px;">
-                      <a href="${resetUrl}" style="color: #4A6090; text-decoration: none;">${resetUrl}</a>
-                    </p>
-                  </div>
+                  <p style="margin: 0 0 24px 0; font-size: 13px; color: #6A6A60;">
+                    This link expires in <strong>${RESET_TOKEN_TTL_MINUTES} minutes</strong>. If you didn't request a password reset, you can safely ignore this email — your password will remain unchanged.
+                  </p>
+                 
                 </td>
               </tr>
 
-              <!-- Footer Section -->
+              <!-- Footer -->
               <tr>
-                <td style="background-color: #F9F8F4; padding: 24px 36px; border-top: 1px solid #E8E4D8; text-align: center;">
-                  <p style="font-size: 12px; color: #6A6A60; margin: 0 0 8px 0; line-height: 1.5;">
-                    If you did not request a password reset, please ignore this email or notify your Unit HQ / Administrator immediately.
-                  </p>
-                  <p style="font-size: 11px; color: #9A9A8E; margin: 12px 0 0 0; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">
-                    National Cadet Corps • Official Examination Portal
+                <td style="background-color: #F9F8F4; padding: 20px 32px; border-top: 1px solid #E8E4D8; text-align: left;">
+                  <p style="font-size: 12px; color: #9A9A8E; margin: 0; line-height: 1.5;">
+                    National Cadet Corps Examination Portal
                   </p>
                 </td>
               </tr>
