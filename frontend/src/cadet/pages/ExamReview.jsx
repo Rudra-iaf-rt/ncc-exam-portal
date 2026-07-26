@@ -47,7 +47,7 @@ const ExamReview = () => {
   /* ── Loading ── */
   if (loading) {
     return (
-      <div className="min-h-screen bg-stone-wash flex flex-col">
+      <div className="min-h-[100dvh] bg-stone-wash flex flex-col relative">
         <header className="sticky top-0 z-50 bg-navy px-4 py-3.5 flex items-center gap-3 shadow-lg border-b border-white/10">
           <div className="h-7 w-7 rounded-full bg-white/10 animate-pulse" />
           <div className="h-4 w-40 bg-white/10 rounded animate-pulse" />
@@ -72,7 +72,7 @@ const ExamReview = () => {
     const is403 = error.status === 403;
     const is404 = error.status === 404;
     return (
-      <div className="min-h-screen bg-stone-wash flex flex-col">
+      <div className="min-h-[100dvh] bg-stone-wash flex flex-col relative">
         <header className="sticky top-0 z-50 bg-navy px-4 py-3.5 flex items-center gap-3 shadow-lg border-b border-white/10">
           <button
             onClick={() => goBack('/cadet/results')}
@@ -119,7 +119,7 @@ const ExamReview = () => {
   const { examTitle, correct, total } = data;
 
   return (
-    <div className="min-h-screen bg-stone-wash flex flex-col">
+    <div className="min-h-[100dvh] bg-stone-wash flex flex-col relative">
       {/* ══ Sticky header ══ */}
       <header className="sticky top-0 z-50 bg-navy px-4 py-3 sm:py-3.5 shadow-lg border-b border-white/10 flex items-center justify-between shrink-0">
         <div className="flex items-center gap-2 min-w-0">
@@ -151,7 +151,7 @@ const ExamReview = () => {
       <SharedExamReview data={data} context="cadet" />
 
       {/* ══ Sticky footer ══ */}
-      <footer className="fixed bottom-0 left-0 right-0 z-50 border-t border-stone-deep bg-white/96 backdrop-blur-md shadow-[0_-4px_20px_rgba(26,39,68,0.1)]">
+      <footer className="mt-auto sticky bottom-0 z-50 border-t border-stone-deep bg-white/96 backdrop-blur-md shadow-[0_-4px_20px_rgba(26,39,68,0.1)]">
         <div className="w-full max-w-3xl mx-auto px-3 sm:px-5 py-2.5 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 min-w-0">
             <div className="flex items-center gap-1.5 rounded-r bg-stone-wash border border-stone-deep px-2.5 py-1.5">

@@ -32,7 +32,7 @@ const ForgotPassword = () => {
 
   if (submitted) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-stone p-6">
+      <div className="min-h-[100dvh] flex items-center justify-center bg-stone p-6">
         <div className="w-full max-w-[420px] bg-white rounded-md border border-stone-deep p-10 shadow-xl text-center">
           <div className="w-16 h-16 bg-green-50 border border-green-100 rounded-full flex items-center justify-center mx-auto mb-6">
             <CheckCircle2 size={32} className="text-green-600" />
@@ -54,7 +54,7 @@ const ForgotPassword = () => {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-stone p-6 relative overflow-hidden">
+    <div className="min-h-[100dvh] flex items-center justify-center bg-stone p-6 relative overflow-hidden">
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
            style={{ backgroundImage: 'radial-gradient(var(--navy) 1px, transparent 1px)', backgroundSize: '32px 32px' }}>
       </div>

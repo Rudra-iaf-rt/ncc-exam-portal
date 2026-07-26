@@ -524,7 +524,7 @@ const ExamAttempt = () => {
   const q = exam.questions[currentQ];
 
   return (
-    <div className="flex h-screen flex-col bg-stone-wash">
+    <div className="flex h-[100dvh] flex-col bg-stone-wash relative overflow-hidden">
       <header className="z-[100] sticky top-0 flex items-center justify-between bg-navy px-4 sm:px-8 py-3.5 shadow-lg border-b border-white/10 shrink-0">        {/* Left Section: Title & Status Pills */}
         <div className="flex flex-col gap-1 min-w-0">
           <h1 className="font-display text-[15px] sm:text-lg text-[#F4F0E4] font-bold truncate max-w-[130px] xs:max-w-[180px] sm:max-w-xs md:max-w-md">

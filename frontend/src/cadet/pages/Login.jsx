@@ -40,7 +40,7 @@ const CadetLogin = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-stone p-6 relative overflow-hidden">
+    <div className="min-h-[100dvh] flex items-center justify-center bg-stone p-6 relative overflow-hidden">
       {/* Background Pattern */}
       <div className="absolute inset-0 opacity-[0.03] pointer-events-none" 
            style={{ backgroundImage: 'radial-gradient(var(--navy) 1px, transparent 1px)', backgroundSize: '32px 32px' }}>

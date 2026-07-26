@@ -118,7 +118,7 @@ export function AdminLayout() {
   `;
 
   return (
-    <div className="flex min-h-screen bg-stone">
+    <div className="flex min-h-[100dvh] bg-stone">
       {/* Mobile Toggle */}
       <button 
         className="lg:hidden fixed bottom-6 right-6 w-14 h-14 rounded-full bg-navy text-[#E8E4D4] border border-white/10 shadow-2xl z-[200] flex items-center justify-center transition-transform active:scale-95"

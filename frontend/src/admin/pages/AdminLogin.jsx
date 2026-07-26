@@ -35,7 +35,7 @@ export default function AdminLogin() {
   if (isLoading) return null;
 
   return (
-    <div className="min-h-screen bg-[#FDFCF8] flex items-center justify-center p-5 font-ui relative overflow-hidden">
+    <div className="min-h-[100dvh] bg-[#FDFCF8] flex items-center justify-center p-5 font-ui relative overflow-hidden">
       <div className="bg-white border border-stone-deep rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.05)] w-full max-w-[420px] p-10 relative z-10">
         <div className="text-center mb-8">
           <div className="w-[80px] h-[80px] mx-auto mb-5 drop-shadow-[0_8px_16px_rgba(11,22,43,0.15)]">

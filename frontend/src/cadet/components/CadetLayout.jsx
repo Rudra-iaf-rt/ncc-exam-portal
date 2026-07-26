@@ -120,7 +120,7 @@ export const CadetLayout = () => {
   ];
 
   return (
-    <div className="flex min-h-screen bg-stone">
+    <div className="flex min-h-[100dvh] bg-stone">
       {/* Sidebar - Desktop Only */}
       <aside className={`hidden lg:flex sticky top-0 left-0 h-screen w-[280px] shrink-0 bg-navy flex-col z-[100]`}>
         <div className="p-6 pb-6 border-b border-white/5 mb-2 bg-navy-deep/10 flex flex-col items-center text-center gap-4">
