@@ -49,7 +49,6 @@ async function register(req, res) {
 }
 
 async function loginStudent(req, res) {
-  console.log("Payload", req.body)
   const payload = await authService.loginStudent(req.body ?? {});
   await auditLogService.recordAudit(req, {
     action: "AUTH_LOGIN_STUDENT",
@@ -65,7 +64,6 @@ async function loginStudent(req, res) {
 
 async function loginStaff(req, res) {
   try {
-    console.log("[AUTH] Login staff attempt", { email: req.body?.email });
     const payload = await authService.loginStaff(req.body ?? {});
     
     await auditLogService.recordAudit(req, {

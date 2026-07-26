@@ -11,4 +11,15 @@ dotenv.config({ path: path.join(backendRoot, "..", ".env") });
 // Last: default cwd-based .env
 dotenv.config();
 
+const requiredEnvVars = ["DATABASE_URL", "JWT_SECRET", "CLIENT_URL"];
+const missingEnvVars = requiredEnvVars.filter((envVar) => !process.env[envVar]);
+
+if (missingEnvVars.length > 0) {
+  console.error(
+    `[FATAL] Missing required environment variables: ${missingEnvVars.join(", ")}`
+  );
+  console.error("The application cannot start without these variables.");
+  process.exit(1);
+}
+
 module.exports = { backendRoot };

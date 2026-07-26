@@ -57,35 +57,26 @@ function createRateLimiter({ windowMs, max, keyFn, message }) {
   };
 }
 
-const authRateLimiter = createRateLimiter({
+const loginRateLimiter = createRateLimiter({
   windowMs: 60 * 1000,
-  max: 300,
+  max: 5,
   keyFn: (req) => {
-
-    const fromBody =
-      req.body?.regimentalNumber ||
-      req.body?.email;
-    if (fromBody) return `rl:auth:${fromBody}:${String(req.path || "")}`;
-
-    // Last resort: try to decode the JWT to get a user ID
-    try {
-      const token =
-        req.cookies?.accessToken ||
-        (req.headers.authorization?.startsWith("Bearer ")
-          ? req.headers.authorization.slice(7)
-          : null);
-      if (token) {
-        const payloadB64 = token.split(".")[1];
-        if (payloadB64) {
-          const decoded = JSON.parse(Buffer.from(payloadB64, "base64url").toString());
-          if (decoded?.id) return `rl:auth:user:${decoded.id}:${String(req.path || "")}`;
-        }
-      }
-    } catch (_) {}
-
-    return `rl:auth:anonymous:${String(req.path || "")}`;
+    const fromBody = req.body?.regimentalNumber || req.body?.email;
+    if (fromBody) return `rl:login:${fromBody}`;
+    return `rl:login:ip:${req.ip}`;
   },
-  message: "Too many auth requests. Please try again shortly.",
+  message: "Too many login attempts. Please try again shortly.",
+});
+
+const passwordResetRateLimiter = createRateLimiter({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: 3,
+  keyFn: (req) => {
+    const fromBody = req.body?.regimentalNumber || req.body?.email;
+    if (fromBody) return `rl:reset:${fromBody}`;
+    return `rl:reset:ip:${req.ip}`;
+  },
+  message: "Too many password reset requests. Please try again in an hour.",
 });
 
 const attemptRateLimiter = createRateLimiter({
@@ -131,7 +122,8 @@ module.exports = {
   requestContext,
   securityHeaders,
   createRateLimiter,
-  authRateLimiter,
+  loginRateLimiter,
+  passwordResetRateLimiter,
   refreshRateLimiter,
   attemptRateLimiter,
   antiCheatRateLimiter,

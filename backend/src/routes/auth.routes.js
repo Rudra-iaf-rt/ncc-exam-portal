@@ -1,20 +1,20 @@
 const express = require("express");
 const authController = require("../controllers/auth.controller");
 const { authenticate } = require("../middleware/auth");
-const { authRateLimiter, refreshRateLimiter } = require("../middleware/security");
+const { loginRateLimiter, passwordResetRateLimiter, refreshRateLimiter } = require("../middleware/security");
 const { asyncHandler } = require("../middleware/error-handler");
 
 const router = express.Router();
 
-router.post("/register", authRateLimiter, asyncHandler(authController.register));
-router.post("/login", authRateLimiter, asyncHandler(authController.loginStudent));
-router.post("/login/student", authRateLimiter, asyncHandler(authController.loginStudent));
-router.post("/login/staff", authRateLimiter, asyncHandler(authController.loginStaff));
-router.post("/password/forgot", authRateLimiter, asyncHandler(authController.forgotPassword));
-router.post("/password/reset", authRateLimiter, asyncHandler(authController.resetPassword));
-router.post("/password/verify-token", authRateLimiter, asyncHandler(authController.verifyResetToken));
-router.post("/forgot-password", authRateLimiter, asyncHandler(authController.forgotPassword));
-router.post("/reset-password", authRateLimiter, asyncHandler(authController.resetPassword));
+router.post("/register", loginRateLimiter, asyncHandler(authController.register));
+router.post("/login", loginRateLimiter, asyncHandler(authController.loginStudent));
+router.post("/login/student", loginRateLimiter, asyncHandler(authController.loginStudent));
+router.post("/login/staff", loginRateLimiter, asyncHandler(authController.loginStaff));
+router.post("/password/forgot", passwordResetRateLimiter, asyncHandler(authController.forgotPassword));
+router.post("/password/reset", passwordResetRateLimiter, asyncHandler(authController.resetPassword));
+router.post("/password/verify-token", passwordResetRateLimiter, asyncHandler(authController.verifyResetToken));
+router.post("/forgot-password", passwordResetRateLimiter, asyncHandler(authController.forgotPassword));
+router.post("/reset-password", passwordResetRateLimiter, asyncHandler(authController.resetPassword));
 router.get("/me", authenticate, asyncHandler(authController.me));
 
 router.get("/refresh", refreshRateLimiter, authenticate, asyncHandler(authController.refresh));

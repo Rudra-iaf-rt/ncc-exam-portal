@@ -120,9 +120,7 @@ async function attemptDetails(req, res) {
 
 async function updateMeta(req, res) {
   try {
-    console.log("Updating exam meta:", req.params.id, req.body);
     const exam = await examService.updateExamMetaByCreator(req.user.id, req.params.id, req.body ?? {});
-    console.log("Exam updated in DB, recording audit...");
     await auditLogService.recordAudit(req, {
       action: "EXAM_UPDATE_META",
       entityType: "Exam",
