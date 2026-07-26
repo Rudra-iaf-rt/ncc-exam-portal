@@ -482,8 +482,8 @@ export default function ResultsBoard() {
       {/* ── Export Settings Modal ───────────────────────────────────────────── */}
       {showExportModal && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-[#0E1929]/40 backdrop-blur-sm">
-          <div className="w-full max-w-[400px] max-h-[90vh] shadow-[0_20px_50px_rgba(0,0,0,0.15)] rounded-2xl">
-            <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full h-full max-h-[90vh] flex flex-col overflow-hidden">
+          <div className="w-full max-w-[400px] max-h-[90dvh] shadow-[0_20px_50px_rgba(0,0,0,0.15)] rounded-2xl">
+            <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full h-full max-h-[90dvh] flex flex-col overflow-hidden">
               <div className="shrink-0 bg-stone border-b border-stone-mid px-6 py-5 flex justify-between items-center">
               <div className="flex items-center gap-2.5">
                 <Download size={20} className="text-navy" />
@@ -550,8 +550,8 @@ export default function ResultsBoard() {
       {/* ── Override Modal ──────────────────────────────────────────────────── */}
       {isAdmin && editingResult && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-[#0E1929]/40 backdrop-blur-sm">
-          <div className="w-full max-w-[450px] max-h-[90vh] shadow-[0_20px_50px_rgba(0,0,0,0.15)] rounded-2xl">
-            <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full h-full max-h-[90vh] flex flex-col overflow-hidden">
+          <div className="w-full max-w-[450px] max-h-[90dvh] shadow-[0_20px_50px_rgba(0,0,0,0.15)] rounded-2xl">
+            <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full h-full max-h-[90dvh] flex flex-col overflow-hidden">
               <div className="shrink-0 bg-stone border-b border-stone-mid px-6 py-5 flex justify-between items-center">
               <div className="flex items-center gap-2.5">
                 <ShieldAlert size={20} className="text-crimson" />

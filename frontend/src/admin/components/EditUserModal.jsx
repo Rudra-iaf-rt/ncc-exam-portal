@@ -88,7 +88,7 @@ export default function EditUserModal({ isOpen, onClose, onRefresh, user }) {
 
   return (
     <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-[#0E1929]/40 backdrop-blur-sm animate-in fade-in duration-200">
-      <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full max-w-[700px] max-h-[90vh] flex flex-col overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] animate-in zoom-in-95 duration-200">
+      <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full max-w-[700px] max-h-[90dvh] flex flex-col overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] animate-in zoom-in-95 duration-200">
         <div className="shrink-0 bg-stone border-b border-stone-mid px-6 py-5 flex justify-between items-center">
           <div className="flex items-center gap-3">
             <div className="bg-navy text-white p-2 rounded-lg">

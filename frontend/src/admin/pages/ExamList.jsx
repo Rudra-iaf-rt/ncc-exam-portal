@@ -401,7 +401,7 @@ export default function ExamList() {
       {/* ── Confirmation Modal ───────────────────────────────────────────── */}
       {confirmAction && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-[#0E1929]/40 backdrop-blur-sm">
-          <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full max-w-[400px] max-h-[90vh] flex flex-col overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full max-w-[400px] max-h-[90dvh] flex flex-col overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] animate-in fade-in zoom-in-95 duration-200">
             <div className="bg-stone border-b border-stone-mid px-6 py-5 flex justify-between items-center shrink-0">
               <div className="flex items-center gap-2.5">
                 <AlertTriangle size={20} className={confirmAction.type === 'delete' ? "text-crimson" : "text-navy"} />

@@ -242,7 +242,7 @@ export default function ExamAnalytics() {
       )}
       {selectedQuestion && (
         <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-navy/20 backdrop-blur-sm">
-          <div className="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col overflow-hidden border border-stone-deep animate-in fade-in zoom-in-95 duration-200">
+          <div className="bg-white rounded-lg shadow-xl w-full max-w-lg max-h-[90dvh] flex flex-col overflow-hidden border border-stone-deep animate-in fade-in zoom-in-95 duration-200">
             <div className="shrink-0 px-6 py-4 border-b border-stone-deep flex justify-between items-center bg-stone/30">
               <h3 className="font-display font-medium text-navy">Question Details (Q{selectedQuestion.questionId})</h3>
               <button onClick={() => setSelectedQuestion(null)} className="text-ink-3 hover:text-navy transition-colors">

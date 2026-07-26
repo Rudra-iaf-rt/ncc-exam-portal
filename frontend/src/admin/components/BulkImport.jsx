@@ -309,7 +309,7 @@ export default function BulkImport({ isOpen, onClose, onRefresh }) {
   return (
     <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-[#0E1929]/40 backdrop-blur-sm">
       <div 
-        className={`bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full max-h-[90vh] flex flex-col transition-all duration-300 overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] ${file ? 'max-w-[850px]' : 'max-w-[600px]'}`}
+        className={`bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full max-h-[90dvh] flex flex-col transition-all duration-300 overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.15)] ${file ? 'max-w-[850px]' : 'max-w-[600px]'}`}
       >
         {/* Sticky Header */}
         <div className="bg-stone border-b border-stone-mid px-6 py-5 flex justify-between items-center flex-shrink-0">

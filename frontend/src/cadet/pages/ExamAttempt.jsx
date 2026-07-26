@@ -774,7 +774,7 @@ const ExamAttempt = () => {
         >
           <div 
             onClick={(e) => e.stopPropagation()}
-            className="w-full bg-white rounded-t-2xl border-t border-stone-deep px-6 pb-8 pt-4 shadow-2xl flex flex-col max-h-[80vh] animate-in slide-in-from-bottom duration-300"
+            className="w-full bg-white rounded-t-2xl border-t border-stone-deep px-6 pb-8 pt-4 shadow-2xl flex flex-col max-h-[80dvh] animate-in slide-in-from-bottom duration-300"
           >
             {/* Native drag handle indicator */}
             <div className="w-12 h-1.5 bg-stone-deep rounded-full mx-auto mb-5 shrink-0" />
