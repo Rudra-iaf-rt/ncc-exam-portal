@@ -1,12 +1,12 @@
 export function StatCard({ label, value, subtext, icon, colorClass = 'text-navy' }) {
   return (
-    <div className="bg-white border border-stone-deep p-5 rounded-md shadow-sm">
-      <div className="flex justify-between items-start mb-3">
-        <span className="font-mono text-[11px] tracking-[0.1em] uppercase text-ink-4">{label}</span>
-        {icon && <div className={`opacity-20 ${colorClass}`}>{icon}</div>}
+    <div className="bg-white border border-stone-deep p-4 rounded-sm">
+      <div className="flex justify-between items-start mb-2">
+        <span className={`font-mono text-[11px] font-bold tracking-wider uppercase ${colorClass === 'text-navy' ? 'text-ink-3' : colorClass}`}>{label}</span>
+        {icon && <div className={`opacity-80 ${colorClass}`}>{icon}</div>}
       </div>
-      <div className={`font-display text-3xl font-medium leading-none ${colorClass}`}>{value}</div>
-      {subtext && <div className="font-ui text-[12px] text-ink-4 mt-2 font-medium">{subtext}</div>}
+      <div className={`font-mono text-3xl font-semibold leading-none tracking-tight ${colorClass}`}>{value}</div>
+      {subtext && <div className="font-ui text-[11px] text-ink-4 mt-2 uppercase tracking-wide">{subtext}</div>}
     </div>
   );
 }

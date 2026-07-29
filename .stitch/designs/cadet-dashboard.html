@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Cadet Dashboard - NCC Exam Portal</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-tint": "#4059aa",
+                        "surface-variant": "#e3e1e9",
+                        "surface-container-low": "#f4f3fa",
+                        "tertiary-container": "#6e2c00",
+                        "on-primary-container": "#90a8ff",
+                        "error": "#ba1a1a",
+                        "on-tertiary": "#ffffff",
+                        "error-container": "#ffdad6",
+                        "tertiary-fixed-dim": "#ffb691",
+                        "secondary-fixed": "#ffdcc3",
+                        "primary-fixed": "#dce1ff",
+                        "on-secondary-container": "#663500",
+                        "on-secondary-fixed": "#2f1500",
+                        "background": "#faf8ff",
+                        "secondary-container": "#fe932c",
+                        "tertiary-fixed": "#ffdbcb",
+                        "surface-container-high": "#e9e7ef",
+                        "primary-fixed-dim": "#b6c4ff",
+                        "on-surface": "#1a1b21",
+                        "on-primary": "#ffffff",
+                        "inverse-surface": "#2f3036",
+                        "surface": "#faf8ff",
+                        "on-background": "#1a1b21",
+                        "on-tertiary-fixed": "#341100",
+                        "inverse-primary": "#b6c4ff",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-container": "#1e3a8a",
+                        "on-surface-variant": "#444651",
+                        "inverse-on-surface": "#f1f0f7",
+                        "tertiary": "#4b1c00",
+                        "outline-variant": "#c5c5d3",
+                        "on-error": "#ffffff",
+                        "surface-container": "#eeedf4",
+                        "outline": "#757682",
+                        "surface-bright": "#faf8ff",
+                        "surface-dim": "#dad9e1",
+                        "primary": "#00236f",
+                        "on-primary-fixed": "#00164e",
+                        "secondary": "#904d00",
+                        "on-tertiary-fixed-variant": "#773205",
+                        "on-tertiary-container": "#f39461",
+                        "on-secondary-fixed-variant": "#6e3900",
+                        "on-primary-fixed-variant": "#264191",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed-dim": "#ffb77d",
+                        "on-secondary": "#ffffff",
+                        "surface-container-highest": "#e3e1e9"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "32px",
+                        "sm": "8px",
+                        "gutter": "24px",
+                        "md": "16px",
+                        "container-max": "1440px",
+                        "base": "4px",
+                        "xs": "4px",
+                        "lg": "24px"
+                    },
+                    "fontFamily": {
+                        "headline-lg": ["Inter"],
+                        "label-bold": ["Inter"],
+                        "headline-xl-mobile": ["Inter"],
+                        "body-lg": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-md": ["Inter"],
+                        "headline-xl": ["Inter"],
+                        "label-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-lg": ["24px", { "lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600" }],
+                        "label-bold": ["12px", { "lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700" }],
+                        "headline-xl-mobile": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
+                        "body-lg": ["16px", { "lineHeight": "24px", "fontWeight": "400" }],
+                        "headline-md": ["20px", { "lineHeight": "28px", "fontWeight": "600" }],
+                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
+                        "headline-xl": ["32px", { "lineHeight": "40px", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "label-sm": ["12px", { "lineHeight": "16px", "fontWeight": "500" }]
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="bg-surface font-body-md text-body-md text-on-surface antialiased min-h-screen">
+<!-- TopAppBar -->
+<header class="fixed top-0 w-full z-50 border-b border-outline-variant flat no shadows flex items-center justify-between px-gutter h-16 bg-primary dark:bg-on-primary-fixed">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-primary">menu</span>
+<div class="font-headline-lg text-headline-lg font-bold tracking-tighter text-on-primary ml-md">NCC EXAM PORTAL</div>
+</div>
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-on-primary cursor-pointer active:opacity-80 hover:bg-primary-container transition-colors rounded-full p-xs">notifications</span>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-outline-variant">
+<img alt="Cadet Profile Avatar" class="w-full h-full object-cover" data-alt="A formal portrait of a military cadet in full uniform, looking straight ahead with a disciplined expression. The lighting is studio quality, emphasizing the crispness of the uniform and the serious, authoritative mood. High contrast and clean composition." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAsjEitrd2eLzDvv2KQ-KUGPL3P4CSn9d42MZtmdmlCZR0GWATVR7W-TISsscXrBExA6m8PRAxI5GZBuMIdwuCcx96G8ZRm61do-euw49t_a9L9laOVNZF0dqX8Ibo3RnACdWgjPniLvsCF1ZtIVtlatzWt3cctHGvUTGyksNgpJmL8gs-WhCxwsAVl34A8QjaJlvXKSUp33PvM5VEZPOtan4mbEMaBwUovHHoxRawEyV_wdOEClBKXj1aXqD6S6lD5RWb1OLzBX1A"/>
+</div>
+</div>
+</header>
+<div class="flex pt-16 h-screen overflow-hidden">
+<!-- SideNavBar -->
+<nav class="fixed left-0 top-0 h-full w-64 hidden lg:flex flex-col border-r border-outline flat no shadows gap-2 p-md bg-surface-container-highest dark:bg-inverse-surface z-40 pt-[80px]">
+<div class="mb-lg pb-md border-b border-outline-variant px-sm flex flex-col items-center">
+<div class="w-16 h-16 rounded-full overflow-hidden border-2 border-primary mb-sm">
+<img alt="Cadet Badge" class="w-full h-full object-cover" data-alt="A detailed close-up of a distinguished military cadet badge made of polished brass or gold. The badge rests on a crisp navy blue fabric background. Lighting highlights the intricate metallic engravings, conveying a sense of institutional pride and discipline." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDVDI3E97UXUJaFFh--CQcZPEjGkPFVXCXFkSnWUme2IWuDwDswLOveFly_NL9VxIYDJq5WgN7OX8n6fXBoY3HAn_fF6S2tglyQ3jvRw9kv0zyuQmAEqMKqukRuC-2DfNfhhgWiNqZRajJ2HNv8SFpz-MldOdWcOPgBSyNaX5uM01RM3YdbQ0ud2M5jQbcMGk5bE5TVc2c4JfQbkD8-teNh3yR__-gCkP9_FOOl-nLvpcE4PkFl1GzLE_DVJIIfw5pG24GqeYrYjKg"/>
+</div>
+<div class="font-headline-md text-headline-md font-black text-primary text-center uppercase tracking-widest mt-sm">CADET PORTAL</div>
+<div class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-widest text-center mt-xs">Unit: 1st Battalion</div>
+</div>
+<div class="flex-1 flex flex-col gap-base mt-md">
+<!-- Active Tab -->
+<a class="flex items-center gap-md px-md py-sm bg-primary text-on-primary border-r-4 border-secondary-container active:translate-x-1 hover:bg-surface-variant transition-all duration-150 group" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-label-bold text-label-bold uppercase tracking-widest">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-150 active:translate-x-1" href="#">
+<span class="material-symbols-outlined">assignment</span>
+<span class="font-label-bold text-label-bold uppercase tracking-widest">Exams</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-150 active:translate-x-1" href="#">
+<span class="material-symbols-outlined">library_books</span>
+<span class="font-label-bold text-label-bold uppercase tracking-widest">Study Materials</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-150 active:translate-x-1" href="#">
+<span class="material-symbols-outlined">monitoring</span>
+<span class="font-label-bold text-label-bold uppercase tracking-widest">Performance</span>
+</a>
+<a class="flex items-center gap-md px-md py-sm text-on-surface-variant hover:bg-surface-variant transition-all duration-150 active:translate-x-1" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-bold text-label-bold uppercase tracking-widest">Settings</span>
+</a>
+</div>
+<div class="mt-auto border-t border-outline-variant pt-md flex flex-col gap-base">
+<button class="w-full bg-primary hover:bg-[#172B66] text-on-primary py-sm px-md font-label-bold text-label-bold uppercase tracking-widest transition-colors mb-md flex justify-center items-center gap-xs">
+<span class="material-symbols-outlined text-[16px]">play_arrow</span> START EXAM
+                 </button>
+<a class="flex items-center gap-md px-md py-xs text-on-surface-variant hover:bg-surface-variant transition-all duration-150" href="#">
+<span class="material-symbols-outlined text-[18px]">help</span>
+<span class="font-label-bold text-label-bold uppercase tracking-widest">Support</span>
+</a>
+<a class="flex items-center gap-md px-md py-xs text-on-surface-variant hover:bg-surface-variant transition-all duration-150" href="#">
+<span class="material-symbols-outlined text-[18px]">logout</span>
+<span class="font-label-bold text-label-bold uppercase tracking-widest">Logout</span>
+</a>
+</div>
+</nav>
+<!-- Main Content -->
+<main class="flex-1 lg:ml-64 bg-surface p-gutter overflow-y-auto w-full max-w-[1440px] mx-auto">
+<div class="mb-xl">
+<h1 class="font-headline-xl text-headline-xl text-on-background mb-xs">Command Overview</h1>
+<p class="font-body-md text-body-md text-on-surface-variant">Welcome back, Cadet. Review your current status and pending directives.</p>
+</div>
+<!-- Top Section: Summary Stats -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md mb-xl">
+<div class="bg-surface-container-lowest border border-outline-variant p-lg flex flex-col justify-between shadow-[0px_2px_0px_rgba(0,0,0,0.05)]">
+<div class="flex justify-between items-start mb-md">
+<span class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-widest">Exams Taken</span>
+<span class="material-symbols-outlined text-primary">fact_check</span>
+</div>
+<div class="flex items-baseline gap-sm">
+<span class="font-headline-xl text-headline-xl text-on-background">12</span>
+<span class="font-label-sm text-label-sm text-on-surface-variant uppercase">+2 this month</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest border border-outline-variant p-lg flex flex-col justify-between shadow-[0px_2px_0px_rgba(0,0,0,0.05)] relative overflow-hidden">
+<div class="absolute right-0 top-0 w-16 h-16 bg-surface-container-high transform rotate-45 translate-x-8 -translate-y-8 z-0"></div>
+<div class="flex justify-between items-start mb-md relative z-10">
+<span class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-widest">Average Score</span>
+<span class="material-symbols-outlined text-primary">analytics</span>
+</div>
+<div class="flex items-baseline gap-sm relative z-10">
+<span class="font-headline-xl text-headline-xl text-on-background">87.5%</span>
+<span class="font-label-sm text-label-sm text-secondary uppercase bg-secondary-fixed px-xs py-[2px] rounded-sm">Top 15%</span>
+</div>
+</div>
+<div class="bg-primary border border-outline-variant p-lg flex flex-col justify-between shadow-[0px_2px_0px_rgba(0,0,0,0.05)] text-on-primary">
+<div class="flex justify-between items-start mb-md">
+<span class="font-label-bold text-label-bold text-on-primary/80 uppercase tracking-widest">Upcoming Exams</span>
+<span class="material-symbols-outlined text-secondary-fixed">event</span>
+</div>
+<div class="flex items-baseline gap-sm">
+<span class="font-headline-xl text-headline-xl">3</span>
+<span class="font-label-sm text-label-sm text-on-primary/80 uppercase">Next in 48h</span>
+</div>
+</div>
+</div>
+<!-- Main Layout Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-xl">
+<!-- Center Section: Active Exams Table -->
+<div class="lg:col-span-2">
+<div class="bg-surface-container-lowest border border-outline-variant shadow-[0px_2px_0px_rgba(0,0,0,0.05)]">
+<div class="border-b border-surface-variant px-lg py-md bg-surface flex justify-between items-center">
+<h2 class="font-headline-md text-headline-md text-on-background">Active Directives</h2>
+<button class="font-label-bold text-label-bold text-primary uppercase tracking-widest hover:bg-surface-variant px-sm py-xs transition-colors">View All</button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low border-b border-outline-variant">
+<th class="px-md py-sm font-label-bold text-label-bold text-on-surface-variant uppercase tracking-widest border-r border-outline-variant">Exam Designation</th>
+<th class="px-md py-sm font-label-bold text-label-bold text-on-surface-variant uppercase tracking-widest border-r border-outline-variant">Module</th>
+<th class="px-md py-sm font-label-bold text-label-bold text-on-surface-variant uppercase tracking-widest border-r border-outline-variant">Duration</th>
+<th class="px-md py-sm font-label-bold text-label-bold text-on-surface-variant uppercase tracking-widest">Action</th>
+</tr>
+</thead>
+<tbody>
+<tr class="border-b border-outline-variant hover:bg-surface-container-lowest/50">
+<td class="px-md py-md border-r border-outline-variant">
+<div class="font-label-bold text-label-bold text-on-background">TACTICAL MANEUVERS 101</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant mt-xs">ID: EXM-2024-A1</div>
+</td>
+<td class="px-md py-md border-r border-outline-variant">
+<span class="inline-block px-sm py-[2px] bg-secondary-fixed text-on-secondary-fixed font-label-sm text-label-sm uppercase tracking-widest">Priority</span>
+</td>
+<td class="px-md py-md border-r border-outline-variant font-body-md text-body-md text-on-surface-variant">90 Minutes</td>
+<td class="px-md py-md">
+<button class="bg-primary hover:bg-[#172B66] text-on-primary py-[6px] px-sm font-label-bold text-label-bold uppercase tracking-widest transition-colors w-full flex justify-center items-center">
+                                                START
+                                            </button>
+</td>
+</tr>
+<tr class="border-b border-outline-variant hover:bg-surface-container-lowest/50">
+<td class="px-md py-md border-r border-outline-variant">
+<div class="font-label-bold text-label-bold text-on-background">FIELD COMMUNICATIONS</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant mt-xs">ID: EXM-2024-B2</div>
+</td>
+<td class="px-md py-md border-r border-outline-variant">
+<span class="inline-block px-sm py-[2px] bg-surface-variant text-on-surface-variant font-label-sm text-label-sm uppercase tracking-widest">Standard</span>
+</td>
+<td class="px-md py-md border-r border-outline-variant font-body-md text-body-md text-on-surface-variant">60 Minutes</td>
+<td class="px-md py-md">
+<button class="bg-primary hover:bg-[#172B66] text-on-primary py-[6px] px-sm font-label-bold text-label-bold uppercase tracking-widest transition-colors w-full flex justify-center items-center">
+                                                START
+                                            </button>
+</td>
+</tr>
+<tr class="hover:bg-surface-container-lowest/50">
+<td class="px-md py-md border-r border-outline-variant">
+<div class="font-label-bold text-label-bold text-on-background">MILITARY LAW ETHICS</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant mt-xs">ID: EXM-2024-C3</div>
+</td>
+<td class="px-md py-md border-r border-outline-variant">
+<span class="inline-block px-sm py-[2px] bg-surface-variant text-on-surface-variant font-label-sm text-label-sm uppercase tracking-widest">Standard</span>
+</td>
+<td class="px-md py-md border-r border-outline-variant font-body-md text-body-md text-on-surface-variant">120 Minutes</td>
+<td class="px-md py-md">
+<button class="bg-surface-variant hover:bg-outline-variant text-on-surface-variant py-[6px] px-sm font-label-bold text-label-bold uppercase tracking-widest transition-colors w-full flex justify-center items-center" disabled="">
+                                                PENDING
+                                            </button>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+</div>
+<!-- Sidebar / Secondary Section -->
+<div class="flex flex-col gap-lg">
+<!-- Performance History -->
+<div class="bg-surface-container-lowest border border-outline-variant shadow-[0px_2px_0px_rgba(0,0,0,0.05)] p-lg">
+<div class="flex justify-between items-center mb-md pb-xs border-b border-surface-variant">
+<h3 class="font-label-bold text-label-bold text-on-background uppercase tracking-widest">Recent Performance</h3>
+<span class="material-symbols-outlined text-outline">history</span>
+</div>
+<div class="flex flex-col gap-md">
+<div class="flex items-center justify-between">
+<div>
+<div class="font-body-md text-body-md text-on-background font-medium">Drill Fundamentals</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Completed: 12 Oct</div>
+</div>
+<div class="font-label-bold text-label-bold text-on-background">92%</div>
+</div>
+<div class="w-full bg-surface-variant h-1 mt-xs">
+<div class="bg-primary h-1" style="width: 92%"></div>
+</div>
+<div class="flex items-center justify-between mt-sm">
+<div>
+<div class="font-body-md text-body-md text-on-background font-medium">Map Reading II</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Completed: 05 Oct</div>
+</div>
+<div class="font-label-bold text-label-bold text-on-background">78%</div>
+</div>
+<div class="w-full bg-surface-variant h-1 mt-xs">
+<div class="bg-primary h-1" style="width: 78%"></div>
+</div>
+<div class="flex items-center justify-between mt-sm">
+<div>
+<div class="font-body-md text-body-md text-on-background font-medium">First Aid Basics</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant">Completed: 28 Sep</div>
+</div>
+<div class="font-label-bold text-label-bold text-on-background">85%</div>
+</div>
+<div class="w-full bg-surface-variant h-1 mt-xs">
+<div class="bg-primary h-1" style="width: 85%"></div>
+</div>
+</div>
+</div>
+<!-- Quick Links / Study Materials -->
+<div class="bg-surface-container-lowest border border-outline-variant shadow-[0px_2px_0px_rgba(0,0,0,0.05)] p-lg">
+<div class="flex justify-between items-center mb-md pb-xs border-b border-surface-variant">
+<h3 class="font-label-bold text-label-bold text-on-background uppercase tracking-widest">Required Reading</h3>
+<span class="material-symbols-outlined text-outline">menu_book</span>
+</div>
+<div class="flex flex-col gap-sm">
+<a class="flex items-start gap-md p-sm hover:bg-surface-container-low border border-transparent hover:border-outline-variant transition-colors group" href="#">
+<span class="material-symbols-outlined text-primary group-hover:text-primary-container mt-xs">picture_as_pdf</span>
+<div>
+<div class="font-body-md text-body-md text-on-background font-medium group-hover:underline">Tactical Guide 2024</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase mt-[2px]">3.2 MB • PDF</div>
+</div>
+</a>
+<a class="flex items-start gap-md p-sm hover:bg-surface-container-low border border-transparent hover:border-outline-variant transition-colors group" href="#">
+<span class="material-symbols-outlined text-primary group-hover:text-primary-container mt-xs">video_library</span>
+<div>
+<div class="font-body-md text-body-md text-on-background font-medium group-hover:underline">Communication Protocol Review</div>
+<div class="font-label-sm text-label-sm text-on-surface-variant uppercase mt-[2px]">45 MIN • VIDEO</div>
+</div>
+</a>
+</div>
+</div>
+</div>
+</div>
+</main>
+</div>
+</body></html>

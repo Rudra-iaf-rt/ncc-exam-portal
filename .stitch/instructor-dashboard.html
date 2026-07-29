@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Instructor Dashboard - NCC Exam Portal</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<!-- Shared Style & Theme Config -->
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-secondary": "#ffffff",
+                    "primary": "#00236f",
+                    "on-surface": "#191c1e",
+                    "surface-container-highest": "#e1e2e4",
+                    "primary-fixed-dim": "#b6c4ff",
+                    "surface-container": "#edeef0",
+                    "primary-container": "#1e3a8a",
+                    "inverse-surface": "#2e3132",
+                    "on-secondary-container": "#663500",
+                    "on-tertiary-container": "#f39461",
+                    "surface-variant": "#e1e2e4",
+                    "outline-variant": "#c5c5d3",
+                    "secondary-fixed": "#ffdcc3",
+                    "error-container": "#ffdad6",
+                    "on-tertiary": "#ffffff",
+                    "on-tertiary-fixed": "#341100",
+                    "tertiary-fixed": "#ffdbcb",
+                    "on-error-container": "#93000a",
+                    "on-surface-variant": "#444651",
+                    "on-error": "#ffffff",
+                    "on-primary-fixed": "#00164e",
+                    "tertiary": "#4b1c00",
+                    "secondary": "#904d00",
+                    "on-primary-fixed-variant": "#264191",
+                    "surface-bright": "#f8f9fb",
+                    "background": "#f8f9fb",
+                    "primary-fixed": "#dce1ff",
+                    "outline": "#757682",
+                    "tertiary-fixed-dim": "#ffb691",
+                    "surface": "#f8f9fb",
+                    "on-tertiary-fixed-variant": "#773205",
+                    "surface-container-high": "#e7e8ea",
+                    "surface-container-low": "#f3f4f6",
+                    "on-primary-container": "#90a8ff",
+                    "tertiary-container": "#6e2c00",
+                    "on-background": "#191c1e",
+                    "surface-dim": "#d9dadc",
+                    "on-primary": "#ffffff",
+                    "secondary-container": "#fe932c",
+                    "surface-tint": "#4059aa",
+                    "on-secondary-fixed": "#2f1500",
+                    "secondary-fixed-dim": "#ffb77d",
+                    "error": "#ba1a1a",
+                    "inverse-primary": "#b6c4ff",
+                    "on-secondary-fixed-variant": "#6e3900",
+                    "inverse-on-surface": "#f0f1f3",
+                    "surface-container-lowest": "#ffffff"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0px",
+                    "lg": "0px",
+                    "xl": "0px",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "unit": "4px",
+                    "stack-md": "16px",
+                    "stack-lg": "24px",
+                    "gutter": "12px",
+                    "stack-sm": "8px",
+                    "container-padding": "16px"
+            },
+            "fontFamily": {
+                    "label-caps": ["Inter"],
+                    "headline-lg": ["Inter"],
+                    "body-lg": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "data-mono": ["Inter"],
+                    "body-md": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "headline-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "label-caps": ["11px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "700"}],
+                    "headline-lg-mobile": ["20px", {"lineHeight": "24px", "letterSpacing": "-0.02em", "fontWeight": "800"}],
+                    "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-lg": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "headline-md": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.01em", "fontWeight": "700"}],
+                    "data-mono": ["14px", {"lineHeight": "20px", "letterSpacing": "-0.01em", "fontWeight": "500"}],
+                    "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "body-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                    "headline-sm": ["16px", {"lineHeight": "24px", "fontWeight": "600"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        /* Custom scrollbar for military precision look */
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #1e3a8a; }
+        
+        .active-nav-indicator {
+            position: relative;
+        }
+        .active-nav-indicator::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 2px;
+            background-color: #00236f;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-surface text-on-surface min-h-screen pb-20">
+<!-- TopAppBar -->
+<header class="bg-surface-container-lowest dark:bg-inverse-surface w-full top-0 left-0 border-b-2 border-primary sticky z-50">
+<div class="flex justify-between items-center px-container-padding py-stack-md">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 border border-outline-variant flex items-center justify-center overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A professional, military-style instructor profile headshot. The subject is a uniformed NCC officer with a disciplined expression, captured in sharp focus against a neutral stone-colored background. High-contrast lighting highlights the textures of the uniform and the authoritative posture. The overall aesthetic is institutional and reliable." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCoI6vwh0GBuJvd8aatE91iH4yl3zg49W_XvUPVE_cCui2rPtOHqKgm0TXsMMJEO8YBxcRFXiAU5DePolCfQzv4nHIKBqwyqgC7NvL654WbU-8pNCWqGyW1Kz8i9VZzc5s0QZzqLBWgWjZVAIufawrPFsU5-IfudCHZBAO014OmJ7t4e7nhwHl5zIO0ZXjlX-e50tCoeOv-0aB5TPnyMCQid3PBCSkevmPrpyWJmgxBTYAWYMe2jB7ig60uoCsFT6sTg7gNtdYeYRk"/>
+</div>
+<div class="flex flex-col">
+<span class="font-headline-lg-mobile text-headline-lg-mobile font-black text-primary tracking-tighter">NCC Exam Portal</span>
+</div>
+</div>
+<button class="bg-primary text-on-primary font-label-caps text-label-caps uppercase px-4 py-2 hover:bg-primary-container transition-all active:scale-95">
+                CREATE EXAM
+            </button>
+</div>
+</header>
+<main class="px-container-padding py-stack-lg space-y-stack-lg">
+<!-- Summary Statistics -->
+<div class="grid grid-cols-1 gap-4">
+<div class="flex gap-4 overflow-x-auto pb-2 -mx-container-padding px-container-padding snap-x">
+<!-- Active Exams Card -->
+<div class="min-w-[160px] flex-1 bg-surface-container-lowest border border-outline-variant border-t-2 border-t-primary p-4 snap-start">
+<p class="font-label-caps text-label-caps uppercase text-on-surface-variant mb-1">Active Exams</p>
+<div class="flex items-baseline gap-2">
+<span class="text-3xl font-black text-primary">08</span>
+<span class="material-symbols-outlined text-primary text-lg">rocket_launch</span>
+</div>
+</div>
+<!-- Total Submissions Card -->
+<div class="min-w-[160px] flex-1 bg-surface-container-lowest border border-outline-variant border-t-2 border-t-primary p-4 snap-start">
+<p class="font-label-caps text-label-caps uppercase text-on-surface-variant mb-1">Total Submissions</p>
+<div class="flex items-baseline gap-2">
+<span class="text-3xl font-black text-primary">142</span>
+<span class="material-symbols-outlined text-primary text-lg">description</span>
+</div>
+</div>
+<!-- Pending Reviews Card -->
+<div class="min-w-[160px] flex-1 bg-surface-container-lowest border border-outline-variant border-t-2 border-t-primary p-4 snap-start">
+<p class="font-label-caps text-label-caps uppercase text-on-surface-variant mb-1">Pending Reviews</p>
+<div class="flex items-baseline gap-2">
+<span class="text-3xl font-black text-secondary">24</span>
+<span class="material-symbols-outlined text-secondary text-lg">pending_actions</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Main Content: Exam Management -->
+<section class="space-y-stack-md">
+<div class="flex justify-between items-end border-b border-outline-variant pb-2">
+<h2 class="font-headline-sm text-headline-sm uppercase tracking-wider text-on-surface">Exam Management</h2>
+<span class="font-label-caps text-label-caps text-primary cursor-pointer hover:underline">VIEW ALL</span>
+</div>
+<div class="space-y-4">
+<!-- Exam Item 1 -->
+<div class="bg-surface-container-lowest border border-outline-variant p-4 space-y-3">
+<div class="flex justify-between items-start">
+<div>
+<p class="font-label-caps text-label-caps text-outline uppercase">EXAM-2024-001</p>
+<h3 class="font-headline-sm text-headline-sm">Tactical Maneuvers Level 1</h3>
+</div>
+<span class="bg-green-100 text-green-800 font-label-caps text-[10px] px-2 py-0.5 border border-green-200 uppercase">Active</span>
+</div>
+<div class="flex items-center justify-between py-2 border-y border-dashed border-outline-variant">
+<div class="flex flex-col">
+<span class="font-label-caps text-[10px] text-on-surface-variant">CANDIDATES</span>
+<span class="font-data-mono text-data-mono font-bold">42/45 Submitted</span>
+</div>
+<div class="flex flex-col text-right">
+<span class="font-label-caps text-[10px] text-on-surface-variant">DUE DATE</span>
+<span class="font-data-mono text-data-mono">24 OCT 2024</span>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary font-label-caps text-label-caps py-3 uppercase tracking-widest hover:brightness-110 active:bg-on-primary-fixed-variant transition-colors">
+                        GRADE SUBMISSIONS
+                    </button>
+</div>
+<!-- Exam Item 2 -->
+<div class="bg-surface-container-lowest border border-outline-variant p-4 space-y-3">
+<div class="flex justify-between items-start">
+<div>
+<p class="font-label-caps text-label-caps text-outline uppercase">EXAM-2024-002</p>
+<h3 class="font-headline-sm text-headline-sm">Advanced Field Navigation</h3>
+</div>
+<span class="bg-secondary text-on-secondary font-label-caps text-[10px] px-2 py-0.5 border border-secondary-container uppercase">Grading</span>
+</div>
+<div class="flex items-center justify-between py-2 border-y border-dashed border-outline-variant">
+<div class="flex flex-col">
+<span class="font-label-caps text-[10px] text-on-surface-variant">CANDIDATES</span>
+<span class="font-data-mono text-data-mono font-bold">38/38 Submitted</span>
+</div>
+<div class="flex flex-col text-right">
+<span class="font-label-caps text-[10px] text-on-surface-variant">COMPLETED</span>
+<span class="font-data-mono text-data-mono">18 OCT 2024</span>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary font-label-caps text-label-caps py-3 uppercase tracking-widest hover:brightness-110 transition-colors">
+                        REVIEW RESULTS
+                    </button>
+</div>
+<!-- Exam Item 3 -->
+<div class="bg-surface-container-lowest border border-outline-variant p-4 space-y-3 opacity-80">
+<div class="flex justify-between items-start">
+<div>
+<p class="font-label-caps text-label-caps text-outline uppercase">EXAM-2024-003</p>
+<h3 class="font-headline-sm text-headline-sm">Map Reading &amp; Compass</h3>
+</div>
+<span class="bg-surface-container-highest text-on-surface-variant font-label-caps text-[10px] px-2 py-0.5 border border-outline-variant uppercase">Completed</span>
+</div>
+<div class="flex items-center justify-between py-2 border-y border-dashed border-outline-variant">
+<div class="flex flex-col">
+<span class="font-label-caps text-[10px] text-on-surface-variant">FINAL PASS RATE</span>
+<span class="font-data-mono text-data-mono font-bold text-green-700">92%</span>
+</div>
+<div class="flex flex-col text-right">
+<span class="font-label-caps text-[10px] text-on-surface-variant">ARCHIVED</span>
+<span class="font-data-mono text-data-mono">12 OCT 2024</span>
+</div>
+</div>
+<button class="w-full bg-white border border-primary text-primary font-label-caps text-label-caps py-3 uppercase tracking-widest hover:bg-surface-container transition-colors">
+                        VIEW ARCHIVE
+                    </button>
+</div>
+</div>
+</section>
+<!-- Secondary Content: Recent Alerts Feed -->
+<section class="space-y-stack-md">
+<h2 class="font-headline-sm text-headline-sm uppercase tracking-wider text-on-surface border-b border-outline-variant pb-2">Recent Alerts</h2>
+<div class="space-y-1">
+<!-- Alert 1 -->
+<div class="bg-surface-container-lowest border-l-4 border-l-secondary p-4 flex gap-4 items-start shadow-sm">
+<span class="material-symbols-outlined text-secondary mt-1">warning</span>
+<div>
+<p class="font-body-md text-on-surface"><span class="font-bold">Cadet Kumar</span> flagged during Tactical Maneuvers. Manual intervention required.</p>
+<p class="font-label-caps text-[10px] text-outline-variant mt-2">14:20 HRS • JUST NOW</p>
+</div>
+</div>
+<!-- Alert 2 -->
+<div class="bg-surface-container-lowest border-l-4 border-l-primary p-4 flex gap-4 items-start">
+<span class="material-symbols-outlined text-primary mt-1">info</span>
+<div>
+<p class="font-body-md text-on-surface">Batch 2024 results for <span class="font-bold">Drill Proficiency</span> have been processed.</p>
+<p class="font-label-caps text-[10px] text-outline-variant mt-2">11:05 HRS • 3H AGO</p>
+</div>
+</div>
+<!-- Alert 3 -->
+<div class="bg-surface-container-lowest border-l-4 border-l-error p-4 flex gap-4 items-start">
+<span class="material-symbols-outlined text-error mt-1" style="font-variation-settings: 'FILL' 1;">error</span>
+<div>
+<p class="font-body-md text-on-surface">System timeout during <span class="font-bold">Cadet Rao's</span> online theory submission.</p>
+<p class="font-label-caps text-[10px] text-outline-variant mt-2">09:12 HRS • 5H AGO</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full z-50 flex justify-around items-stretch h-16 bg-surface-container-lowest dark:bg-inverse-surface border-t border-outline-variant">
+<!-- Dashboard (Active) -->
+<a class="flex flex-col items-center justify-center bg-primary text-on-primary p-stack-sm flex-1 active:scale-95 transition-transform duration-100" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">dashboard</span>
+<span class="font-label-caps text-label-caps uppercase mt-1">Dashboard</span>
+</a>
+<!-- Exams -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant p-stack-sm flex-1 hover:bg-surface-container-highest transition-colors active:scale-95 duration-100" href="#">
+<span class="material-symbols-outlined">assignment</span>
+<span class="font-label-caps text-label-caps uppercase mt-1">Exams</span>
+</a>
+<!-- Cadets -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant p-stack-sm flex-1 hover:bg-surface-container-highest transition-colors active:scale-95 duration-100" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-caps text-label-caps uppercase mt-1">Cadets</span>
+</a>
+<!-- Settings -->
+<a class="flex flex-col items-center justify-center text-on-surface-variant dark:text-outline-variant p-stack-sm flex-1 hover:bg-surface-container-highest transition-colors active:scale-95 duration-100" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-label-caps text-label-caps uppercase mt-1">Settings</span>
+</a>
+</nav>
+<!-- FAB for Create Action (Optional, Contextual) -->
+<div class="fixed bottom-20 right-6 z-40">
+<button class="w-14 h-14 bg-secondary text-on-secondary shadow-lg flex items-center justify-center hover:scale-105 active:scale-90 transition-all">
+<span class="material-symbols-outlined text-3xl">add</span>
+</button>
+</div>
+<script>
+        // Micro-interaction: Header shadow on scroll
+        window.addEventListener('scroll', () => {
+            const header = document.querySelector('header');
+            if (window.scrollY > 10) {
+                header.classList.add('shadow-md');
+            } else {
+                header.classList.remove('shadow-md');
+            }
+        });
+
+        // Toggle Active State Simulation
+        const navItems = document.querySelectorAll('nav a');
+        navItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                navItems.forEach(i => {
+                    i.classList.remove('bg-primary', 'text-on-primary');
+                    i.classList.add('text-on-surface-variant');
+                    const icon = i.querySelector('.material-symbols-outlined');
+                    if(icon) icon.style.fontVariationSettings = "'FILL' 0";
+                });
+                item.classList.add('bg-primary', 'text-on-primary');
+                item.classList.remove('text-on-surface-variant');
+                const activeIcon = item.querySelector('.material-symbols-outlined');
+                if(activeIcon) activeIcon.style.fontVariationSettings = "'FILL' 1";
+            });
+        });
+    </script>
+</body></html>

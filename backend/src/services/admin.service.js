@@ -29,7 +29,10 @@ async function getStats(currentUser) {
   // every cold stats load for INSTRUCTOR users.
   const isInstructor = currentUser?.role === "INSTRUCTOR";
   let cc = isInstructor ? currentUser?.collegeCode : null;
-  const [instructorRecord, totalStudents, totalExams, activeAttempts, resultAgg, recentActivity] =
+  const fiveMinsAgo = new Date(Date.now() - 5 * 60 * 1000);
+  const now = new Date();
+
+  const [instructorRecord, totalStudents, totalExams, activeAttempts, resultAgg, recentActivity, recentViolations, activeConnections, pendingActions, upcomingExams] =
     await Promise.all([
       (isInstructor && !cc)
         ? prisma.user.findUnique({ where: { id: currentUser.id }, select: { collegeCode: true } })
@@ -45,6 +48,26 @@ async function getStats(currentUser) {
           student: { select: { name: true } },
           exam: { select: { title: true } }
         }
+      }),
+      prisma.examViolation.findMany({
+        take: 5,
+        orderBy: { id: 'desc' },
+        include: {
+          student: { select: { name: true, regimentalNumber: true } },
+          exam: { select: { title: true } }
+        }
+      }),
+      prisma.examHeartbeat.count({
+        where: { lastSeenAt: { gte: fiveMinsAgo } }
+      }),
+      prisma.exam.count({
+        where: {
+          resultsPublished: false,
+          OR: [{ status: 'COMPLETED' }, { endAt: { lt: now } }]
+        }
+      }),
+      prisma.exam.count({
+        where: { startAt: { gt: now }, status: 'PUBLISHED' }
       })
     ]);
 
@@ -55,12 +78,16 @@ async function getStats(currentUser) {
   let finalAttempts = activeAttempts;
   let finalAgg = resultAgg;
   let finalActivity = recentActivity;
+  let finalViolations = recentViolations;
+  let finalActiveConnections = activeConnections;
+  let finalPendingActions = pendingActions;
+  let finalUpcomingExams = upcomingExams;
 
   if (isInstructor) {
     if (!cc && instructorRecord?.collegeCode) cc = instructorRecord.collegeCode;
     if (cc) {
       const scopedWhere = { student: { collegeCode: cc } };
-    const [s, a, agg, act] = await Promise.all([
+    const [s, a, agg, act, v, ac, pa, ue] = await Promise.all([
       prisma.user.count({ where: { role: "STUDENT", collegeCode: cc } }),
       prisma.attempt.count({ where: { status: "IN_PROGRESS", ...scopedWhere } }),
       prisma.result.aggregate({ where: scopedWhere, _avg: { score: true } }),
@@ -72,12 +99,38 @@ async function getStats(currentUser) {
           student: { select: { name: true } },
           exam: { select: { title: true } }
         }
+      }),
+      prisma.examViolation.findMany({
+        where: scopedWhere,
+        take: 5,
+        orderBy: { id: 'desc' },
+        include: {
+          student: { select: { name: true, regimentalNumber: true } },
+          exam: { select: { title: true } }
+        }
+      }),
+      prisma.examHeartbeat.count({
+        where: { lastSeenAt: { gte: fiveMinsAgo }, ...scopedWhere }
+      }),
+      prisma.exam.count({
+        where: {
+          createdBy: currentUser.id,
+          resultsPublished: false,
+          OR: [{ status: 'COMPLETED' }, { endAt: { lt: now } }]
+        }
+      }),
+      prisma.exam.count({
+        where: { createdBy: currentUser.id, startAt: { gt: now }, status: 'PUBLISHED' }
       })
     ]);
       finalStudents = s;
       finalAttempts = a;
       finalAgg = agg;
       finalActivity = act;
+      finalViolations = v;
+      finalActiveConnections = ac;
+      finalPendingActions = pa;
+      finalUpcomingExams = ue;
     }
   }
 
@@ -85,12 +138,24 @@ async function getStats(currentUser) {
     totalStudents: finalStudents,
     totalExams,
     activeExams: finalAttempts,
+    activeConnections: finalActiveConnections,
+    pendingActions: finalPendingActions,
+    upcomingExams: finalUpcomingExams,
     averageScore: finalAgg._avg.score ? `${finalAgg._avg.score.toFixed(1)}%` : "0%",
     recentActivity: finalActivity.map(r => ({
       studentName: r.student.name,
       examTitle: r.exam.title,
       score: r.score,
       date: r.createdAt.toISOString()
+    })),
+    recentViolations: finalViolations.map(v => ({
+      id: v.id,
+      studentName: v.student.name,
+      regimentalNumber: v.student.regimentalNumber,
+      examTitle: v.exam.title,
+      type: v.type,
+      message: v.message,
+      date: v.createdAt.toISOString()
     }))
   };
 
