@@ -263,7 +263,7 @@ async function listExamsCatalog(userId, role, query = {}) {
     },
   };
 
-  await cacheSetJson(cacheKey, 60, response, "exams:catalog");
+  await cacheSetJson(cacheKey, 300, response, "exams:catalog"); // 5 min — busted on exam create/update/delete
 
   return response;
 }
@@ -1241,6 +1241,16 @@ async function resetAttempt(staffId, examIdRaw, studentIdRaw) {
   await prisma.examViolation.deleteMany({
     where: { studentId, examId },
   });
+
+  // Purge cached results and leaderboards for this student/exam
+  await Promise.all([
+    cacheDelNamespace(`results:student:${studentId}`),
+    cacheDelNamespace("results:admin"),
+    cacheDelNamespace("results:instructor"),
+    cacheDelNamespace("leaderboard:unit"),
+    cacheDelNamespace("exams:catalog"),
+    cacheDel([`exams:details:${examId}`, `exam:review_data:${examId}`, `resultreview:${studentId}:${examId}`])
+  ]).catch(() => {});
 
   return { success: true, message: "Attempt reset successfully" };
 }

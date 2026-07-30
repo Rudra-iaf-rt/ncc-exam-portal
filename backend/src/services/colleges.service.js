@@ -76,7 +76,7 @@ async function listColleges() {
   });
 
   const result = await attachCountsToColleges(colleges);
-  await cacheSetJson(cacheKey, 60, result);
+  await cacheSetJson(cacheKey, 600, result); // 10 min — rarely changes
   return result;
 }
 
@@ -90,7 +90,7 @@ async function listCollegesAll() {
   });
 
   const result = await attachCountsToColleges(colleges);
-  await cacheSetJson(cacheKey, 60, result);
+  await cacheSetJson(cacheKey, 600, result); // 10 min — rarely changes
   return result;
 }
 

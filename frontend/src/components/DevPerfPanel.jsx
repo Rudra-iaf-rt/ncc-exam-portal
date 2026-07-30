@@ -1,137 +1,16 @@
 import { useState, useEffect, useCallback } from 'react';
 import { getRecords, clearRecords, subscribe } from '../lib/performanceMonitor';
+import { Zap, X, Trash2 } from 'lucide-react';
 
-/**
- * DevPerfPanel — floating performance diagnostics panel.
- *
- * Only rendered in development mode (gated by import.meta.env.DEV).
- * Toggle visibility with Ctrl+Shift+P.
- *
- * Shows the last 20 timed requests with:
- *  - Label / URL
- *  - Network time (t_request → t_response)
- *  - Render time (t_response → t_render via rAF)
- *  - Total time
- *  - Cache source (memory / network)
- *  - Backend breakdown from Server-Timing header (db, cache) if available
- *
- * Color coding:
- *  green  < 200ms total
- *  yellow < 500ms total
- *  red    ≥ 500ms total
- */
-
-function msColor(ms) {
-  if (ms < 200) return '#4ade80';   // green
-  if (ms < 500) return '#facc15';   // yellow
-  return '#f87171';                  // red
+function msBadgeClass(ms) {
+  if (ms < 200) return 'text-emerald-700 font-semibold';
+  if (ms < 500) return 'text-amber-700 font-semibold';
+  return 'text-rose-700 font-bold';
 }
 
 function formatMs(ms) {
   if (ms == null) return '—';
   return `${ms.toFixed(1)}ms`;
-}
-
-const PANEL_STYLES = {
-  panel: {
-    position: 'fixed',
-    bottom: '16px',
-    right: '16px',
-    zIndex: 99999,
-    width: '600px',
-    maxWidth: 'calc(100vw - 32px)',
-    maxHeight: '420px',
-    background: 'rgba(10, 10, 20, 0.96)',
-    border: '1px solid rgba(99, 102, 241, 0.4)',
-    borderRadius: '10px',
-    boxShadow: '0 8px 32px rgba(0,0,0,0.6)',
-    fontFamily: 'monospace',
-    fontSize: '11px',
-    color: '#e2e8f0',
-    display: 'flex',
-    flexDirection: 'column',
-    overflow: 'hidden',
-  },
-  header: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-    padding: '8px 12px',
-    background: 'rgba(99, 102, 241, 0.15)',
-    borderBottom: '1px solid rgba(99, 102, 241, 0.3)',
-    flexShrink: 0,
-  },
-  title: {
-    fontWeight: 700,
-    fontSize: '12px',
-    color: '#a5b4fc',
-    letterSpacing: '0.05em',
-  },
-  clearBtn: {
-    background: 'rgba(239, 68, 68, 0.2)',
-    border: '1px solid rgba(239, 68, 68, 0.4)',
-    borderRadius: '4px',
-    color: '#fca5a5',
-    cursor: 'pointer',
-    fontSize: '10px',
-    padding: '2px 8px',
-  },
-  tableWrapper: {
-    overflowY: 'auto',
-    flex: 1,
-  },
-  table: {
-    width: '100%',
-    borderCollapse: 'collapse',
-  },
-  th: {
-    padding: '5px 8px',
-    textAlign: 'left',
-    color: '#94a3b8',
-    fontSize: '10px',
-    textTransform: 'uppercase',
-    letterSpacing: '0.08em',
-    borderBottom: '1px solid rgba(255,255,255,0.08)',
-    background: 'rgba(0,0,0,0.3)',
-    position: 'sticky',
-    top: 0,
-  },
-  td: {
-    padding: '5px 8px',
-    borderBottom: '1px solid rgba(255,255,255,0.04)',
-    verticalAlign: 'middle',
-    maxWidth: '160px',
-    overflow: 'hidden',
-    textOverflow: 'ellipsis',
-    whiteSpace: 'nowrap',
-  },
-  badge: {
-    display: 'inline-block',
-    padding: '1px 6px',
-    borderRadius: '9999px',
-    fontSize: '10px',
-    fontWeight: 600,
-  },
-  hint: {
-    padding: '6px 12px',
-    color: '#64748b',
-    fontSize: '10px',
-    textAlign: 'center',
-    flexShrink: 0,
-    borderTop: '1px solid rgba(255,255,255,0.04)',
-  },
-};
-
-function Pill({ label }) {
-  return (
-    <span style={{
-      ...PANEL_STYLES.badge,
-      background: 'rgba(99,102,241,0.2)',
-      color: '#a5b4fc',
-    }}>
-      {label}
-    </span>
-  );
 }
 
 export function DevPerfPanel() {
@@ -167,87 +46,91 @@ export function DevPerfPanel() {
     return (
       <button
         onClick={() => setVisible(true)}
-        title="Open Performance Panel (Ctrl+Shift+P)"
-        style={{
-          position: 'fixed',
-          bottom: '16px',
-          right: '16px',
-          zIndex: 99999,
-          background: 'rgba(10,10,20,0.85)',
-          border: '1px solid rgba(99,102,241,0.5)',
-          borderRadius: '50%',
-          width: '36px',
-          height: '36px',
-          cursor: 'pointer',
-          color: '#a5b4fc',
-          fontSize: '16px',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.4)',
-        }}
+        title="Open Client Performance Traces (Ctrl+Shift+P)"
+        className="fixed bottom-4 right-4 z-[99999] w-10 h-10 rounded-full bg-navy text-gold-pale border border-navy-soft shadow-lg hover:scale-105 transition-all flex items-center justify-center cursor-pointer group"
       >
-        ⚡
+        <Zap className="w-5 h-5 text-gold-mid group-hover:animate-pulse" />
       </button>
     );
   }
 
   return (
-    <div style={PANEL_STYLES.panel} role="dialog" aria-label="Performance Panel">
-      <div style={PANEL_STYLES.header}>
-        <span style={PANEL_STYLES.title}>⚡ PERF PANEL — {records.length} traces</span>
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <button style={PANEL_STYLES.clearBtn} onClick={handleClear}>Clear</button>
+    <div
+      role="dialog"
+      aria-label="Performance Panel"
+      className="fixed bottom-4 right-4 z-[99999] w-[620px] max-w-[calc(100vw-32px)] max-h-[440px] bg-white/95 backdrop-blur-md border border-stone-deep rounded-xl shadow-[0_12px_40px_rgba(0,0,0,0.15)] font-mono text-[11px] text-ink flex flex-col overflow-hidden transition-all animate-in fade-in slide-in-from-bottom-2"
+    >
+      {/* Header */}
+      <div className="flex items-center justify-between px-3.5 py-2.5 bg-stone-wash border-b border-stone-deep shrink-0">
+        <div className="flex items-center gap-2 font-bold text-[12px] text-navy">
+          <Zap className="w-4 h-4 text-amber-500 fill-amber-500" />
+          <span>CLIENT TIMING TRACES ({records.length})</span>
+        </div>
+        <div className="flex items-center gap-2">
           <button
-            style={{ ...PANEL_STYLES.clearBtn, background: 'transparent', borderColor: 'rgba(255,255,255,0.1)', color: '#94a3b8' }}
-            onClick={() => setVisible(false)}
+            onClick={handleClear}
+            className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[10px] font-semibold bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100 transition-colors cursor-pointer"
           >
-            ✕
+            <Trash2 className="w-3 h-3" /> Clear
+          </button>
+          <button
+            onClick={() => setVisible(false)}
+            className="p-1 rounded text-ink-3 hover:text-navy hover:bg-stone-deep/40 transition-colors cursor-pointer"
+            aria-label="Close"
+          >
+            <X className="w-4 h-4" />
           </button>
         </div>
       </div>
 
-      <div style={PANEL_STYLES.tableWrapper}>
+      {/* Table Content */}
+      <div className="overflow-y-auto flex-1">
         {records.length === 0 ? (
-          <div style={{ padding: '24px', textAlign: 'center', color: '#64748b' }}>
-            No traces yet — navigate to a page to capture timings.
+          <div className="py-12 text-center text-ink-4 text-[12px]">
+            No client timing traces captured yet. Navigate through the app.
           </div>
         ) : (
-          <table style={PANEL_STYLES.table}>
+          <table className="w-full border-collapse text-left">
             <thead>
-              <tr>
-                <th style={PANEL_STYLES.th}>Label</th>
-                <th style={PANEL_STYLES.th}>Network</th>
-                <th style={PANEL_STYLES.th}>Render</th>
-                <th style={PANEL_STYLES.th}>Total</th>
-                <th style={PANEL_STYLES.th}>DB (ST)</th>
-                <th style={PANEL_STYLES.th}>Cache</th>
-                <th style={PANEL_STYLES.th}>Source</th>
+              <tr className="border-b border-stone-deep bg-stone-wash/80 text-[10px] font-bold uppercase tracking-wider text-ink-3 sticky top-0">
+                <th className="py-1.5 px-3">Request Label</th>
+                <th className="py-1.5 px-3">Network</th>
+                <th className="py-1.5 px-3">Render</th>
+                <th className="py-1.5 px-3">Total</th>
+                <th className="py-1.5 px-3">DB (ST)</th>
+                <th className="py-1.5 px-3">Cache</th>
+                <th className="py-1.5 px-3 text-right">Source</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody className="divide-y divide-stone-mid/60 text-[11px]">
               {records.map((r) => (
-                <tr key={r.id} style={{ background: r.id % 2 === 0 ? 'rgba(255,255,255,0.02)' : 'transparent' }}>
-                  <td style={{ ...PANEL_STYLES.td, maxWidth: '140px' }} title={r.label}>
+                <tr key={r.id} className="hover:bg-stone-wash/70 transition-colors">
+                  <td className="py-1.5 px-3 font-semibold text-navy max-w-[150px] truncate" title={r.label}>
                     {r.label}
                   </td>
-                  <td style={{ ...PANEL_STYLES.td, color: msColor(r.network_ms), fontWeight: 600 }}>
+                  <td className={`py-1.5 px-3 ${msBadgeClass(r.network_ms)}`}>
                     {formatMs(r.network_ms)}
                   </td>
-                  <td style={{ ...PANEL_STYLES.td, color: msColor(r.render_ms), fontWeight: 600 }}>
+                  <td className={`py-1.5 px-3 ${msBadgeClass(r.render_ms)}`}>
                     {formatMs(r.render_ms)}
                   </td>
-                  <td style={{ ...PANEL_STYLES.td, color: msColor(r.total_ms), fontWeight: 700 }}>
+                  <td className={`py-1.5 px-3 ${msBadgeClass(r.total_ms)}`}>
                     {formatMs(r.total_ms)}
                   </td>
-                  <td style={{ ...PANEL_STYLES.td, color: r.st_db_ms != null ? msColor(r.st_db_ms) : '#64748b' }}>
+                  <td className="py-2 px-3 text-ink-3">
                     {r.st_db_ms != null ? formatMs(r.st_db_ms) : '—'}
                   </td>
-                  <td style={{ ...PANEL_STYLES.td, color: '#94a3b8' }}>
+                  <td className="py-2 px-3 text-ink-3">
                     {r.st_cache_ms != null ? formatMs(r.st_cache_ms) : '—'}
                   </td>
-                  <td style={PANEL_STYLES.td}>
-                    <Pill label={r.cache_source} />
+                  <td className="py-1.5 px-3 text-right">
+                    <span className={`px-2 py-0.5 rounded text-[10px] font-semibold border uppercase ${
+                      r.cache_source === 'HIT' || r.cache_source === 'memory'
+                        ? 'bg-emerald-50 border-emerald-200 text-emerald-700'
+                        : 'bg-stone-wash border-stone-deep text-ink-3'
+                    }`}>
+                      {r.cache_source || 'network'}
+                    </span>
                   </td>
                 </tr>
               ))}
@@ -256,8 +139,9 @@ export function DevPerfPanel() {
         )}
       </div>
 
-      <div style={PANEL_STYLES.hint}>
-        Ctrl+Shift+P to toggle • green &lt;200ms • yellow &lt;500ms • red ≥500ms • DB/Cache from Server-Timing header
+      {/* Footer Hint */}
+      <div className="px-3 py-1.5 bg-stone-wash border-t border-stone-deep text-[10px] text-ink-4 text-center shrink-0">
+        Press <span className="font-bold text-navy">Ctrl+Shift+P</span> to toggle • Timings recorded in browser ring buffer
       </div>
     </div>
   );

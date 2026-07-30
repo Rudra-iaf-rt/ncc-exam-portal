@@ -343,6 +343,8 @@ async function bulkAssign(examId, filters, userIds, currentUser) {
   });
 
   logger.audit('EXAM_BULK_ASSIGN', { examId, count: created.count }, adminId);
+  const { cacheDelNamespace } = require('../lib/cache');
+  await cacheDelNamespace('assignments').catch(() => {});
   return { success: true, count: created.count };
 }
 
@@ -357,6 +359,16 @@ async function overrideResult(resultId, score, reason, adminId) {
   });
 
   logger.audit('RESULT_OVERRIDE', { resultId, newScore: score, reason }, adminId);
+
+  const { cacheDelNamespace, cacheDel } = require('../lib/cache');
+  await Promise.all([
+    cacheDelNamespace(`results:student:${result.studentId}`),
+    cacheDelNamespace('results:admin'),
+    cacheDelNamespace('results:instructor'),
+    cacheDelNamespace('leaderboard:unit'),
+    cacheDel([`resultreview:${result.studentId}:${result.examId}`])
+  ]).catch(() => {});
+
   return result;
 }
 

@@ -1,5 +1,6 @@
 import axios from 'axios';
 import { getToken, setToken, clearAuth, getRefreshToken, setRefreshToken } from '../lib/auth';
+import { recordTiming } from '../lib/performanceMonitor';
 
 const API_URL = import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || '/api';
 const COOKIE_AUTH_ENABLED = String(import.meta.env.VITE_COOKIE_AUTH || 'false') === 'true';
@@ -117,6 +118,9 @@ const processQueue = (error, token = null) => {
 
 apiClient.interceptors.request.use(
   (config) => {
+    // Record start time for client-side telemetry
+    config._t_request = performance.now();
+
     const method = String(config.method || 'get').toUpperCase();
     if (!['GET', 'HEAD', 'OPTIONS'].includes(method)) {
       const csrfToken = readCsrfToken();
@@ -143,7 +147,32 @@ apiClient.interceptors.request.use(
 );
 
 apiClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (response.config && response.config._t_request) {
+      const t_request = response.config._t_request;
+      const t_response = performance.now();
+      const url = response.config.url || '';
+      const method = String(response.config.method || 'GET').toUpperCase();
+      const status = response.status;
+      const serverTimingHeader = response.headers ? (response.headers['server-timing'] || response.headers['Server-Timing']) : null;
+
+      requestAnimationFrame(() => {
+        const t_render = performance.now();
+        recordTiming({
+          label: `${method} ${url}`,
+          url,
+          method,
+          status,
+          t_request,
+          t_response,
+          t_render,
+          serverTimingHeader,
+          cacheSource: response.headers && response.headers['x-cache'] ? response.headers['x-cache'] : 'network',
+        });
+      });
+    }
+    return response;
+  },
   async (error) => {
     const originalRequest = error.config;
     const statusCode = error.response?.status || 0;

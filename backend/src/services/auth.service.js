@@ -169,7 +169,7 @@ async function getMe(userId) {
   }
   const sanitized = sanitizeUser(user);
   // Fire-and-forget cache write — never block the response
-  cacheSetJson(cacheKey, 60, sanitized);
+  cacheSetJson(cacheKey, 300, sanitized); // 5 min — busted on logout/profile update
   return sanitized;
 }
 

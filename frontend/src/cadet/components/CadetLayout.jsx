@@ -136,17 +136,13 @@ export const CadetLayout = () => {
                 className="w-full h-full object-contain scale-110" 
               />
             </div>
-
-            {/* Decorative Outer Ring */}
             <div className="absolute -inset-2 border border-gold/10 rounded-full scale-100 group-hover/logo:scale-110 transition-transform duration-1000 opacity-30 pointer-events-none" />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1">
             <div className="font-display text-[22px] text-[#E8E4D4] leading-none italic tracking-tighter font-black">NCC TIRUPATI</div>
-            <div className="font-ui text-[10px] text-gold/30 tracking-[0.3em] uppercase font-black flex items-center justify-center gap-2">
-              <span className="w-3 h-px bg-gold/20" />
+            <div className="font-mono text-[10px] text-[#D4A017] font-bold tracking-[0.2em] uppercase text-center opacity-90">
               11(A) AIR SQN(T) NCC
-              <span className="w-3 h-px bg-gold/20" />
             </div>
           </div>
         </div>
@@ -163,36 +159,33 @@ export const CadetLayout = () => {
 
           <SidebarSection title="Account" icon={User} defaultExpanded={false}>
             <NavLink to="/cadet/profile" className={navLinkClass}>
-              <User size={16} strokeWidth={1.5} className="group-hover/link:scale-110 transition-transform duration-300" />
-              <span>Profile</span>
+              <UserCheck size={16} strokeWidth={1.5} className="group-hover/link:scale-110 transition-transform duration-300" />
+              <span>My Profile</span>
             </NavLink>
           </SidebarSection>
         </div>
       </aside>
 
-      {/* Content */}
       <div className="flex-1 flex flex-col min-w-0 bg-stone relative">
-        {/* Top Header - Sticky Utility Bar */}
         <header className="sticky top-0 z-[90] flex items-center justify-between px-6 sm:px-8 py-2.5 bg-stone/80 backdrop-blur-xl border-b border-navy/[0.03]">
-          {/* Mobile-only Branding */}
-          <div className="flex lg:hidden items-center gap-3">
-            <div className="relative">
-              <div className="absolute -inset-2 bg-gold/10 blur-lg rounded-full" />
-              <img 
-                src="/assets/ncc-logo.png" 
-                alt="NCC Logo" 
-                className="w-8 h-8 relative z-10 object-contain" 
-              />
-            </div>
-            <div className="flex flex-col">
-              <span className="font-display text-[14px] text-navy leading-none italic font-black">NCC TIRUPATI</span>
-              <span className="font-ui text-[8px] text-navy/40 font-bold uppercase tracking-wider mt-0.5">11(A) AIR SQN(T)</span>
+          <div className="flex items-center gap-3">
+            <button onClick={() => setSidebarOpen(true)} className="lg:hidden p-2 rounded-lg hover:bg-navy/5 text-navy transition-colors" aria-label="Open sidebar menu">
+              <Menu size={20} />
+            </button>
+            <div className="flex items-center gap-2.5">
+              <div className="relative flex items-center justify-center">
+                <div className="absolute -inset-2 bg-gold/10 blur-lg rounded-full" />
+                <img src="/assets/ncc-logo.png" alt="NCC Logo" className="w-8 h-8 relative z-10 object-contain" />
+              </div>
+              <div className="flex flex-col">
+                <span className="font-display text-[14px] text-navy leading-none italic font-black">NCC TIRUPATI</span>
+                <span className="font-mono text-[9px] text-navy-soft font-bold uppercase tracking-[0.14em] mt-0.5">11(A) AIR SQN(T) NCC</span>
+              </div>
             </div>
           </div>
 
           <div className="hidden lg:block" />
 
-          {/* Account Cluster */}
           <div className="flex items-center gap-2">
             {/* User Utility */}
             <NavLink 

@@ -156,13 +156,11 @@ export function AdminLayout() {
             <div className="absolute -inset-2 border border-gold/10 rounded-full scale-100 group-hover/logo:scale-110 transition-transform duration-1000 opacity-30 pointer-events-none" />
           </div>
 
-          <div className="space-y-2">
+          <div className="space-y-1">
             <div className="font-display text-[22px] text-[#E8E4D4] leading-none italic tracking-tighter font-black">NCC TIRUPATI</div>
-            <div className="font-ui text-[10px] text-gold/30 tracking-[0.3em] uppercase font-black flex items-center justify-center gap-2">
-              <span className="w-3 h-px bg-gold/20" />
-               11(A) AIR SQN(T) NCC
-              <span className="w-3 h-px bg-gold/20" />
-            </div>  
+            <div className="font-mono text-[10px] text-[#D4A017] font-bold tracking-[0.2em] uppercase text-center opacity-90">
+              11(A) AIR SQN(T) NCC
+            </div>
           </div>
         </div>
 

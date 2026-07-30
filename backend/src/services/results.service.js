@@ -133,7 +133,7 @@ async function listForStudent(studentId, query) {
   };
 
   // Cache under the student-specific namespace so cacheDelNamespace can target it.
-  await cacheSetJson(cacheKey, 60, response, `results:student:${studentId}`);
+  await cacheSetJson(cacheKey, 300, response, `results:student:${studentId}`); // 5 min
 
   return response;
 }
@@ -223,7 +223,7 @@ async function listForInstructor(instructorId, query) {
     },
   };
 
-  await cacheSetJson(cacheKey, 30, response, `results:instructor`);
+  await cacheSetJson(cacheKey, 300, response, `results:instructor`); // 5 min
 
   return response;
 }
@@ -304,7 +304,7 @@ async function listForAdmin(query) {
   };
 
   // Cache under shared admin namespace for targeted invalidation.
-  await cacheSetJson(cacheKey, 30, response, "results:admin");
+  await cacheSetJson(cacheKey, 300, response, "results:admin"); // 5 min
 
   return response;
 }

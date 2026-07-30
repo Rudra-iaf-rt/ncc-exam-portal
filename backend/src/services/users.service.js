@@ -145,6 +145,7 @@ async function updateUser(idRaw, body, tx = prisma) {
       data: { revokedAt: new Date() },
     });
   }
+  await cacheDel(['user:metadata:' + id]).catch(() => {});
   return sanitizeUser(user);
 }
 
@@ -488,6 +489,7 @@ async function adminResetUserPassword(idRaw, newPassword) {
   }
   const password = await bcrypt.hash(String(newPassword), SALT_ROUNDS);
   await prisma.user.update({ where: { id }, data: { password } });
+  await cacheDel(['user:metadata:' + id]).catch(() => {});
   return { ok: true };
 }
 
