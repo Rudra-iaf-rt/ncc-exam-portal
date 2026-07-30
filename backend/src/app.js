@@ -14,6 +14,7 @@ const errorsRoutes = require('./routes/errors.routes');
 
 const notificationsRoutes = require("./routes/notifications.routes");
 const antiCheatRoutes = require("./routes/anti-cheat.routes");
+const perfRoutes = require("./routes/perf.routes");
 const { requestContext } = require("./middleware/security");
 const { csrfGuard } = require("./middleware/csrf");
 const { telemetry } = require("./middleware/telemetry");
@@ -35,7 +36,7 @@ app.use(helmet({
     },
   },
   hsts: {
-    maxAge: 31536000, // 1 year
+    maxAge: 31536000,
     includeSubDomains: true,
     preload: true
   }
@@ -87,6 +88,7 @@ app.use('/api/errors', errorsRoutes);
 
 app.use("/api", notificationsRoutes);
 app.use("/api", antiCheatRoutes);
+app.use("/api/admin", perfRoutes);
 
 app.use(notFoundHandler);
 app.use(errorHandler);

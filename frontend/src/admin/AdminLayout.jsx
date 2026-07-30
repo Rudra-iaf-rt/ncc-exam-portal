@@ -17,6 +17,7 @@ import {
   Settings2,
   GraduationCap,
   Lock,
+  Activity,
 } from 'lucide-react';
 import ErrorBoundary from '../components/ErrorBoundary';
 
@@ -217,6 +218,10 @@ export function AdminLayout() {
               <NavLink to="/admin/logs" onClick={() => setSidebarOpen(false)} className={navLinkClass}>
                 <ShieldCheck size={16} strokeWidth={1.5} className="group-hover/link:scale-110 transition-transform duration-300" />
                 <span>Audit Logs</span>
+              </NavLink>
+              <NavLink to="/admin/performance" onClick={() => setSidebarOpen(false)} className={navLinkClass}>
+                <Activity size={16} strokeWidth={1.5} className="group-hover/link:scale-110 transition-transform duration-300" />
+                <span>Performance</span>
               </NavLink>
             </SidebarSection>
           )}

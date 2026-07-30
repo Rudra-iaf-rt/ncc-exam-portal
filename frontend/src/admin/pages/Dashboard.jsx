@@ -166,7 +166,7 @@ export default function Dashboard() {
             </div>
             
             {/* Recent Activity Logs */}
-            <div className="flex flex-col h-full border border-stone-deep bg-white rounded-sm animate-in slide-in-from-bottom-4 duration-500 fill-mode-both" style={{ animationDelay: '250ms' }}>
+            <div className="flex flex-col h-full border border-stone-deep bg-white rounded-md shadow-sm overflow-hidden animate-in slide-in-from-bottom-4 duration-500 fill-mode-both" style={{ animationDelay: '250ms' }}>
               <div className="flex justify-between items-center p-3 border-b border-stone-deep bg-stone-wash">
                 <h3 className="m-0 font-mono text-[11px] font-bold uppercase tracking-wider text-navy flex items-center gap-2">
                   <Activity size={14} className="text-navy" />

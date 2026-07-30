@@ -1,7 +1,12 @@
+const { performance } = require("perf_hooks");
 const { logger } = require("../utils/logger");
 const { redis } = require("./redis");
+const { getPerfContext } = require("./perf-context");
 
-const CACHE_TIMEOUT_MS = Number(process.env.CACHE_TIMEOUT_MS || 500);
+// CACHE_TIMEOUT_MS: max time to wait for a Redis GET/SET before falling through to DB.
+// Default raised to 2000ms — Upstash RTT from India is ~400-600ms, so 500ms was
+// timing out on nearly every GET, treating all cache hits as misses and hitting the DB.
+const CACHE_TIMEOUT_MS = Number(process.env.CACHE_TIMEOUT_MS || 2000);
 
 async function withTimeout(promise, fallback = null) {
   let timeoutId;
@@ -30,8 +35,18 @@ function trackKey(namespace, key) {
 
 async function cacheGetJson(key) {
   if (!key) return null;
+  const t0 = performance.now();
   try {
     const raw = await withTimeout(redis.get(key), null);
+    const elapsed = performance.now() - t0;
+
+    const ctx = getPerfContext();
+    if (ctx) {
+      ctx.cache_checked = true;
+      ctx.cache_time_ms += elapsed;
+      if (raw) ctx.cache_hit = true;
+    }
+
     if (!raw) return null;
     return JSON.parse(raw);
   } catch (err) {

@@ -3,6 +3,7 @@ const adminService = require("../services/admin.service");
 const monitorService = require("../services/monitor.service");
 const analyticsService = require("../services/analytics.service");
 const { prisma } = require("../lib/prisma");
+const { cacheGetJson, cacheSetJson, cacheDelNamespace } = require("../lib/cache");
 
 async function getStats(req, res) {
   try {
@@ -35,14 +36,20 @@ async function importUsers(req, res) {
 async function listAssignments(req, res) {
   try {
     const { ROLES } = require("../middleware/roles");
-    let whereClause = {};
+    const isInstructor = req.user.role === ROLES.INSTRUCTOR;
+    const cacheKey = isInstructor
+      ? `assignments:instructor:${req.user.id}`
+      : `assignments:admin:all`;
 
-    if (req.user.role === ROLES.INSTRUCTOR) {
+    // Serve from cache if available (TTL: 60s)
+    const cached = await cacheGetJson(cacheKey);
+    if (cached) return res.json(cached);
+
+    let whereClause = {};
+    if (isInstructor) {
       const instructorRecord = await prisma.user.findUnique({ where: { id: req.user.id } });
       if (instructorRecord?.collegeCode) {
-        whereClause = {
-          user: { collegeCode: instructorRecord.collegeCode }
-        };
+        whereClause = { user: { collegeCode: instructorRecord.collegeCode } };
       }
     }
 
@@ -59,14 +66,11 @@ async function listAssignments(req, res) {
             batch: true 
           }
         },
-        exam: {
-          select: { title: true }
-        }
+        exam: { select: { title: true } }
       },
       orderBy: { createdAt: 'desc' }
     });
 
-    // Flatten college name for frontend
     const flattened = assignments.map(a => ({
       ...a,
       user: {
@@ -75,6 +79,8 @@ async function listAssignments(req, res) {
       }
     }));
 
+    // Cache under the shared namespace so create/delete can bust both admin and instructor caches
+    await cacheSetJson(cacheKey, 60, flattened, 'assignments');
     res.json(flattened);
   } catch (error) {
     console.error("[Assignments List Error]", error);
@@ -91,6 +97,8 @@ async function createAssignments(req, res) {
     }
     const { examId, wing, collegeCode, batch, userIds } = req.body;
     const result = await adminService.bulkAssign(examId, { wing, collegeCode, batch }, userIds, req.user);
+    // Bust cached assignment list so the next GET reflects the new assignments
+    await cacheDelNamespace('assignments').catch(() => {});
     res.json(result);
   } catch (error) {
     const status = error.status || 500;
@@ -107,6 +115,8 @@ async function deleteAssignment(req, res) {
     }
     const id = parseInt(req.params.id);
     await prisma.examAssignment.delete({ where: { id } });
+    // Bust cached assignment list
+    await cacheDelNamespace('assignments').catch(() => {});
     res.json({ success: true });
   } catch (error) {
     console.error("[Assignment Delete Error]", error);

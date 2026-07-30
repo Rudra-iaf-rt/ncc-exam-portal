@@ -38,6 +38,9 @@ export const adminApi = {
   
   getLiveMonitor: (examId) => apiClient.get(`/admin/exams/${examId}/live-monitor`),
   getExamAnalytics: (examId) => apiClient.get(`/admin/exams/${examId}/analytics`),
+
+  // Performance diagnostics (admin-only, reads backend ring buffer)
+  getPerfData: (params) => apiClient.get('/admin/perf', { params, bypassCache: true }),
 };
 
 export default adminApi;

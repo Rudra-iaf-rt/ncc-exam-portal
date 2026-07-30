@@ -76,7 +76,7 @@ async function createExam(creatorUserId, body) {
   });
 
   // Invalidate any cached catalog lists since a new exam has been created
-  await incrementCacheVersion("exams:catalog:global");
+  await cacheDelNamespace("exams:catalog");
 
   return {
     id: exam.id,
@@ -111,11 +111,11 @@ async function listExamsCatalog(userId, role, query = {}) {
   const limit = Math.min(100, Math.max(1, parseInt(query.limit || "20", 10)));
   const skip = (page - 1) * limit;
 
-  const [globalVer, userVer] = await Promise.all([
-    getCacheVersion("exams:catalog:global"),
-    getCacheVersion(`exams:catalog:user:${userId}`),
-  ]);
-  const cacheKey = `exams:catalog2:v${globalVer}:u${userVer}:${role}:${userId}:p${page}:l${limit}`;
+  // Direct cache key — no version-counter RTTs.
+  // Invalidation: cacheDelNamespace("exams:catalog") on any exam write.
+  // Previously used getCacheVersion() × 2 which added ~550ms of Redis RTT overhead
+  // on EVERY request before even checking the cache.
+  const cacheKey = `exams:catalog:${role}:${userId}:p${page}:l${limit}`;
   const cached = await cacheGetJson(cacheKey);
   if (cached) return cached;
 
@@ -263,7 +263,7 @@ async function listExamsCatalog(userId, role, query = {}) {
     },
   };
 
-  await cacheSetJson(cacheKey, 60, response);
+  await cacheSetJson(cacheKey, 60, response, "exams:catalog");
 
   return response;
 }
@@ -407,7 +407,7 @@ async function updateExamMetaByCreator(userId, examIdRaw, body) {
     // 1. Specific exam details cache
     await cacheDel([`exams:details:${examId}`]);
     // 2. Wildcard exams catalog caches (since meta/status changed)
-    await incrementCacheVersion("exams:catalog:global");
+    await cacheDelNamespace("exams:catalog");
 
     return updated;
   } catch (err) {
@@ -568,7 +568,7 @@ async function replaceExamQuestionsByCreator(userId, examIdRaw, body) {
 
   // Step 4: Invalidate shared exam caches
   await cacheDel([`exams:details:${examId}`]);
-  await incrementCacheVersion("exams:catalog:global");
+  await cacheDelNamespace("exams:catalog");
 
   return prisma.exam.findUnique({
     where: { id: examId },
@@ -606,7 +606,7 @@ async function publishExamByCreator(userId, examIdRaw) {
   // 1. Specific exam details cache
   await cacheDel([`exams:details:${examId}`]);
   // 2. Wildcard exams catalog caches (since status changed)
-  await incrementCacheVersion("exams:catalog:global");
+  await cacheDelNamespace("exams:catalog");
 
   return updated;
 }
@@ -629,7 +629,7 @@ async function deleteExamByCreator(userId, examIdRaw) {
   // 1. Specific exam details cache
   await cacheDel([`exams:details:${examId}`]);
   // 2. Wildcard exams catalog caches (since exam is deleted)
-  await incrementCacheVersion("exams:catalog:global");
+  await cacheDelNamespace("exams:catalog");
 
   return { id: examId };
 }
@@ -1001,7 +1001,7 @@ async function submitExam(studentId, body) {
     cacheDelNamespace("results:admin"),
     cacheDelNamespace(`results:instructor`),
     cacheDelNamespace("leaderboard:unit"),
-    incrementCacheVersion(`exams:catalog:user:${studentId}`),
+    cacheDelNamespace("exams:catalog"),
     cacheDel([
       `stats:dashboard:STUDENT:${studentId}`,
       `stats:dashboard:ADMIN:all`,
@@ -1106,7 +1106,7 @@ async function publishResults(userId, examIdRaw) {
       cacheDelNamespace("results:instructor"),
       cacheDelNamespace("leaderboard:unit"),
       cacheDel([`exams:details:${examId}`, `exam:review_data:${examId}`]),
-      incrementCacheVersion("exams:catalog:global"),
+      cacheDelNamespace("exams:catalog"),
     ]);
   } catch (err) {
     console.error("[Redis] Cache invalidation failed during publishResults", err);

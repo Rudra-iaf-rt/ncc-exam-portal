@@ -1,6 +1,6 @@
 export function StatCard({ label, value, subtext, icon, colorClass = 'text-navy' }) {
   return (
-    <div className="bg-white border border-stone-deep p-4 rounded-sm">
+    <div className="bg-white border border-stone-deep p-4 rounded-md shadow-sm">
       <div className="flex justify-between items-start mb-2">
         <span className={`font-mono text-[11px] font-bold tracking-wider uppercase ${colorClass === 'text-navy' ? 'text-ink-3' : colorClass}`}>{label}</span>
         {icon && <div className={`opacity-80 ${colorClass}`}>{icon}</div>}

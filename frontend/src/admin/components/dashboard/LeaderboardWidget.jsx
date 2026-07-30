@@ -2,7 +2,7 @@ import { Trophy } from 'lucide-react';
 
 export default function LeaderboardWidget({ leaderboard }) {
   return (
-    <div className="flex flex-col h-full border border-stone-deep bg-white rounded-sm">
+    <div className="flex flex-col h-full border border-stone-deep bg-white rounded-md shadow-sm overflow-hidden">
       <div className="flex justify-between items-center p-3 border-b border-stone-deep bg-stone-wash">
         <h3 className="m-0 font-mono text-[11px] font-bold uppercase tracking-wider text-navy flex items-center gap-2">
           <Trophy size={14} className="text-gold-3" />

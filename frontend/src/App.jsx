@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { Routes, Route, Navigate } from 'react-router-dom'
 import { RequireAdmin } from './admin/guards/RequireAdmin'
 import { RequireStaff } from './admin/guards/RequireStaff'
@@ -34,6 +35,7 @@ import ResetPassword from './auth/ResetPassword'
 import ChangePassword from './auth/ChangePassword'
 import { Toaster } from 'sonner'
 import { ShieldCheck, ShieldAlert, Info } from 'lucide-react'
+import PerformanceDashboard from './admin/pages/PerformanceDashboard'
 
 
 function App() {
@@ -107,6 +109,7 @@ function App() {
               <Route path="staff" element={<StaffManagement />} />
               <Route path="colleges" element={<CollegeManagement />} />
               <Route path="logs" element={<AuditLogs />} />
+              <Route path="performance" element={<PerformanceDashboard />} />
             </Route>
           </Route>
         </Route>
@@ -115,8 +118,18 @@ function App() {
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
       </NavigationProvider>
+      {import.meta.env.DEV && <DevPerfPanelSlot />}
     </>
   )
+}
+
+// Lazy-loaded only in development — completely absent from production bundle
+function DevPerfPanelSlot() {
+  const [Panel, setPanel] = useState(null);
+  useEffect(() => {
+    import('./components/DevPerfPanel').then((m) => setPanel(() => m.DevPerfPanel));
+  }, []);
+  return Panel ? <Panel /> : null;
 }
 
 export default App
