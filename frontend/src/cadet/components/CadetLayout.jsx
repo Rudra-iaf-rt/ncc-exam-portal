@@ -8,7 +8,9 @@ import {
   ChevronDown,
   GraduationCap,
   Lock,
-  User
+  User,
+  UserCheck,
+  Menu
 } from 'lucide-react';
 import { useAuth } from '../hooks/useAuth';
 import { toast } from 'sonner';

@@ -14964,3 +14964,2503 @@ COMPONENT_STACK:
     at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=04e380e1:4575:29)
     at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=04e380e1:6993:26)
 
+[2026-07-30T20:56:35.584Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T20:56:35.588Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T20:57:30.883Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T20:57:33.122Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T20:58:29.368Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T20:58:34.380Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T20:59:30.940Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T20:59:33.746Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:00:30.033Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:00:35.036Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:01:26.319Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:01:31.332Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:02:30.660Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:02:35.670Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:03:26.920Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:03:31.934Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:04:30.915Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:04:31.259Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:05:27.514Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:05:32.526Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:06:30.912Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:06:31.841Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:07:28.161Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:07:33.161Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:08:30.910Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:08:32.528Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:09:28.843Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:09:33.847Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:10:30.952Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:10:33.145Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:11:29.456Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:11:34.473Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:12:30.928Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:12:33.791Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:13:30.104Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:13:35.114Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:14:26.426Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:14:31.426Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:15:30.779Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:15:35.785Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:16:27.075Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:16:32.083Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:17:30.904Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:17:31.377Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:18:27.682Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:18:32.694Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:19:30.896Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:19:32.040Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:20:28.355Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:20:33.362Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:21:30.897Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:21:32.723Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:22:29.033Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:22:34.040Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:23:30.899Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:23:33.338Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:24:29.610Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:24:34.614Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:25:30.942Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:25:33.956Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:26:30.243Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:26:35.249Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:27:26.563Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:27:31.579Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:28:30.897Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:28:30.913Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:29:27.158Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:29:32.171Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:30:30.881Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:30:31.442Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:31:27.809Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:31:32.810Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:32:30.954Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:32:32.143Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:33:28.470Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:33:33.478Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:34:30.896Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:34:32.820Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:35:29.088Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:35:34.094Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:36:30.945Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:36:33.408Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:37:29.686Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:37:34.690Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:38:25.979Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:38:31.071Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:39:30.362Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:39:35.370Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:40:26.650Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:40:31.663Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:41:30.958Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:41:30.962Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:42:27.258Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:42:32.261Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:43:30.910Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:43:31.593Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:44:27.902Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:44:32.910Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:45:30.954Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:45:32.254Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:46:28.549Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:46:33.557Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:47:30.912Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:47:32.871Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:48:29.100Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:48:34.104Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:49:30.870Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:49:33.445Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:50:29.761Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:50:34.776Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:51:26.027Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:51:31.357Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:52:30.338Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:52:35.350Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:53:26.668Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:53:31.681Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:54:30.875Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:54:30.970Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:55:27.269Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:55:32.285Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:56:30.899Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:56:31.590Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:57:27.955Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:57:32.960Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:58:30.895Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T21:58:32.282Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:59:28.580Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T21:59:33.583Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:00:30.913Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:00:32.920Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:01:29.182Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:01:34.186Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:02:30.923Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:02:33.515Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:03:29.851Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:03:34.865Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:04:26.156Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:04:31.167Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:05:30.521Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:05:35.550Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:06:26.828Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:06:31.842Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:07:30.937Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:07:31.125Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:08:27.407Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:08:32.408Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:09:30.950Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:09:31.789Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:10:28.100Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:10:33.115Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:11:30.899Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:11:32.443Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:12:28.736Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:12:33.750Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:13:30.875Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:13:33.020Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:14:29.299Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:14:34.301Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:15:30.922Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:15:33.647Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:16:29.932Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:16:34.938Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:17:26.230Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:17:31.240Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:18:30.601Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:18:35.616Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:19:26.874Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:19:31.883Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:20:30.945Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:20:31.150Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:21:27.435Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:21:32.439Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:22:30.921Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:22:31.785Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:23:28.093Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:23:33.102Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:24:30.885Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:24:32.416Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:25:28.649Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:25:33.652Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:26:30.867Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:26:32.987Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:27:29.249Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:27:34.264Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:28:30.886Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:28:33.557Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:29:29.864Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:29:34.876Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:30:26.153Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:30:31.165Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:31:30.498Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:31:35.499Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:32:26.829Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:32:31.838Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:33:30.850Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:33:31.113Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:34:27.396Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:34:32.397Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:35:30.905Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:35:31.754Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:36:28.040Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:36:33.043Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:37:30.875Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:37:32.355Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:38:28.658Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:38:33.668Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:39:30.853Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:39:32.978Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:40:29.290Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:40:34.298Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:41:30.861Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:41:33.597Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:42:29.893Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:42:34.905Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:43:26.204Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:43:31.208Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:44:30.537Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:44:35.551Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:45:26.831Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:45:31.838Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:46:30.856Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:46:31.167Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:47:27.443Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:47:32.446Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:48:30.874Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:48:31.797Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:49:28.058Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:49:33.062Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:50:30.886Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:50:32.387Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:51:28.675Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:51:33.677Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:52:30.888Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:52:32.985Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:53:29.204Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:53:34.217Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:54:30.870Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:54:33.506Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:55:29.820Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:55:34.823Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:56:26.110Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:56:31.124Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:57:30.448Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:57:35.461Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:58:26.743Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T22:58:31.750Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:59:30.873Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T22:59:31.028Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:00:27.285Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:00:32.285Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:01:30.900Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:01:31.593Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:02:27.873Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:02:32.875Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:03:30.885Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:03:32.226Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:04:28.511Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:04:33.513Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:05:30.884Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:05:32.813Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:06:29.099Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:06:34.104Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:07:30.902Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:07:33.398Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:08:29.703Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:08:34.707Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:09:26.039Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:09:31.040Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:10:30.408Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:10:35.412Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:11:26.714Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:11:31.725Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:12:30.894Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:12:31.048Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:13:27.279Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:13:32.282Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:14:30.905Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:14:31.642Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:15:27.914Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:15:32.919Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:16:30.866Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:16:32.254Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:17:28.564Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:17:33.580Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:18:30.873Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:18:32.871Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:19:29.132Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:19:34.147Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:20:30.938Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:20:33.462Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:21:29.734Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:21:34.738Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:22:26.039Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:22:31.051Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:23:30.379Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:23:35.380Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:24:26.709Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:24:31.726Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:25:30.870Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:25:30.978Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:26:27.229Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:26:32.239Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:27:30.867Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:27:31.559Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:28:27.826Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:28:32.830Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:29:30.857Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:29:32.158Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:30:28.435Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:30:33.439Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:31:30.877Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:31:32.756Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:32:29.018Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:32:34.022Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:33:30.864Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:33:33.256Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:34:29.564Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:34:34.565Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:35:25.872Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:35:30.901Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:36:30.221Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:36:35.227Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:37:26.507Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:38:30.844Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:39:27.149Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:40:30.861Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:41:27.754Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:42:30.892Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:43:28.397Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:44:30.910Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:45:29.002Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:46:30.873Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:47:29.634Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:48:25.977Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:49:30.365Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:50:26.659Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:51:30.879Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:52:27.169Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:53:30.870Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:54:27.813Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:55:30.907Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:56:28.410Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:57:30.866Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-30T23:58:29.033Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-30T23:59:30.857Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T00:00:29.569Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:01:30.856Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T00:02:30.104Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:03:26.424Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:04:30.779Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:05:27.028Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:06:30.870Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T00:07:27.742Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:08:30.868Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T00:09:28.392Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:10:30.876Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T00:11:28.973Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:12:30.869Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T00:13:29.568Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:14:30.876Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T00:15:30.156Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:16:26.406Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:17:30.793Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:18:27.055Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:19:30.879Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T00:20:27.622Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:21:30.861Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T00:22:28.197Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:23:30.876Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T00:24:28.822Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:25:30.862Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T00:26:29.398Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:27:30.877Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T00:28:30.014Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:29:26.290Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:30:30.627Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:31:26.919Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:32:30.878Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T00:33:27.562Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:34:30.864Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T00:35:28.172Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:36:30.885Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T00:37:28.805Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:38:30.871Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T00:39:29.350Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:40:30.878Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T00:41:30.002Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:42:26.330Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:43:30.696Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:44:26.947Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:45:30.904Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T00:46:27.515Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:47:30.870Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T00:48:28.101Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:49:30.852Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T00:50:28.739Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:51:30.860Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T00:52:29.238Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:53:30.872Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T00:54:29.885Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:55:26.156Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:56:30.431Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:57:26.751Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T00:58:30.873Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T00:59:27.306Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T01:00:30.861Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T01:01:27.889Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T01:02:30.876Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T01:03:28.515Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T01:04:30.879Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T01:05:29.128Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T01:06:30.877Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T01:07:29.728Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T01:08:26.068Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T01:09:30.372Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T01:10:26.665Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T01:11:30.882Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T01:12:27.191Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T01:13:30.859Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T01:14:27.758Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T01:15:30.857Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T01:16:28.419Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T01:17:30.883Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T01:18:29.027Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T01:19:30.851Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T01:20:29.587Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T01:21:30.874Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T01:22:30.171Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T01:23:26.452Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T01:24:30.822Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T01:25:27.084Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T01:26:30.867Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T01:27:27.686Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T01:28:30.892Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T01:29:28.309Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T01:30:30.874Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T01:31:28.925Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T01:32:30.884Z] Error: Command timed out
+    at Timeout.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\Command.js:194:33)
+    at listOnTimeout (node:internal/timers:588:17)
+    at process.processTimers (node:internal/timers:523:7)
+[2026-07-31T01:33:29.519Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T01:34:25.863Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T01:35:30.200Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T01:36:26.498Z] MaxRetriesPerRequestError: Reached the max retries per request limit (which is 3). Refer to "maxRetriesPerRequest" option for details.
+    at TLSSocket.<anonymous> (C:\College Projects\ncc-exam-portal\backend\node_modules\ioredis\built\redis\event_handler.js:207:37)
+    at Object.onceWrapper (node:events:633:26)
+    at TLSSocket.emit (node:events:530:35)
+    at node:net:346:12
+    at TCP.done (node:_tls_wrap:650:7)
+    at TCP.callbackTrampoline (node:internal/async_hooks:130:17)
+[2026-07-31T02:19:10.097Z] [CLIENT ROOT] URL: http://localhost:5173/cadet/dashboard | MSG: UserCheck is not defined
+STACK: ReferenceError: UserCheck is not defined
+    at CadetLayout (http://localhost:5173/src/cadet/components/CadetLayout.jsx?t=1785439734748:262:43)
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=04e380e1:12868:12)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=04e380e1:4213:19)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=04e380e1:5569:16)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=04e380e1:6140:20)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=04e380e1:851:66)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=04e380e1:8429:92)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=04e380e1:8325:37)
+    at renderRootSync (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=04e380e1:8309:6)
+    at performWorkOnRoot (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=04e380e1:7994:27)
+COMPONENT_STACK: 
+    at CadetLayout (http://localhost:5173/src/cadet/components/CadetLayout.jsx?t=1785439734748:121:27)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=04e380e1:4004:26)
+    at Outlet (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=04e380e1:4570:25)
+    at RequireCadet (<anonymous>)
+    at RenderedRoute (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=04e380e1:4004:26)
+    at Routes (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=04e380e1:4623:19)
+    at NavigationProvider (http://localhost:5173/src/contexts/NavigationContext.jsx:22:38)
+    at App (<anonymous>)
+    at AdminAuthProvider (http://localhost:5173/src/contexts/AdminAuthContext.jsx?t=1785439734748:9:37)
+    at ConfirmProvider (http://localhost:5173/src/contexts/ConfirmContext.jsx:18:35)
+    at ErrorBoundary (http://localhost:5173/src/components/ErrorBoundary.jsx?t=1785439734748:8:3)
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=04e380e1:4575:29)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=04e380e1:6993:26)
+
