@@ -8,6 +8,7 @@ import PageLoader from '../../components/PageLoader';
 import { invalidateCachedResource } from '../../lib/resourceCache';
 import { useCachedFetch } from '../../hooks/useCachedFetch';
 import CustomSelect from '../../components/CustomSelect';
+import MultiSelect from '../../components/MultiSelect';
 import { 
   ShieldCheck, 
   Search, 
@@ -43,7 +44,7 @@ export default function ScheduleExam() {
   const { goBack } = useAppNavigation();
   const [currentStep, setCurrentStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
-  const [filterOptions, setFilterOptions] = useState({ wings: [], colleges: [], batches: [] });
+  const [filterOptions, setFilterOptions] = useState({ wings: [], colleges: [], batches: [], groups: [] });
 
   // Form State — declared before useEffects that reference these values
   const [form, setForm] = useState({
@@ -51,7 +52,8 @@ export default function ScheduleExam() {
     wing: '',
     college: '',
     batch: '',
-    query: ''
+    query: '',
+    groupIds: []
   });
   const [previewResults, setPreviewResults] = useState([]);
   const [previewPage, setPreviewPage] = useState(1);
@@ -73,8 +75,14 @@ export default function ScheduleExam() {
 
   const fetchFilters = async () => {
     try {
-      const { data } = await adminApi.getFilters();
-      setFilterOptions(data);
+      const [filterRes, groupsRes] = await Promise.all([
+        adminApi.getFilters(),
+        adminApi.getGroups().catch(() => ({ data: { groups: [] } }))
+      ]);
+      setFilterOptions({
+        ...filterRes.data,
+        groups: groupsRes.data.groups || []
+      });
     } catch (err) {
       console.error("Fetch Filters Error:", err);
     }
@@ -91,7 +99,7 @@ export default function ScheduleExam() {
     }, 400); // 400ms debounce
     return () => clearTimeout(timeoutId);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form.wing, form.college, form.batch, form.query, currentStep]);
+  }, [form.wing, form.college, form.batch, form.query, form.groupIds, currentStep]);
 
   useEffect(() => {
     if (currentStep === 3) {
@@ -114,6 +122,7 @@ export default function ScheduleExam() {
         ...form,
         collegeCode: form.college,
         examId: form.examId,
+        groupIds: form.groupIds.join(','),
         limit: 5000
       });
       setPreviewResults(data.users || data);
@@ -292,16 +301,35 @@ export default function ScheduleExam() {
               {/* Filter Sidebar */}
               <div className="lg:col-span-4 p-6 border-r border-stone bg-stone/20">
                 <div className="space-y-5">
-                  <div>
-                    <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Wing / Service Unit</label>
-                    <CustomSelect 
-                      value={form.wing}
-                      onChange={val => setForm({...form, wing: val})}
-                      options={[
-                        { value: "", label: "All Service Wings" },
-                        ...filterOptions.wings.map(w => ({ value: w, label: w }))
-                      ]}
-                    />
+                  <div className="flex items-start gap-3 mb-5 p-3 bg-stone-wash/30 border border-stone-deep rounded-md">
+                    <ShieldCheck className="text-navy flex-shrink-0 mt-0.5" size={18} />
+                    <div>
+                      <h3 className="font-bold text-navy text-[13px]">Refine Candidate Pool</h3>
+                      <p className="text-[11px] text-ink-3 mt-1 leading-tight">Use filters or reusable groups. Groups combine with specific manual selections.</p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 gap-4 mb-5">
+                    <div>
+                      <label className="block text-[11px] uppercase tracking-wider font-bold text-ink-3 mb-2">Reusable Groups</label>
+                      <MultiSelect 
+                        placeholder="Select groups..."
+                        options={filterOptions.groups.map(g => ({ value: g.id.toString(), label: g.name }))}
+                        selectedValues={form.groupIds}
+                        onChange={(vals) => setForm({...form, groupIds: vals})}
+                      />
+                    </div>
+                    <div>
+                      <CustomSelect 
+                        label="Wing"
+                        value={form.wing}
+                        onChange={(val) => setForm({...form, wing: val})}
+                        options={[
+                          { value: '', label: 'All Wings' },
+                          ...filterOptions.wings.map(w => ({ value: w, label: w }))
+                        ]}
+                      />
+                    </div>
                   </div>
 
                   <div className="mt-4">

@@ -337,7 +337,7 @@ async function bulkImportCadets(cadetsArray, currentUser) {
 }
 
 async function searchUsers(filters = {}, currentUser) {
-  const { wing, batch, query, examId } = filters;
+  const { wing, batch, query, examId, groupIds } = filters;
   let collegeCode = filters.collegeCode;
 
   if (currentUser?.role === ROLES.INSTRUCTOR) {
@@ -351,51 +351,141 @@ async function searchUsers(filters = {}, currentUser) {
     }
   }
 
-  const rows = await prisma.user.findMany({
-    where: {
-      role: ROLES.STUDENT,
-      isActive: true,
-      AND: [
-        wing ? { wing } : {},
-        collegeCode ? { collegeCode } : {},
-        batch ? { batch: { contains: batch, mode: 'insensitive' } } : {},
-        query ? {
-          OR: [
-            { name: { contains: query, mode: 'insensitive' } },
-            { regimentalNumber: { contains: query, mode: 'insensitive' } }
-          ]
-        } : {},
-        examId ? {
-          assignments: {
-            none: {
-              examId: parseInt(examId)
-            }
-          }
-        } : {}
+  // Handle groupIds resolution
+  let groupCollegeCodes = [];
+  let groupUserIds = [];
+  if (groupIds) {
+    const ids = Array.isArray(groupIds) ? groupIds : String(groupIds).split(',').map(id => parseInt(id)).filter(id => !isNaN(id));
+    if (ids.length > 0) {
+      const groups = await prisma.candidateGroup.findMany({
+        where: { id: { in: ids }, isActive: true },
+        include: { colleges: true, members: true }
+      });
+      groups.forEach(g => {
+        g.colleges.forEach(c => groupCollegeCodes.push(c.collegeCode));
+        g.members.forEach(m => groupUserIds.push(m.userId));
+      });
+    }
+  }
+
+  // Deduplicate group targets
+  groupCollegeCodes = [...new Set(groupCollegeCodes)];
+  groupUserIds = [...new Set(groupUserIds)];
+
+  let baseWhere = {
+    role: ROLES.STUDENT,
+    isActive: true,
+  };
+
+  const andConditions = [];
+
+  // Group OR standard filters
+  if (groupCollegeCodes.length > 0 || groupUserIds.length > 0) {
+    // If groups are selected, users must either belong to the group's colleges, or be explicitly in the group's members
+    // BUT they also still need to respect standard filters if provided (like query, wing, etc.)
+    // However, usually if you select groups, you might want just the group members. 
+    // If collegeCode is ALSO selected manually, it's an additive or restrictive filter?
+    // Let's make it additive: user matches (manual college/wing/batch) OR (in groups)
+    // Wait, the prompt says "Allow administrators to combine Multiple reusable groups, Multiple colleges, Individual cadets".
+    // So it should be an OR across the primary selection criteria.
+    const selectionOr = [];
+    
+    // 1. Matched by manual college filter (if any)
+    if (collegeCode) {
+      selectionOr.push({ collegeCode });
+    }
+    
+    // 2. Matched by group colleges
+    if (groupCollegeCodes.length > 0) {
+      selectionOr.push({ collegeCode: { in: groupCollegeCodes } });
+    }
+    
+    // 3. Matched by group users
+    if (groupUserIds.length > 0) {
+      selectionOr.push({ id: { in: groupUserIds } });
+    }
+    
+    // If there was no manual collegeCode, but there's a wing/batch filter, how does that apply?
+    // It's safer to just do the selection OR first.
+    if (selectionOr.length > 0) {
+      andConditions.push({ OR: selectionOr });
+    }
+  } else if (collegeCode) {
+    andConditions.push({ collegeCode });
+  }
+
+  if (wing) andConditions.push({ wing });
+  if (batch) andConditions.push({ batch: { contains: batch, mode: 'insensitive' } });
+  
+  if (query) {
+    andConditions.push({
+      OR: [
+        { name: { contains: query, mode: 'insensitive' } },
+        { regimentalNumber: { contains: query, mode: 'insensitive' } }
       ]
-    },
+    });
+  }
+  
+  if (examId) {
+    andConditions.push({
+      assignments: {
+        none: {
+          examId: parseInt(examId)
+        }
+      }
+    });
+  }
+
+  if (andConditions.length > 0) {
+    baseWhere.AND = andConditions;
+  }
+
+  const { cacheGetJson, cacheSetJson } = require("../lib/cache");
+  const cacheKey = `cache:users:search:${JSON.stringify(filters)}:${currentUser?.collegeCode || 'ALL'}`;
+  const cached = await cacheGetJson(cacheKey);
+  if (cached) return cached;
+
+  const rows = await prisma.user.findMany({
+    where: baseWhere,
     select: safeUserSelect(),
-    take: 50
+    take: 5000 // Limit for preview, increased from 50 since we use it for bulk preview
   });
 
-  return rows.map(u => ({
-    ...sanitizeUser(u),
-    college: u.college?.name || u.collegeCode || 'N/A'
-  }));
+  const result = {
+    users: rows.map(u => ({
+      ...sanitizeUser(u),
+      college: u.college?.name || u.collegeCode || 'N/A'
+    })),
+    meta: {
+      groupDerivedColleges: groupCollegeCodes.length,
+      groupDerivedUsers: groupUserIds.length
+    }
+  };
+
+  await cacheSetJson(cacheKey, 60, result);
+  return result;
 }
 
 async function getFilters(currentUser) {
   let collegeWhere = {};
+  let cacheKey = "cache:filters:ALL";
+  
   if (currentUser?.role === ROLES.INSTRUCTOR) {
     if (currentUser.collegeCode) {
       collegeWhere = { collegeCode: currentUser.collegeCode };
+      cacheKey = `cache:filters:${currentUser.collegeCode}`;
     } else {
       const instructorRecord = await prisma.user.findUnique({ where: { id: currentUser.id } });
       if (instructorRecord?.collegeCode) {
         collegeWhere = { collegeCode: instructorRecord.collegeCode };
+        cacheKey = `cache:filters:${instructorRecord.collegeCode}`;
       }
     }
   }
+
+  const { cacheGetJson, cacheSetJson } = require("../lib/cache");
+  const cached = await cacheGetJson(cacheKey);
+  if (cached) return cached;
 
   const [wings, colleges, userBatches, masterBatches] = await Promise.all([
     prisma.user.findMany({ where: { role: ROLES.STUDENT, ...collegeWhere }, select: { wing: true }, distinct: ['wing'] }),
@@ -413,11 +503,14 @@ async function getFilters(currentUser) {
     ...masterBatches.map(b => b.name)
   ])).filter(Boolean).sort((a, b) => b.localeCompare(a));
 
-  return {
+  const result = {
     wings: wings.map(w => w.wing).filter(Boolean),
     colleges: colleges.map(c => c.college).filter(Boolean).sort((a, b) => a.name.localeCompare(b.name)),
     batches: allBatches
   };
+
+  await cacheSetJson(cacheKey, 300, result);
+  return result;
 }
 
 async function getUserById(idRaw) {

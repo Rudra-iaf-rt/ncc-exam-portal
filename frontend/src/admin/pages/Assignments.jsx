@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { adminApi } from '../../api';
-import { PageHeader } from '../components/Shared';
+import { PageHeader, Pagination, StatCard } from '../components/Shared';
 import { invalidateCachedResource } from '../../lib/resourceCache';
 import { useCachedFetch } from '../../hooks/useCachedFetch';
 import { 
@@ -10,20 +10,18 @@ import {
   Trash2, 
   Users as UsersIcon,
   UserCheck,
-  Building2,
   Calendar,
   Search,
-  Filter,
-  CheckCircle2,
   Clock
 } from 'lucide-react';
-
 import { useConfirm } from '../../contexts/ConfirmContext';
 
 export default function Assignments() {
   const confirm = useConfirm();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
+  const [page, setPage] = useState(1);
+  const limit = 20;
 
   const { data, loading } = useCachedFetch(
     'admin-assignments',
@@ -65,11 +63,19 @@ export default function Assignments() {
     a.exam.title.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
+  const totalItems = filteredAssignments.length;
+  const totalPages = Math.ceil(totalItems / limit) || 1;
+  const paginatedAssignments = filteredAssignments.slice((page - 1) * limit, page * limit);
+
+  useEffect(() => {
+    setPage(1);
+  }, [searchTerm]);
+
   return (
     <div>
       <PageHeader 
-        title="Assigned *Cadets*"
-        subtitle="Manage and track scheduled exams for cadets."
+        title="Exam *Assignments*"
+        subtitle="Manage and track authorized examinations for cadets."
         action={
           <div className="flex items-center gap-3">
             <div className="relative hidden sm:block">
@@ -95,61 +101,60 @@ export default function Assignments() {
 
       {/* Stats Quick View */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
-        <div className="bg-white border border-stone-deep p-5 rounded-md shadow-sm border-l-[4px] border-l-navy">
-          <div className="flex justify-between items-start mb-3">
-            <span className="font-mono text-[10px] tracking-[0.1em] uppercase text-ink-4 font-bold">Total Authorized</span>
-            <UsersIcon size={16} className="text-navy opacity-30" />
-          </div>
-          <div className="flex items-baseline gap-2">
-            <div className="font-display text-3xl font-medium text-navy">{assignments.length}</div>
-            <span className="text-[11px] text-ink-4 font-ui">Active Records</span>
-          </div>
+        <div className="transition-transform duration-200 hover:scale-[1.02]">
+          <StatCard 
+            label="Total Authorized" 
+            value={assignments.length} 
+            subtext="Active Records"
+            icon={<UsersIcon size={18} strokeWidth={1.5} />}
+            colorClass="text-navy"
+          />
         </div>
         
-        <div className="bg-white border border-stone-deep p-5 rounded-md shadow-sm border-l-[4px] border-l-olive">
-          <div className="flex justify-between items-start mb-3">
-            <span className="font-mono text-[10px] tracking-[0.1em] uppercase text-ink-4 font-bold">Scheduled Exams</span>
-            <ShieldCheck size={16} className="text-olive opacity-30" />
-          </div>
-          <div className="flex items-baseline gap-2">
-            <div className="font-display text-3xl font-medium text-olive">{exams.filter(e => e.status === 'LIVE').length}</div>
-            <span className="text-[11px] text-ink-4 font-ui">Active Exams</span>
-          </div>
+        <div className="transition-transform duration-200 hover:scale-[1.02]">
+          <StatCard 
+            label="Scheduled Exams" 
+            value={exams.filter(e => e.status === 'LIVE').length} 
+            subtext="Active Exams"
+            icon={<ShieldCheck size={18} strokeWidth={1.5} />}
+            colorClass="text-olive"
+          />
         </div>
 
-        <div className="bg-stone-wash/50 border border-stone-deep border-dashed p-5 rounded-md flex flex-col justify-center">
+        <div className="bg-stone-wash/50 border border-stone-deep border-dashed p-5 rounded-md flex flex-col justify-center transition-transform duration-200 hover:scale-[1.02]">
           <div className="text-[11px] text-ink-4 italic font-ui">
-            Need to deploy a new exam? 
+            Bulk schedule exams via the background queue.
           </div>
           <button 
             onClick={() => navigate('/admin/exams/schedule')}
             className="text-navy font-bold text-[12px] hover:underline mt-0.5 flex items-center gap-1"
           >
-            Access Scheduling Wizard →
+            Access Bulk Scheduler →
           </button>
         </div>
       </div>
 
       {/* Assignments Registry Table */}
-      <div className="bg-white border border-stone-deep rounded-md shadow-sm overflow-hidden">
+      <div className="bg-white border border-stone-deep rounded-md shadow-sm overflow-hidden mb-10">
         <div className="overflow-x-auto">
           <table className="w-full text-left border-collapse">
             <thead>
-              <tr className="bg-stone/50 border-b border-stone-deep font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3">
-                <th className="font-bold px-5 py-3.5">Cadet</th>
-                <th className="font-bold px-5 py-3.5">Wing</th>
-                <th className="font-bold px-5 py-3.5">Batch</th>
-                <th className="font-bold px-5 py-3.5">Authorized Exam</th>
-                <th className="font-bold px-5 py-3.5">Deployment Date</th>
-                <th className="font-bold px-5 py-3.5 text-right">Actions</th>
+              <tr className="bg-stone border-b border-stone-deep font-mono text-[11px] tracking-[0.1em] uppercase text-ink-4">
+                <th className="font-normal px-4 py-3 w-[80px]">ID</th>
+                <th className="font-normal px-4 py-3">Cadet</th>
+                <th className="font-normal px-4 py-3">Wing</th>
+                <th className="font-normal px-4 py-3">Batch</th>
+                <th className="font-normal px-4 py-3">Authorized Exam</th>
+                <th className="font-normal px-4 py-3">Deployment Date</th>
+                <th className="font-normal px-4 py-3 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="font-ui text-[13px] text-ink-2">
+            <tbody className="font-ui text-[13.5px] text-ink-2">
               {loading ? (
-                <tr><td colSpan="6" className="text-center py-16"><div className="animate-pulse text-ink-4 font-mono text-[12px]">Retrieving assignment records...</div></td></tr>
-              ) : filteredAssignments.length === 0 ? (
+                <tr><td colSpan="7" className="text-center py-16"><div className="animate-pulse text-ink-4 font-mono text-[12px]">Retrieving assignment records...</div></td></tr>
+              ) : paginatedAssignments.length === 0 ? (
                 <tr>
-                  <td colSpan="6" className="text-center py-16">
+                  <td colSpan="7" className="text-center py-16">
                     <div className="flex flex-col items-center gap-2 opacity-30">
                       <Search size={32} />
                       <div className="text-ink-3 font-medium">No exam assignments found.</div>
@@ -157,13 +162,14 @@ export default function Assignments() {
                   </td>
                 </tr>
               ) : (
-                filteredAssignments.map(item => (
-                  <tr key={item.id} className="border-b border-stone-mid hover:bg-stone-wash transition-all last:border-b-0">
-                    <td className="px-5 py-4">
-                      <div className="font-bold text-navy">{item.user.name}</div>
+                paginatedAssignments.map(item => (
+                  <tr key={item.id} className="border-b border-stone-mid hover:bg-stone-wash transition-colors last:border-b-0">
+                    <td className="px-4 py-3"><code className="font-mono text-[12px] bg-transparent p-0 text-ink-3">#{item.id.toString().padStart(3, '0')}</code></td>
+                    <td className="px-4 py-3">
+                      <div className="font-medium text-navy">{item.user.name}</div>
                       <div className="font-mono text-[10px] text-ink-4 mt-0.5 uppercase tracking-wide">{item.user.regimentalNumber}</div>
                     </td>
-                    <td className="px-5 py-4">
+                    <td className="px-4 py-3">
                       <span className={`text-[8px] px-2 py-0.5 rounded-sm font-black tracking-widest border uppercase ${
                         item.user.wing?.toUpperCase() === 'ARMY' ? 'bg-[#ef444410] text-[#b91c1c] border-[#b91c1c20]' :
                         item.user.wing?.toUpperCase() === 'NAVY' ? 'bg-[#3b82f610] text-[#1d4ed8] border-[#1d4ed820]' :
@@ -172,32 +178,31 @@ export default function Assignments() {
                         {item.user.wing || 'N/A'}
                       </span>
                     </td>
-                    <td className="px-5 py-4">
+                    <td className="px-4 py-3">
                       <div className="flex items-center gap-1.5 text-ink-4">
                         <Calendar size={12} className="opacity-40" />
                         <span className="font-medium">{item.user.batch || '-'}</span>
                       </div>
                     </td>
-                    <td className="px-5 py-4">
-                      <div className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-olive animate-pulse"></div>
-                        <div className="font-bold text-navy">{item.exam.title}</div>
+                    <td className="px-4 py-3">
+                      <div className="font-medium text-navy">{item.exam.title}</div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="text-ink-3 flex items-center gap-1.5">
+                        <Clock size={12} className="opacity-40" />
+                        {new Date(item.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </div>
                     </td>
-                    <td className="px-5 py-4">
-                      <div className="text-[11px] text-ink-4 font-mono flex items-center gap-1.5">
-                        <Clock size={11} className="opacity-30" />
-                        {new Date(item.createdAt).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })}
+                    <td className="px-4 py-3 text-right">
+                      <div className="flex gap-2 justify-end items-center">
+                        <button 
+                          className="w-8 h-8 rounded-md flex items-center justify-center text-crimson hover:bg-crimson-wash transition-colors disabled:opacity-50 disabled:cursor-not-allowed" 
+                          onClick={() => handleDelete(item.id)}
+                          title="Revoke Authorization"
+                        >
+                          <Trash2 size={16} strokeWidth={1.5} />
+                        </button>
                       </div>
-                    </td>
-                    <td className="px-5 py-4 text-right">
-                      <button 
-                        className="w-8 h-8 rounded-md flex items-center justify-center text-ink-4 hover:text-crimson hover:bg-crimson-wash transition-all border border-transparent hover:border-crimson/10" 
-                        onClick={() => handleDelete(item.id)}
-                        title="Revoke Authorization"
-                      >
-                        <Trash2 size={14} />
-                      </button>
                     </td>
                   </tr>
                 ))
@@ -205,6 +210,13 @@ export default function Assignments() {
             </tbody>
           </table>
         </div>
+        <Pagination 
+          currentPage={page} 
+          totalPages={totalPages} 
+          totalItems={totalItems}
+          onPageChange={setPage} 
+          loading={loading} 
+        />
       </div>
     </div>
   );

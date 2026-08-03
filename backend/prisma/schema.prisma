@@ -34,10 +34,15 @@ model User {
   refreshTokens         RefreshToken[]
   results               Result[]
   college               College?             @relation(fields: [collegeCode], references: [code])
+  candidateGroups       CandidateGroup[]     @relation("GroupCreator")
+  groupMemberships      GroupMember[]
 
   @@index([collegeCode])
   @@index([role, isActive])
   @@index([role, collegeCode])
+  @@index([name])
+  @@index([batch])
+  @@index([wing])
 }
 
 
@@ -57,6 +62,7 @@ model College {
   updatedAt       DateTime   @updatedAt
   materials       Material[]
   users           User[]
+  candidateGroups GroupCollege[]
 
   @@index([isActive])
   @@index([code])
@@ -293,4 +299,53 @@ enum AccessStatus {
   RESTRICTED
   PENDING
   ERROR
+}
+
+model CandidateGroup {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  description String?
+  isActive    Boolean  @default(true)
+  createdById Int
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  createdBy   User     @relation("GroupCreator", fields: [createdById], references: [id])
+  
+  // For Static Groups (cadets)
+  members     GroupMember[]
+  
+  // For Dynamic Groups (colleges)
+  colleges    GroupCollege[]
+
+  @@index([createdById])
+  @@index([isActive])
+}
+
+model GroupMember {
+  id        Int      @id @default(autoincrement())
+  groupId   Int
+  userId    Int
+  createdAt DateTime @default(now())
+
+  group     CandidateGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user      User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+  @@index([groupId])
+  @@index([userId])
+}
+
+model GroupCollege {
+  id          Int      @id @default(autoincrement())
+  groupId     Int
+  collegeCode String
+  createdAt   DateTime @default(now())
+
+  group       CandidateGroup @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  college     College        @relation(fields: [collegeCode], references: [code], onDelete: Cascade)
+
+  @@unique([groupId, collegeCode])
+  @@index([groupId])
+  @@index([collegeCode])
 }

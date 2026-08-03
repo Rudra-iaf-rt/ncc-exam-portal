@@ -29,6 +29,7 @@ import Assignments from './admin/pages/Assignments'
 import ScheduleExam from './admin/pages/ScheduleExam'
 import MonitorWall from './admin/pages/MonitorWall'
 import ExamAnalytics from './admin/pages/ExamAnalytics'
+import CandidateGroups from './admin/pages/CandidateGroups'
 import AuditLogs from './admin/pages/AuditLogs'
 import ForgotPassword from './auth/ForgotPassword'
 import ResetPassword from './auth/ResetPassword'
@@ -95,6 +96,7 @@ function App() {
             <Route path="results" element={<ResultsBoard />} />
             <Route path="results/review/:examId/:studentId" element={<AdminExamReview />} />
             <Route path="users" element={<UserManagement />} />
+            <Route path="groups" element={<CandidateGroups />} />
             <Route path="settings/password" element={<ChangePassword />} />
             
             {/* Admin-only */}

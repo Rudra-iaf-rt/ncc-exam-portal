@@ -5,6 +5,7 @@ const { authenticate } = require("../middleware/auth");
 const { requireAdmin, requireStaff } = require("../middleware/roles");
 const adminController = require("../controllers/admin.controller");
 const usersController = require("../controllers/users.controller");
+const groupController = require("../controllers/group.controller");
 const { prisma } = require("../lib/prisma");
 const auditLogService = require("../services/audit-log.service");
 
@@ -41,6 +42,14 @@ router.get("/exams/:id/analytics", authenticate, requireStaff, adminController.e
 
 // --- Results & Overrides ---
 router.patch("/results/:id", authenticate, requireAdmin, adminController.overrideResult);
+
+// --- Candidate Groups ---
+router.get("/groups", authenticate, requireStaff, groupController.listGroups);
+router.post("/groups", authenticate, requireAdmin, groupController.createGroup);
+router.get("/groups/:id", authenticate, requireStaff, groupController.getGroup);
+router.put("/groups/:id", authenticate, requireAdmin, groupController.updateGroup);
+router.delete("/groups/:id", authenticate, requireAdmin, groupController.deleteGroup);
+
 
 // --- Audit Logs ---
 router.get("/logs", authenticate, requireAdmin, async (req, res) => {

@@ -34,6 +34,14 @@ export const adminApi = {
   getExams: () => apiClient.get('/admin/exams'),
   updateResult: (id, data) => apiClient.patch(`/admin/results/${id}`, data),
   searchUsers: (params) => apiClient.get('/admin/users/search', { params }),
+
+  // Groups
+  getGroups: () => apiClient.get('/admin/groups'),
+  createGroup: (data) => apiClient.post('/admin/groups', data),
+  getGroup: (id) => apiClient.get(`/admin/groups/${id}`),
+  updateGroup: (id, data) => apiClient.put(`/admin/groups/${id}`, data),
+  deleteGroup: (id) => apiClient.delete(`/admin/groups/${id}`),
+
   getFilters: () => apiClient.get('/admin/users/filters'),
   
   getLiveMonitor: (examId) => apiClient.get(`/admin/exams/${examId}/live-monitor`),
