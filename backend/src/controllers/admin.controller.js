@@ -96,10 +96,34 @@ async function createAssignments(req, res) {
       return res.status(403).json({ error: "Access denied. Admin or authorized instructor privileges required." });
     }
     const { examId, wing, collegeCode, batch, userIds } = req.body;
-    const result = await adminService.bulkAssign(examId, { wing, collegeCode, batch }, userIds, req.user);
-    // Bust cached assignment list so the next GET reflects the new assignments
-    await cacheDelNamespace('assignments').catch(() => {});
-    res.json(result);
+    
+    // Resolve the target users who will be assigned
+    const { targetUserIds, examTitle } = await adminService.resolveAssignmentTargets(
+      examId, 
+      { wing, collegeCode, batch }, 
+      userIds, 
+      req.user
+    );
+
+    const { assignmentQueue } = require("../lib/queue");
+    
+    const job = await assignmentQueue.add("bulk_assign", {
+      examId,
+      targetUserIds,
+      adminId: req.user.id,
+      examTitle
+    }, {
+      removeOnComplete: true,
+      removeOnFail: false
+    });
+
+    // We don't bust the cache synchronously since it happens in the background.
+    res.status(202).json({ 
+      success: true, 
+      message: "Assignments are being processed in the background.",
+      jobId: job.id,
+      count: targetUserIds.length 
+    });
   } catch (error) {
     const status = error.status || 500;
     res.status(status).json({ error: error.message || "Failed to create assignments" });

@@ -277,22 +277,25 @@ async function importUsers(fileBuffer, originalName, adminId) {
   return { success: true, count: 0, errors };
 }
 
-async function bulkAssign(examId, filters, userIds, currentUser) {
+async function resolveAssignmentTargets(examId, filters, userIds, currentUser) {
   if (!examId) {
     throw new HttpError(400, "Exam ID is required");
   }
 
   const examExists = await prisma.exam.findUnique({
     where: { id: parseInt(examId) },
-    select: { id: true }
+    select: { id: true, status: true, title: true }
   });
 
   if (!examExists) {
     throw new HttpError(404, `Exam with ID ${examId} not found`);
   }
 
+  if (examExists.status === 'COMPLETED' || examExists.status === 'ARCHIVED') {
+    throw new HttpError(400, `Cannot schedule exam with status ${examExists.status}`);
+  }
+
   let targetUserIds = [];
-  const adminId = currentUser.id;
   let enforcedCollegeCode = undefined;
 
   if (currentUser?.role === "INSTRUCTOR") {
@@ -314,7 +317,7 @@ async function bulkAssign(examId, filters, userIds, currentUser) {
     const validUsers = await prisma.user.findMany({ where, select: { id: true } });
     targetUserIds = validUsers.map(u => u.id);
   } else {
-    const { wing, collegeCode, batch } = filters;
+    const { wing, collegeCode, batch } = filters || {};
     const users = await prisma.user.findMany({
       where: {
         role: "STUDENT",
@@ -332,20 +335,47 @@ async function bulkAssign(examId, filters, userIds, currentUser) {
     throw new HttpError(404, "No eligible cadets found");
   }
 
-  const assignmentsData = targetUserIds.map(uid => ({
-    userId: uid,
-    examId: parseInt(examId)
-  }));
+  return { targetUserIds, examTitle: examExists.title };
+}
 
-  const created = await prisma.examAssignment.createMany({
-    data: assignmentsData,
-    skipDuplicates: true
-  });
+async function processBulkAssignJob(examId, targetUserIds, adminId, examTitle) {
+  const CHUNK_SIZE = 500;
+  let totalAssigned = 0;
 
-  logger.audit('EXAM_BULK_ASSIGN', { examId, count: created.count }, adminId);
+  for (let i = 0; i < targetUserIds.length; i += CHUNK_SIZE) {
+    const chunk = targetUserIds.slice(i, i + CHUNK_SIZE);
+    
+    // Create Assignments
+    const assignmentsData = chunk.map(uid => ({
+      userId: uid,
+      examId: parseInt(examId)
+    }));
+
+    const created = await prisma.examAssignment.createMany({
+      data: assignmentsData,
+      skipDuplicates: true
+    });
+    
+    totalAssigned += created.count;
+
+    // Create Notifications
+    if (created.count > 0) {
+      const notificationsData = chunk.map(uid => ({
+        userId: uid,
+        sentById: adminId,
+        message: `You have been scheduled for exam: ${examTitle}`
+      }));
+      await prisma.notification.createMany({
+        data: notificationsData,
+        skipDuplicates: true
+      });
+    }
+  }
+
+  logger.audit('EXAM_BULK_ASSIGN', { examId, count: totalAssigned }, adminId);
   const { cacheDelNamespace } = require('../lib/cache');
   await cacheDelNamespace('assignments').catch(() => {});
-  return { success: true, count: created.count };
+  return { success: true, count: totalAssigned };
 }
 
 async function overrideResult(resultId, score, reason, adminId) {
@@ -375,6 +405,7 @@ async function overrideResult(resultId, score, reason, adminId) {
 module.exports = {
   getStats,
   importUsers,
-  bulkAssign,
+  resolveAssignmentTargets,
+  processBulkAssignJob,
   overrideResult
 };

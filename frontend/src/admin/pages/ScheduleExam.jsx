@@ -113,9 +113,10 @@ export default function ScheduleExam() {
       const { data } = await adminApi.searchUsers({
         ...form,
         collegeCode: form.college,
-        examId: form.examId
+        examId: form.examId,
+        limit: 5000
       });
-      setPreviewResults(data);
+      setPreviewResults(data.users || data);
       setPreviewPage(1);
       // Removed automatic overwrite of selected users to preserve manual selections across searches
     } catch (err) {
@@ -154,9 +155,10 @@ export default function ScheduleExam() {
         examId: form.examId,
         userIds: Array.from(selectedUsers.keys())
       };
-      const { data } = await adminApi.createAssignments(payload);
-      invalidateCachedResource('admin-assignments');
-      toast.success(`Successfully scheduled exams for ${data.count || selectedUsers.size} cadets.`);
+      await adminApi.createAssignments(payload);
+      // We don't invalidate cache here immediately since it's background processed
+      // However, it's still good practice or we can just redirect
+      toast.success("Exam scheduling has been queued. Cadets will be notified shortly.");
       goBack('/admin/assignments');
     } catch (err) {
       toast.error(err.message || "Failed to finalize exam schedule.");

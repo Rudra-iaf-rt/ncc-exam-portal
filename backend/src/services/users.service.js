@@ -193,7 +193,7 @@ async function listUsers(query = {}, currentUser = null) {
 
   // Pagination
   const page = Math.max(1, parseInt(query.page || "1", 10));
-  const limit = Math.min(100, Math.max(1, parseInt(query.limit || "20", 10)));
+  const limit = Math.min(10000, Math.max(1, parseInt(query.limit || "20", 10)));
   const skip = (page - 1) * limit;
 
   const [rows, total] = await Promise.all([
