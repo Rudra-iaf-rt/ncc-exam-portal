@@ -76,15 +76,13 @@ async function cacheSetJson(key, ttlSec, value, namespace = null) {
 async function cacheDel(keys) {
   if (!keys || keys.length === 0) return;
   try {
-    await Promise.all(
-      keys.map((key) =>
-        withTimeout(redis.del(key), null).catch((err) => {
-          logger.warn({ action: "cache_del_error", message: err.message });
-        })
-      )
-    );
-  } catch (_err) {
-    // Best-effort invalidation only.
+    // Send all DEL keys in a single Redis command — Redis DEL accepts multiple
+    // keys natively. This is O(1) round trips regardless of how many keys are
+    // passed, vs the previous O(N) loop which fired one request per key.
+    // Critical for bulk-assign invalidation (could be thousands of students).
+    await withTimeout(redis.del(...keys), null);
+  } catch (err) {
+    logger.warn({ action: "cache_del_error", message: err.message });
   }
 }
 
@@ -117,10 +115,13 @@ async function cacheGetOrFetch(key, ttlSec, fetchFn, namespace = null) {
 
   // 3. This request wins the race — start the fetch and register the shared Promise.
   const promise = fetchFn()
-    .then(async (result) => {
+    .then((result) => {
       _pendingFetches.delete(key);
-      // Write-through: best-effort, never blocks the response.
-      await cacheSetJson(key, ttlSec, result, namespace);
+      // Fire-and-forget: the write must NOT be awaited here.
+      // All callers who joined this Promise are waiting for the result —
+      // making them block on a Redis write (400-600ms RTT from India) would
+      // defeat the purpose of the stampede guard. Best-effort only.
+      cacheSetJson(key, ttlSec, result, namespace);
       return result;
     })
     .catch((err) => {

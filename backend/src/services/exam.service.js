@@ -156,122 +156,130 @@ async function listExamsCatalog(userId, role, query = {}) {
   //  per slice per process. The other 499 join the same in-flight Promise.
   // ─────────────────────────────────────────────────────────────────────────
   if (isStudent) {
-    // Slice 1 — global catalog (shared across all students)
-    const globalCatalogKey = `exams:catalog:global:live:p${page}:l${limit}`;
-    const globalCatalog = await cacheGetOrFetch(
-      globalCatalogKey,
-      300, // 5 min, busted by cacheDelNamespace("exams:catalog") on any exam write
-      async () => {
-        const allLiveExams = await prisma.exam.findMany({
-          where: { status: "LIVE" },
-          orderBy: { id: "desc" },
-          include: {
-            _count: { select: { questions: true } },
-            creator: {
-              select: {
-                id: true,
-                name: true,
-                role: true,
-                collegeCode: true,
-                college: { select: { name: true } },
+    // Run all 4 slices in parallel — none depends on another.
+    // On a cold cache this cuts total wait time from sum-of-4 to max-of-4.
+    const [
+      globalCatalog,
+      assignedIds,
+      resultRows,
+      attemptRows,
+    ] = await Promise.all([
+      // Slice 1 — global catalog (shared across ALL students)
+      // Key has no page/limit because the query fetches ALL live exams;
+      // pagination is applied in-memory after filtering by assignment.
+      cacheGetOrFetch(
+        "exams:catalog:global:live",
+        300, // 5 min, busted by cacheDelNamespace("exams:catalog") on any exam write
+        async () => {
+          const allLiveExams = await prisma.exam.findMany({
+            where: { status: "LIVE" },
+            orderBy: { id: "desc" },
+            include: {
+              _count: { select: { questions: true } },
+              creator: {
+                select: {
+                  id: true,
+                  name: true,
+                  role: true,
+                  collegeCode: true,
+                  college: { select: { name: true } },
+                },
               },
             },
-          },
-        });
-
-        const allExamIds = allLiveExams.map((e) => e.id);
-
-        // Assigned-colleges raw SQL — globally cached with the exam rows.
-        const assignedCollegesRaw = allExamIds.length > 0
-          ? await prisma.$queryRaw`
-              SELECT DISTINCT ea."examId",
-                COALESCE(c."name", u."collegeCode", 'N/A') as "collegeName"
-              FROM "ExamAssignment" ea
-              JOIN "User" u ON ea."userId" = u.id
-              LEFT JOIN "College" c ON u."collegeCode" = c."code"
-              WHERE ea."examId" = ANY(${allExamIds}::int[])
-            `
-          : [];
-
-        const assignedCollegesMap = new Map();
-        assignedCollegesRaw.forEach((row) => {
-          if (!assignedCollegesMap.has(row.examId)) assignedCollegesMap.set(row.examId, []);
-          assignedCollegesMap.get(row.examId).push({
-            name: row.collegeName,
-            code: generateAcronym(row.collegeName),
           });
-        });
 
-        // Return a plain array of exam objects (no user-specific fields).
-        return allLiveExams.map((e) => ({
-          id: e.id,
-          title: e.title,
-          duration: e.duration,
-          status: e.status,
-          published: true,
-          publishedAt: e.publishedAt,
-          startAt: e.startAt,
-          endAt: e.endAt,
-          createdAt: e.createdAt,
-          questionCount: e._count.questions,
-          createdBy: e.createdBy,
-          resultsPublished: e.resultsPublished,
-          negativeMarking: e.negativeMarking,
-          negativeMarks: e.negativeMarks,
-          assignedColleges: assignedCollegesMap.get(e.id) || [],
-          creator: e.creator
-            ? {
-                id: e.creator.id,
-                name: e.creator.name,
-                role: e.creator.role,
-                college: e.creator.college?.name || e.creator.collegeCode || "N/A",
-              }
-            : null,
-        }));
-      },
-      "exams:catalog" // namespace — busted by cacheDelNamespace("exams:catalog")
-    );
+          const allExamIds = allLiveExams.map((e) => e.id);
 
-    // Slice 2 — this student's assigned exam IDs (fast index scan)
-    const assignedIdsKey = `student:assignments:${userId}`;
-    const assignedIds = await cacheGetOrFetch(
-      assignedIdsKey,
-      60, // 60 s — short enough that assignment changes are visible quickly
-      () =>
-        prisma.examAssignment
-          .findMany({ where: { userId }, select: { examId: true } })
-          .then((rows) => rows.map((r) => r.examId)),
-      "student:assignments"
-    );
-    const assignedSet = new Set(assignedIds);
+          // Assigned-colleges raw SQL — globally cached with the exam rows.
+          const assignedCollegesRaw = allExamIds.length > 0
+            ? await prisma.$queryRaw`
+                SELECT DISTINCT ea."examId",
+                  COALESCE(c."name", u."collegeCode", 'N/A') as "collegeName"
+                FROM "ExamAssignment" ea
+                JOIN "User" u ON ea."userId" = u.id
+                LEFT JOIN "College" c ON u."collegeCode" = c."code"
+                WHERE ea."examId" = ANY(${allExamIds}::int[])
+              `
+            : [];
 
-    // Slice 3 — this student's completed results (examId → score)
-    const resultsKey = `student:results:${userId}`;
-    const resultRows = await cacheGetOrFetch(
-      resultsKey,
-      60,
-      () =>
-        prisma.result.findMany({
-          where: { studentId: userId },
-          select: { examId: true, score: true },
-        }),
-      "student:results"
-    );
+          const assignedCollegesMap = new Map();
+          assignedCollegesRaw.forEach((row) => {
+            if (!assignedCollegesMap.has(row.examId)) assignedCollegesMap.set(row.examId, []);
+            assignedCollegesMap.get(row.examId).push({
+              name: row.collegeName,
+              code: generateAcronym(row.collegeName),
+            });
+          });
+
+          // Return a plain array — no user-specific fields.
+          return allLiveExams.map((e) => ({
+            id: e.id,
+            title: e.title,
+            duration: e.duration,
+            status: e.status,
+            published: true,
+            publishedAt: e.publishedAt,
+            startAt: e.startAt,
+            endAt: e.endAt,
+            createdAt: e.createdAt,
+            questionCount: e._count.questions,
+            createdBy: e.createdBy,
+            resultsPublished: e.resultsPublished,
+            negativeMarking: e.negativeMarking,
+            negativeMarks: e.negativeMarks,
+            assignedColleges: assignedCollegesMap.get(e.id) || [],
+            creator: e.creator
+              ? {
+                  id: e.creator.id,
+                  name: e.creator.name,
+                  role: e.creator.role,
+                  college: e.creator.college?.name || e.creator.collegeCode || "N/A",
+                }
+              : null,
+          }));
+        },
+        "exams:catalog"
+      ),
+
+      // Slice 2 — this student's assigned exam IDs (fast index scan)
+      cacheGetOrFetch(
+        `student:assignments:${userId}`,
+        60,
+        () =>
+          prisma.examAssignment
+            .findMany({ where: { userId }, select: { examId: true } })
+            .then((rows) => rows.map((r) => r.examId)),
+        "student:assignments"
+      ),
+
+      // Slice 3 — this student's completed results (examId → score)
+      cacheGetOrFetch(
+        `student:results:${userId}`,
+        60,
+        () =>
+          prisma.result.findMany({
+            where: { studentId: userId },
+            select: { examId: true, score: true },
+          }),
+        "student:results"
+      ),
+
+      // Slice 4 — this student's attempt statuses (examId → attempt)
+      cacheGetOrFetch(
+        `student:attempts:${userId}`,
+        30,
+        () =>
+          prisma.attempt.findMany({
+            where: { studentId: userId },
+            select: { examId: true, status: true, expiresAt: true },
+          }),
+        "student:attempts"
+      ),
+    ]);
+
+    const assignedSet  = new Set(assignedIds);
     const completedMap = new Map(resultRows.map((r) => [r.examId, r.score]));
-
-    // Slice 4 — this student's attempt statuses (examId → attempt)
-    const attemptsKey = `student:attempts:${userId}`;
-    const attemptRows = await cacheGetOrFetch(
-      attemptsKey,
-      30,
-      () =>
-        prisma.attempt.findMany({
-          where: { studentId: userId },
-          select: { examId: true, status: true, expiresAt: true },
-        }),
-      "student:attempts"
-    );
-    const attemptMap = new Map(attemptRows.map((a) => [a.examId, a]));
+    const attemptMap   = new Map(attemptRows.map((a) => [a.examId, a]));
 
     // ── In-memory merge ────────────────────────────────────────────────────
     // Filter global catalog to only this student's assigned exams, then enrich
