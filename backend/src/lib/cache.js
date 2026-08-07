@@ -8,6 +8,13 @@ const { getPerfContext } = require("./perf-context");
 // timing out on nearly every GET, treating all cache hits as misses and hitting the DB.
 const CACHE_TIMEOUT_MS = Number(process.env.CACHE_TIMEOUT_MS || 2000);
 
+// In-process deduplication map — prevents thundering herd / cache stampede.
+// When the cache misses and N concurrent requests all want the same key, only
+// ONE DB fetch fires; all others join the same Promise. Works correctly on
+// Render free tier (single process). On multi-instance it doesn't cross-process
+// coalesce, but that is safe — just means at most one fetch per instance.
+const _pendingFetches = new Map();
+
 async function withTimeout(promise, fallback = null) {
   let timeoutId;
   const timeoutPromise = new Promise((resolve) => {
@@ -16,7 +23,7 @@ async function withTimeout(promise, fallback = null) {
 
   if (promise && typeof promise.catch === "function") {
     promise.catch((err) => {
-      console.warn("[Redis Cache Background Error]", err.message);
+      logger.warn({ action: "cache_timeout_error", message: err.message });
     });
   }
 
@@ -50,7 +57,7 @@ async function cacheGetJson(key) {
     if (!raw) return null;
     return JSON.parse(raw);
   } catch (err) {
-    console.error("[Redis] GET error", err);
+    logger.warn({ action: "cache_get_error", message: err.message });
     return null;
   }
 }
@@ -72,13 +79,57 @@ async function cacheDel(keys) {
     await Promise.all(
       keys.map((key) =>
         withTimeout(redis.del(key), null).catch((err) => {
-          console.error("[Redis Cache Del Background Failure]", err.message);
+          logger.warn({ action: "cache_del_error", message: err.message });
         })
       )
     );
   } catch (_err) {
     // Best-effort invalidation only.
   }
+}
+
+/**
+ * cacheGetOrFetch — cache-aside with in-process stampede prevention.
+ *
+ * Usage:
+ *   const data = await cacheGetOrFetch(
+ *     'some:key',
+ *     300,                // TTL seconds
+ *     () => expensiveDbQuery(),
+ *     'namespace'         // optional, for cacheDelNamespace support
+ *   );
+ *
+ * Guarantees:
+ * - If cache HIT  → returns cached value immediately (no DB touch).
+ * - If cache MISS and NO in-flight fetch → runs fetchFn(), caches result, returns it.
+ * - If cache MISS and EXISTING in-flight fetch → joins the existing Promise (zero extra DB queries).
+ * - On fetchFn() error → clears the pending entry so the next request retries clean.
+ */
+async function cacheGetOrFetch(key, ttlSec, fetchFn, namespace = null) {
+  // 1. Try cache first.
+  const cached = await cacheGetJson(key);
+  if (cached !== null) return cached;
+
+  // 2. If another request is already fetching this key, join it (stampede guard).
+  if (_pendingFetches.has(key)) {
+    return _pendingFetches.get(key);
+  }
+
+  // 3. This request wins the race — start the fetch and register the shared Promise.
+  const promise = fetchFn()
+    .then(async (result) => {
+      _pendingFetches.delete(key);
+      // Write-through: best-effort, never blocks the response.
+      await cacheSetJson(key, ttlSec, result, namespace);
+      return result;
+    })
+    .catch((err) => {
+      _pendingFetches.delete(key);
+      throw err;
+    });
+
+  _pendingFetches.set(key, promise);
+  return promise;
 }
 
 async function cacheDelNamespace(namespace) {
@@ -138,6 +189,7 @@ async function incrementCacheVersion(namespace) {
 module.exports = {
   cacheGetJson,
   cacheSetJson,
+  cacheGetOrFetch,
   cacheDel,
   cacheDelNamespace,
   cacheDelPattern,

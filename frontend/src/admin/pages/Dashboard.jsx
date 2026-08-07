@@ -28,16 +28,14 @@ export default function Dashboard() {
   const { data, loading } = useCachedFetch(
     cacheKey,
     async () => {
-      const response = await adminApi.getStats();
-      let leaderboard = [];
-      try {
-        if (user?.collegeCode) {
-          const lbRes = await leaderboardApi.getUnitLeaderboard(user.collegeCode);
-          leaderboard = lbRes?.data || [];
-        }
-      } catch (e) {
-        console.error("Failed to fetch leaderboard", e);
-      }
+      const [statsRes, lbRes] = await Promise.allSettled([
+        adminApi.getStats(),
+        user?.collegeCode ? leaderboardApi.getUnitLeaderboard(user.collegeCode) : Promise.resolve({ data: [] })
+      ]);
+
+      const response = statsRes.status === 'fulfilled' ? statsRes.value : null;
+      const leaderboard = lbRes.status === 'fulfilled' ? (lbRes.value?.data || []) : [];
+
       return {
         ...(response?.data || {
           totalStudents: 0, activeExams: 0, totalExams: 0, activeConnections: 0, pendingActions: 0,

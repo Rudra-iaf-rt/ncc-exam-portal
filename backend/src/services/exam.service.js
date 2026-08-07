@@ -1,6 +1,6 @@
 const { prisma } = require("../lib/prisma");
 const { redis } = require("../lib/redis");
-const { cacheGetJson, cacheSetJson, cacheDel, cacheDelPattern, cacheDelNamespace, getCacheVersion, incrementCacheVersion, withTimeout } = require("../lib/cache");
+const { cacheGetJson, cacheSetJson, cacheGetOrFetch, cacheDel, cacheDelPattern, cacheDelNamespace, getCacheVersion, incrementCacheVersion, withTimeout } = require("../lib/cache");
 const { HttpError } = require("../utils/http-error");
 const { features } = require("../config/features");
 const {
@@ -105,168 +105,383 @@ async function createExamFromExcel(creatorUserId, { title, duration, negativeMar
   return createExam(creatorUserId, { title, duration, negativeMarking, negativeMarks, questions });
 }
 
+// generateAcronym — produces a short uppercase code from a college name.
+// e.g. "Government Degree College" → "GDC"
+// Hoisted to module scope so all three catalog paths (STUDENT, INSTRUCTOR, ADMIN) share it.
+function generateAcronym(name) {
+  if (!name || name === 'N/A') return 'N/A';
+  const ignoreWords = ['of', 'and', '&', 'the', 'for', 'in', 'at', 'college', 'degree', 'autonomous'];
+  const words = name.split(/[\s,()-]+/);
+  let acronym = '';
+  for (const word of words) {
+    if (!word) continue;
+    if (ignoreWords.includes(word.toLowerCase())) continue;
+    if (word === word.toUpperCase() && word.length >= 2 && /[A-Z]/.test(word)) {
+      acronym += word;
+    } else {
+      const match = word.match(/[a-zA-Z0-9]/);
+      if (match) acronym += match[0].toUpperCase();
+    }
+  }
+  return acronym.length >= 2 ? acronym : name.substring(0, 4).toUpperCase();
+}
+
 async function listExamsCatalog(userId, role, query = {}) {
   const isStudent = role === "STUDENT";
   const page = Math.max(1, parseInt(query.page || "1", 10));
   const limit = Math.min(100, Math.max(1, parseInt(query.limit || "20", 10)));
   const skip = (page - 1) * limit;
 
-  // Direct cache key — no version-counter RTTs.
-  // Invalidation: cacheDelNamespace("exams:catalog") on any exam write.
-  // Previously used getCacheVersion() × 2 which added ~550ms of Redis RTT overhead
-  // on EVERY request before even checking the cache.
-  const cacheKey = `exams:catalog:${role}:${userId}:p${page}:l${limit}`;
-  const cached = await cacheGetJson(cacheKey);
-  if (cached) return cached;
-
-  let where = {};
+  // ─────────────────────────────────────────────────────────────────────────
+  // STUDENT PATH  —  decoupled into 4 independently-cached slices:
+  //
+  //  1. Global exam catalog  (shared by ALL students, key = exams:catalog:global:live)
+  //     Heavy query: exam rows + creator join + college join + question count agg
+  //     + assigned-colleges raw SQL. Cached 5 min. Busted on any exam mutation.
+  //
+  //  2. Student assignment IDs  (per-user, key = student:assignments:{userId})
+  //     SELECT examId FROM ExamAssignment WHERE userId = ?  — single index scan.
+  //     Cached 60 s. Busted when admin changes assignments.
+  //
+  //  3. Student results (completed flag + score)  (per-user)
+  //     SELECT examId, score FROM Result WHERE studentId = ?  — index scan.
+  //     Cached 60 s. Busted on exam submit / score recalculate.
+  //
+  //  4. Student attempt statuses  (per-user)
+  //     SELECT examId, status, expiresAt FROM Attempt WHERE studentId = ?  — index scan.
+  //     Cached 30 s. Busted on attempt start / submit / timeout.
+  //
+  //  All four use cacheGetOrFetch() which adds in-process stampede prevention:
+  //  if 500 cadets all hit a cold cache simultaneously, only 1 DB query fires
+  //  per slice per process. The other 499 join the same in-flight Promise.
+  // ─────────────────────────────────────────────────────────────────────────
   if (isStudent) {
-    where = {
-      status: "LIVE",
-      assignments: {
-        some: { userId: userId },
-      },
-    };
-  } else if (role === "INSTRUCTOR") {
-    const instructor = await prisma.user.findUnique({ where: { id: userId }, select: { collegeCode: true } });
-    if (instructor?.collegeCode) {
-      where.OR = [
-        { creator: { collegeCode: instructor.collegeCode } },
-        { assignments: { some: { user: { collegeCode: instructor.collegeCode } } } }
-      ];
-    } else {
-      where.id = -1; // Force no results
-    }
-  }
+    // Slice 1 — global catalog (shared across all students)
+    const globalCatalogKey = `exams:catalog:global:live:p${page}:l${limit}`;
+    const globalCatalog = await cacheGetOrFetch(
+      globalCatalogKey,
+      300, // 5 min, busted by cacheDelNamespace("exams:catalog") on any exam write
+      async () => {
+        const allLiveExams = await prisma.exam.findMany({
+          where: { status: "LIVE" },
+          orderBy: { id: "desc" },
+          include: {
+            _count: { select: { questions: true } },
+            creator: {
+              select: {
+                id: true,
+                name: true,
+                role: true,
+                collegeCode: true,
+                college: { select: { name: true } },
+              },
+            },
+          },
+        });
 
-  const [exams, total, completedResults, attempts] = await Promise.all([
-    prisma.exam.findMany({
-      where,
-      orderBy: { id: "desc" },
-      include: {
-        _count: { select: { questions: true } },
-        creator: { 
-          select: { 
-            id: true, 
-            name: true, 
-            role: true,
-            collegeCode: true,
-            college: { select: { name: true } }
-          } 
-        },
+        const allExamIds = allLiveExams.map((e) => e.id);
+
+        // Assigned-colleges raw SQL — globally cached with the exam rows.
+        const assignedCollegesRaw = allExamIds.length > 0
+          ? await prisma.$queryRaw`
+              SELECT DISTINCT ea."examId",
+                COALESCE(c."name", u."collegeCode", 'N/A') as "collegeName"
+              FROM "ExamAssignment" ea
+              JOIN "User" u ON ea."userId" = u.id
+              LEFT JOIN "College" c ON u."collegeCode" = c."code"
+              WHERE ea."examId" = ANY(${allExamIds}::int[])
+            `
+          : [];
+
+        const assignedCollegesMap = new Map();
+        assignedCollegesRaw.forEach((row) => {
+          if (!assignedCollegesMap.has(row.examId)) assignedCollegesMap.set(row.examId, []);
+          assignedCollegesMap.get(row.examId).push({
+            name: row.collegeName,
+            code: generateAcronym(row.collegeName),
+          });
+        });
+
+        // Return a plain array of exam objects (no user-specific fields).
+        return allLiveExams.map((e) => ({
+          id: e.id,
+          title: e.title,
+          duration: e.duration,
+          status: e.status,
+          published: true,
+          publishedAt: e.publishedAt,
+          startAt: e.startAt,
+          endAt: e.endAt,
+          createdAt: e.createdAt,
+          questionCount: e._count.questions,
+          createdBy: e.createdBy,
+          resultsPublished: e.resultsPublished,
+          negativeMarking: e.negativeMarking,
+          negativeMarks: e.negativeMarks,
+          assignedColleges: assignedCollegesMap.get(e.id) || [],
+          creator: e.creator
+            ? {
+                id: e.creator.id,
+                name: e.creator.name,
+                role: e.creator.role,
+                college: e.creator.college?.name || e.creator.collegeCode || "N/A",
+              }
+            : null,
+        }));
       },
-      skip,
-      take: limit,
-    }),
-    prisma.exam.count({ where }),
-    isStudent
-      ? prisma.result.findMany({
+      "exams:catalog" // namespace — busted by cacheDelNamespace("exams:catalog")
+    );
+
+    // Slice 2 — this student's assigned exam IDs (fast index scan)
+    const assignedIdsKey = `student:assignments:${userId}`;
+    const assignedIds = await cacheGetOrFetch(
+      assignedIdsKey,
+      60, // 60 s — short enough that assignment changes are visible quickly
+      () =>
+        prisma.examAssignment
+          .findMany({ where: { userId }, select: { examId: true } })
+          .then((rows) => rows.map((r) => r.examId)),
+      "student:assignments"
+    );
+    const assignedSet = new Set(assignedIds);
+
+    // Slice 3 — this student's completed results (examId → score)
+    const resultsKey = `student:results:${userId}`;
+    const resultRows = await cacheGetOrFetch(
+      resultsKey,
+      60,
+      () =>
+        prisma.result.findMany({
           where: { studentId: userId },
           select: { examId: true, score: true },
-        })
-      : Promise.resolve([]),
-    isStudent
-      ? prisma.attempt.findMany({
+        }),
+      "student:results"
+    );
+    const completedMap = new Map(resultRows.map((r) => [r.examId, r.score]));
+
+    // Slice 4 — this student's attempt statuses (examId → attempt)
+    const attemptsKey = `student:attempts:${userId}`;
+    const attemptRows = await cacheGetOrFetch(
+      attemptsKey,
+      30,
+      () =>
+        prisma.attempt.findMany({
           where: { studentId: userId },
           select: { examId: true, status: true, expiresAt: true },
-        })
-      : Promise.resolve([]),
-  ]);
+        }),
+      "student:attempts"
+    );
+    const attemptMap = new Map(attemptRows.map((a) => [a.examId, a]));
 
+    // ── In-memory merge ────────────────────────────────────────────────────
+    // Filter global catalog to only this student's assigned exams, then enrich
+    // with their personal completion / attempt data. O(n) — sub-millisecond.
+    const allAssigned = globalCatalog.filter((e) => assignedSet.has(e.id));
+    const total = allAssigned.length;
+    const paginated = allAssigned.slice(skip, skip + limit);
 
-  const completedMap = new Map(completedResults.map((r) => [r.examId, r.score]));
-  const attemptMap = new Map((attempts || []).map((a) => [a.examId, a]));
+    const finalExams = paginated.map((e) => {
+      const attempt = attemptMap.get(e.id);
+      return {
+        ...e,
+        completed: completedMap.has(e.id),
+        score: completedMap.get(e.id) ?? null,
+        attemptStatus: attempt ? attempt.status : null,
+        expiresAt: attempt ? attempt.expiresAt : null,
+      };
+    });
 
-  const examIds = exams.map((e) => e.id);
-  // Use $queryRaw with a parameterized tagged template (safe) instead of
-  // $queryRawUnsafe with string interpolation (constitutional violation §4 Rule #2).
-  const assignedCollegesRaw = examIds.length > 0
-    ? await prisma.$queryRaw`
-        SELECT DISTINCT ea."examId",
-          COALESCE(c."name", u."collegeCode", 'N/A') as "collegeName"
-        FROM "ExamAssignment" ea
-        JOIN "User" u ON ea."userId" = u.id
-        LEFT JOIN "College" c ON u."collegeCode" = c."code"
-        WHERE ea."examId" = ANY(${examIds}::int[])
-      `
-    : [];
-
-  function generateAcronym(name) {
-    if (!name || name === 'N/A') return 'N/A';
-    const ignoreWords = ['of', 'and', '&', 'the', 'for', 'in', 'at', 'college', 'degree','autonomous'];
-    const words = name.split(/[\s,()-]+/);
-    let acronym = '';
-    for (const word of words) {
-      if (!word) continue;
-      if (ignoreWords.includes(word.toLowerCase())) continue;
-      
-      if (word === word.toUpperCase() && word.length >= 2 && /[A-Z]/.test(word)) {
-        acronym += word;
-      } else {
-        const match = word.match(/[a-zA-Z0-9]/);
-        if (match) {
-          acronym += match[0].toUpperCase();
-        }
-      }
-    }
-    return acronym.length >= 2 ? acronym : name.substring(0, 4).toUpperCase();
+    return {
+      exams: finalExams,
+      pagination: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
+      },
+    };
   }
 
-  const assignedCollegesMap = new Map();
-  assignedCollegesRaw.forEach((row) => {
-    if (!assignedCollegesMap.has(row.examId)) {
-      assignedCollegesMap.set(row.examId, []);
-    }
-    assignedCollegesMap.get(row.examId).push({
-      name: row.collegeName,
-      code: generateAcronym(row.collegeName)
-    });
-  });
+  // ─────────────────────────────────────────────────────────────────────────
+  // INSTRUCTOR PATH  —  kept as-is with cacheGetOrFetch for stampede safety.
+  // Instructor views are already scoped per-college, so no global cache is
+  // possible here without a per-college shard (not needed at current scale).
+  // ─────────────────────────────────────────────────────────────────────────
+  if (role === "INSTRUCTOR") {
+    const instructorCacheKey = `exams:catalog:INSTRUCTOR:${userId}:p${page}:l${limit}`;
+    return cacheGetOrFetch(
+      instructorCacheKey,
+      120, // 2 min
+      async () => {
+        const instructor = await prisma.user.findUnique({
+          where: { id: userId },
+          select: { collegeCode: true },
+        });
 
-  const finalExams = exams.map((e) => {
-    const attempt = attemptMap.get(e.id);
-    return {
-      id: e.id,
-      title: e.title,
-      duration: e.duration,
-      status: e.status,
-      published: e.status === "LIVE",
-      publishedAt: e.publishedAt,
-      startAt: e.startAt,
-      createdAt: e.createdAt,
-      questionCount: e._count.questions,
-      createdBy: e.createdBy,
-      completed: completedMap.has(e.id),
-      score: completedMap.get(e.id) ?? null,
-      attemptStatus: attempt ? attempt.status : null,
-      expiresAt: attempt ? attempt.expiresAt : null,
-      resultsPublished: e.resultsPublished,
-      assignedColleges: assignedCollegesMap.get(e.id) || [],
-      creator: e.creator
-        ? {
-            id: e.creator.id,
-            name: e.creator.name,
-            role: e.creator.role,
-            college: e.creator.college?.name || e.creator.collegeCode || 'N/A'
-          }
-        : null,
-    };
-  });
+        let where = {};
+        if (instructor?.collegeCode) {
+          where.OR = [
+            { creator: { collegeCode: instructor.collegeCode } },
+            { assignments: { some: { user: { collegeCode: instructor.collegeCode } } } },
+          ];
+        } else {
+          where.id = -1; // Force no results
+        }
 
-  const response = {
-    exams: finalExams,
-    pagination: {
-      total,
-      page,
-      limit,
-      totalPages: Math.ceil(total / limit),
+        const [exams, total] = await Promise.all([
+          prisma.exam.findMany({
+            where,
+            orderBy: { id: "desc" },
+            include: {
+              _count: { select: { questions: true } },
+              creator: {
+                select: {
+                  id: true,
+                  name: true,
+                  role: true,
+                  collegeCode: true,
+                  college: { select: { name: true } },
+                },
+              },
+            },
+            skip,
+            take: limit,
+          }),
+          prisma.exam.count({ where }),
+        ]);
+
+        const examIds = exams.map((e) => e.id);
+        const assignedCollegesRaw = examIds.length > 0
+          ? await prisma.$queryRaw`
+              SELECT DISTINCT ea."examId",
+                COALESCE(c."name", u."collegeCode", 'N/A') as "collegeName"
+              FROM "ExamAssignment" ea
+              JOIN "User" u ON ea."userId" = u.id
+              LEFT JOIN "College" c ON u."collegeCode" = c."code"
+              WHERE ea."examId" = ANY(${examIds}::int[])
+            `
+          : [];
+
+        const assignedCollegesMap = new Map();
+        assignedCollegesRaw.forEach((row) => {
+          if (!assignedCollegesMap.has(row.examId)) assignedCollegesMap.set(row.examId, []);
+          assignedCollegesMap.get(row.examId).push({
+            name: row.collegeName,
+            code: generateAcronym(row.collegeName),
+          });
+        });
+
+        const finalExams = exams.map((e) => ({
+          id: e.id,
+          title: e.title,
+          duration: e.duration,
+          status: e.status,
+          published: e.status === "LIVE",
+          publishedAt: e.publishedAt,
+          startAt: e.startAt,
+          endAt: e.endAt,
+          createdAt: e.createdAt,
+          questionCount: e._count.questions,
+          createdBy: e.createdBy,
+          resultsPublished: e.resultsPublished,
+          assignedColleges: assignedCollegesMap.get(e.id) || [],
+          creator: e.creator
+            ? {
+                id: e.creator.id,
+                name: e.creator.name,
+                role: e.creator.role,
+                college: e.creator.college?.name || e.creator.collegeCode || "N/A",
+              }
+            : null,
+        }));
+
+        return {
+          exams: finalExams,
+          pagination: { total, page, limit, totalPages: Math.ceil(total / limit) },
+        };
+      },
+      "exams:catalog"
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // ADMIN / other roles  —  full unfiltered catalog, cached per-page.
+  // ─────────────────────────────────────────────────────────────────────────
+  const adminCacheKey = `exams:catalog:${role}:p${page}:l${limit}`;
+  return cacheGetOrFetch(
+    adminCacheKey,
+    120,
+    async () => {
+      const [exams, total] = await Promise.all([
+        prisma.exam.findMany({
+          orderBy: { id: "desc" },
+          include: {
+            _count: { select: { questions: true } },
+            creator: {
+              select: {
+                id: true, name: true, role: true, collegeCode: true,
+                college: { select: { name: true } },
+              },
+            },
+          },
+          skip,
+          take: limit,
+        }),
+        prisma.exam.count(),
+      ]);
+
+      const examIds = exams.map((e) => e.id);
+      const assignedCollegesRaw = examIds.length > 0
+        ? await prisma.$queryRaw`
+            SELECT DISTINCT ea."examId",
+              COALESCE(c."name", u."collegeCode", 'N/A') as "collegeName"
+            FROM "ExamAssignment" ea
+            JOIN "User" u ON ea."userId" = u.id
+            LEFT JOIN "College" c ON u."collegeCode" = c."code"
+            WHERE ea."examId" = ANY(${examIds}::int[])
+          `
+        : [];
+
+      const assignedCollegesMap = new Map();
+      assignedCollegesRaw.forEach((row) => {
+        if (!assignedCollegesMap.has(row.examId)) assignedCollegesMap.set(row.examId, []);
+        assignedCollegesMap.get(row.examId).push({
+          name: row.collegeName,
+          code: generateAcronym(row.collegeName),
+        });
+      });
+
+      return {
+        exams: exams.map((e) => ({
+          id: e.id,
+          title: e.title,
+          duration: e.duration,
+          status: e.status,
+          published: e.status === "LIVE",
+          publishedAt: e.publishedAt,
+          startAt: e.startAt,
+          endAt: e.endAt,
+          createdAt: e.createdAt,
+          questionCount: e._count.questions,
+          createdBy: e.createdBy,
+          resultsPublished: e.resultsPublished,
+          assignedColleges: assignedCollegesMap.get(e.id) || [],
+          creator: e.creator
+            ? {
+                id: e.creator.id,
+                name: e.creator.name,
+                role: e.creator.role,
+                college: e.creator.college?.name || e.creator.collegeCode || "N/A",
+              }
+            : null,
+        })),
+        pagination: { total, page, limit, totalPages: Math.ceil(total / limit) },
+      };
     },
-  };
-
-  await cacheSetJson(cacheKey, 300, response, "exams:catalog"); // 5 min — busted on exam create/update/delete
-
-  return response;
+    "exams:catalog"
+  );
 }
+
 
 async function getExamForStudent(examId) {
   if (!Number.isFinite(examId)) {
@@ -1002,7 +1217,11 @@ async function submitExam(studentId, body) {
     cacheDelNamespace(`results:instructor`),
     cacheDelNamespace("leaderboard:unit"),
     cacheDelNamespace("exams:catalog"),
+    // Bust the new per-student slices so the dashboard reflects the submitted result
+    // and updated attempt status without waiting for TTL expiry.
     cacheDel([
+      `student:results:${studentId}`,
+      `student:attempts:${studentId}`,
       `stats:dashboard:STUDENT:${studentId}`,
       `stats:dashboard:ADMIN:all`,
     ]),

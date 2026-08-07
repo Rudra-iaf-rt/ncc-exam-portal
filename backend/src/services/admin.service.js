@@ -373,8 +373,16 @@ async function processBulkAssignJob(examId, targetUserIds, adminId, examTitle) {
   }
 
   logger.audit('EXAM_BULK_ASSIGN', { examId, count: totalAssigned }, adminId);
-  const { cacheDelNamespace } = require('../lib/cache');
-  await cacheDelNamespace('assignments').catch(() => {});
+  const { cacheDelNamespace, cacheDel } = require('../lib/cache');
+  await Promise.all([
+    cacheDelNamespace('assignments'),
+    // Bust per-student assignment slices for all assigned users so their
+    // dashboard shows the new exam within 60s (or immediately after invalidation).
+    // We delete by individual key since there is no namespace for student:assignments.
+    ...targetUserIds.map(uid => cacheDel([`student:assignments:${uid}`])),
+    // Also bust the global exam catalog so the new exam appears for students.
+    cacheDelNamespace('exams:catalog'),
+  ]).catch(() => {});
   return { success: true, count: totalAssigned };
 }
 
@@ -396,7 +404,11 @@ async function overrideResult(resultId, score, reason, adminId) {
     cacheDelNamespace('results:admin'),
     cacheDelNamespace('results:instructor'),
     cacheDelNamespace('leaderboard:unit'),
-    cacheDel([`resultreview:${result.studentId}:${result.examId}`])
+    cacheDel([
+      `resultreview:${result.studentId}:${result.examId}`,
+      // Bust the new per-student result slice so the dashboard reflects the override.
+      `student:results:${result.studentId}`,
+    ])
   ]).catch(() => {});
 
   return result;

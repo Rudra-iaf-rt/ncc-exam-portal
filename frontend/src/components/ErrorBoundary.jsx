@@ -15,7 +15,6 @@ class ErrorBoundary extends React.Component {
   componentDidCatch(error, errorInfo) {
     console.error("ErrorBoundary caught an error", error, errorInfo);
     
-    // Log telemetry to backend securely via apiClient
     apiClient.post("/errors/client", {
       message: error.message,
       stack: error.stack,

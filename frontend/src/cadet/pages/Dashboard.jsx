@@ -28,7 +28,7 @@ const CountdownTimer = ({ expiresAt }) => {
     }, 1000);
     return () => clearInterval(interval);
   }, [expiresAt, timeLeft]);
-
+ 
   if (timeLeft <= 0) return <span>Expired</span>;
 
   const mins = Math.floor(timeLeft / 60);
@@ -123,22 +123,20 @@ const CadetDashboard = () => {
         const data = await getOrFetchResource(
           cacheKey,
           async () => {
-            const assignedExams = await examApi.getAssigned().catch(() => []);
-            setExams(assignedExams || []);
-            setLoadingExams(false);
+            const [assignedExamsRes, resultsRes, rankRes] = await Promise.allSettled([
+              examApi.getAssigned(),
+              examApi.getResults(),
+              leaderboardApi.getMyRank()
+            ]);
 
-            const resultsRes = await examApi
-              .getResults()
-              .catch(() => ({ data: { results: [] } }));
-            
-            const rankRes = await leaderboardApi
-              .getMyRank()
-              .catch(() => ({ data: null }));
+            const assignedExams = assignedExamsRes.status === 'fulfilled' ? (assignedExamsRes.value || []) : [];
+            const results = resultsRes.status === 'fulfilled' ? (resultsRes.value?.data?.results || []) : [];
+            const rankData = rankRes.status === 'fulfilled' ? (rankRes.value?.data || null) : null;
 
             return {
-              exams: assignedExams || [],
-              results: resultsRes?.data?.results || [],
-              rankData: rankRes?.data || null,
+              exams: assignedExams,
+              results: results,
+              rankData: rankData,
             };
           },
           { staleTimeMs: 2 * 60 * 1000 }
