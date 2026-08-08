@@ -3,6 +3,13 @@ const { logger } = require("../utils/logger");
 const { redis } = require("./redis");
 const { getPerfContext } = require("./perf-context");
 
+const { LRUCache } = require("lru-cache");
+
+const l1Cache = new LRUCache({
+  max: 100,
+  ttl: 5000, // 5 seconds
+});
+
 // CACHE_TIMEOUT_MS: max time to wait for a Redis GET/SET before falling through to DB.
 // Default raised to 2000ms — Upstash RTT from India is ~400-600ms, so 500ms was
 // timing out on nearly every GET, treating all cache hits as misses and hitting the DB.
@@ -80,6 +87,7 @@ async function cacheDel(keys) {
     // keys natively. This is O(1) round trips regardless of how many keys are
     // passed, vs the previous O(N) loop which fired one request per key.
     // Critical for bulk-assign invalidation (could be thousands of students).
+    keys.forEach(key => l1Cache.delete(key));
     await withTimeout(redis.del(...keys), null);
   } catch (err) {
     logger.warn({ action: "cache_del_error", message: err.message });
@@ -104,9 +112,17 @@ async function cacheDel(keys) {
  * - On fetchFn() error → clears the pending entry so the next request retries clean.
  */
 async function cacheGetOrFetch(key, ttlSec, fetchFn, namespace = null) {
+  // 0. Try L1 cache first (ultra-fast, zero network).
+  if (l1Cache.has(key)) {
+    return l1Cache.get(key);
+  }
+
   // 1. Try cache first.
   const cached = await cacheGetJson(key);
-  if (cached !== null) return cached;
+  if (cached !== null) {
+    l1Cache.set(key, cached);
+    return cached;
+  }
 
   // 2. If another request is already fetching this key, join it (stampede guard).
   if (_pendingFetches.has(key)) {
@@ -122,6 +138,7 @@ async function cacheGetOrFetch(key, ttlSec, fetchFn, namespace = null) {
       // making them block on a Redis write (400-600ms RTT from India) would
       // defeat the purpose of the stampede guard. Best-effort only.
       cacheSetJson(key, ttlSec, result, namespace);
+      l1Cache.set(key, result);
       return result;
     })
     .catch((err) => {
@@ -137,6 +154,7 @@ async function cacheDelNamespace(namespace) {
   if (!namespace) return;
   const keySet = `keys:${namespace}`;
   try {
+    l1Cache.clear(); // Safest way to clear L1 for namespace invalidation on a tiny cache
     const keys = await withTimeout(redis.smembers(keySet), []);
     if (keys && keys.length > 0) {
       await cacheDel(keys);

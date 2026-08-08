@@ -759,26 +759,42 @@ async function replaceExamQuestionsByCreator(userId, examIdRaw, body) {
   });
 
   if (submittedAttempts.length > 0) {
-    // Score every submitted attempt in memory (pure CPU, no I/O).
-    const scoredUpdates = submittedAttempts.map((attempt) => {
-      const studentAnswers =
-        attempt.answers && typeof attempt.answers === "object" ? attempt.answers : {};
-      const answersArray = Object.entries(studentAnswers).map(([qid, ans]) => ({
-        questionId: Number(qid),
-        selectedAnswer: String(ans ?? ""),
-      }));
-      const { score } = scoreSubmission(newQuestions, answersArray, exam);
-      return { studentId: attempt.studentId, score };
-    });
+    // Score every submitted attempt in memory (pure CPU, no I/O) with event loop yielding.
+    const scoredUpdates = [];
+    const CHUNK_SIZE = 50;
 
-    await Promise.all(
-      scoredUpdates.map(({ studentId, score }) =>
-        prisma.result.update({
-          where: { studentId_examId: { studentId, examId } },
-          data: { score },
-        })
-      )
-    );
+    for (let i = 0; i < submittedAttempts.length; i += CHUNK_SIZE) {
+      const chunk = submittedAttempts.slice(i, i + CHUNK_SIZE);
+      const chunkScores = chunk.map((attempt) => {
+        const studentAnswers = attempt.answers && typeof attempt.answers === "object" ? attempt.answers : {};
+        const answersArray = Object.entries(studentAnswers).map(([qid, ans]) => ({
+          questionId: Number(qid),
+          selectedAnswer: String(ans ?? ""),
+        }));
+        const { score } = scoreSubmission(newQuestions, answersArray, exam);
+        return { studentId: attempt.studentId, score };
+      });
+      scoredUpdates.push(...chunkScores);
+      
+      // Yield the event loop to allow Node to handle other HTTP requests
+      await new Promise(resolve => setImmediate(resolve));
+    }
+
+    // Chunk database writes to prevent connection pool exhaustion on free tier
+    for (let i = 0; i < scoredUpdates.length; i += CHUNK_SIZE) {
+      const chunk = scoredUpdates.slice(i, i + CHUNK_SIZE);
+      await Promise.all(
+        chunk.map(({ studentId, score }) =>
+          prisma.result.update({
+            where: { studentId_examId: { studentId, examId } },
+            data: { score },
+          })
+        )
+      );
+      
+      // Yield the event loop again
+      await new Promise(resolve => setImmediate(resolve));
+    }
 
     // Invalidate per-student review caches so the review page shows updated data
     const reviewCacheKeys = submittedAttempts.map(
