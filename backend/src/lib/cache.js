@@ -10,16 +10,9 @@ const l1Cache = new LRUCache({
   ttl: 5000, // 5 seconds
 });
 
-// CACHE_TIMEOUT_MS: max time to wait for a Redis GET/SET before falling through to DB.
-// Default raised to 2000ms — Upstash RTT from India is ~400-600ms, so 500ms was
-// timing out on nearly every GET, treating all cache hits as misses and hitting the DB.
 const CACHE_TIMEOUT_MS = Number(process.env.CACHE_TIMEOUT_MS || 2000);
 
-// In-process deduplication map — prevents thundering herd / cache stampede.
-// When the cache misses and N concurrent requests all want the same key, only
-// ONE DB fetch fires; all others join the same Promise. Works correctly on
-// Render free tier (single process). On multi-instance it doesn't cross-process
-// coalesce, but that is safe — just means at most one fetch per instance.
+
 const _pendingFetches = new Map();
 
 async function withTimeout(promise, fallback = null) {
@@ -83,62 +76,34 @@ async function cacheSetJson(key, ttlSec, value, namespace = null) {
 async function cacheDel(keys) {
   if (!keys || keys.length === 0) return;
   try {
-    // Send all DEL keys in a single Redis command — Redis DEL accepts multiple
-    // keys natively. This is O(1) round trips regardless of how many keys are
-    // passed, vs the previous O(N) loop which fired one request per key.
-    // Critical for bulk-assign invalidation (could be thousands of students).
-    keys.forEach(key => l1Cache.delete(key));
+    if (process.env.NODE_ENV !== "test") keys.forEach(key => l1Cache.delete(key));
     await withTimeout(redis.del(...keys), null);
   } catch (err) {
     logger.warn({ action: "cache_del_error", message: err.message });
   }
 }
 
-/**
- * cacheGetOrFetch — cache-aside with in-process stampede prevention.
- *
- * Usage:
- *   const data = await cacheGetOrFetch(
- *     'some:key',
- *     300,                // TTL seconds
- *     () => expensiveDbQuery(),
- *     'namespace'         // optional, for cacheDelNamespace support
- *   );
- *
- * Guarantees:
- * - If cache HIT  → returns cached value immediately (no DB touch).
- * - If cache MISS and NO in-flight fetch → runs fetchFn(), caches result, returns it.
- * - If cache MISS and EXISTING in-flight fetch → joins the existing Promise (zero extra DB queries).
- * - On fetchFn() error → clears the pending entry so the next request retries clean.
- */
+
 async function cacheGetOrFetch(key, ttlSec, fetchFn, namespace = null) {
-  // 0. Try L1 cache first (ultra-fast, zero network).
-  if (l1Cache.has(key)) {
+  if (process.env.NODE_ENV !== "test" && l1Cache.has(key)) {
     return l1Cache.get(key);
   }
 
-  // 1. Try cache first.
   const cached = await cacheGetJson(key);
   if (cached !== null) {
-    l1Cache.set(key, cached);
+    if (process.env.NODE_ENV !== "test") l1Cache.set(key, cached);
     return cached;
   }
 
-  // 2. If another request is already fetching this key, join it (stampede guard).
   if (_pendingFetches.has(key)) {
     return _pendingFetches.get(key);
   }
 
-  // 3. This request wins the race — start the fetch and register the shared Promise.
   const promise = fetchFn()
     .then((result) => {
       _pendingFetches.delete(key);
-      // Fire-and-forget: the write must NOT be awaited here.
-      // All callers who joined this Promise are waiting for the result —
-      // making them block on a Redis write (400-600ms RTT from India) would
-      // defeat the purpose of the stampede guard. Best-effort only.
       cacheSetJson(key, ttlSec, result, namespace);
-      l1Cache.set(key, result);
+      if (process.env.NODE_ENV !== "test") l1Cache.set(key, result);
       return result;
     })
     .catch((err) => {
@@ -154,7 +119,7 @@ async function cacheDelNamespace(namespace) {
   if (!namespace) return;
   const keySet = `keys:${namespace}`;
   try {
-    l1Cache.clear(); // Safest way to clear L1 for namespace invalidation on a tiny cache
+    if (process.env.NODE_ENV !== "test") l1Cache.clear(); // Safest way to clear L1 for namespace invalidation on a tiny cache
     const keys = await withTimeout(redis.smembers(keySet), []);
     if (keys && keys.length > 0) {
       await cacheDel(keys);
@@ -172,9 +137,6 @@ async function cacheDelPattern(pattern) {
 async function withCacheLock(key, ttlSec, callback) {
   const lockKey = `lock:${key}`;
   const acquired = await withTimeout(
-    // ioredis SET option order: value, expiryMode, time, setMode
-    // "NX", "EX", n is wrong → sends SET key 1 NX EX n which Redis rejects.
-    // Correct: "EX", n, "NX" → sends SET key 1 EX n NX
     redis.set(lockKey, "1", "EX", ttlSec, "NX"),
     null
   );

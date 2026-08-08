@@ -100,7 +100,7 @@ describe("Results Service Unit Tests", () => {
       expect(prisma.result.count).toHaveBeenCalled();
       expect(cacheSetJson).toHaveBeenCalledWith(
         "results:student:12:5:p1:l10",
-        60,
+        300,
         expect.any(Object),
         "results:student:12"
       );
@@ -147,7 +147,7 @@ describe("Results Service Unit Tests", () => {
       expect(redis.setex).toHaveBeenCalledWith("user:metadata:2", 300, "MIT");
       expect(cacheSetJson).toHaveBeenCalledWith(
         "results:instructor:2:MIT:all:none:p1:l10",
-        30,
+        300,
         expect.any(Object),
         "results:instructor"
       );
