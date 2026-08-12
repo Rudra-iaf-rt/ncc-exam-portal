@@ -119,7 +119,7 @@ async function cacheDelNamespace(namespace) {
   if (!namespace) return;
   const keySet = `keys:${namespace}`;
   try {
-    if (process.env.NODE_ENV !== "test") l1Cache.clear(); // Safest way to clear L1 for namespace invalidation on a tiny cache
+    if (process.env.NODE_ENV !== "test") l1Cache.clear(); 
     const keys = await withTimeout(redis.smembers(keySet), []);
     if (keys && keys.length > 0) {
       await cacheDel(keys);

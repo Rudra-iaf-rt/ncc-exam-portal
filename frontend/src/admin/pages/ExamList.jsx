@@ -6,6 +6,8 @@ import { NavLink, Link } from 'react-router-dom';
 import { examApi } from '../../api';
 import { useAdminAuth } from '../../contexts/AdminAuth';
 import { PageHeader, Pagination } from '../components/Shared';
+import { BulkActionBar, BulkActionButton } from '../components/BulkActionBar';
+import { Checkbox } from '../../components/ui/checkbox';
 import { Plus, Eye, X, Edit3, Trash2, UserCheck, Loader2, MonitorPlay, BarChart, AlertTriangle, XCircle, ChevronDown, Check, FileEdit, Radio, CheckCircle2, Archive, Send } from 'lucide-react';
 import { invalidateCachedResourcePattern, getCachedResource, setCachedResource } from '../../lib/resourceCache';
 import { useCachedFetch } from '../../hooks/useCachedFetch';
@@ -95,6 +97,9 @@ export default function ExamList() {
   const [confirmAction, setConfirmAction] = useState(null);
   const [viewingColleges, setViewingColleges] = useState(null);
   const limit = 20;
+
+  const [selectedRows, setSelectedRows] = useState(new Set());
+  const [isBulkProcessing, setIsBulkProcessing] = useState(false);
 
   const addProcessing = (key) => setProcessingItems(prev => new Set(prev).add(key));
   const removeProcessing = (key) => setProcessingItems(prev => {
@@ -200,6 +205,43 @@ export default function ExamList() {
 
   const isInitialLoading = loading && exams.length === 0;
 
+  const handleSelectAll = (checked) => {
+    if (checked) {
+      setSelectedRows(new Set(exams.map(e => e.id)));
+    } else {
+      setSelectedRows(new Set());
+    }
+  };
+
+  const handleSelectRow = (id, checked) => {
+    const newSelected = new Set(selectedRows);
+    if (checked) {
+      newSelected.add(id);
+    } else {
+      newSelected.delete(id);
+    }
+    setSelectedRows(newSelected);
+  };
+
+  const handleBulkStatusChange = async (newStatus) => {
+    const confirmed = window.confirm(`Are you sure you want to mark ${selectedRows.size} exams as ${newStatus}?`);
+    if (!confirmed) return;
+
+    try {
+      setIsBulkProcessing(true);
+      await examApi.bulkStatusExams({ examIds: Array.from(selectedRows), status: newStatus });
+      toast.success(`${selectedRows.size} exams marked as ${newStatus}`);
+      setSelectedRows(new Set());
+      invalidateCachedResourcePattern('admin-exam-list');
+      // trigger refetch using a dummy state or wait for re-render if cachedFetch auto refreshes
+      window.location.reload(); // Quickest way to refetch for now if not exposed in useCachedFetch
+    } catch (err) {
+      toast.error(err.message || 'Failed to update exams');
+    } finally {
+      setIsBulkProcessing(false);
+    }
+  };
+
   return (
     <div>
       <PageHeader 
@@ -221,6 +263,14 @@ export default function ExamList() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-stone border-b border-stone-deep font-mono text-[11px] tracking-[0.1em] uppercase text-ink-4">
+                {canManageExams && (
+                  <th className="font-normal px-4 py-3 w-[40px]">
+                    <Checkbox 
+                      checked={exams.length > 0 && selectedRows.size === exams.length}
+                      onCheckedChange={handleSelectAll}
+                    />
+                  </th>
+                )}
                 <th className="font-normal px-4 py-3 w-[80px]">ID</th>
                 <th className="font-normal px-4 py-3">Exam Title</th>
                 <th className="font-normal px-4 py-3">Date</th>
@@ -240,7 +290,15 @@ export default function ExamList() {
                 </tr>
               ) : (
                 exams.map((e) => (
-                  <tr key={e.id} className="border-b border-stone-mid hover:bg-stone-wash transition-colors last:border-b-0">
+                  <tr key={e.id} className={`border-b border-stone-mid hover:bg-stone-wash transition-colors last:border-b-0 ${selectedRows.has(e.id) ? 'bg-stone-wash' : ''}`}>
+                    {canManageExams && (
+                      <td className="px-4 py-3">
+                        <Checkbox 
+                          checked={selectedRows.has(e.id)}
+                          onCheckedChange={(checked) => handleSelectRow(e.id, checked)}
+                        />
+                      </td>
+                    )}
                     <td className="px-4 py-3"><code className="font-mono text-[12px] bg-transparent p-0 text-ink-3">#{e.id.toString().padStart(3, '0')}</code></td>
                     <td className="px-4 py-3">
                       {canManageExams ? (
@@ -473,7 +531,36 @@ export default function ExamList() {
               ))}
             </div>
           </div>
+          </div>
         </div>
+      )}
+
+      {canManageExams && (
+        <BulkActionBar 
+          selectedCount={selectedRows.size} 
+          onClearSelection={() => setSelectedRows(new Set())}
+          isProcessing={isBulkProcessing}
+        >
+          <BulkActionButton 
+            icon={Radio} 
+            label="Mark LIVE" 
+            onClick={() => handleBulkStatusChange('LIVE')} 
+            disabled={isBulkProcessing} 
+          />
+          <BulkActionButton 
+            icon={CheckCircle2} 
+            label="Mark COMPLETED" 
+            onClick={() => handleBulkStatusChange('COMPLETED')} 
+            disabled={isBulkProcessing} 
+          />
+          <BulkActionButton 
+            icon={Archive} 
+            label="Archive Selected" 
+            onClick={() => handleBulkStatusChange('ARCHIVED')} 
+            disabled={isBulkProcessing} 
+            variant="danger"
+          />
+        </BulkActionBar>
       )}
     </div>
   );

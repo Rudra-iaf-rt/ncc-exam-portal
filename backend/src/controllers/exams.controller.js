@@ -210,6 +210,24 @@ async function resetAttempt(req, res) {
   res.json(result);
 }
 
+async function bulkStatus(req, res) {
+  const { examIds, status } = req.body;
+  if (!examIds || !status) {
+    return res.status(400).json({ error: "examIds and status are required", code: "VAL_001" });
+  }
+
+  const result = await examService.bulkUpdateStatusByCreator(req.user.id, examIds, status);
+  
+  await auditLogService.recordAudit(req, {
+    action: "EXAM_BULK_STATUS",
+    entityType: "Exam",
+    entityId: "bulk",
+    statusCode: 200,
+  });
+  
+  res.json(result);
+}
+
 module.exports = {
   extendTime,
   publishResults,
@@ -231,4 +249,5 @@ module.exports = {
   remove,
   terminateSession,
   resetAttempt,
+  bulkStatus,
 };

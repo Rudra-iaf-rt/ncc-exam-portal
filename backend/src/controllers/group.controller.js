@@ -198,10 +198,46 @@ async function deleteGroup(req, res) {
   }
 }
 
+async function bulkDisable(req, res) {
+  const { groupIds } = req.body;
+  if (!Array.isArray(groupIds) || groupIds.length === 0) {
+    return res.status(400).json({ error: "Invalid groupIds array" });
+  }
+  
+  await prisma.candidateGroup.updateMany({
+    where: { id: { in: groupIds.map(Number) } },
+    data: { isActive: false }
+  });
+
+  const { cacheDel } = require("../lib/cache");
+  await cacheDel(["cache:groups:list"]);
+  
+  res.json({ success: true, count: groupIds.length });
+}
+
+async function bulkEnable(req, res) {
+  const { groupIds } = req.body;
+  if (!Array.isArray(groupIds) || groupIds.length === 0) {
+    return res.status(400).json({ error: "Invalid groupIds array" });
+  }
+  
+  await prisma.candidateGroup.updateMany({
+    where: { id: { in: groupIds.map(Number) } },
+    data: { isActive: true }
+  });
+
+  const { cacheDel } = require("../lib/cache");
+  await cacheDel(["cache:groups:list"]);
+  
+  res.json({ success: true, count: groupIds.length });
+}
+
 module.exports = {
   listGroups,
   getGroup,
   createGroup,
   updateGroup,
-  deleteGroup
+  deleteGroup,
+  bulkDisable,
+  bulkEnable
 };

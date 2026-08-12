@@ -6,6 +6,8 @@ import { invalidateCachedResource } from '../../lib/resourceCache';
 import { useCachedFetch } from '../../hooks/useCachedFetch';
 import CustomSelect from '../../components/CustomSelect';
 import { useConfirm } from '../../contexts/ConfirmContext';
+import { Checkbox } from '../../components/ui/checkbox';
+import { BulkActionBar, BulkActionButton } from '../components/BulkActionBar';
 import {
   Plus,
   Search,
@@ -207,7 +209,11 @@ export default function MaterialManagement() {
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [editingMaterialId, setEditingMaterialId] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [uploadProgress, setUploadProgress] = useState(null);
+
+  const [selectedRows, setSelectedRows] = useState(new Set());
+  const [isBulkProcessing, setIsBulkProcessing] = useState(false);
+
+  const { data: materialsData, loading, refetch } = useCachedFetch(null);
   const [selectedFile, setSelectedFile] = useState(null);
 
   const [formData, setFormData] = useState({
@@ -330,6 +336,72 @@ export default function MaterialManagement() {
     }
   };
 
+  const handleSelectAll = (checked) => {
+    if (checked) {
+      setSelectedRows(new Set(filteredMaterials.map(m => m.id)));
+    } else {
+      setSelectedRows(new Set());
+    }
+  };
+
+  const handleSelectRow = (id, checked) => {
+    const newSelected = new Set(selectedRows);
+    if (checked) {
+      newSelected.add(id);
+    } else {
+      newSelected.delete(id);
+    }
+    setSelectedRows(newSelected);
+  };
+
+  const handleBulkDisable = async () => {
+    const confirmed = await confirm({
+      title: 'Disable Selected Resources',
+      message: `Are you sure you want to disable ${selectedRows.size} resources? They will no longer be visible to cadets.`,
+      confirmText: 'Disable Resources',
+      isDanger: true
+    });
+
+    if (!confirmed) return;
+
+    try {
+      setIsBulkProcessing(true);
+      await adminApi.bulkDisableMaterials({ materialIds: Array.from(selectedRows) });
+      toast.success(`${selectedRows.size} resources disabled successfully`);
+      setSelectedRows(new Set());
+      invalidateCachedResource('admin-materials');
+      handleRefresh();
+    } catch (err) {
+      toast.error(err.message || 'Failed to disable resources');
+    } finally {
+      setIsBulkProcessing(false);
+    }
+  };
+
+  const handleBulkVerify = async () => {
+    const confirmed = await confirm({
+      title: 'Verify Selected Resources',
+      message: `Are you sure you want to verify ${selectedRows.size} resources? They will become accessible to cadets.`,
+      confirmText: 'Verify Resources',
+      isDanger: false
+    });
+
+    if (!confirmed) return;
+
+    try {
+      setIsBulkProcessing(true);
+      await adminApi.bulkVerifyMaterials({ materialIds: Array.from(selectedRows) });
+      toast.success(`${selectedRows.size} resources verified successfully`);
+      setSelectedRows(new Set());
+      invalidateCachedResource('admin-materials');
+      handleRefresh();
+    } catch (err) {
+      toast.error(err.message || 'Failed to verify resources');
+    } finally {
+      setIsBulkProcessing(false);
+    }
+  };
+
   const filteredMaterials = materials.filter(
     (m) =>
       m.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -401,6 +473,12 @@ export default function MaterialManagement() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-stone border-b border-stone-deep font-mono text-[11px] tracking-[0.1em] uppercase text-ink-4">
+                <th className="font-normal px-6 py-4 w-[40px]">
+                  <Checkbox 
+                    checked={filteredMaterials.length > 0 && selectedRows.size === filteredMaterials.length}
+                    onCheckedChange={handleSelectAll}
+                  />
+                </th>
                 <th className="font-normal px-6 py-4">Resource Info</th>
                 <th className="font-normal px-6 py-4">Subject</th>
                 <th className="font-normal px-6 py-4">Visibility</th>
@@ -413,8 +491,14 @@ export default function MaterialManagement() {
                 filteredMaterials.map((material) => (
                   <tr
                     key={material.id}
-                    className="border-b border-stone-mid hover:bg-stone-wash transition-colors last:border-b-0"
+                    className={`border-b border-stone-mid hover:bg-stone-wash transition-colors last:border-b-0 ${selectedRows.has(material.id) ? 'bg-stone-wash' : ''}`}
                   >
+                    <td className="px-6 py-4">
+                      <Checkbox 
+                        checked={selectedRows.has(material.id)}
+                        onCheckedChange={(checked) => handleSelectRow(material.id, checked)}
+                      />
+                    </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-4">
                         <div className={`w-10 h-10 rounded-lg flex items-center justify-center border ${
@@ -502,14 +586,14 @@ export default function MaterialManagement() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" className="text-center p-12 text-ink-4 font-mono text-[12px]">
+                  <td colSpan="6" className="text-center p-12 text-ink-4 font-mono text-[12px]">
                     Accessing Academic Repository...
                   </td>
                 </tr>
               )}
               {!loading && filteredMaterials.length === 0 && (
                 <tr>
-                  <td colSpan="5" className="text-center p-12 text-ink-4 font-ui">
+                  <td colSpan="6" className="text-center p-12 text-ink-4 font-ui">
                     No academic resources match your search criteria.
                   </td>
                 </tr>
@@ -678,8 +762,11 @@ export default function MaterialManagement() {
       )}
 
       {/* Edit Modal */}
+      {/* ... keeping Edit Modal code identical up to end of file, we just add BulkActionBar at the root level before final div closure */}
+      {/* Edit Modal */}
       {isEditModalOpen && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-[#0E1929]/40 backdrop-blur-sm animate-in fade-in duration-200">
+          {/* ... (rest of edit modal kept as is) ... */}
           <div className="w-full max-w-[600px] max-h-[90dvh] shadow-[0_20px_50px_rgba(0,0,0,0.15)] animate-in zoom-in-95 duration-200 rounded-2xl">
             <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full h-full max-h-[90dvh] flex flex-col overflow-hidden isolate">
             <div className="shrink-0 bg-stone border-b border-stone-mid px-6 py-5 flex justify-between items-center">
@@ -841,6 +928,26 @@ export default function MaterialManagement() {
           </div>
         </div>
       )}
+
+      <BulkActionBar 
+        selectedCount={selectedRows.size} 
+        onClearSelection={() => setSelectedRows(new Set())}
+        isProcessing={isBulkProcessing}
+      >
+        <BulkActionButton 
+          icon={CheckCircle2} 
+          label="Verify Selected" 
+          onClick={handleBulkVerify} 
+          disabled={isBulkProcessing} 
+        />
+        <BulkActionButton 
+          icon={Trash2} 
+          label="Disable Selected" 
+          onClick={handleBulkDisable} 
+          disabled={isBulkProcessing} 
+          variant="danger"
+        />
+      </BulkActionBar>
     </div>
   );
 }

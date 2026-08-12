@@ -126,6 +126,13 @@ router.patch(
   asyncHandler(examsController.publish)
 );
 
+router.post(
+  "/exams/bulk-status",
+  authenticate,
+  requireExamCreator,
+  asyncHandler(examsController.bulkStatus)
+);
+
 router.patch(
   "/exams/:id/publish-results",
   authenticate,

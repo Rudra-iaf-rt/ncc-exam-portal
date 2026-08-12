@@ -7,6 +7,9 @@ function mapResultRow(r, violationCountMap = {}) {
   return {
     id: r.id,
     score: r.score,
+    rawScore: r.rawScore,
+    maxScore: r.maxScore,
+    timeTaken: r.timeTaken,
     examId: r.examId,
     examTitle: r.exam?.title ?? null,
     studentId: r.studentId,
@@ -575,9 +578,11 @@ async function exportBulkExamResultsCsv(user, query) {
         regimentalNumber: r.regimentalNumber ?? "",
         college: r.college ?? "",
         scores: {},
+        details: {},
       };
     }
     studentMap[r.studentId].scores[r.examId] = r.score;
+    studentMap[r.studentId].details[r.examId] = r;
     allExams.add(r.examId);
     examTitles[r.examId] = r.examTitle || `Exam ${r.examId}`;
   }
@@ -615,18 +620,35 @@ async function exportBulkExamResultsCsv(user, query) {
   const header = [
     "Student Name",
     "Regimental Number",
-    "College",
-    ...examIdList.map(id => examTitles[id]),
+    "College"
   ];
-  if (includeAverage) header.push("Average Score");
+  for (const id of examIdList) {
+    header.push(`${examTitles[id]} Score (%)`);
+    header.push(`${examTitles[id]} Raw Score`);
+    header.push(`${examTitles[id]} Max Score`);
+    header.push(`${examTitles[id]} Duration (s)`);
+    header.push(`${examTitles[id]} Submitted`);
+  }
+  if (includeAverage) header.push("Average Score (%)");
 
   const dataRows = studentRows.map(student => {
     const row = [
       student.studentName,
       student.regimentalNumber,
       student.college,
-      ...examIdList.map(id => student.scores[id] !== undefined && student.scores[id] !== null ? student.scores[id] : "N/A")
     ];
+    for (const id of examIdList) {
+      const d = student.details[id];
+      if (d) {
+        row.push(d.score ?? "N/A");
+        row.push(d.rawScore ?? "N/A");
+        row.push(d.maxScore ?? "N/A");
+        row.push(d.timeTaken ?? "N/A");
+        row.push(d.createdAt ? new Date(d.createdAt).toLocaleString() : "N/A");
+      } else {
+        row.push("N/A", "N/A", "N/A", "N/A", "N/A");
+      }
+    }
     if (includeAverage) row.push(student.averageScore);
     return row.map(v => `"${String(v).replace(/"/g, '""')}"`).join(",");
   });
@@ -749,6 +771,51 @@ async function getReviewForAdmin(studentId, examIdRaw) {
   return response;
 }
 
+async function bulkDeleteResults(resultIds) {
+  if (!Array.isArray(resultIds) || resultIds.length === 0) return { count: 0 };
+  
+  const parsedIds = resultIds.map(id => Number(id)).filter(Number.isFinite);
+  if (parsedIds.length === 0) return { count: 0 };
+
+  const { count } = await prisma.result.deleteMany({
+    where: { id: { in: parsedIds } },
+  });
+
+  return { count };
+}
+
+async function bulkEmailResults(resultIds) {
+  if (!Array.isArray(resultIds) || resultIds.length === 0) return { count: 0 };
+  
+  const parsedIds = resultIds.map(id => Number(id)).filter(Number.isFinite);
+  if (parsedIds.length === 0) return { count: 0 };
+
+  const { sendMail } = require("./mailer.service");
+
+  const results = await prisma.result.findMany({
+    where: { id: { in: parsedIds } },
+    include: {
+      student: { select: { name: true, email: true } },
+      exam: { select: { title: true } },
+    }
+  });
+
+  let sentCount = 0;
+  for (const r of results) {
+    if (r.student && r.student.email) {
+      await sendMail({
+        to: r.student.email,
+        subject: `Your Exam Result: ${r.exam.title}`,
+        text: `Hello ${r.student.name},\n\nYour result for the exam "${r.exam.title}" has been processed.\n\nScore: ${r.score}%\n\nRegards,\nNCC Exam Portal`,
+        html: `<p>Hello ${r.student.name},</p><p>Your result for the exam <strong>"${r.exam.title}"</strong> has been processed.</p><p><strong>Score: ${r.score}%</strong></p><p>Regards,<br/>NCC Exam Portal</p>`,
+      });
+      sentCount++;
+    }
+  }
+
+  return { count: sentCount };
+}
+
 module.exports = {
   mapResultRow,
   listForStudent,
@@ -759,4 +826,6 @@ module.exports = {
   exportBulkExamResultsCsv,
   getReviewForStudent,
   getReviewForAdmin,
+  bulkDeleteResults,
+  bulkEmailResults,
 };

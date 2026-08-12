@@ -9,6 +9,8 @@ import { invalidateCachedResourcePattern } from '../../lib/resourceCache';
 import CustomSelect from '../../components/CustomSelect';
 import MultiSelect from '../../components/MultiSelect';
 import ViewUserModal from '../components/ViewUserModal';
+import { Checkbox } from '../../components/ui/checkbox';
+import { BulkActionBar, BulkActionButton } from '../components/BulkActionBar';
 
 // ─── Skeleton row for loading state ─────────────────────────────────────────
 
@@ -66,6 +68,58 @@ export default function ResultsBoard() {
   const [selectedUser, setSelectedUser] = useState(null);
   const [isViewOpen, setIsViewOpen] = useState(false);
 
+  // ── Bulk Actions state ────────────────────────────────────────────────────
+  const [selectedRows, setSelectedRows] = useState(new Set());
+  const [isBulkProcessing, setIsBulkProcessing] = useState(false);
+
+  const handleSelectAll = (checked) => {
+    if (checked) {
+      setSelectedRows(new Set(results.map(r => r.id)));
+    } else {
+      setSelectedRows(new Set());
+    }
+  };
+
+  const handleSelectRow = (id, checked) => {
+    const newSelected = new Set(selectedRows);
+    if (checked) {
+      newSelected.add(id);
+    } else {
+      newSelected.delete(id);
+    }
+    setSelectedRows(newSelected);
+  };
+
+  const handleBulkEmail = async () => {
+    try {
+      setIsBulkProcessing(true);
+      toast.loading(`Emailing ${selectedRows.size} student(s)...`, { id: 'bulk-email' });
+      await adminApi.bulkEmailResults({ resultIds: Array.from(selectedRows) });
+      toast.success('Emails sent successfully!', { id: 'bulk-email' });
+      setSelectedRows(new Set());
+    } catch (err) {
+      toast.error('Failed to send emails.', { id: 'bulk-email' });
+    } finally {
+      setIsBulkProcessing(false);
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (!window.confirm(`Are you sure you want to delete ${selectedRows.size} result(s)? This action cannot be undone.`)) return;
+    try {
+      setIsBulkProcessing(true);
+      toast.loading(`Deleting ${selectedRows.size} result(s)...`, { id: 'bulk-delete' });
+      await adminApi.bulkDeleteResults({ resultIds: Array.from(selectedRows) });
+      toast.success('Results deleted successfully!', { id: 'bulk-delete' });
+      setSelectedRows(new Set());
+      fetchResults(); // Refresh table
+    } catch (err) {
+      toast.error('Failed to delete results.', { id: 'bulk-delete' });
+    } finally {
+      setIsBulkProcessing(false);
+    }
+  };
+
   // ── Load dropdown lists once ──────────────────────────────────────────────
   useEffect(() => {
     adminApi.getColleges()
@@ -112,8 +166,14 @@ export default function ResultsBoard() {
 
       const response = await examApi.getResults(params);
       if (!controller.signal.aborted) {
-        setResults(response?.data?.results || []);
-        setPagination(response?.data?.pagination || { totalPages: 1, total: 0 });
+        const data = response?.data || {};
+        setResults(data.results || []);
+        setPagination({
+          total: data.total || 0,
+          totalPages: data.totalPages || 1,
+        });
+        // clear selection on page change or filter change
+        setSelectedRows(new Set());
       }
     } catch (err) {
       if (!controller.signal.aborted) {
@@ -189,7 +249,7 @@ export default function ResultsBoard() {
     + (debouncedSearch ? 1 : 0);
   const clearAllFilters = () => setFilters({ college: [], exam: [], search: '', status: 'all', sort: 'default' });
 
-  const colCount = isAdmin ? 8 : 7;
+  const colCount = isAdmin ? 11 : 10;
 
   return (
     <div>
@@ -354,11 +414,20 @@ export default function ResultsBoard() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-stone border-b border-stone-deep font-mono text-[11px] tracking-[0.1em] uppercase text-ink-4">
+                <th className="font-normal px-4 py-3 w-[40px]">
+                  <Checkbox 
+                    checked={results.length > 0 && selectedRows.size === results.length}
+                    onCheckedChange={handleSelectAll}
+                    aria-label="Select all rows"
+                  />
+                </th>
                 <th className="font-normal px-4 py-3">Cadet Name</th>
                 <th className="font-normal px-4 py-3">Regimental No.</th>
                 <th className="font-normal px-4 py-3">College</th>
                 <th className="font-normal px-4 py-3">Exam</th>
                 <th className="font-normal px-4 py-3">Score</th>
+                <th className="font-normal px-4 py-3">Duration</th>
+                <th className="font-normal px-4 py-3">Submitted</th>
                 <th className="font-normal px-4 py-3">Status</th>
                 <th className="font-normal px-2 py-3">Violations</th>
                 {isAdmin && <th className="font-normal px-4 py-3 text-right">Action</th>}
@@ -382,7 +451,14 @@ export default function ResultsBoard() {
                 </tr>
               ) : (
                 results.map((r) => (
-                  <tr key={r.id} className="border-b border-stone-mid hover:bg-stone-wash transition-colors last:border-b-0">
+                  <tr key={r.id} className={`border-b border-stone-mid hover:bg-stone-wash transition-colors last:border-b-0 ${selectedRows.has(r.id) ? 'bg-stone-wash' : ''}`}>
+                    <td className="px-4 py-3">
+                      <Checkbox 
+                        checked={selectedRows.has(r.id)}
+                        onCheckedChange={(checked) => handleSelectRow(r.id, checked)}
+                        aria-label={`Select ${r.studentName}`}
+                      />
+                    </td>
                     <td className="px-4 py-3">
                       <button 
                         onClick={() => {
@@ -419,7 +495,215 @@ export default function ResultsBoard() {
                       )}
                     </td>
                     <td className={`px-4 py-3 font-semibold ${r.score >= 70 ? 'text-[#3B6D11]' : r.score < 40 ? 'text-crimson' : 'text-ink'}`}>
-                      {r.score}%
+                      {r.rawScore != null && r.maxScore != null ? (
+                        <div className="flex flex-col">
+                          <span>{r.rawScore} / {r.maxScore}</span>
+                          <span className="text-[11px] font-normal opacity-75">{r.score}%</span>
+                        </div>
+                      ) : (
+                        <span>{r.score}%</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-[13px] text-ink-3">
+                      {r.timeTaken ? `${Math.floor(r.timeTaken / 60)}m ${r.timeTaken % 60}s` : '—'}
+                    </td>
+                    <td className="px-4 py-3 text-[13px] text-ink-3">
+                      {r.createdAt ? new Date(r.createdAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : '—'}
+                    </td>
+                    <td className="px-4 py-3">
+                      {r.score >= 70 ? (
+                        <span className="font-mono text-[10px] tracking-[0.06em] py-1 px-2.5 rounded-full font-medium inline-flex bg-[#3b6d1120] text-[#3B6D11] border border-[#3b6d1130]">Distinction</span>
+                      ) : r.score >= 40 ? (
+                        <span className="font-mono text-[10px] tracking-[0.06em] py-1 px-2.5 rounded-full font-medium inline-flex bg-[#10b98120] text-[#059669] border border-[#10b98130]">Qualified</span>
+                      ) : (
+                        <span className="font-mono text-[10px] tracking-[0.06em] py-1 px-2.5 rounded-full font-medium inline-flex bg-[#ef444420] text-[#b91c1c] border border-[#b91c1c30]">Not Clear</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      {r.violationCount > 0 ? (
+                        <span
+                          className="inline-flex items-center gap-1 font-mono text-[10px] tracking-[0.06em] py-1 px-2.5 rounded-full font-bold bg-rose-500/10 text-rose-600 border border-rose-500/25"
+                          title={`${r.violationCount} anti-cheat violation${r.violationCount > 1 ? 's' : ''} recorded`}
+                        >
+                          <ShieldAlert size={10} />
+                          {r.violationCount} Violation{r.violationCount > 1 ? 's' : ''}
+                        </span>
+                      ) : (
+                        <span className="font-mono text-[10px] text-ink-4">—</span>
+                      )}
+                    </td>
+                    {isAdmin && (
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <Link
+                            to={`/admin/results/review/${r.examId}/${r.studentId}`}
+                            className="w-8 h-8 rounded-md inline-flex items-center justify-center text-navy-soft hover:bg-stone hover:text-navy transition-colors"
+                            title="View Exam Review"
+                          >
+                            <FileText size={16} />
+                          </Link>
+                          <button
+                            className="w-8 h-8 rounded-md inline-flex items-center justify-center text-navy-soft hover:bg-stone hover:text-navy transition-colors"
+                            onClick={() => { setEditingResult(r); setOverrideForm({ score: r.score, reason: '' }); }}
+                            title="Override Score"
+                          >
+                            <Edit3 size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    )}
+                  </tr>
+                ))
+              )}
+            </tbody>
+          </table>
+        </div>
+
+        <Pagination
+          currentPage={page}
+          totalPages={pagination.totalPages}
+          totalItems={pagination.total}
+          onPageChange={setPage}
+          loading={loading}
+        />
+      </div>
+
+      {/* ── Export Settings Modal ───────────────────────────────────────────── */}
+      {showExportModal && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-[#0E1929]/40 backdrop-blur-sm">
+          <div className="w-full max-w-[400px] max-h-[90dvh] shadow-[0_20px_50px_rgba(0,0,0,0.15)] rounded-2xl">
+            <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full h-full max-h-[90dvh] flex flex-col overflow-hidden">
+              <div className="shrink-0 bg-stone border-b border-stone-mid px-6 py-5 flex justify-between items-center">
+              <div className="flex items-center gap-2.5">
+                <Download size={20} className="text-navy" />
+                <h2 className="m-0 font-ui text-[18px] font-semibold text-navy">Export Settings</h2>
+              </div>
+              <button className="text-ink-4 hover:bg-stone-mid hover:text-ink p-1.5 rounded-full transition-colors" onClick={() => setShowExportModal(false)}>
+                <XCircle size={20} />
+              </button>
+            </div>
+            <form onSubmit={handleExportSubmit} className="flex flex-col flex-1 overflow-hidden">
+              <div className="flex-1 overflow-y-auto p-6">
+                <div className="mb-5 p-3 bg-stone rounded-lg text-[12px] text-ink-3 font-ui border border-stone-mid">
+                  Will export <strong className="text-ink">{pagination.total ?? 'all'}</strong> records with current filters applied.
+                </div>
+                <div className="mb-5">
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="w-4 h-4 rounded border-stone-deep accent-navy"
+                      checked={exportSettings.includeAverage}
+                      onChange={(e) => setExportSettings(s => ({ ...s, includeAverage: e.target.checked }))}
+                    />
+                    <span className="font-ui text-[14px] text-ink-2">Include Average Score column</span>
+                  </label>
+                </div>
+                <div className="mb-5">
+                  <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Sort By</label>
+                  <CustomSelect
+                    value={exportSettings.sortBy}
+                    onChange={(val) => setExportSettings(s => ({ ...s, sortBy: val }))}
+                    options={[
+                      { value: "Average", label: "Average Score" },
+                      { value: "Name", label: "Student Name" }
+                    ]}
+                  />
+                </div>
+                <div className="mb-6">
+                  <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Order</label>
+                  <CustomSelect
+                    value={exportSettings.sortOrder}
+                    onChange={(val) => setExportSettings(s => ({ ...s, sortOrder: val }))}
+                    options={[
+                      { value: "asc", label: "Ascending (A–Z / Low to High)" },
+                      { value: "desc", label: "Descending (Z–A / High to Low)" }
+                    ]}
+                  />
+                </div>
+              </div>
+              <div className="shrink-0 px-6 py-5 bg-stone border-t border-stone-deep flex gap-3 mt-auto rounded-b-2xl">
+                <button type="button" className="flex-1 h-[36px] rounded-md font-ui text-[13px] font-medium flex items-center justify-center gap-2 bg-transparent text-ink-2 border border-stone-deep hover:bg-stone transition-all" onClick={() => setShowExportModal(false)}>
+                  Cancel
+                </button>
+                <button type="submit" className="flex-[2] h-[36px] rounded-md font-ui text-[13px] font-medium flex items-center justify-center gap-2 bg-navy text-[#F4F0E4] hover:bg-navy-mid transition-all">
+                  <Download size={14} />
+                  Generate CSV
+                </button>
+              </div>
+            </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ── Override Modal ──────────────────────────────────────────────────── */}
+      {isAdmin && editingResult && (
+        <div className="fixed inset-0 z-[1000] flex items-center justify-center p-4 bg-[#0E1929]/40 backdrop-blur-sm">
+          <div className="w-full max-w-[450px] max-h-[90dvh] shadow-[0_20px_50px_rgba(0,0,0,0.15)] rounded-2xl">
+            <div className="bg-[#FDFCF8] border border-stone-deep rounded-2xl w-full h-full max-h-[90dvh] flex flex-col overflow-hidden">
+              <div className="shrink-0 bg-stone border-b border-stone-mid px-6 py-5 flex justify-between items-center">
+              <div className="flex items-center gap-2.5">
+                <ShieldAlert size={20} className="text-crimson" />
+                <h2 className="m-0 font-ui text-[18px] font-semibold text-crimson">Score Override</h2>
+              </div>
+              <button className="text-ink-4 hover:bg-stone-mid hover:text-ink p-1.5 rounded-full transition-colors" onClick={() => setEditingResult(null)}>
+                <XCircle size={20} />
+              </button>
+            </div>
+            <form onSubmit={handleOverride} className="flex flex-col flex-1 overflow-hidden">
+              <div className="flex-1 overflow-y-auto p-6">
+                <div className="mb-5 p-3 bg-stone rounded-lg border-l-4 border-l-navy border border-stone-mid">
+                  <div className="font-mono text-[10px] tracking-[0.1em] uppercase text-ink-4 mb-1">Target Cadet</div>
+                  <div className="font-semibold text-navy">{editingResult.studentName}</div>
+                <div className="text-[12px] text-ink-3">{editingResult.examTitle}</div>
+              </div>
+              <div className="mb-5">
+                <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Revised Score (%)</label>
+                <input
+                  type="number"
+                  className="w-full h-[38px] px-3 border border-stone-deep rounded-md font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all"
+                  min="-100" max="100" required
+                  value={overrideForm.score}
+                  onChange={e => setOverrideForm(f => ({ ...f, score: e.target.value }))}
+                />
+              </div>
+              <div className="mb-5">
+                <label className="block font-mono text-[10px] tracking-[0.1em] uppercase text-ink-3 mb-1.5">Reason for Override</label>
+                <textarea
+                  className="w-full p-3 border border-stone-deep rounded-md font-ui text-[14px] text-ink bg-white outline-none focus:border-navy-soft focus:ring-[3px] focus:ring-navy-wash transition-all min-h-[80px] resize-none"
+                  placeholder="e.g. Technical error during submission..."
+                  required
+                  value={overrideForm.reason}
+                  onChange={e => setOverrideForm(f => ({ ...f, reason: e.target.value }))}
+                />
+                </div>
+              </div>
+              <div className="shrink-0 px-6 py-5 bg-stone border-t border-stone-deep flex gap-3 mt-auto rounded-b-2xl">
+                <button type="button" className="flex-1 h-[36px] rounded-md font-ui text-[13px] font-medium flex items-center justify-center gap-2 bg-transparent text-ink-2 border border-stone-deep hover:bg-stone transition-all" onClick={() => setEditingResult(null)}>
+                  Cancel
+                </button>
+                <button type="submit" className="flex-[2] h-[36px] rounded-md font-ui text-[13px] font-medium flex items-center justify-center gap-2 bg-navy text-[#F4F0E4] hover:bg-navy-mid transition-all disabled:opacity-50 disabled:cursor-not-allowed" disabled={submitting}>
+                  {submitting ? <><Loader2 size={14} className="animate-spin" /> Updating...</> : 'Confirm Override'}
+                </button>
+              </div>
+            </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <ViewUserModal 
+        isOpen={isViewOpen} 
+        onClose={() => {
+          setIsViewOpen(false);
+                        <span>{r.score}%</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-[13px] text-ink-3">
+                      {r.timeTaken ? `${Math.floor(r.timeTaken / 60)}m ${r.timeTaken % 60}s` : '—'}
+                    </td>
+                    <td className="px-4 py-3 text-[13px] text-ink-3">
+                      {r.createdAt ? new Date(r.createdAt).toLocaleString([], { dateStyle: 'short', timeStyle: 'short' }) : '—'}
                     </td>
                     <td className="px-4 py-3">
                       {r.score >= 70 ? (
@@ -611,6 +895,26 @@ export default function ResultsBoard() {
         }} 
         user={selectedUser}
       />
+
+      <BulkActionBar 
+        selectedCount={selectedRows.size} 
+        onClearSelection={() => setSelectedRows(new Set())}
+        isProcessing={isBulkProcessing}
+      >
+        <BulkActionButton 
+          icon={Mail} 
+          label="Email Results" 
+          onClick={handleBulkEmail} 
+          disabled={isBulkProcessing} 
+        />
+        <BulkActionButton 
+          icon={Trash2} 
+          label="Delete" 
+          onClick={handleBulkDelete} 
+          disabled={isBulkProcessing} 
+          variant="danger"
+        />
+      </BulkActionBar>
     </div>
   );
 }

@@ -177,6 +177,27 @@ async function bulkUpdateManageExams(req, res) {
   }
 }
 
+async function bulkDisable(req, res) {
+  try {
+    const { userIds } = req.body;
+    if (!Array.isArray(userIds) || userIds.length === 0) {
+      return res.status(400).json({ error: "Invalid or empty userIds array" });
+    }
+    const count = await usersService.bulkDisableUsers(userIds);
+    await auditLogService.recordAudit(req, {
+      action: "USER_BULK_DISABLE",
+      entityType: "User",
+      entityId: "bulk",
+      statusCode: 200,
+    });
+    logger.audit('USER_BULK_DISABLE', { count, userIds }, req.user.id);
+    res.json({ message: `Successfully disabled ${count} cadets`, count });
+  } catch (error) {
+    const status = error.status || 500;
+    res.status(status).json({ error: error.message || "Bulk disable failed" });
+  }
+}
+
 module.exports = {
   createUser,
   listAll,
@@ -190,4 +211,5 @@ module.exports = {
   createInstructor,
   bulkImportCadets,
   bulkUpdateManageExams,
+  bulkDisable,
 };

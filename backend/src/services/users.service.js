@@ -586,6 +586,31 @@ async function adminResetUserPassword(idRaw, newPassword) {
   return { ok: true };
 }
 
+async function bulkDisableUsers(userIds) {
+  if (!Array.isArray(userIds) || userIds.length === 0) return 0;
+  
+  const result = await prisma.user.updateMany({
+    where: {
+      id: { in: userIds.map(id => Number(id)) }
+    },
+    data: {
+      isActive: false
+    }
+  });
+
+  // Revoke active sessions for disabled users
+  await prisma.refreshToken.updateMany({
+    where: { 
+      userId: { in: userIds.map(id => Number(id)) }, 
+      revokedAt: null 
+    },
+    data: { revokedAt: new Date() },
+  });
+
+  await clearCollegesCache();
+  return result.count;
+}
+
 module.exports = {
   createUser,
   updateUser,
@@ -599,4 +624,5 @@ module.exports = {
   createInstructor,
   bulkImportCadets,
   bulkUpdateManageExams,
+  bulkDisableUsers,
 };

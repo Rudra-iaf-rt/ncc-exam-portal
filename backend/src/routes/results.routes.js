@@ -75,4 +75,18 @@ router.get(
   asyncHandler(resultsController.exportBulkCsv)
 );
 
+router.post(
+  "/results/bulk-delete",
+  authenticate,
+  requireAdmin,
+  asyncHandler(resultsController.bulkDelete)
+);
+
+router.post(
+  "/results/bulk-email",
+  authenticate,
+  requireStaff,
+  asyncHandler(resultsController.bulkEmail)
+);
+
 module.exports = router;

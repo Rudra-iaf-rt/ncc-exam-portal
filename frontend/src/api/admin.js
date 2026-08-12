@@ -33,16 +33,25 @@ export const adminApi = {
 
   getExams: () => apiClient.get('/admin/exams'),
   updateResult: (id, data) => apiClient.patch(`/admin/results/${id}`, data),
+  bulkEmailResults: (data) => apiClient.post('/results/bulk-email', data),
+  bulkDeleteResults: (data) => apiClient.post('/results/bulk-delete', data),
   searchUsers: (params) => apiClient.get('/admin/users/search', { params }),
 
   // Groups
   getGroups: () => apiClient.get('/admin/groups'),
-  createGroup: (data) => apiClient.post('/admin/groups', data),
   getGroup: (id) => apiClient.get(`/admin/groups/${id}`),
+  createGroup: (data) => apiClient.post('/admin/groups', data),
   updateGroup: (id, data) => apiClient.put(`/admin/groups/${id}`, data),
   deleteGroup: (id) => apiClient.delete(`/admin/groups/${id}`),
+  bulkDisableGroups: (data) => apiClient.post('/admin/groups/bulk-disable', data),
+  bulkEnableGroups: (data) => apiClient.post('/admin/groups/bulk-enable', data),
 
   getFilters: () => apiClient.get('/admin/users/filters'),
+  
+  bulkDisableUsers: (data) => apiClient.post('/admin/users/bulk-disable', data),
+  bulkDisableMaterials: (data) => apiClient.post('/admin/materials/bulk-disable', data),
+  bulkVerifyMaterials: (data) => apiClient.post('/admin/materials/bulk-verify', data),
+  bulkStatusExams: (data) => apiClient.post('/admin/exams/bulk-status', data),
   
   getLiveMonitor: (examId) => apiClient.get(`/admin/exams/${examId}/live-monitor`),
   getExamAnalytics: (examId) => apiClient.get(`/admin/exams/${examId}/analytics`),

@@ -55,6 +55,7 @@
   "devDependencies": {
     "@types/inquirer": "^9.0.10",
     "inquirer": "^8.2.7",
-    "jest": "^30.4.2"
+    "jest": "^30.4.2",
+    "jest-mock-extended": "^4.0.1"
   }
 }

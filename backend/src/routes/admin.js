@@ -6,8 +6,10 @@ const { requireAdmin, requireStaff } = require("../middleware/roles");
 const adminController = require("../controllers/admin.controller");
 const usersController = require("../controllers/users.controller");
 const groupController = require("../controllers/group.controller");
+const materialsController = require("../controllers/materials.controller");
 const { prisma } = require("../lib/prisma");
 const auditLogService = require("../services/audit-log.service");
+const { asyncHandler } = require("../middleware/error-handler");
 
 const router = express.Router();
 const upload = multer({ storage: multer.memoryStorage() });
@@ -49,7 +51,12 @@ router.post("/groups", authenticate, requireAdmin, groupController.createGroup);
 router.get("/groups/:id", authenticate, requireStaff, groupController.getGroup);
 router.put("/groups/:id", authenticate, requireAdmin, groupController.updateGroup);
 router.delete("/groups/:id", authenticate, requireAdmin, groupController.deleteGroup);
+router.post("/groups/bulk-disable", authenticate, requireAdmin, asyncHandler(groupController.bulkDisable));
+router.post("/groups/bulk-enable", authenticate, requireAdmin, asyncHandler(groupController.bulkEnable));
 
+// --- Materials Bulk Actions ---
+router.post("/materials/bulk-disable", authenticate, requireStaff, asyncHandler(materialsController.bulkDisable));
+router.post("/materials/bulk-verify", authenticate, requireStaff, asyncHandler(materialsController.bulkVerify));
 
 // --- Audit Logs ---
 router.get("/logs", authenticate, requireAdmin, async (req, res) => {

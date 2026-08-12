@@ -17635,3 +17635,34 @@ COMPONENT_STACK:
     at next (C:\College Projects\ncc-exam-portal\backend\node_modules\router\lib\route.js:157:13)
     at authenticate (C:\College Projects\ncc-exam-portal\backend\src\middleware\auth.js:51:5)
     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+[2026-08-11T19:02:26.264Z] [CLIENT ROOT] URL: http://localhost:5173/admin/dashboard | MSG: Cannot read properties of null (reading 'useState')
+STACK: TypeError: Cannot read properties of null (reading 'useState')
+    at exports.useState (http://localhost:5173/node_modules/.vite/deps/react.js?v=8b9c3e9b:748:30)
+    at AdminAuthProvider (http://localhost:5173/src/contexts/AdminAuthContext.jsx?t=1786474892459:11:26)
+    at Object.react_stack_bottom_frame (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=04e380e1:12868:12)
+    at renderWithHooks (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=04e380e1:4213:19)
+    at updateFunctionComponent (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=04e380e1:5569:16)
+    at beginWork (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=04e380e1:6140:20)
+    at runWithFiberInDEV (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=04e380e1:851:66)
+    at performUnitOfWork (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=04e380e1:8429:92)
+    at workLoopSync (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=04e380e1:8325:37)
+    at renderRootSync (http://localhost:5173/node_modules/.vite/deps/react-dom_client.js?v=04e380e1:8309:6)
+COMPONENT_STACK: 
+    at AdminAuthProvider (http://localhost:5173/src/contexts/AdminAuthContext.jsx?t=1786474892459:9:37)
+    at ConfirmProvider (http://localhost:5173/src/contexts/ConfirmContext.jsx:18:35)
+    at ErrorBoundary (http://localhost:5173/src/components/ErrorBoundary.jsx:8:3)
+    at Router (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=04e380e1:4575:29)
+    at BrowserRouter (http://localhost:5173/node_modules/.vite/deps/react-router-dom.js?v=04e380e1:6993:26)
+
+[2026-08-11T19:04:31.331Z] Error: Brevo API error: 401 {"message":"We have detected you are using an unrecognised IP address 2401:4900:882d:1c00:d1d:32a2:d1ea:423f. If you performed this action make sure to add the new IP address in this link: https://app.brevo.com/security/authorised_ips","code":"unauthorized"}
+
+    at sendMail (C:\College Projects\ncc-exam-portal\backend\src\services\mailer.service.js:41:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Object.bulkEmailResults (C:\College Projects\ncc-exam-portal\backend\src\services\results.service.js:806:7)
+    at async bulkEmail (C:\College Projects\ncc-exam-portal\backend\src\controllers\results.controller.js:81:18)
+[2026-08-11T19:06:36.380Z] Error: Brevo API error: 401 {"message":"We have detected you are using an unrecognised IP address 2401:4900:882d:1c00:d1d:32a2:d1ea:423f. If you performed this action make sure to add the new IP address in this link: https://app.brevo.com/security/authorised_ips","code":"unauthorized"}
+
+    at sendMail (C:\College Projects\ncc-exam-portal\backend\src\services\mailer.service.js:41:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Object.bulkEmailResults (C:\College Projects\ncc-exam-portal\backend\src\services\results.service.js:806:7)
+    at async bulkEmail (C:\College Projects\ncc-exam-portal\backend\src\controllers\results.controller.js:81:18)

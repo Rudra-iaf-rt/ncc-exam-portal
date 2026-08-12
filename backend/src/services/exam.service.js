@@ -1213,7 +1213,8 @@ async function submitExam(studentId, body) {
     selectedAnswer: String(selectedAnswer ?? ""),
   }));
 
-  const { score, correct, total } = scoreSubmission(exam.questions, finalAnswersArray, exam);
+  const { score, rawScore, maxScore } = scoreSubmission(exam.questions, finalAnswersArray, exam);
+  const timeTaken = Math.round((new Date().getTime() - new Date(attempt.startedAt).getTime()) / 1000);
 
   await prisma.$transaction([
     prisma.attempt.update({
@@ -1227,8 +1228,8 @@ async function submitExam(studentId, body) {
       where: {
         studentId_examId: { studentId, examId },
       },
-      create: { studentId, examId, score },
-      update: { score },
+      create: { studentId, examId, score, rawScore, maxScore, timeTaken },
+      update: { score, rawScore, maxScore, timeTaken },
     }),
   ]);
 
@@ -1458,6 +1459,56 @@ async function terminateSession(staffId, examIdRaw, studentIdRaw, reason) {
   return { success: true, message: "Session terminated successfully", attempt: updated };
 }
 
+async function bulkUpdateStatusByCreator(userId, examIds, status) {
+  if (!Array.isArray(examIds) || examIds.length === 0) {
+    throw new HttpError(400, "examIds must be a non-empty array");
+  }
+  
+  if (!["DRAFT", "LIVE", "COMPLETED", "ARCHIVED"].includes(String(status).toUpperCase())) {
+    throw new HttpError(400, "Invalid status");
+  }
+
+  // Determine user role and check access
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { role: true, canManageExams: true }
+  });
+
+  const isAdmin = user?.role === "ADMIN";
+  const canManage = isAdmin || (user?.role === "INSTRUCTOR" && user?.canManageExams);
+  
+  if (!canManage) {
+    throw new HttpError(403, "Access denied");
+  }
+
+  // If not admin, verify ownership
+  if (!isAdmin) {
+    const exams = await prisma.exam.findMany({
+      where: { id: { in: examIds.map(Number) } },
+      select: { id: true, createdBy: true }
+    });
+    
+    for (const exam of exams) {
+      if (exam.createdBy !== userId) {
+        throw new HttpError(403, `Not authorized to update exam ${exam.id}`);
+      }
+    }
+  }
+
+  await prisma.exam.updateMany({
+    where: { id: { in: examIds.map(Number) } },
+    data: { status }
+  });
+
+  // Bust cache
+  await cacheDelNamespace("exams:catalog");
+  for (const id of examIds) {
+    await cacheDelNamespace(`exams:details:${id}`);
+  }
+
+  return { success: true, count: examIds.length };
+}
+
 async function resetAttempt(staffId, examIdRaw, studentIdRaw) {
   const examId = Number(examIdRaw);
   const studentId = Number(studentIdRaw);
@@ -1519,4 +1570,5 @@ module.exports = {
   getAttemptDetails,
   terminateSession,
   resetAttempt,
+  bulkUpdateStatusByCreator,
 };

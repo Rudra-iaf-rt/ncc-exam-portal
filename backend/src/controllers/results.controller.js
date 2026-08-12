@@ -64,6 +64,24 @@ async function getAdminReview(req, res) {
   res.json(data);
 }
 
+async function bulkDelete(req, res) {
+  const { resultIds } = req.body;
+  if (!Array.isArray(resultIds) || resultIds.length === 0) {
+    return res.status(400).json({ error: "Missing resultIds array" });
+  }
+  const result = await resultsService.bulkDeleteResults(resultIds);
+  res.json(result);
+}
+
+async function bulkEmail(req, res) {
+  const { resultIds } = req.body;
+  if (!Array.isArray(resultIds) || resultIds.length === 0) {
+    return res.status(400).json({ error: "Missing resultIds array" });
+  }
+  const result = await resultsService.bulkEmailResults(resultIds);
+  res.json(result);
+}
+
 module.exports = {
   listStudent,
   listInstructor,
@@ -74,4 +92,6 @@ module.exports = {
   listAll,
   getReview,
   getAdminReview,
+  bulkDelete,
+  bulkEmail,
 };

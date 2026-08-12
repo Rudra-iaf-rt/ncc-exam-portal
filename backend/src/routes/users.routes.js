@@ -62,4 +62,11 @@ router.post(
   asyncHandler(usersController.bulkImportCadets)
 );
 
+router.post(
+  "/users/bulk-disable",
+  authenticate,
+  requireAdmin,
+  asyncHandler(usersController.bulkDisable)
+);
+
 module.exports = router;

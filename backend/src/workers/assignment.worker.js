@@ -21,7 +21,7 @@ if (!isDummyRedis) {
     }
   }, { 
     connection: redis,
-    concurrency: 5 // Adjust as needed
+    concurrency: 5
   });
 
   assignmentWorker.on("failed", (job, err) => {

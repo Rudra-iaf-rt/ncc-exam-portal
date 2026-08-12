@@ -3,9 +3,11 @@ import { PageHeader } from '../components/Shared';
 import { adminApi } from '../../api';
 import { toast } from 'sonner';
 import PageLoader from '../../components/PageLoader';
-import { Layers, Plus, Edit2, Trash2, X, Users, AlertCircle, Loader2 } from 'lucide-react';
+import { Layers, Plus, Edit2, Trash2, X, Users, AlertCircle, Loader2, Archive, PowerOff } from 'lucide-react';
 import MultiSelect from '../../components/MultiSelect';
 import { useConfirm } from '../../contexts/ConfirmContext';
+import { BulkActionBar, BulkActionButton } from '../components/BulkActionBar';
+import { Checkbox } from '../../components/ui/checkbox';
 
 export default function CandidateGroups() {
   const [groups, setGroups] = useState([]);
@@ -14,6 +16,9 @@ export default function CandidateGroups() {
   const [editingGroup, setEditingGroup] = useState(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const confirm = useConfirm();
+
+  const [selectedRows, setSelectedRows] = useState(new Set());
+  const [isBulkProcessing, setIsBulkProcessing] = useState(false);
 
   // Form State
   const [form, setForm] = useState({
@@ -147,6 +152,54 @@ export default function CandidateGroups() {
     }
   };
 
+  const handleSelectAll = (checked) => {
+    if (checked) {
+      setSelectedRows(new Set(groups.map(g => g.id)));
+    } else {
+      setSelectedRows(new Set());
+    }
+  };
+
+  const handleSelectRow = (id, checked) => {
+    const newSelected = new Set(selectedRows);
+    if (checked) {
+      newSelected.add(id);
+    } else {
+      newSelected.delete(id);
+    }
+    setSelectedRows(newSelected);
+  };
+
+  const handleBulkAction = async (action) => {
+    const count = selectedRows.size;
+    const isDisable = action === 'disable';
+    
+    const confirmed = await confirm({
+      title: isDisable ? 'Disable Groups' : 'Enable Groups',
+      message: `Are you sure you want to ${isDisable ? 'disable' : 'enable'} ${count} selected groups?`,
+      confirmText: isDisable ? 'Disable' : 'Enable',
+      isDanger: isDisable
+    });
+
+    if (!confirmed) return;
+
+    try {
+      setIsBulkProcessing(true);
+      if (isDisable) {
+        await adminApi.bulkDisableGroups({ groupIds: Array.from(selectedRows) });
+      } else {
+        await adminApi.bulkEnableGroups({ groupIds: Array.from(selectedRows) });
+      }
+      toast.success(`Successfully ${isDisable ? 'disabled' : 'enabled'} ${count} groups`);
+      setSelectedRows(new Set());
+      fetchData(false);
+    } catch (err) {
+      toast.error(err.response?.data?.error || `Failed to ${action} groups`);
+    } finally {
+      setIsBulkProcessing(false);
+    }
+  };
+
   if (loading) return <PageLoader text="Loading Candidate Groups..." />;
 
   return (
@@ -170,6 +223,12 @@ export default function CandidateGroups() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="border-b border-stone-mid bg-stone-wash/50 text-[11px] uppercase tracking-wider text-ink-4 font-mono">
+                <th className="py-4 px-6 font-semibold w-[40px]">
+                  <Checkbox 
+                    checked={groups.length > 0 && selectedRows.size === groups.length}
+                    onCheckedChange={handleSelectAll}
+                  />
+                </th>
                 <th className="py-4 px-6 font-semibold">Group Name</th>
                 <th className="py-4 px-6 font-semibold">Description</th>
                 <th className="py-4 px-6 font-semibold text-center">Colleges</th>
@@ -189,7 +248,13 @@ export default function CandidateGroups() {
                 </tr>
               ) : (
                 groups.map(group => (
-                  <tr key={group.id} className="hover:bg-stone-wash/50 transition-colors">
+                  <tr key={group.id} className={`hover:bg-stone-wash/50 transition-colors ${selectedRows.has(group.id) ? 'bg-stone-wash/50' : ''}`}>
+                    <td className="py-4 px-6">
+                      <Checkbox 
+                        checked={selectedRows.has(group.id)}
+                        onCheckedChange={(checked) => handleSelectRow(group.id, checked)}
+                      />
+                    </td>
                     <td className="py-4 px-6">
                       <div className="font-ui font-bold text-navy text-[14px]">{group.name}</div>
                       <div className="text-[11px] text-ink-4 mt-0.5">Created by {group.createdBy?.name || 'Unknown'}</div>
@@ -368,6 +433,26 @@ export default function CandidateGroups() {
           </div>
         </div>
       )}
+
+      <BulkActionBar 
+        selectedCount={selectedRows.size} 
+        onClearSelection={() => setSelectedRows(new Set())}
+        isProcessing={isBulkProcessing}
+      >
+        <BulkActionButton 
+          icon={Layers} 
+          label="Mark Active" 
+          onClick={() => handleBulkAction('enable')} 
+          disabled={isBulkProcessing} 
+        />
+        <BulkActionButton 
+          icon={PowerOff} 
+          label="Mark Inactive" 
+          onClick={() => handleBulkAction('disable')} 
+          disabled={isBulkProcessing} 
+          variant="danger"
+        />
+      </BulkActionBar>
     </div>
   );
 }

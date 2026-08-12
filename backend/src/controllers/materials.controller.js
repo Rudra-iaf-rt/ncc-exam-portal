@@ -135,4 +135,28 @@ async function update(req, res) {
   res.json(payload);
 }
 
-module.exports = { upload, list, download, view, getOne, remove, update };
+/**
+ * POST /materials/bulk-disable
+ */
+async function bulkDisable(req, res) {
+  const { materialIds } = req.body;
+  if (!materialIds) {
+    return res.status(400).json({ error: "materialIds required", code: "VAL_001" });
+  }
+  const payload = await materialsService.bulkDisableMaterials(materialIds);
+  res.json(payload);
+}
+
+/**
+ * POST /materials/bulk-verify
+ */
+async function bulkVerify(req, res) {
+  const { materialIds } = req.body;
+  if (!materialIds) {
+    return res.status(400).json({ error: "materialIds required", code: "VAL_001" });
+  }
+  const payload = await materialsService.bulkVerifyMaterials(materialIds);
+  res.json(payload);
+}
+
+module.exports = { upload, list, download, view, getOne, remove, update, bulkDisable, bulkVerify };

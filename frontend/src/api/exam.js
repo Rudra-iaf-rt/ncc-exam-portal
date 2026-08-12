@@ -3,6 +3,7 @@ import apiClient from './client';
 export const examApi = {
   // Staff/Admin Exam Management
   updateExamStatus: (id, status) => apiClient.patch(`/exams/${id}/publish`, { status }),
+  bulkStatusExams: (data) => apiClient.post('/exams/bulk-status', data),
   publishResults: (id) => apiClient.patch(`/exams/${id}/publish-results`),
   updateExamMeta: (id, data) => apiClient.patch(`/exams/${id}`, data),
   updateExamQuestions: (id, questions) => apiClient.put(`/exams/${id}/questions`, { questions }),

@@ -431,6 +431,42 @@ async function updateMaterial(id, body, user) {
   return { material: mapMaterialRow(updated) };
 }
 
+/**
+ * Bulk disable materials (soft delete)
+ */
+async function bulkDisableMaterials(materialIds) {
+  if (!Array.isArray(materialIds) || materialIds.length === 0) {
+    throw new HttpError(400, "materialIds array is required");
+  }
+  
+  // We don't trigger fire-and-forget B2 deletions here for bulk, 
+  // we just soft-delete the DB records. B2 orphaned files can be purged later via a script.
+  await prisma.material.updateMany({
+    where: { id: { in: materialIds } },
+    data: { isActive: false },
+  });
+
+  await invalidateMaterialsCache();
+  return { success: true, count: materialIds.length };
+}
+
+/**
+ * Bulk verify materials (make accessible)
+ */
+async function bulkVerifyMaterials(materialIds) {
+  if (!Array.isArray(materialIds) || materialIds.length === 0) {
+    throw new HttpError(400, "materialIds array is required");
+  }
+
+  await prisma.material.updateMany({
+    where: { id: { in: materialIds } },
+    data: { accessStatus: 'VERIFIED' },
+  });
+
+  await invalidateMaterialsCache();
+  return { success: true, count: materialIds.length };
+}
+
 module.exports = {
   createMaterial,
   listMaterials,
@@ -438,6 +474,8 @@ module.exports = {
   getMaterialForDownload,
   deleteMaterialById,
   updateMaterial,
+  bulkDisableMaterials,
+  bulkVerifyMaterials,
   // Exported for tests
   uploadToB2,
   deleteFromB2,

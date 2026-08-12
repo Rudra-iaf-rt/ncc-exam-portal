@@ -18,9 +18,11 @@ import AddUserModal from '../components/AddUserModal';
 import EditUserModal from '../components/EditUserModal';
 import ViewUserModal from '../components/ViewUserModal';
 import BatchManagementModal from '../components/BatchManagementModal';
-import { Calendar, Eye } from 'lucide-react';
+import { Calendar, Eye, UserX } from 'lucide-react';
 import { invalidateCachedResourcePattern } from '../../lib/resourceCache';
 import { useCachedFetch } from '../../hooks/useCachedFetch';
+import { Checkbox } from '../../components/ui/checkbox';
+import { BulkActionBar, BulkActionButton } from '../components/BulkActionBar';
 
 export default function UserManagement() {
   const { user } = useAdminAuth();
@@ -38,6 +40,9 @@ export default function UserManagement() {
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
   const [wingFilter, setWingFilter] = useState('ALL');
+
+  const [selectedRows, setSelectedRows] = useState(new Set());
+  const [isBulkProcessing, setIsBulkProcessing] = useState(false);
 
   // 300ms Debounce on Search Term
   useEffect(() => {
@@ -106,6 +111,47 @@ export default function UserManagement() {
 
   const handleRefresh = () => {
     invalidateCachedResourcePattern('admin-users-students');
+  };
+
+  const handleSelectAll = (checked) => {
+    if (checked) {
+      setSelectedRows(new Set(users.map(u => u.id)));
+    } else {
+      setSelectedRows(new Set());
+    }
+  };
+
+  const handleSelectRow = (id, checked) => {
+    const newSelected = new Set(selectedRows);
+    if (checked) {
+      newSelected.add(id);
+    } else {
+      newSelected.delete(id);
+    }
+    setSelectedRows(newSelected);
+  };
+
+  const handleBulkDisable = async () => {
+    const confirmed = await confirm({
+      title: 'Disable Selected Cadets',
+      message: `Are you sure you want to disable ${selectedRows.size} cadets? They will lose access to the portal until re-enabled.`,
+      confirmText: 'Disable Cadets',
+      isDanger: true
+    });
+
+    if (!confirmed) return;
+
+    try {
+      setIsBulkProcessing(true);
+      await adminApi.bulkDisableUsers({ userIds: Array.from(selectedRows) });
+      toast.success(`${selectedRows.size} cadets disabled successfully`);
+      setSelectedRows(new Set());
+      handleRefresh();
+    } catch (err) {
+      toast.error(err.message || 'Failed to disable cadets');
+    } finally {
+      setIsBulkProcessing(false);
+    }
   };
 
   return (
@@ -230,6 +276,12 @@ export default function UserManagement() {
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-stone border-b border-stone-deep font-mono text-[11px] tracking-[0.1em] uppercase text-ink-4">
+                <th className="font-normal px-4 py-3 w-[40px] pl-4">
+                  <Checkbox 
+                    checked={users.length > 0 && selectedRows.size === users.length}
+                    onCheckedChange={handleSelectAll}
+                  />
+                </th>
                 <th className="font-normal px-4 py-3">Name</th>
                 <th className="font-normal px-4 py-3">Regimental / ID</th>
                 <th className="font-normal px-4 py-3">Wing</th>
@@ -241,7 +293,13 @@ export default function UserManagement() {
             <tbody className="font-ui text-[13.5px] text-ink-2">
               {!loading ? (
                 users.map((user) => (
-                  <tr key={user.id} className="border-b border-stone-mid hover:bg-stone-wash transition-colors last:border-b-0">
+                  <tr key={user.id} className={`border-b border-stone-mid hover:bg-stone-wash transition-colors last:border-b-0 ${selectedRows.has(user.id) ? 'bg-stone-wash' : ''}`}>
+                    <td className="px-4 py-3 pl-4">
+                      <Checkbox 
+                        checked={selectedRows.has(user.id)}
+                        onCheckedChange={(checked) => handleSelectRow(user.id, checked)}
+                      />
+                    </td>
                     <td className="px-4 py-3">
                       <button 
                         onClick={() => openView(user)}
@@ -313,14 +371,14 @@ export default function UserManagement() {
                 ))
               ) : (
                 <tr>
-                  <td colSpan="6" className="text-center p-10 text-ink-4 font-mono text-[12px]">
+                  <td colSpan="7" className="text-center p-10 text-ink-4 font-mono text-[12px]">
                     Accessing Secure Database...
                   </td>
                 </tr>
               )}
               {!loading && users.length === 0 && (
                 <tr>
-                  <td colSpan="6" className="text-center p-10 text-ink-4 font-ui">
+                  <td colSpan="7" className="text-center p-10 text-ink-4 font-ui">
                     No records matching search criteria.
                   </td>
                 </tr>
@@ -336,6 +394,20 @@ export default function UserManagement() {
           loading={loading} 
         />
       </div>
+
+      <BulkActionBar 
+        selectedCount={selectedRows.size} 
+        onClearSelection={() => setSelectedRows(new Set())}
+        isProcessing={isBulkProcessing}
+      >
+        <BulkActionButton 
+          icon={UserX} 
+          label="Disable Selected" 
+          onClick={handleBulkDisable} 
+          disabled={isBulkProcessing} 
+          variant="danger"
+        />
+      </BulkActionBar>
     </div>
   );
 }
