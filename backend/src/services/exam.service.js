@@ -1213,7 +1213,7 @@ async function submitExam(studentId, body) {
     selectedAnswer: String(selectedAnswer ?? ""),
   }));
 
-  const { score, rawScore, maxScore } = scoreSubmission(exam.questions, finalAnswersArray, exam);
+  const { score, rawScore, maxScore, correct, total } = scoreSubmission(exam.questions, finalAnswersArray, exam);
   const timeTaken = Math.round((new Date().getTime() - new Date(attempt.startedAt).getTime()) / 1000);
 
   await prisma.$transaction([
