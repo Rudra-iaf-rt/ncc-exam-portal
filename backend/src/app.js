@@ -50,7 +50,8 @@ const allowedOrigins = [
   "https://ncc-exam-portal.vercel.app",
   "http://localhost:5173",
   "http://localhost:5174",
-  "https://ncc-exam-portal-1.onrender.com",
+  "http://localhost:8081",
+  "http://localhost:8080",
 ].map((x) => String(x || "").trim()).filter(Boolean);
 
 app.use(cors({
