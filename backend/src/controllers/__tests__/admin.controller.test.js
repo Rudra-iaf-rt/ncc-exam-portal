@@ -4,16 +4,12 @@ const monitorService = require('../../services/monitor.service');
 const analyticsService = require('../../services/analytics.service');
 const { prisma } = require('../../lib/prisma');
 const { cacheGetJson, cacheSetJson, cacheDelNamespace } = require('../../lib/cache');
-const { assignmentQueue } = require('../../lib/queue');
 const { ROLES } = require('../../middleware/roles');
 
 jest.mock('../../services/admin.service');
 jest.mock('../../services/monitor.service');
 jest.mock('../../services/analytics.service');
 jest.mock('../../services/leaderboard.service');
-jest.mock('../../lib/queue', () => ({
-  assignmentQueue: { add: jest.fn() }
-}));
 
 jest.mock('../../lib/prisma', () => ({
   prisma: {
@@ -113,13 +109,13 @@ describe('admin.controller', () => {
     it('should queue assignments in background', async () => {
       req.body = { examId: 10, userIds: [2, 3] };
       adminService.resolveAssignmentTargets.mockResolvedValueOnce({ targetUserIds: [2, 3], examTitle: 'Exam 1' });
-      assignmentQueue.add.mockResolvedValueOnce({ id: 'job1' });
+      adminService.processBulkAssignJob.mockResolvedValueOnce({ count: 2 });
 
       await adminController.createAssignments(req, res);
       
-      expect(assignmentQueue.add).toHaveBeenCalledWith('bulk_assign', {
-        examId: 10, targetUserIds: [2, 3], adminId: 1, examTitle: 'Exam 1'
-      }, expect.any(Object));
+      expect(adminService.processBulkAssignJob).toHaveBeenCalledWith(
+        10, [2, 3], 1, 'Exam 1'
+      );
       
       expect(res.status).toHaveBeenCalledWith(202);
     });

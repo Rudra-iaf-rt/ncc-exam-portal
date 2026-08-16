@@ -6,6 +6,7 @@ if (process.env.REDIS_URL) {
   const isDev = process.env.NODE_ENV === "development";
 
   redis = new Redis(process.env.REDIS_URL, {
+    family: 0,
     maxRetriesPerRequest: null,
     enableOfflineQueue: true,
     enableReadyCheck: true,

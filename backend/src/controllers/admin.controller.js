@@ -1,4 +1,4 @@
-const logger = require("../utils/logger")
+const { logger } = require("../utils/logger");
 const adminService = require("../services/admin.service");
 const monitorService = require("../services/monitor.service");
 const analyticsService = require("../services/analytics.service");
@@ -105,23 +105,26 @@ async function createAssignments(req, res) {
       req.user
     );
 
-    const { assignmentQueue } = require("../lib/queue");
-    
-    const job = await assignmentQueue.add("bulk_assign", {
-      examId,
-      targetUserIds,
-      adminId: req.user.id,
-      examTitle
-    }, {
-      removeOnComplete: true,
-      removeOnFail: false
-    });
+    // FIX: Parse and validate examId at the API boundary so the background
+    // job never receives a raw string or NaN.
+    const parsedExamId = parseInt(examId, 10);
+    if (!examId || isNaN(parsedExamId)) {
+      return res.status(400).json({ error: "examId must be a valid integer." });
+    }
+
+    // Run in the background (fire and forget)
+    adminService.processBulkAssignJob(parsedExamId, targetUserIds, req.user.id, examTitle)
+      .then(result => {
+        logger.info(`[Background] Successfully processed bulk assign for examId ${parsedExamId}: ${result.count} users assigned.`);
+      })
+      .catch(err => {
+        logger.error(`[Background] Failed to process bulk assign for examId ${parsedExamId}:`, err);
+      });
 
     // We don't bust the cache synchronously since it happens in the background.
     res.status(202).json({ 
       success: true, 
       message: "Assignments are being processed in the background.",
-      jobId: job.id,
       count: targetUserIds.length 
     });
   } catch (error) {

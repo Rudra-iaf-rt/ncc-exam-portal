@@ -213,7 +213,7 @@ export default function MaterialManagement() {
   const [selectedRows, setSelectedRows] = useState(new Set());
   const [isBulkProcessing, setIsBulkProcessing] = useState(false);
 
-  const { data: materialsData, loading, refetch } = useCachedFetch(null);
+
   const [selectedFile, setSelectedFile] = useState(null);
 
   const [formData, setFormData] = useState({

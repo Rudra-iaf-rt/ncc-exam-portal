@@ -339,50 +339,80 @@ async function resolveAssignmentTargets(examId, filters, userIds, currentUser) {
 }
 
 async function processBulkAssignJob(examId, targetUserIds, adminId, examTitle) {
-  const CHUNK_SIZE = 500;
-  let totalAssigned = 0;
-
-  for (let i = 0; i < targetUserIds.length; i += CHUNK_SIZE) {
-    const chunk = targetUserIds.slice(i, i + CHUNK_SIZE);
-    
-    // Create Assignments
-    const assignmentsData = chunk.map(uid => ({
-      userId: uid,
-      examId: parseInt(examId)
-    }));
-
-    const created = await prisma.examAssignment.createMany({
-      data: assignmentsData,
-      skipDuplicates: true
-    });
-    
-    totalAssigned += created.count;
-
-    // Create Notifications
-    if (created.count > 0) {
-      const notificationsData = chunk.map(uid => ({
-        userId: uid,
-        sentById: adminId,
-        message: `You have been scheduled for exam: ${examTitle}`
-      }));
-      await prisma.notification.createMany({
-        data: notificationsData,
-        skipDuplicates: true
-      });
-    }
+  // FIX: Parse once here so parseInt(examId) is never called on a stale
+  // string across multiple chunks — avoids NaN if examId arrived as "abc".
+  const parsedExamId = parseInt(examId, 10);
+  if (isNaN(parsedExamId)) {
+    throw new Error(`Invalid examId passed to processBulkAssignJob: ${examId}`);
   }
 
-  logger.audit('EXAM_BULK_ASSIGN', { examId, count: totalAssigned }, adminId);
+  const CHUNK_SIZE = 500;
+  let totalAssigned = 0;
+  // Track which user IDs were truly new assignments so we only notify those.
+  const newlyAssignedUserIds = [];
+
+  try {
+    for (let i = 0; i < targetUserIds.length; i += CHUNK_SIZE) {
+      const chunk = targetUserIds.slice(i, i + CHUNK_SIZE);
+
+      // --- Step 1: Create Assignments ---
+      // FIX: Find which users are already assigned BEFORE inserting, so we
+      // know exactly who is new. skipDuplicates silently drops them so we
+      // can't rely on created.count to identify which UIDs were skipped.
+      const alreadyAssigned = await prisma.examAssignment.findMany({
+        where: { examId: parsedExamId, userId: { in: chunk } },
+        select: { userId: true }
+      });
+      const alreadyAssignedSet = new Set(alreadyAssigned.map(a => a.userId));
+      const trulyNewUserIds = chunk.filter(uid => !alreadyAssignedSet.has(uid));
+
+      if (trulyNewUserIds.length > 0) {
+        await prisma.examAssignment.createMany({
+          data: trulyNewUserIds.map(uid => ({ userId: uid, examId: parsedExamId })),
+          skipDuplicates: true // belt-and-suspenders for race conditions
+        });
+        totalAssigned += trulyNewUserIds.length;
+        newlyAssignedUserIds.push(...trulyNewUserIds);
+
+        // --- Step 2: Create Notifications ONLY for newly assigned users ---
+        // FIX: Notification model has no @@unique([userId, examId]) so
+        // skipDuplicates does nothing. We only insert for new assignments.
+        await prisma.notification.createMany({
+          data: trulyNewUserIds.map(uid => ({
+            userId: uid,
+            sentById: adminId,
+            message: `You have been scheduled for exam: ${examTitle}`
+          }))
+        });
+      }
+    }
+  } catch (err) {
+    logger.error({
+      action: 'exam_bulk_assign_failed',
+      examId: parsedExamId,
+      adminId,
+      assignedSoFar: totalAssigned,
+      error_code: 'SRV_001',
+      message: err instanceof Error ? err.message : 'unknown error'
+    });
+    throw err;
+  }
+
+  logger.audit('EXAM_BULK_ASSIGN', { examId: parsedExamId, count: totalAssigned }, adminId);
+
+  // --- Step 3: Cache invalidation ---
   const { cacheDelNamespace, cacheDel } = require('../lib/cache');
   await Promise.all([
     cacheDelNamespace('assignments'),
-    // Bust per-student assignment slices for all assigned users so their
-    // dashboard shows the new exam within 60s (or immediately after invalidation).
-    // We delete by individual key since there is no namespace for student:assignments.
-    ...targetUserIds.map(uid => cacheDel([`student:assignments:${uid}`])),
-    // Also bust the global exam catalog so the new exam appears for students.
+    // FIX: Instead of N individual cacheDel() calls (one per student = up to
+    // 3,000 Redis commands), batch ALL student keys into a single DEL command.
+    // cacheDel accepts an array and calls redis.del(...keys) as one operation.
+    newlyAssignedUserIds.length > 0
+      ? cacheDel(newlyAssignedUserIds.map(uid => `student:assignments:${uid}`))
+      : Promise.resolve(),
     cacheDelNamespace('exams:catalog'),
   ]).catch(() => {});
+
   return { success: true, count: totalAssigned };
 }
 

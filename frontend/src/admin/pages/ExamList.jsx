@@ -532,7 +532,6 @@ export default function ExamList() {
             </div>
           </div>
           </div>
-        </div>
       )}
 
       {canManageExams && (

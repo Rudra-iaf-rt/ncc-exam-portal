@@ -15,7 +15,7 @@ jest.mock('../../lib/prisma', () => ({
     examHeartbeat: { count: jest.fn() },
     college: { findMany: jest.fn() },
     batch: { findMany: jest.fn() },
-    examAssignment: { createMany: jest.fn() },
+    examAssignment: { createMany: jest.fn(), findMany: jest.fn() },
     notification: { createMany: jest.fn() }
   }
 }));
@@ -28,7 +28,7 @@ jest.mock('../../lib/cache', () => ({
 }));
 
 jest.mock('../../utils/logger', () => ({
-  logger: { audit: jest.fn() }
+  logger: { audit: jest.fn(), error: jest.fn() }
 }));
 
 jest.mock('bcrypt', () => ({
@@ -116,6 +116,7 @@ describe('admin.service', () => {
 
   describe('processBulkAssignJob', () => {
     it('should chunk users, create assignments, notifications, and clear cache', async () => {
+      prisma.examAssignment.findMany.mockResolvedValue([]);
       prisma.examAssignment.createMany.mockResolvedValue({ count: 2 });
       prisma.notification.createMany.mockResolvedValue({ count: 2 });
 
@@ -130,10 +131,10 @@ describe('admin.service', () => {
         ],
         skipDuplicates: true
       });
-      expect(logger.audit).toHaveBeenCalledWith('EXAM_BULK_ASSIGN', { examId: '1', count: 2 }, 99);
+      expect(logger.audit).toHaveBeenCalledWith('EXAM_BULK_ASSIGN', { examId: 1, count: 2 }, 99);
       expect(cacheDelNamespace).toHaveBeenCalledWith('assignments');
       expect(cacheDelNamespace).toHaveBeenCalledWith('exams:catalog');
-      expect(cacheDel).toHaveBeenCalledWith(['student:assignments:10']);
+      expect(cacheDel).toHaveBeenCalledWith(['student:assignments:10', 'student:assignments:20']);
     });
   });
 
