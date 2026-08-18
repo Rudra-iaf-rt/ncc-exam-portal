@@ -72,3 +72,5 @@ jobs:
         run: npm run test
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          JWT_SECRET: "test-secret-key-123"
+          CLIENT_URL: "http://localhost:5173"
