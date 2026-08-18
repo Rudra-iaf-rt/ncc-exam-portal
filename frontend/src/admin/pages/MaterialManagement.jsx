@@ -215,6 +215,7 @@ export default function MaterialManagement() {
 
 
   const [selectedFile, setSelectedFile] = useState(null);
+  const [uploadProgress, setUploadProgress] = useState(null);
 
   const [formData, setFormData] = useState({
     title: '',

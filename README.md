@@ -165,5 +165,20 @@ npm install
 npm run dev
 ```
 
+### 4. CI/CD & Deployment
+
+This project utilizes a GitHub Actions CI pipeline and automatic CD to free-tier cloud providers.
+
+#### Continuous Integration (CI)
+On every push and Pull Request to `main` or `dev`, GitHub Actions automatically:
+1. **Frontend**: Runs `npm audit`, `eslint`, and a build validation.
+2. **Backend**: Runs `npm audit`, generates the Prisma client, and runs unit tests.
+
+#### Continuous Deployment (CD)
+Deployment is handled automatically by connecting the GitHub repository to the following providers:
+- **Frontend (Vercel)**: Connect the repository to Vercel, setting the framework to Vite and the Root Directory to `frontend`. It will deploy automatically on pushes to `main`.
+- **Backend (Render)**: Connect the repository to Render as a Web Service. Set the Root Directory to `backend`, Build Command to `npm install && npm run db:generate`, and Start Command to `npm start`.
+- **Database (Neon)**: Set up a free Postgres instance on Neon and provide the `DATABASE_URL` environment variable to both Render and GitHub Actions (if needed for integration tests).
+
 ---
 *Developed with Discipline and Engineering Precision for the National Cadet Corps.*
