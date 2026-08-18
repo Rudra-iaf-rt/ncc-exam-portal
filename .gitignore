@@ -59,3 +59,4 @@ sample_attempt.json
 templates/
 graphify-out
 adr/
+coverage/
