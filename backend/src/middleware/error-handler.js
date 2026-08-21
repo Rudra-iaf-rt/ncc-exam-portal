@@ -63,16 +63,14 @@ function errorHandler(err, req, res, next) {
   });
 
   // File logging
-  if (isServer) {
-    try {
-      const fs = require("fs");
-      const logMsg = `[${new Date().toISOString()}] ${err.stack || err.message}\n`;
-      fs.promises.appendFile("backend-error.log", logMsg).catch((e) => {
-        console.error("[LOGGER] Non-blocking error file append failed:", e.message);
-      });
-    } catch (e) {
-      console.error("[LOGGER] Failed to write to log file", e.message);
-    }
+  try {
+    const fs = require("fs");
+    const logMsg = `[${new Date().toISOString()}] STATUS: ${status} - ${err.stack || err.message}\n`;
+    fs.promises.appendFile("backend-error.log", logMsg).catch((e) => {
+      console.error("[LOGGER] Non-blocking error file append failed:", e.message);
+    });
+  } catch (e) {
+    console.error("[LOGGER] Failed to write to log file", e.message);
   }
 
   // Graceful failure for the user

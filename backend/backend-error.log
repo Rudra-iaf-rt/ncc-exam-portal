@@ -17666,3 +17666,36 @@ COMPONENT_STACK:
     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
     at async Object.bulkEmailResults (C:\College Projects\ncc-exam-portal\backend\src\services\results.service.js:806:7)
     at async bulkEmail (C:\College Projects\ncc-exam-portal\backend\src\controllers\results.controller.js:81:18)
+[2026-08-21T20:29:45.202Z] STATUS: 400 - PrismaClientValidationError: 
+Invalid `prisma.attempt.update()` invocation:
+
+{
+  where: {
+    id: 6
+  },
+  data: {
+    status: "SUBMITTED",
+    answers: {
+      4: "New Delhi",
+      5: "National Cadet Corps",
+      6: "30"
+    }
+  }
+}
+
+Unknown argument `rawScore`. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at zr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at zr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at zr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Array.$allOperations (C:\College Projects\ncc-exam-portal\backend\src\lib\prisma.js:86:24)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6862)
+[2026-08-21T20:39:30.297Z] STATUS: 403 - HttpError: Results are not published yet
+    at Object.getReviewForStudent (C:\College Projects\ncc-exam-portal\backend\src\services\results.service.js:440:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async getReview (C:\College Projects\ncc-exam-portal\backend\src\controllers\results.controller.js:58:16)
+[2026-08-21T20:40:24.701Z] STATUS: 403 - HttpError: Results are not published yet
+    at Object.getReviewForStudent (C:\College Projects\ncc-exam-portal\backend\src\services\results.service.js:440:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async getReview (C:\College Projects\ncc-exam-portal\backend\src\controllers\results.controller.js:58:16)

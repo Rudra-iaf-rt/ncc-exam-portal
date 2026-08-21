@@ -1027,7 +1027,6 @@ async function saveAttemptAnswer(studentId, body) {
     throw new HttpError(400, "nextQuestionIndex must be a non-negative number");
   }
 
-  // 1. Fetch Attempt
   const attempt = await getOrCreateAttempt(studentId, examId, "saving answers");
   if (attempt.status !== "IN_PROGRESS") {
     throw new HttpError(409, "This attempt is already submitted");
@@ -1042,10 +1041,6 @@ async function saveAttemptAnswer(studentId, body) {
     throw new HttpError(403, "Time limit exceeded");
   }
 
-  // 2. Fetch Exam timing/question-list data (Redis-cached).
-  // IMPORTANT: uses a separate key from exams:details:* to avoid schema collision.
-  // This object only carries { id, duration, questions:[{id}] } — never question
-  // text, options, or answers — so it cannot overwrite the richer student-facing cache.
   const timingCacheKey = `exams:timing:${examId}`;
   let cachedExam = null;
   try {
@@ -1149,7 +1144,7 @@ async function syncAttemptAnswers(studentId, body) {
     const mergedAnswers = { ...currentAnswers };
     for (const [qid, ans] of Object.entries(answers)) {
       if (ans != null) {
-        mergedAnswers[String(qid)] = normalizeAnswer(ans);
+        mergedAnswers[ans.questionId ?? qid] = ans.selectedAnswer !== undefined ? ans.selectedAnswer : null;
       }
     }
     await prisma.attempt.update({
@@ -1204,7 +1199,7 @@ async function submitExam(studentId, body) {
   if (!isLate && Array.isArray(answers)) {
     // Ensure frontend-provided answers are merged into final storage
     answers.forEach(a => {
-      finalAnswers[a.questionId] = a.selectedAnswer;
+      finalAnswers[a.questionId] = a.selectedAnswer !== undefined ? a.selectedAnswer : null;
     });
   }
 
@@ -1215,6 +1210,11 @@ async function submitExam(studentId, body) {
 
   const { score, rawScore, maxScore, correct, total } = scoreSubmission(exam.questions, finalAnswersArray, exam);
   const timeTaken = Math.round((new Date().getTime() - new Date(attempt.startedAt).getTime()) / 1000);
+
+  const roundedRawScore = Number.isFinite(rawScore) ? Math.round(rawScore) : 0;
+  const roundedMaxScore = Number.isFinite(maxScore) ? Math.round(maxScore) : 0;
+  const safeScore = Number.isFinite(score) ? score : 0;
+  const safeTimeTaken = Number.isFinite(timeTaken) ? timeTaken : 0;
 
   await prisma.$transaction([
     prisma.attempt.update({
@@ -1228,22 +1228,18 @@ async function submitExam(studentId, body) {
       where: {
         studentId_examId: { studentId, examId },
       },
-      create: { studentId, examId, score, rawScore, maxScore, timeTaken },
-      update: { score, rawScore, maxScore, timeTaken },
+      create: { studentId, examId, score: safeScore, rawScore: roundedRawScore, maxScore: roundedMaxScore, timeTaken: safeTimeTaken },
+      update: { score: safeScore, rawScore: roundedRawScore, maxScore: roundedMaxScore, timeTaken: safeTimeTaken },
     }),
   ]);
 
-  // Best-effort invalidation (should never block submit response path).
-  // cacheDelNamespace targets only the keys registered in each namespace Set,
-  // replacing the previously-disabled cacheDelPattern no-ops.
   await Promise.all([
     cacheDelNamespace(`results:student:${studentId}`),
     cacheDelNamespace("results:admin"),
     cacheDelNamespace(`results:instructor`),
     cacheDelNamespace("leaderboard:unit"),
     cacheDelNamespace("exams:catalog"),
-    // Bust the new per-student slices so the dashboard reflects the submitted result
-    // and updated attempt status without waiting for TTL expiry.
+
     cacheDel([
       `student:results:${studentId}`,
       `student:attempts:${studentId}`,
