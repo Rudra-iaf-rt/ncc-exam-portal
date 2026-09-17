@@ -17739,3 +17739,261 @@ Unknown argument `rawScore`. Available options are marked with ?.
     at async e.interpretNode (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:46285)
     at async e.run (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:11:43335)
     at async e.execute (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:57:815)
+[2026-09-17T09:00:34.882Z] STATUS: 401 - HttpError: Invalid refresh token
+    at Object.refreshSessionWithToken (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:208:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async refreshWithToken (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:104:19)
+[2026-09-17T09:01:08.053Z] STATUS: 401 - HttpError: Invalid refresh token
+    at Object.refreshSessionWithToken (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:208:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async refreshWithToken (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:104:19)
+[2026-09-17T09:01:17.091Z] STATUS: 401 - HttpError: Invalid credentials
+    at Object.loginStaff (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:141:11)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:67:21)
+[2026-09-17T09:01:26.461Z] STATUS: 401 - HttpError: Invalid credentials
+    at Object.loginStaff (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:141:11)
+    at async loginStaff (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:67:21)
+[2026-09-17T09:55:47.728Z] STATUS: 400 - PrismaClientValidationError: 
+Invalid `prisma.exam.create()` invocation:
+
+{
+  data: {
+    title: "FITB test",
+    duration: 3,
+    createdBy: 1,
+    negativeMarking: false,
+    shuffleQuestions: false,
+    ~~~~~~~~~~~~~~~~
+    questions: {
+      create: [
+        {
+          question: "The National flag of India is a horizontal rectangular tricolour of India saffron white and India green with the Ashoka Chakra in ____.",
+          options: [],
+          answer: "navy blue",
+          type: "FILL_IN_THE_BLANK",
+          marks: 4
+        },
+        {
+          question: "Explain the motto of NCC.",
+          options: [],
+          answer: "Logo !",
+          type: "SUBJECTIVE",
+          marks: 4
+        }
+      ]
+    },
+    negativeMarks: 1,
+?   id?: Int,
+?   startAt?: DateTime | Null,
+?   endAt?: DateTime | Null,
+?   createdAt?: DateTime,
+?   status?: String,
+?   publishedAt?: DateTime | Null,
+?   resultsPublished?: Boolean,
+?   positiveMarks?: Int,
+?   attempts?: AttemptUncheckedCreateNestedManyWithoutExamInput,
+?   assignments?: ExamAssignmentUncheckedCreateNestedManyWithoutExamInput,
+?   heartbeats?: ExamHeartbeatUncheckedCreateNestedManyWithoutExamInput,
+?   violations?: ExamViolationUncheckedCreateNestedManyWithoutExamInput,
+?   materials?: MaterialUncheckedCreateNestedManyWithoutExamInput,
+?   results?: ResultUncheckedCreateNestedManyWithoutExamInput
+  },
+  include: {
+    questions: {
+      orderBy: {
+        id: "asc"
+      }
+    }
+  }
+}
+
+Unknown argument `shuffleQuestions`. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at zr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at zr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at zr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Array.$allOperations (C:\College Projects\ncc-exam-portal\backend\src\lib\prisma.js:86:24)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6862)
+    at async createExam (C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:75:16)
+    at async createFromExcel (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:51:16)
+[2026-09-17T09:55:53.784Z] STATUS: 400 - PrismaClientValidationError: 
+Invalid `prisma.exam.create()` invocation:
+
+{
+  data: {
+    title: "FITB test",
+    duration: 3,
+    createdBy: 1,
+    negativeMarking: false,
+    shuffleQuestions: false,
+    ~~~~~~~~~~~~~~~~
+    questions: {
+      create: [
+        {
+          question: "The National flag of India is a horizontal rectangular tricolour of India saffron white and India green with the Ashoka Chakra in ____.",
+          options: [],
+          answer: "navy blue",
+          type: "FILL_IN_THE_BLANK",
+          marks: 4
+        },
+        {
+          question: "Explain the motto of NCC.",
+          options: [],
+          answer: "Logo !",
+          type: "SUBJECTIVE",
+          marks: 4
+        }
+      ]
+    },
+    negativeMarks: 1,
+?   id?: Int,
+?   startAt?: DateTime | Null,
+?   endAt?: DateTime | Null,
+?   createdAt?: DateTime,
+?   status?: String,
+?   publishedAt?: DateTime | Null,
+?   resultsPublished?: Boolean,
+?   positiveMarks?: Int,
+?   attempts?: AttemptUncheckedCreateNestedManyWithoutExamInput,
+?   assignments?: ExamAssignmentUncheckedCreateNestedManyWithoutExamInput,
+?   heartbeats?: ExamHeartbeatUncheckedCreateNestedManyWithoutExamInput,
+?   violations?: ExamViolationUncheckedCreateNestedManyWithoutExamInput,
+?   materials?: MaterialUncheckedCreateNestedManyWithoutExamInput,
+?   results?: ResultUncheckedCreateNestedManyWithoutExamInput
+  },
+  include: {
+    questions: {
+      orderBy: {
+        id: "asc"
+      }
+    }
+  }
+}
+
+Unknown argument `shuffleQuestions`. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at zr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at zr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at zr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Array.$allOperations (C:\College Projects\ncc-exam-portal\backend\src\lib\prisma.js:86:24)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6862)
+    at async createExam (C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:75:16)
+    at async createFromExcel (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:51:16)
+[2026-09-17T09:59:43.122Z] STATUS: 400 - PrismaClientValidationError: 
+Invalid `prisma.exam.create()` invocation:
+
+{
+  data: {
+    title: "FITB test",
+    duration: 3,
+    createdBy: 1,
+    negativeMarking: false,
+    shuffleQuestions: false,
+    ~~~~~~~~~~~~~~~~
+    questions: {
+      create: [
+        {
+          question: "The National flag of India is a horizontal rectangular tricolour of India saffron white and India green with the Ashoka Chakra in ____.",
+          options: [],
+          answer: "navy blue",
+          type: "FILL_IN_THE_BLANK",
+          marks: 4
+        },
+        {
+          question: "Explain the motto of NCC.",
+          options: [],
+          answer: "Logo !",
+          type: "SUBJECTIVE",
+          marks: 4
+        }
+      ]
+    },
+    negativeMarks: 1,
+?   id?: Int,
+?   startAt?: DateTime | Null,
+?   endAt?: DateTime | Null,
+?   createdAt?: DateTime,
+?   status?: String,
+?   publishedAt?: DateTime | Null,
+?   resultsPublished?: Boolean,
+?   positiveMarks?: Int,
+?   attempts?: AttemptUncheckedCreateNestedManyWithoutExamInput,
+?   assignments?: ExamAssignmentUncheckedCreateNestedManyWithoutExamInput,
+?   heartbeats?: ExamHeartbeatUncheckedCreateNestedManyWithoutExamInput,
+?   violations?: ExamViolationUncheckedCreateNestedManyWithoutExamInput,
+?   materials?: MaterialUncheckedCreateNestedManyWithoutExamInput,
+?   results?: ResultUncheckedCreateNestedManyWithoutExamInput
+  },
+  include: {
+    questions: {
+      orderBy: {
+        id: "asc"
+      }
+    }
+  }
+}
+
+Unknown argument `shuffleQuestions`. Available options are marked with ?.
+    at ar (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:10:1374)
+    at zr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7929)
+    at zr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at zr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Array.$allOperations (C:\College Projects\ncc-exam-portal\backend\src\lib\prisma.js:86:24)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6862)
+    at async createExam (C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:75:16)
+    at async createFromExcel (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:51:16)
+[2026-09-17T09:59:50.775Z] STATUS: 400 - HttpError: regimentalNumber and password are required
+    at Object.loginStudent (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:91:11)
+    at loginStudent (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:52:37)
+    at C:\College Projects\ncc-exam-portal\backend\src\middleware\error-handler.js:5:21
+    at Layer.handleRequest (C:\College Projects\ncc-exam-portal\backend\node_modules\router\lib\layer.js:152:17)
+    at next (C:\College Projects\ncc-exam-portal\backend\node_modules\router\lib\route.js:157:13)
+    at C:\College Projects\ncc-exam-portal\backend\node_modules\express-rate-limit\dist\index.cjs:807:7
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\College Projects\ncc-exam-portal\backend\node_modules\express-rate-limit\dist\index.cjs:691:5
+[2026-09-17T10:00:05.894Z] STATUS: 400 - HttpError: regimentalNumber and password are required
+    at Object.loginStudent (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:91:11)
+    at loginStudent (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:52:37)
+    at C:\College Projects\ncc-exam-portal\backend\src\middleware\error-handler.js:5:21
+    at Layer.handleRequest (C:\College Projects\ncc-exam-portal\backend\node_modules\router\lib\layer.js:152:17)
+    at next (C:\College Projects\ncc-exam-portal\backend\node_modules\router\lib\route.js:157:13)
+    at C:\College Projects\ncc-exam-portal\backend\node_modules\express-rate-limit\dist\index.cjs:807:7
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\College Projects\ncc-exam-portal\backend\node_modules\express-rate-limit\dist\index.cjs:691:5
+[2026-09-17T10:00:14.582Z] STATUS: 400 - HttpError: regimentalNumber and password are required
+    at Object.loginStudent (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:91:11)
+    at loginStudent (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:52:37)
+    at C:\College Projects\ncc-exam-portal\backend\src\middleware\error-handler.js:5:21
+    at Layer.handleRequest (C:\College Projects\ncc-exam-portal\backend\node_modules\router\lib\layer.js:152:17)
+    at next (C:\College Projects\ncc-exam-portal\backend\node_modules\router\lib\route.js:157:13)
+    at C:\College Projects\ncc-exam-portal\backend\node_modules\express-rate-limit\dist\index.cjs:807:7
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\College Projects\ncc-exam-portal\backend\node_modules\express-rate-limit\dist\index.cjs:691:5
+[2026-09-17T10:00:23.278Z] STATUS: 401 - HttpError: Invalid credentials
+    at Object.loginStudent (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:103:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async loginStudent (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:52:19)
+[2026-09-17T10:00:37.452Z] STATUS: 400 - HttpError: regimentalNumber and password are required
+    at Object.loginStudent (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:91:11)
+    at loginStudent (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:52:37)
+    at C:\College Projects\ncc-exam-portal\backend\src\middleware\error-handler.js:5:21
+    at Layer.handleRequest (C:\College Projects\ncc-exam-portal\backend\node_modules\router\lib\layer.js:152:17)
+    at next (C:\College Projects\ncc-exam-portal\backend\node_modules\router\lib\route.js:157:13)
+    at C:\College Projects\ncc-exam-portal\backend\node_modules\express-rate-limit\dist\index.cjs:807:7
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async C:\College Projects\ncc-exam-portal\backend\node_modules\express-rate-limit\dist\index.cjs:691:5
+[2026-09-17T10:08:25.559Z] STATUS: 403 - HttpError: Results are not published yet
+    at Object.getReviewForStudent (C:\College Projects\ncc-exam-portal\backend\src\services\results.service.js:440:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async getReview (C:\College Projects\ncc-exam-portal\backend\src\controllers\results.controller.js:58:16)
+[2026-09-17T10:09:33.110Z] STATUS: 404 - HttpError: No attempt found for this exam
+    at Object.getReviewForStudent (C:\College Projects\ncc-exam-portal\backend\src\services\results.service.js:403:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async getReview (C:\College Projects\ncc-exam-portal\backend\src\controllers\results.controller.js:58:16)
+[2026-09-17T10:14:46.745Z] STATUS: 404 - HttpError: No attempt found for this exam
+    at Object.getReviewForStudent (C:\College Projects\ncc-exam-portal\backend\src\services\results.service.js:403:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async getReview (C:\College Projects\ncc-exam-portal\backend\src\controllers\results.controller.js:58:16)

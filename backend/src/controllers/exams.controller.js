@@ -47,12 +47,14 @@ async function createFromExcel(req, res) {
   const duration = req.body?.duration;
   const negativeMarking = req.body?.negativeMarking === 'true' || req.body?.negativeMarking === true;
   const negativeMarks = req.body?.negativeMarks !== undefined ? Number(req.body.negativeMarks) : undefined;
+  const shuffleQuestions = req.body?.shuffleQuestions === 'true' || req.body?.shuffleQuestions === true;
 
   const exam = await examService.createExamFromExcel(req.user.id, {
     title,
     duration,
     negativeMarking,
     negativeMarks,
+    shuffleQuestions,
     excelBuffer: file.buffer,
   });
   await auditLogService.recordAudit(req, {

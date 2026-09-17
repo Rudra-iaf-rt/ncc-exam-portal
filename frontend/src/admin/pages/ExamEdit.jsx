@@ -32,7 +32,8 @@ export default function ExamEdit() {
     duration: 60,
     negativeMarking: false,
     positiveMarks: 4,
-    negativeMarks: 1.0
+    negativeMarks: 1.0,
+    shuffleQuestions: false
   });
 
   // Step 2: Questions
@@ -57,6 +58,7 @@ export default function ExamEdit() {
         negativeMarking: exam.negativeMarking ?? false,
         positiveMarks: exam.positiveMarks ?? 4,
         negativeMarks: exam.negativeMarks ?? 1.0,
+        shuffleQuestions: exam.shuffleQuestions ?? false,
       });
       setExamStatus(exam.status);
       
@@ -139,7 +141,8 @@ export default function ExamEdit() {
         duration: basicInfo.duration,
         negativeMarking: basicInfo.negativeMarking,
         positiveMarks: basicInfo.positiveMarks,
-        negativeMarks: basicInfo.negativeMarks
+        negativeMarks: basicInfo.negativeMarks,
+        shuffleQuestions: basicInfo.shuffleQuestions
       });
       invalidateCachedResource('admin-exam-list');
       toast.success('Examination metadata updated successfully.');
@@ -160,7 +163,11 @@ export default function ExamEdit() {
 
     setIsSubmittingQuestions(true);
     try {
-      await examApi.updateExamQuestions(id, questions);
+      const processedQuestions = questions.map(q => ({
+        ...q,
+        options: (q.type === 'FILL_IN_THE_BLANK' || q.type === 'SUBJECTIVE') ? [] : q.options
+      }));
+      await examApi.updateExamQuestions(id, processedQuestions);
       toast.success('Examination Question Blocks synchronized successfully.');
       invalidateCachedResource('admin-exam-list');
       goBack('/admin/exams');
@@ -311,6 +318,19 @@ export default function ExamEdit() {
                 </div>
               </div>
             )}
+            <div className="flex items-center gap-3 pt-4 mt-4 border-t border-stone-deep/50">
+              <input
+                type="checkbox"
+                id="shuffleQuestionsEdit"
+                checked={basicInfo.shuffleQuestions}
+                onChange={(e) => setBasicInfo({ ...basicInfo, shuffleQuestions: e.target.checked })}
+                disabled={isLocked}
+                className="w-4 h-4 text-navy accent-navy bg-white border-stone-deep rounded focus:ring-navy-wash focus:ring-2 disabled:opacity-50"
+              />
+              <label htmlFor="shuffleQuestionsEdit" className="font-mono text-[11px] tracking-[0.05em] uppercase text-ink-2 cursor-pointer">
+                Shuffle Question Order Per Cadet
+              </label>
+            </div>
           </div>
           
           <div className="flex justify-between items-center mt-8 pt-6 border-t border-stone-deep">

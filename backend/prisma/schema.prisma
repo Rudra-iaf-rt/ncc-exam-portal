@@ -136,6 +136,7 @@ model Exam {
   negativeMarking  Boolean          @default(false)
   positiveMarks    Int              @default(4)
   negativeMarks    Float            @default(1.0)
+  shuffleQuestions Boolean          @default(false)
   attempts    Attempt[]
   creator     User             @relation("ExamCreator", fields: [createdBy], references: [id])
   assignments ExamAssignment[]

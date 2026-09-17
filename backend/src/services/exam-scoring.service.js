@@ -6,6 +6,24 @@ function normalizeAnswer(value) {
   return String(value ?? "").trim();
 }
 
+/**
+ * Single source of truth for answer comparison.
+ * Used by scoring, review, and analytics — never diverges.
+ *
+ * @param {'MCQ'|'FILL_IN_THE_BLANK'|'SUBJECTIVE'} questionType
+ * @param {unknown} studentAnswer - Raw value from the answers JSONB blob
+ * @param {unknown} correctAnswer - Raw value from the question record
+ * @returns {boolean}
+ */
+function isAnswerCorrect(questionType, studentAnswer, correctAnswer) {
+  const s = normalizeAnswer(studentAnswer);
+  const c = normalizeAnswer(correctAnswer);
+  if (!s) return false; // blank / skipped
+  return questionType === 'FILL_IN_THE_BLANK'
+    ? s.toLowerCase() === c.toLowerCase()
+    : s === c; // MCQ: exact match after trim
+}
+
 function hashCode(str) {
   let hash = 0;
   for (let i = 0, len = str.length; i < len; i++) {
@@ -35,24 +53,31 @@ function seededShuffle(arr, seed) {
 function stripAnswersFromExam(exam, userId) {
   const sessionSeed = userId ? hashCode(`${userId}-${exam.id}`) : 0;
 
+  let questions = exam.questions.map((q) => {
+    const shuffledOptions = 
+      q.type === 'SUBJECTIVE' || !q.options?.length || !userId
+        ? q.options
+        : seededShuffle(q.options, hashCode(`${sessionSeed}-${q.id}`));
+
+    return {
+      id: q.id,
+      question: q.question,
+      type: q.type ?? 'MCQ',
+      topic: q.topic ?? null,
+      options: shuffledOptions,
+    };
+  });
+
+  if (exam.shuffleQuestions && userId) {
+    questions = seededShuffle(questions, sessionSeed);
+  }
+
   return {
     id: exam.id,
     title: exam.title,
     duration: exam.duration,
-    questions: exam.questions.map((q) => {
-      const shuffledOptions = 
-        q.type === 'SUBJECTIVE' || !q.options?.length || !userId
-          ? q.options
-          : seededShuffle(q.options, hashCode(`${sessionSeed}-${q.id}`));
-
-      return {
-        id: q.id,
-        question: q.question,
-        type: q.type ?? 'MCQ',
-        topic: q.topic ?? null,
-        options: shuffledOptions,
-      };
-    }),
+    shuffleQuestions: exam.shuffleQuestions ?? false,
+    questions,
   };
 }
 
@@ -121,6 +146,7 @@ function scoreSubmission(questions, answersInput, examConfig = {}) {
 
 module.exports = {
   normalizeAnswer,
+  isAnswerCorrect,
   stripAnswersFromExam,
   scoreSubmission,
 };

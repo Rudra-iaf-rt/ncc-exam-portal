@@ -12,7 +12,7 @@ const { extractPdfText, buildQuestionsFromPdfText } = require("./exam-pdf.servic
 const { extractQuestionsFromExcelBuffer } = require("./exam-excel.service");
 
 async function createExam(creatorUserId, body) {
-  const { title, duration, negativeMarking, negativeMarks, questions, startAt, endAt } = body ?? {};
+  const { title, duration, negativeMarking, negativeMarks, shuffleQuestions, questions, startAt, endAt } = body ?? {};
 
   if (!title || typeof title !== "string") {
     throw new HttpError(400, "title is required");
@@ -30,8 +30,11 @@ async function createExam(creatorUserId, body) {
     if (!q?.question || typeof q.question !== "string") {
       throw new HttpError(400, `questions[${i}].question is required`);
     }
-    if (!Array.isArray(q.options) || q.options.length < 2) {
-      throw new HttpError(400, `questions[${i}].options must have at least 2 strings`);
+    const qType = q.type || 'MCQ';
+    if (qType === 'MCQ') {
+      if (!Array.isArray(q.options) || q.options.length < 2) {
+        throw new HttpError(400, `questions[${i}].options must have at least 2 strings`);
+      }
     }
     if (q.answer == null || String(q.answer).trim() === "") {
       throw new HttpError(400, `questions[${i}].answer is required`);
@@ -54,15 +57,19 @@ async function createExam(creatorUserId, body) {
     duration: Math.floor(durationMin),
     createdBy: creatorUserId,
     negativeMarking: negativeMarking === true || negativeMarking === 'true',
+    shuffleQuestions: body?.shuffleQuestions === true || body?.shuffleQuestions === 'true',
     questions: {
       create: questions.map((q) => ({
         question: q.question.trim(),
-        options: q.options.map((o) => String(o)),
+        options: q.options?.map((o) => String(o)) ?? [],
         answer: normalizeAnswer(q.answer),
+        type: ['MCQ', 'FILL_IN_THE_BLANK', 'SUBJECTIVE'].includes(q.type) ? q.type : 'MCQ',
+        marks: Number.isFinite(Number(q.marks)) ? Number(q.marks) : 1,
       })),
     },
   };
   if (negativeMarks !== undefined) examData.negativeMarks = Number(negativeMarks);
+  if (shuffleQuestions !== undefined) examData.shuffleQuestions = Boolean(shuffleQuestions);
   if (parsedStartAt) examData.startAt = parsedStartAt;
   if (parsedEndAt) examData.endAt = parsedEndAt;
 
@@ -100,9 +107,17 @@ async function createExamFromPdf(creatorUserId, { title, duration, negativeMarki
   return createExam(creatorUserId, { title, duration, negativeMarking, negativeMarks, questions });
 }
 
-async function createExamFromExcel(creatorUserId, { title, duration, negativeMarking, negativeMarks, excelBuffer }) {
-  const questions = await extractQuestionsFromExcelBuffer(excelBuffer);
-  return createExam(creatorUserId, { title, duration, negativeMarking, negativeMarks, questions });
+async function createExamFromExcel(creatorUserId, { title, duration, negativeMarking, negativeMarks, shuffleQuestions, excelBuffer }) {
+  const parsedQuestions = await extractQuestionsFromExcelBuffer(excelBuffer);
+
+  return createExam(creatorUserId, {
+    title,
+    duration,
+    negativeMarking,
+    negativeMarks,
+    shuffleQuestions,
+    questions: parsedQuestions,
+  });
 }
 
 // generateAcronym — produces a short uppercase code from a college name.
@@ -600,6 +615,9 @@ async function updateExamMetaByCreator(userId, examIdRaw, body) {
     }
     payload.negativeMarks = marks;
   }
+  if (body?.shuffleQuestions !== undefined) {
+    payload.shuffleQuestions = body.shuffleQuestions === true || body.shuffleQuestions === 'true';
+  }
   const nextStart = payload.startAt !== undefined ? payload.startAt : exam.startAt;
   const nextEnd = payload.endAt !== undefined ? payload.endAt : exam.endAt;
   if (nextStart && nextEnd && nextEnd <= nextStart) {
@@ -664,7 +682,11 @@ async function replaceExamQuestionsByCreator(userId, examIdRaw, body) {
   }
   for (let i = 0; i < questions.length; i++) {
     const q = questions[i];
-    if (!q?.question || !Array.isArray(q.options) || q.options.length < 2 || q.answer == null) {
+    const qType = q.type || 'MCQ';
+    if (!q?.question || q.answer == null) {
+      throw new HttpError(400, `Invalid question at index ${i}`);
+    }
+    if (qType === 'MCQ' && (!Array.isArray(q.options) || q.options.length < 2)) {
       throw new HttpError(400, `Invalid question at index ${i}`);
     }
   }
@@ -699,11 +721,15 @@ async function replaceExamQuestionsByCreator(userId, examIdRaw, body) {
         }
       } else {
         const newQuestion = String(q.question).trim();
-        const newOptions = q.options.map((o) => String(o));
+        const newOptions = q.options?.map((o) => String(o)) ?? [];
+        const newType = ['MCQ', 'FILL_IN_THE_BLANK', 'SUBJECTIVE'].includes(q.type) ? q.type : 'MCQ';
+        const newMarks = Number.isFinite(Number(q.marks)) ? Number(q.marks) : 4;
         
         let changed = false;
         if (ex.question !== newQuestion) changed = true;
         if (ex.answer !== newAnswer) changed = true;
+        if (ex.type !== newType) changed = true;
+        if (ex.marks !== newMarks) changed = true;
         if (ex.options.length !== newOptions.length) changed = true;
         else if (ex.options.some((opt, idx) => opt !== newOptions[idx])) changed = true;
 
@@ -715,6 +741,8 @@ async function replaceExamQuestionsByCreator(userId, examIdRaw, body) {
                 question: newQuestion,
                 options: newOptions,
                 answer: newAnswer,
+                type: newType,
+                marks: newMarks,
               },
             })
           );
@@ -728,8 +756,10 @@ async function replaceExamQuestionsByCreator(userId, examIdRaw, body) {
           data: {
             examId,
             question: String(q.question).trim(),
-            options: q.options.map((o) => String(o)),
+            options: q.options?.map((o) => String(o)) ?? [],
             answer: normalizeAnswer(q.answer),
+            type: ['MCQ', 'FILL_IN_THE_BLANK', 'SUBJECTIVE'].includes(q.type) ? q.type : 'MCQ',
+            marks: Number.isFinite(Number(q.marks)) ? Number(q.marks) : 1,
           },
         })
       );

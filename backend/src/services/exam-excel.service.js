@@ -46,33 +46,54 @@ function parseQuestionsFromRows(rows) {
     const questionRaw = pick(row, ["question", "Question", "QUESTION", "q", "Q"]);
     if (!questionRaw) continue;
 
-    const options = [
+    const typeRaw = pick(row, ["type", "Type", "TYPE", "questionType"]);
+    let qType = 'MCQ';
+    if (typeRaw) {
+      const t = String(typeRaw).toUpperCase().trim();
+      if (t === 'FITB' || t === 'FILL_IN_THE_BLANK') qType = 'FILL_IN_THE_BLANK';
+      else if (t === 'SUBJECTIVE') qType = 'SUBJECTIVE';
+    }
+
+    let options = [
       normalizeCell(pick(row, ["optionA", "OptionA", "A", "a", "option_a", "Option A"])),
       normalizeCell(pick(row, ["optionB", "OptionB", "B", "b", "option_b", "Option B"])),
       normalizeCell(pick(row, ["optionC", "OptionC", "C", "c", "option_c", "Option C"])),
       normalizeCell(pick(row, ["optionD", "OptionD", "D", "d", "option_d", "Option D"])),
     ].filter(Boolean);
 
-    if (options.length < 2) {
-      throw new HttpError(400, `Row ${i + 2}: at least two options are required`);
-    }
-    while (options.length < 4) {
-      options.push(`(Option ${options.length + 1})`);
+    if (qType === 'MCQ') {
+      if (options.length < 2) {
+        throw new HttpError(400, `Row ${i + 2}: at least two options are required for MCQ questions`);
+      }
+      while (options.length < 4) {
+        options.push(`(Option ${options.length + 1})`);
+      }
+    } else {
+      options = [];
     }
 
     const answerRaw = pick(row, ["answer", "Answer", "ANSWER", "correct", "Correct", "correctAnswer"]);
-    const answer = parseAnswer(answerRaw, options);
-    if (!answer) {
-      throw new HttpError(
-        400,
-        `Row ${i + 2}: answer is required and must match A/B/C/D or one option text`
-      );
+    let answer;
+    if (qType === 'MCQ') {
+      answer = parseAnswer(answerRaw, options);
+      if (!answer) {
+        throw new HttpError(
+          400,
+          `Row ${i + 2}: answer is required and must match A/B/C/D or one option text`
+        );
+      }
+    } else {
+      answer = normalizeCell(answerRaw);
+      if (!answer && qType === 'FILL_IN_THE_BLANK') {
+        throw new HttpError(400, `Row ${i + 2}: answer is required for FILL_IN_THE_BLANK`);
+      }
     }
 
     out.push({
       question: normalizeCell(questionRaw),
       options: options.slice(0, 4),
       answer,
+      type: qType
     });
   }
   return out;

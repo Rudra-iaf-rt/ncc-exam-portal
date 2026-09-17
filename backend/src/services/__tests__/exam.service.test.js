@@ -166,6 +166,7 @@ describe("Exam Service Unit Tests", () => {
           title: "NCC C-Certificate Exam 2026",
           duration: 60,
           negativeMarking: false,
+          shuffleQuestions: false,
           createdBy: creatorUserId,
           questions: {
             create: [
@@ -173,6 +174,8 @@ describe("Exam Service Unit Tests", () => {
                 question: "What is the motto of NCC?",
                 options: ["Unity and Discipline", "Service Before Self", "Duty First", "Valour"],
                 answer: "Unity and Discipline",
+                type: "MCQ",
+                marks: 1,
               },
             ],
           },

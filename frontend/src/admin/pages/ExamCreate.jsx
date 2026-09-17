@@ -34,7 +34,8 @@ export default function ExamCreate() {
     duration: 60,
     negativeMarking: false,
     positiveMarks: 4,
-    negativeMarks: 1.0
+    negativeMarks: 1.0,
+    shuffleQuestions: false
   });
 
   // Step 2: Questions (for manual mode)
@@ -109,6 +110,7 @@ export default function ExamCreate() {
         negativeMarking: basicInfo.negativeMarking,
         positiveMarks: basicInfo.positiveMarks,
         negativeMarks: basicInfo.negativeMarks,
+        shuffleQuestions: basicInfo.shuffleQuestions,
         file: excelFile
       });
       toast.success('Exam successfully created from file.');
@@ -131,9 +133,14 @@ export default function ExamCreate() {
     setIsSubmitting(true);
 
     try {
+      const processedQuestions = questions.map(q => ({
+        ...q,
+        options: (q.type === 'FILL_IN_THE_BLANK' || q.type === 'SUBJECTIVE') ? [] : q.options
+      }));
+      
       await examApi.createExam({
         ...basicInfo,
-        questions
+        questions: processedQuestions
       });
       toast.success('Examination successfully created.');
       invalidateCachedResourcePattern('admin-exam-list');
@@ -242,6 +249,18 @@ export default function ExamCreate() {
                 </div>
               </div>
             )}
+            <div className="flex items-center gap-3 pt-4 mt-4 border-t border-stone-deep/50">
+              <input
+                type="checkbox"
+                id="shuffleQuestionsExcel"
+                checked={basicInfo.shuffleQuestions}
+                onChange={(e) => setBasicInfo({ ...basicInfo, shuffleQuestions: e.target.checked })}
+                className="w-4 h-4 text-navy accent-navy bg-white border-stone-deep rounded focus:ring-navy-wash focus:ring-2"
+              />
+              <label htmlFor="shuffleQuestionsExcel" className="font-mono text-[11px] tracking-[0.05em] uppercase text-ink-2 cursor-pointer">
+                Shuffle Question Order Per Cadet
+              </label>
+            </div>
           </div>
 
           <div className="mb-8">
@@ -372,6 +391,18 @@ export default function ExamCreate() {
                     </div>
                   </div>
                 )}
+                <div className="flex items-center gap-3 pt-4 mt-4 border-t border-stone-deep/50">
+                  <input
+                    type="checkbox"
+                    id="shuffleQuestionsManual"
+                    checked={basicInfo.shuffleQuestions}
+                    onChange={(e) => setBasicInfo({ ...basicInfo, shuffleQuestions: e.target.checked })}
+                    className="w-4 h-4 text-navy accent-navy bg-white border-stone-deep rounded focus:ring-navy-wash focus:ring-2"
+                  />
+                  <label htmlFor="shuffleQuestionsManual" className="font-mono text-[11px] tracking-[0.05em] uppercase text-ink-2 cursor-pointer">
+                    Shuffle Question Order Per Cadet
+                  </label>
+                </div>
               </div>
               
               <div className="flex justify-end mt-8 pt-6 border-t border-stone-deep">

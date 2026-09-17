@@ -2,7 +2,7 @@ const { prisma } = require("../lib/prisma");
 const { parsePositiveInt } = require("../utils/validation");
 const { HttpError } = require("../utils/http-error");
 const { cacheGetJson, cacheSetJson } = require("../lib/cache");
-const { normalizeAnswer } = require("./exam-scoring.service");
+const { normalizeAnswer, isAnswerCorrect } = require("./exam-scoring.service");
 
 async function getExamAnalytics(examIdRaw) {
   const examId = parsePositiveInt(examIdRaw, "examId");
@@ -90,10 +90,8 @@ async function getExamAnalytics(examIdRaw) {
       const studentAnswer = answers[String(q.id)];
       if (studentAnswer !== undefined && studentAnswer !== null && studentAnswer !== "") {
         questionStats[q.id].attempts++;
-        const correctAnswer = normalizeAnswer(q.answer);
-        const normalizedStudent = normalizeAnswer(studentAnswer);
 
-        if (normalizedStudent === correctAnswer) {
+        if (isAnswerCorrect(q.type ?? 'MCQ', studentAnswer, q.answer)) {
           questionStats[q.id].correctCount++;
         }
       }

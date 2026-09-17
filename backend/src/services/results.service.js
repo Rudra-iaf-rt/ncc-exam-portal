@@ -422,7 +422,7 @@ async function getReviewForStudent(studentId, examIdRaw) {
       where: { id: examId },
       include: {
         questions: {
-          select: { id: true, question: true, options: true, answer: true, topic: true },
+          select: { id: true, question: true, options: true, answer: true, topic: true, type: true },
           orderBy: { id: "asc" },
         },
       },
@@ -450,7 +450,7 @@ async function getReviewForStudent(studentId, examIdRaw) {
   let correct = 0;
   let skipped = 0;
 
-  const { normalizeAnswer } = require("./exam-scoring.service");
+  const { normalizeAnswer, isAnswerCorrect } = require("./exam-scoring.service");
 
   const questions = exam.questions.map((q) => {
     const studentAnswer = studentAnswers[String(q.id)] ?? null;
@@ -458,7 +458,7 @@ async function getReviewForStudent(studentId, examIdRaw) {
     const normalizedStudent = studentAnswer ? normalizeAnswer(studentAnswer) : null;
 
     const isSkipped = normalizedStudent === null || normalizedStudent === "";
-    const isCorrect = !isSkipped && normalizedStudent === correctAnswer;
+    const isCorrect = isAnswerCorrect(q.type ?? 'MCQ', studentAnswer, q.answer);
 
     if (isCorrect) correct++;
     if (isSkipped) skipped++;
@@ -466,6 +466,7 @@ async function getReviewForStudent(studentId, examIdRaw) {
     return {
       questionId: q.id,
       question: q.question,
+      type: q.type ?? 'MCQ',
       topic: q.topic || "General",
       options: q.options,
       correctAnswer,
@@ -694,7 +695,7 @@ async function getReviewForAdmin(studentId, examIdRaw) {
       where: { id: examId },
       include: {
         questions: {
-          select: { id: true, question: true, options: true, answer: true, topic: true },
+          select: { id: true, question: true, options: true, answer: true, topic: true, type: true },
           orderBy: { id: "asc" },
         },
       },
@@ -718,7 +719,7 @@ async function getReviewForAdmin(studentId, examIdRaw) {
   let correct = 0;
   let skipped = 0;
 
-  const { normalizeAnswer } = require("./exam-scoring.service");
+  const { normalizeAnswer, isAnswerCorrect } = require("./exam-scoring.service");
 
   const questions = exam.questions.map((q) => {
     const studentAnswer = studentAnswers[String(q.id)] ?? null;
@@ -726,7 +727,7 @@ async function getReviewForAdmin(studentId, examIdRaw) {
     const normalizedStudent = studentAnswer ? normalizeAnswer(studentAnswer) : null;
 
     const isSkipped = normalizedStudent === null || normalizedStudent === "";
-    const isCorrect = !isSkipped && normalizedStudent === correctAnswer;
+    const isCorrect = isAnswerCorrect(q.type ?? 'MCQ', studentAnswer, q.answer);
 
     if (isCorrect) correct++;
     if (isSkipped) skipped++;
@@ -734,6 +735,7 @@ async function getReviewForAdmin(studentId, examIdRaw) {
     return {
       questionId: q.id,
       question: q.question,
+      type: q.type ?? 'MCQ',
       topic: q.topic || "General",
       options: q.options,
       correctAnswer,

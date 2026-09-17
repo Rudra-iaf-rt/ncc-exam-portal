@@ -17,12 +17,13 @@ export const examApi = {
   getAssigned: () => apiClient.get('/exams').then(res => res.data.exams),
   getExamDetails: (id) => apiClient.get(`/staff/exams/${id}`),
   createExam: (data) => apiClient.post('/exams/create', data),
-  createExamFromExcel: ({ title, duration, negativeMarking, negativeMarks, file }) => {
+  createExamFromExcel: ({ title, duration, negativeMarking, negativeMarks, shuffleQuestions, file }) => {
     const form = new FormData();
     form.append('title', String(title ?? ''));
     form.append('duration', String(duration ?? ''));
     if (negativeMarking !== undefined) form.append('negativeMarking', String(negativeMarking));
     if (negativeMarks !== undefined) form.append('negativeMarks', String(negativeMarks));
+    if (shuffleQuestions !== undefined) form.append('shuffleQuestions', String(shuffleQuestions));
     form.append('file', file);
     return apiClient.post('/exams/create-from-excel', form, {
       headers: { 'Content-Type': 'multipart/form-data' },
