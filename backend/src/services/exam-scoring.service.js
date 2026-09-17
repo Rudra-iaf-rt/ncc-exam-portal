@@ -1,24 +1,12 @@
-/**
- * Pure exam scoring helpers (no I/O). Used when submitting an attempt.
- */
-
 function normalizeAnswer(value) {
   return String(value ?? "").trim();
 }
 
-/**
- * Single source of truth for answer comparison.
- * Used by scoring, review, and analytics — never diverges.
- *
- * @param {'MCQ'|'FILL_IN_THE_BLANK'|'SUBJECTIVE'} questionType
- * @param {unknown} studentAnswer - Raw value from the answers JSONB blob
- * @param {unknown} correctAnswer - Raw value from the question record
- * @returns {boolean}
- */
+
 function isAnswerCorrect(questionType, studentAnswer, correctAnswer) {
   const s = normalizeAnswer(studentAnswer);
   const c = normalizeAnswer(correctAnswer);
-  if (!s) return false; // blank / skipped
+  if (!s) return false; 
   return questionType === 'FILL_IN_THE_BLANK'
     ? s.toLowerCase() === c.toLowerCase()
     : s === c; // MCQ: exact match after trim

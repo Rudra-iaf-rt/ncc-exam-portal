@@ -4,7 +4,6 @@ import { toast } from 'sonner';
 import { useParams, useNavigate } from 'react-router-dom';
 import { examApi, authApi } from '../../api';
 import { setToken, setRefreshToken, saveUser } from '../../lib/auth';
-import { seededShuffle } from '../../lib/randomization';
 import { useExamAutoSave } from '../hooks/useExamAutoSave';
 import { 
   Clock, 
@@ -143,17 +142,7 @@ const ExamAttempt = () => {
       if (data) {
         // Create deterministic seed for this user and exam combination
         const sessionSeed = `${userKey}-${data.exam.id}`;
-        
-        // Shuffle questions deterministically
-        const shuffledQuestions = seededShuffle(data.exam.questions || [], sessionSeed);
-        
-        // Shuffle options deterministically
-        const randomizedQuestions = shuffledQuestions.map(q => ({
-          ...q,
-          options: seededShuffle(q.options || [], `${sessionSeed}-${q.id}`)
-        }));
-
-        setExam({ ...data.exam, questions: randomizedQuestions });
+        setExam({ ...data.exam, questions: data.exam.questions || [] });
         setProctoringExamId(Number(id));
         setTimeLeft(data.remainingSeconds ?? data.exam.duration * 60);
 

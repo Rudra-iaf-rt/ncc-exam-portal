@@ -17997,3 +17997,70 @@ Unknown argument `shuffleQuestions`. Available options are marked with ?.
     at Object.getReviewForStudent (C:\College Projects\ncc-exam-portal\backend\src\services\results.service.js:403:11)
     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
     at async getReview (C:\College Projects\ncc-exam-portal\backend\src\controllers\results.controller.js:58:16)
+[2026-09-17T10:35:04.852Z] STATUS: 403 - HttpError: Results are not published yet
+    at Object.getReviewForStudent (C:\College Projects\ncc-exam-portal\backend\src\services\results.service.js:440:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async getReview (C:\College Projects\ncc-exam-portal\backend\src\controllers\results.controller.js:58:16)
+[2026-09-17T10:35:33.219Z] STATUS: 401 - HttpError: Invalid credentials
+    at Object.loginStudent (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:111:11)
+    at async loginStudent (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:52:19)
+[2026-09-17T10:42:17.537Z] STATUS: 409 - HttpError: Attempt already active in another session
+    at Object.startAttempt (C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:968:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async startAttempt (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:88:18)
+[2026-09-17T10:42:17.553Z] STATUS: 409 - HttpError: Attempt already active in another session
+    at Object.startAttempt (C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:968:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async startAttempt (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:88:18)
+[2026-09-17T10:44:16.188Z] STATUS: 409 - HttpError: This attempt is already submitted
+    at Object.syncAttemptAnswers (C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:1159:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async syncAnswers (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:98:19)
+[2026-09-17T10:44:54.424Z] STATUS: 400 - PrismaClientKnownRequestError: 
+Invalid `prisma.examHeartbeat.upsert()` invocation:
+
+
+Foreign key constraint violated on the constraint: `ExamHeartbeat_examId_fkey`
+    at zr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:8286)
+    at zr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at zr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Array.$allOperations (C:\College Projects\ncc-exam-portal\backend\src\lib\prisma.js:86:24)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6862)
+    at async Object.heartbeat (C:\College Projects\ncc-exam-portal\backend\src\services\anti-cheat.service.js:159:19)
+    at async heartbeat (C:\College Projects\ncc-exam-portal\backend\src\controllers\anti-cheat.controller.js:16:19)
+[2026-09-17T10:45:24.206Z] STATUS: 400 - PrismaClientKnownRequestError: 
+Invalid `prisma.examHeartbeat.upsert()` invocation:
+
+
+Foreign key constraint violated on the constraint: `ExamHeartbeat_examId_fkey`
+    at zr.handleRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:8286)
+    at zr.handleAndLogRequestError (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7581)
+    at zr.request (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:65:7288)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Array.$allOperations (C:\College Projects\ncc-exam-portal\backend\src\lib\prisma.js:86:24)
+    at async a (C:\College Projects\ncc-exam-portal\backend\node_modules\@prisma\client\runtime\client.js:75:6862)
+    at async Object.heartbeat (C:\College Projects\ncc-exam-portal\backend\src\services\anti-cheat.service.js:159:19)
+    at async heartbeat (C:\College Projects\ncc-exam-portal\backend\src\controllers\anti-cheat.controller.js:16:19)
+[2026-09-17T10:45:49.071Z] STATUS: 404 - HttpError: Exam not found
+    at Object.startAttempt (C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:935:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async startAttempt (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:88:18)
+[2026-09-17T10:45:49.093Z] STATUS: 404 - HttpError: Exam not found
+    at Object.startAttempt (C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:935:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async startAttempt (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:88:18)
+[2026-09-17T10:45:50.201Z] STATUS: 400 - HttpError: Start the exam before saving answers
+    at getOrCreateAttempt (C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:1398:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Object.syncAttemptAnswers (C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:1157:19)
+    at async syncAnswers (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:98:19)
+[2026-09-17T10:45:53.409Z] STATUS: 400 - HttpError: Start the exam before saving answers
+    at getOrCreateAttempt (C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:1398:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async Object.syncAttemptAnswers (C:\College Projects\ncc-exam-portal\backend\src\services\exam.service.js:1157:19)
+    at async syncAnswers (C:\College Projects\ncc-exam-portal\backend\src\controllers\exams.controller.js:98:19)
+[2026-09-17T10:46:33.913Z] STATUS: 403 - HttpError: Results are not published yet
+    at Object.getReviewForStudent (C:\College Projects\ncc-exam-portal\backend\src\services\results.service.js:440:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async getReview (C:\College Projects\ncc-exam-portal\backend\src\controllers\results.controller.js:58:16)
