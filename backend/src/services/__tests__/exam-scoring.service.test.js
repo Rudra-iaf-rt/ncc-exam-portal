@@ -16,6 +16,7 @@ describe('exam-scoring.service', () => {
         id: 1,
         title: 'Test Exam',
         duration: 60,
+        shuffleQuestions: true,
         questions: [
           { id: 101, question: 'Q1', type: 'MCQ', options: ['A', 'B', 'C', 'D'], answer: 'A' }
         ]
@@ -32,6 +33,7 @@ describe('exam-scoring.service', () => {
       const exam = {
         id: 1,
         title: 'Test Exam',
+        shuffleQuestions: true,
         questions: [
           { id: 101, question: 'Q1', type: 'MCQ', options: ['A', 'B', 'C', 'D'], answer: 'A' }
         ]

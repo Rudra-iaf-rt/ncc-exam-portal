@@ -55,7 +55,7 @@ function stripAnswersFromExam(exam, userId) {
 
   let questions = exam.questions.map((q) => {
     const shuffledOptions = 
-      q.type === 'SUBJECTIVE' || !q.options?.length || !userId
+      !exam.shuffleQuestions || q.type === 'SUBJECTIVE' || !q.options?.length || !userId
         ? q.options
         : seededShuffle(q.options, hashCode(`${sessionSeed}-${q.id}`));
 
