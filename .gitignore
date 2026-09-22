@@ -60,3 +60,5 @@ templates/
 graphify-out
 adr/
 coverage/
+FITB.md
+db.md

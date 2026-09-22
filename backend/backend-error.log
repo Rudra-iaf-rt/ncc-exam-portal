@@ -18064,3 +18064,7 @@ Foreign key constraint violated on the constraint: `ExamHeartbeat_examId_fkey`
     at Object.getReviewForStudent (C:\College Projects\ncc-exam-portal\backend\src\services\results.service.js:440:11)
     at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
     at async getReview (C:\College Projects\ncc-exam-portal\backend\src\controllers\results.controller.js:58:16)
+[2026-09-17T11:06:40.204Z] STATUS: 401 - HttpError: Invalid refresh token
+    at Object.refreshSessionWithToken (C:\College Projects\ncc-exam-portal\backend\src\services\auth.service.js:208:11)
+    at process.processTicksAndRejections (node:internal/process/task_queues:105:5)
+    at async refreshWithToken (C:\College Projects\ncc-exam-portal\backend\src\controllers\auth.controller.js:104:19)
